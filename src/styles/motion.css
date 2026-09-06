@@ -1,0 +1,65 @@
+.motion-page {
+  min-width: 0;
+  animation: aevic-public-enter 180ms var(--ease-enter) both;
+}
+
+.motion-page--team,
+.motion-page--admin,
+.motion-page--account { animation-name: aevic-product-enter; animation-duration: 200ms; }
+.motion-page--competition { animation-name: aevic-competition-enter; }
+.motion-page--auth { animation-name: aevic-auth-enter; }
+
+.motion-page--editorial { --page-family-accent: var(--color-brand-primary); }
+/* The landing hero is immediately readable; no entrance opacity gates LCP. */
+.motion-page[data-route-key='/'] { animation: none; }
+.motion-page--competition { --page-family-accent: var(--color-medal-gold); }
+.motion-page--team { --page-family-accent: var(--color-info); }
+.motion-page--admin { --page-family-accent: var(--color-text-soft); }
+.motion-page--auth { --page-family-accent: var(--color-brand-primary); }
+.motion-page--account { --page-family-accent: var(--color-info); }
+
+/* Public-only reveal grammar. Content is visible by default and is hidden only
+   after the observer is active, keeping no-JS and reduced-motion paths safe. */
+.public-reveal-ready [data-reveal] {
+  opacity: 0;
+  transition:
+    opacity var(--motion-reveal) var(--ease-enter),
+    transform var(--motion-reveal) var(--ease-enter),
+    filter var(--motion-reveal) var(--ease-enter),
+    clip-path calc(var(--motion-reveal) + 80ms) var(--ease-enter);
+}
+.public-reveal-ready [data-reveal-variant='fade-up'] { transform: translate3d(0, var(--motion-distance-md), 0); }
+.public-reveal-ready [data-reveal-variant='scale-in'] { filter: blur(4px); transform: scale(.985); }
+.public-reveal-ready [data-reveal-variant='mask-reveal'] { clip-path: inset(0 0 16% 0); transform: translate3d(0, var(--motion-distance-sm), 0); }
+.public-reveal-ready [data-reveal].is-revealed {
+  opacity: 1;
+  filter: none;
+  clip-path: inset(0);
+  transform: none;
+}
+.public-reveal-ready .home-team-stage > * {
+  transition: opacity var(--motion-normal) var(--ease-enter), transform var(--motion-normal) var(--ease-enter);
+}
+.public-reveal-ready .home-teams-section:not(.is-revealed) .home-team-stage > * { opacity: 0; transform: translate3d(0, .5rem, 0); }
+.public-reveal-ready .home-teams-section.is-revealed .home-team-stage > *:nth-child(2) { transition-delay: 45ms; }
+.public-reveal-ready .home-teams-section.is-revealed .home-team-stage > *:nth-child(3) { transition-delay: 90ms; }
+.public-reveal-ready .home-teams-section.is-revealed .home-team-stage > *:nth-child(4) { transition-delay: 135ms; }
+.public-reveal-ready .home-teams-section.is-revealed .home-team-stage > *:nth-child(5) { transition-delay: 180ms; }
+
+@keyframes aevic-public-enter { from { opacity: .01; } to { opacity: 1; } }
+@keyframes aevic-competition-enter { from { opacity: .01; transform: translate3d(0, 4px, 0); } to { opacity: 1; transform: none; } }
+@keyframes aevic-product-enter { from { opacity: .01; transform: translate3d(0, 8px, 0); } to { opacity: 1; transform: none; } }
+@keyframes aevic-auth-enter { from { opacity: .01; transform: translate3d(0, 6px, 0); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-page { animation: none; }
+  .public-nav-indicator { transition: none; }
+  .public-reveal-ready [data-reveal],
+  .public-reveal-ready .home-team-stage > * {
+    opacity: 1;
+    filter: none;
+    clip-path: none;
+    transform: none;
+    transition: none;
+  }
+}

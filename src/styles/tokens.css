@@ -1,0 +1,220 @@
+:root {
+  --color-brand-primary: #f3c450;
+  --color-brand-primary-hover: #ffd66e;
+  --color-brand-primary-pressed: #d9a938;
+  --color-brand-secondary: #6a1b9a;
+  --color-brand-secondary-soft: #34104d;
+  --color-danger: #e63946;
+  --color-text-danger: #ff7c86;
+  --color-danger-soft: #351116;
+  --color-warning: #ff8c00;
+  --color-warning-soft: #3a2208;
+  --color-success: #58bd79;
+  --color-success-soft: #112d1a;
+  --color-info: #8b78c7;
+  --color-bg-deep: #070709;
+  --color-bg-ink: #09090c;
+  --color-bg-primary: #0d0d0d;
+  --color-bg-secondary: #131418;
+  --color-bg-elevated: #191a20;
+  --color-bg-strong: #25272e;
+  --color-surface-editorial: #171512;
+  --color-surface-atmosphere: #120d16;
+  --color-gold-muted: #b89447;
+  --color-energy-rare: #c66a24;
+  --color-surface-muted: #202127;
+  --color-surface-hover: #272931;
+  --color-text-primary: #f5f4f0;
+  --color-text-muted: #b6b3ac;
+  --color-text-soft: #817e78;
+  --color-text-inverse: #12110d;
+  --color-border: #282a31;
+  --color-border-strong: #3b3e48;
+  --color-border-hairline: #202127;
+  --color-overlay: #070709d9;
+  --color-white-outline: #ffffff1a;
+  --color-black-outline: #0000001a;
+
+  --color-medal-bronze: #c99a52;
+  --color-medal-bronze-surface: #201a15;
+  --color-medal-silver: #c8cbd2;
+  --color-medal-silver-surface: #1b1d22;
+  --color-medal-gold: #f3c450;
+  --color-medal-gold-surface: #211b0c;
+  --color-medal-phoenix-surface: #35104d;
+  --color-medal-phoenix-depth: #21130d;
+  --color-medal-legacy: #f5e3a4;
+  --color-medal-legacy-surface: #25152e;
+
+  /* 946 Latin Wide 4 is the licensed target face. Orbitron remains the
+     explicit project fallback until that font asset is supplied. */
+  --font-display: '946 Latin Wide 4', 'Orbitron', sans-serif;
+  --font-heading: var(--font-display);
+  --font-competition: 'Orbitron', sans-serif;
+  --font-public-display: 'Oswald', 'Arial Narrow', sans-serif;
+  --font-ui: 'Raleway', sans-serif;
+  --font-body: var(--font-ui);
+
+  --bg-page: var(--color-bg-primary);
+  --surface-base: var(--color-bg-primary);
+  --surface-1: var(--color-bg-secondary);
+  --surface-2: var(--color-bg-elevated);
+  --surface-3: var(--color-surface-muted);
+  --surface-interactive: var(--color-bg-elevated);
+  --surface-hover: var(--color-surface-hover);
+  --surface-active: var(--color-bg-strong);
+  --surface-competition: var(--color-bg-ink);
+  --surface-command: var(--color-bg-deep);
+  --surface-profile: var(--color-surface-editorial);
+  --border-subtle: var(--color-border);
+  --border-default: var(--color-border-strong);
+  --border-strong: #555964;
+  --border-hairline: var(--color-border-hairline);
+  --gold-primary: var(--color-brand-primary);
+  --gold-hover: var(--color-brand-primary-hover);
+  --purple-atmospheric: var(--color-brand-secondary);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-muted);
+  --text-muted: var(--color-text-soft);
+  --text-disabled: #696b72;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: clamp(1.35rem, 2vw, 1.7rem);
+  --text-xl: clamp(1.7rem, 3vw, 2.5rem);
+  --text-2xl: clamp(2.35rem, 5vw, 4.5rem);
+  --text-3xl: clamp(3rem, 7vw, 5.8rem);
+
+  --space-2xs: 0.375rem;
+  --space-xs: 0.625rem;
+  --space-sm: 0.875rem;
+  --space-md: 1.25rem;
+  --space-lg: 1.75rem;
+  --space-xl: 2.5rem;
+  --space-2xl: clamp(3.25rem, 6vw, 5.5rem);
+  --space-3xl: clamp(4.5rem, 9vw, 8rem);
+  --section-compact: clamp(2.25rem, 4vw, 3.5rem);
+  --section-normal: clamp(3.5rem, 6vw, 5.5rem);
+  --section-editorial: clamp(4.5rem, 9vw, 8rem);
+  --section-hero: clamp(5.5rem, 12vw, 10rem);
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.375rem;
+  --radius-pill: 999px;
+  --radius-frame: var(--radius-xs);
+
+  --shadow-raised: 0 16px 38px rgba(0, 0, 0, 0.24), 0 2px 7px rgba(0, 0, 0, 0.14);
+  --shadow-overlay: 0 28px 80px rgba(0, 0, 0, 0.48), 0 4px 14px rgba(0, 0, 0, 0.3);
+  --shadow-focus: 0 0 0 3px rgba(243, 196, 80, 0.24);
+
+  /* Material is reserved for floating or sticky controls. Content surfaces stay opaque. */
+  --material-navigation: rgba(38, 37, 42, 0.78);
+  --material-navigation-edge: rgba(255, 255, 255, 0.06);
+  --material-navigation-active: rgba(8, 8, 10, 0.9);
+  --material-navigation-control: rgba(29, 28, 33, 0.72);
+  --material-navigation-control-hover: rgba(42, 41, 47, 0.82);
+  --material-navigation-highlight: rgba(255, 255, 255, 0.055);
+  --material-navigation-shadow: 0 14px 34px rgba(0, 0, 0, 0.28), inset 0 1px var(--material-navigation-highlight);
+  --navigation-foreground: #f4f2ed;
+  --navigation-foreground-muted: #c8c6c1;
+  --navigation-accent: var(--color-brand-primary);
+  --navigation-depth: color-mix(in srgb, var(--color-brand-secondary) 30%, transparent);
+  --material-floating: color-mix(in srgb, var(--surface-command) 96%, transparent);
+  --material-sticky: color-mix(in srgb, var(--color-bg-primary) 92%, transparent);
+  --material-auth: rgba(13, 12, 18, 0.88);
+  --material-blur-navigation: blur(16px) saturate(1.08);
+  --material-blur-floating: blur(16px);
+  --material-blur-sticky: blur(18px);
+
+  /* Shared motion language: quick feedback, deliberate navigation, calm pages. */
+  --motion-fast: 140ms;
+  --motion-press: 90ms;
+  --motion-normal: 220ms;
+  --motion-slow: 320ms;
+  --motion-route-enter: 200ms;
+  --motion-nav: 240ms;
+  --motion-reveal: 320ms;
+  --motion-distance-sm: 8px;
+  --motion-distance-md: 12px;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-nav: cubic-bezier(0.22, 1, 0.36, 1);
+  --press-scale: .96;
+
+  /* Backward-compatible aliases keep existing components on the same scale. */
+  --duration-fast: var(--motion-fast);
+  --duration-base: var(--motion-normal);
+  --duration-slow: var(--motion-slow);
+  --ease-out: var(--ease-standard);
+
+  --z-header: 30;
+  --z-popover: 50;
+  --z-drawer: 60;
+  --z-modal: 80;
+  --z-toast: 100;
+
+  --content-max: 80rem;
+  --content-wide: 88rem;
+  --content-readable: 70ch;
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --header-height: 4.75rem;
+  --sidebar-width: 17.5rem;
+
+  /* Team workspace: semantic surfaces and component decisions. */
+  --team-workspace: #111012;
+  --team-chrome: #0b0a0c;
+  --team-topbar: #131215;
+  --team-surface-primary: #18171a;
+  --team-surface-secondary: #1e1c20;
+  --team-surface-raised: #262329;
+  --team-surface-inset: #0e0d0f;
+  --team-surface-hover: #2b272e;
+  --team-border-subtle: #2b282e;
+  --team-border-default: #3a353e;
+  --team-text-secondary: #c1bdc4;
+  --team-text-muted: #8f8993;
+  --team-text-navigation: #aaa5ad;
+  --team-accent-secondary: #b29bd1;
+  --team-accent-wash: #2b2313;
+  --team-purple-wash: #211725;
+  --team-border-accent: #5e4f2d;
+  --team-border-hover: #554f59;
+  --team-card-radius: 0.875rem;
+  --team-control-radius: 0.625rem;
+  --team-shell-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+  --team-selection-edge: color-mix(in srgb, var(--color-medal-silver) 42%, transparent);
+  --team-selection-highlight: rgba(255, 255, 255, .055);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --material-navigation: #242329;
+    --material-navigation-active: #0b0b0d;
+    --material-navigation-control: #1d1c21;
+    --material-navigation-control-hover: #2a292f;
+    --material-navigation-highlight: rgba(255, 255, 255, 0.04);
+    --material-floating: var(--color-bg-deep);
+    --material-sticky: var(--color-bg-primary);
+    --material-auth: var(--color-bg-secondary);
+    --material-blur-navigation: none;
+    --material-blur-floating: none;
+    --material-blur-sticky: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-muted: #dedbd3;
+    --color-text-soft: #b9b6ae;
+    --color-border: #555861;
+    --color-border-strong: #777b86;
+    --color-border-hairline: #4a4d55;
+    --color-white-outline: #ffffff42;
+    --shadow-focus: 0 0 0 4px rgba(243, 196, 80, 0.42);
+  }
+}

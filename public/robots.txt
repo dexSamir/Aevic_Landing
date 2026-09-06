@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /team/
+Disallow: /account/
+Sitemap: https://aevicesports.com/sitemap.xml

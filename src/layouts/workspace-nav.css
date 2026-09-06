@@ -1,0 +1,16 @@
+/* Shared navigation base. Host-specific Team theme stays in team-workspace.css. */
+.side-nav { min-height: 0; display: grid; gap: 0.18rem; overflow-y: auto; padding-right: .2rem; scrollbar-width: thin; scrollbar-color: var(--border-default) transparent; }
+.side-nav a { min-height: 44px; display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: var(--space-xs); padding: 0.65rem 0.75rem; color: var(--color-text-muted); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 600; }
+.side-nav a:hover { color: var(--color-text-primary); background: var(--color-bg-secondary); }
+.side-nav a.active { color: var(--color-text-inverse); background: var(--color-brand-primary); }
+.side-nav a b { min-width: 20px; padding: 0.12rem 0.35rem; color: var(--color-text-inverse); background: var(--color-brand-primary); border-radius: var(--radius-pill); text-align: center; font-size: 0.67rem; }
+.side-nav a.active b { color: var(--color-brand-primary); background: var(--color-text-inverse); }
+.side-nav { overflow-y: auto; scrollbar-width: thin; }
+.side-nav__section { display: grid; min-width: 0; }
+.side-nav__group { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin: .85rem 0 .25rem; padding: .3rem .75rem; background: none; border: 0; color: var(--color-text-soft); font-size: .66rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; border-radius: var(--radius-sm); transition: color .2s var(--ease-standard, ease); }
+.side-nav__group:hover { color: var(--color-text-primary); }
+.side-nav__group-chevron { transition: transform .2s var(--ease-standard, ease); flex: 0 0 auto; }
+.side-nav__group-chevron.is-open { transform: rotate(180deg); }
+.side-nav__group-items { display: grid; gap: .18rem; animation: side-nav-group-open .2s var(--ease-standard, ease) both; }
+@keyframes side-nav-group-open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.side-nav__section:first-child .side-nav__group { margin-top: 0; }

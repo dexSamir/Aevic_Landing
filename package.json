@@ -1,0 +1,48 @@
+{
+  "name": "aevic-landing",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "prebuild": "node scripts/generate-sitemap.mjs",
+    "postbuild": "node scripts/prerender-public.mjs",
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "tsc -b --pretty false",
+    "test": "npm run test:domain && npm run test:component",
+    "test:domain": "tsc src/utils/wrapped.ts src/utils/competitionAnalytics.ts src/utils/registration.ts src/utils/calendar.ts src/utils/routeMetadata.ts src/utils/routes.ts src/utils/resultBreakdown.ts src/utils/tournamentJoin.ts src/utils/lifecycle.ts src/types/domain.ts --outDir .test-build --module ES2022 --moduleResolution Bundler --target ES2022 --skipLibCheck && node --experimental-specifier-resolution=node --test tests/*.test.mjs",
+    "test:component": "vitest run",
+    "test:e2e": "playwright test",
+    "package:check": "node scripts/package-release.mjs --check",
+    "package:release": "node scripts/package-release.mjs"
+  },
+  "dependencies": {
+    "@fontsource/orbitron": "^5.3.0",
+    "@fontsource/oswald": "^5.3.0",
+    "@fontsource/raleway": "^5.3.0",
+    "@types/qrcode": "^1.5.6",
+    "html-to-image": "^1.11.13",
+    "lucide-react": "^1.28.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.18.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.4",
+    "@types/react": "^19.1.3",
+    "@types/react-dom": "^19.1.4",
+    "@vitejs/plugin-react": "^4.4.1",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.7"
+  }
+}
