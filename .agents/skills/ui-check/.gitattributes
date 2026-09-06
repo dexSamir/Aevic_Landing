@@ -1,0 +1,4 @@
+# Keep LF endings everywhere so shebang scripts and generated HTML behave
+# identically on macOS, Linux, and Windows checkouts.
+* text=auto eol=lf
+*.png binary

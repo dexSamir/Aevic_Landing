@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DEMO-001 · disabled primary button affordance A/B</title>
+<style>
+  /* Tokens copied verbatim from the audited app (app/index.html) */
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #1c2430; --muted: #6b7480;
+    --line: #e3e6ea; --accent: #3056d3; --accent-ink: #ffffff; --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 -apple-system, "Segoe UI", sans-serif; padding: 28px; }
+  h1 { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .variant-tag { display: inline-block; margin-left: 8px; padding: 1px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--accent); font-size: 12px; }
+  .btn { padding: 8px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--text); cursor: pointer; font: inherit; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  /* Variant B: proposed disabled affordance, existing tokens only */
+  body[data-variant="b"] .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .newtask { display: flex; gap: 8px; max-width: 560px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .newtask input { flex: 1; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font: inherit; }
+  .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<h1>New-task action row (mock data)<span class="variant-tag" id="tag"></span></h1>
+<div class="newtask">
+  <input placeholder="Describe a task to add it" aria-label="New task">
+  <button class="btn primary" disabled>Add task</button>
+  <button class="btn primary">Import</button>
+</div>
+<p class="note">"Add task" is disabled (the real initial state before typing); "Import" is enabled. Compare how distinguishable they are.</p>
+<script>
+  const variant = new URLSearchParams(location.search).get('variant') === 'b' ? 'b' : 'a';
+  document.body.dataset.variant = variant;
+  document.getElementById('tag').textContent = variant === 'b' ? 'B · proposed (dim disabled buttons)' : 'A · current (no disabled affordance)';
+</script>
+</body>
+</html>

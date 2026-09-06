@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI Alignment Audit"
+  short_description: "Cross-platform UI audit with evidence and approvals"
+  default_prompt: "Use $ui-check to audit this project across supported platforms and generate evidence-backed A/B acceptance demos."

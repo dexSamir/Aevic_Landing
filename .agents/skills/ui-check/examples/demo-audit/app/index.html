@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taskboard — demo app under audit</title>
+<style>
+  /* Design tokens of the fictional project */
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #1c2430; --muted: #6b7480;
+    --line: #e3e6ea; --accent: #3056d3; --accent-ink: #ffffff;
+    --ok: #1a7f5c; --warn: #b3720a; --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 -apple-system, "Segoe UI", sans-serif; }
+  .app { max-width: 860px; margin: 0 auto; padding: 28px 20px; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  h1 { margin: 0; font-size: 20px; letter-spacing: -.01em; }
+  .btn { padding: 8px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--text); cursor: pointer; font: inherit; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  /* NOTE: no :disabled styling — this is finding EDGE-001 in the example audit */
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .col { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+  .col h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; background: var(--panel); }
+  .card:last-child { margin-bottom: 0; }
+  .card .title { font-weight: 600; }
+  .card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--line); color: var(--muted); }
+  .tag.done { color: var(--ok); border-color: var(--ok); }
+  /* SPEC-001 in the example audit: hard-coded hex instead of var(--warn) */
+  .tag.due { color: #c9a227; border-color: #c9a227; }
+  .newtask { display: flex; gap: 8px; margin-top: 16px; }
+  .newtask input { flex: 1; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font: inherit; background: var(--panel); color: var(--text); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Taskboard</h1>
+    <button class="btn">Filter</button>
+  </header>
+  <div class="board">
+    <section class="col">
+      <h2>To do</h2>
+      <div class="card"><div class="title">Write release notes</div><div class="meta"><span class="tag due">due Fri</span></div></div>
+      <div class="card"><div class="title">Fix login redirect</div><div class="meta"><span class="tag">bug</span></div></div>
+    </section>
+    <section class="col">
+      <h2>In progress</h2>
+      <div class="card"><div class="title">Refactor settings page</div><div class="meta"><span class="tag">frontend</span></div></div>
+    </section>
+    <section class="col">
+      <h2>Done</h2>
+      <div class="card"><div class="title">Upgrade CI runners</div><div class="meta"><span class="tag done">shipped</span></div></div>
+    </section>
+  </div>
+  <div class="newtask">
+    <input placeholder="Describe a task to add it" aria-label="New task">
+    <button class="btn primary" disabled>Add task</button>
+    <button class="btn primary">Import</button>
+  </div>
+</div>
+</body>
+</html>

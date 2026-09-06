@@ -1,0 +1,172 @@
+{
+  "schema_version": "1.0",
+  "audit_id": "ui-demo-taskboard",
+  "title": "UI Audit Acceptance · Taskboard (example)",
+  "subtitle": "Bundled example audit — open app/index.html to see the audited page",
+  "scope": {
+    "request": "Example: audit the Taskboard demo app's main board",
+    "tier": "QUICK",
+    "platforms": ["web"],
+    "surfaces": ["desktop"],
+    "inferred": [],
+    "included": ["Main board"],
+    "excluded": [],
+    "blocked": []
+  },
+  "baseline": {
+    "mode": "INFERRED",
+    "sources": [
+      {"path": "app/index.html", "kind": "stylesheet", "authority": "primary", "evidence_ids": ["EVIDENCE-002"]}
+    ],
+    "references": [
+      {"baseline_id": "BASELINE-001", "description": "All semantic colors come from :root tokens (--accent/--ok/--warn/--muted); components never hard-code hex values", "applicability": "all components", "confidence": "medium", "evidence_ids": ["EVIDENCE-002"], "source_screens": ["SCREEN-001"]}
+    ],
+    "unknowns": ["Single-page demo app; baseline inferred from its only stylesheet"]
+  },
+  "coverage_plan": {
+    "critical_screens": ["SCREEN-001"],
+    "default_env_ids": ["ENV-001"],
+    "contrast_env_ids": [],
+    "collapsed": [],
+    "notes": "Example audit: one screen, one environment (QUICK tier)"
+  },
+  "environments": [
+    {
+      "env_id": "ENV-001",
+      "platform": "web",
+      "surface": "desktop",
+      "browser_or_runtime": "Chromium (Playwright)",
+      "viewport_px": {"width": 1100, "height": 720},
+      "orientation": "landscape",
+      "window_mode": "normal",
+      "browser_zoom": 1,
+      "os_scale": 1,
+      "dpr": 1,
+      "theme": "light",
+      "theme_source": "project-fixed",
+      "locale": "en-US",
+      "status": "READY"
+    }
+  ],
+  "screens": [
+    {"screen_id": "SCREEN-001", "label": "Main board", "entry": "app/index.html", "code_refs": ["app/index.html:38"]}
+  ],
+  "states": [
+    {"state_id": "STATE-001", "screen_id": "SCREEN-001", "label": "Initial load (empty new-task input)", "entry": "open app/index.html", "preconditions": "none", "fixture": "static demo data"}
+  ],
+  "evidence": [
+    {
+      "evidence_id": "EVIDENCE-001",
+      "screen_id": "SCREEN-001",
+      "state_id": "STATE-001",
+      "env_id": "ENV-001",
+      "kind": "screenshot",
+      "status": "PASS",
+      "path": "screens/SCREEN-001__STATE-001__ENV-001.png",
+      "tool": "browser",
+      "complete": true,
+      "captured_at": "2026-07-25T06:12:00Z",
+      "steps": ["open app/index.html", "full-page screenshot"],
+      "fixture": "static demo data",
+      "code_refs": ["app/index.html:52-56"],
+      "notes": "Initial state. 'Add task' is disabled but visually identical to the enabled 'Import' button"
+    },
+    {
+      "evidence_id": "EVIDENCE-002",
+      "screen_id": "SCREEN-001",
+      "state_id": "STATE-001",
+      "env_id": "ENV-001",
+      "kind": "code",
+      "status": "PASS",
+      "path": "",
+      "tool": "code-inspection",
+      "complete": true,
+      "captured_at": "2026-07-25T06:12:00Z",
+      "steps": ["inspect stylesheet tokens and component rules"],
+      "code_refs": ["app/index.html:8-14", "app/index.html:22", "app/index.html:34"],
+      "notes": "Token set defines --warn but .tag.due hard-codes #c9a227; no :disabled rule exists for .btn"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "EDGE-001",
+      "category": "EDGE",
+      "severity": "P2",
+      "screen_ids": ["SCREEN-001"],
+      "state_ids": ["STATE-001"],
+      "env_ids": ["ENV-001"],
+      "title": "Disabled primary button is indistinguishable from an enabled one",
+      "summary": "'Add task' is disabled until the input has text, but it renders exactly like the enabled 'Import' button next to it — same background, border, text color, and pointer cursor.",
+      "expected": "Disabled controls have a perceivable visual downgrade (opacity within the existing token language) and a not-allowed cursor.",
+      "actual": "No :disabled rule exists in the stylesheet; both buttons share identical computed styles.",
+      "user_impact": "Users click a dead button with no feedback and assume the app is broken.",
+      "baseline_refs": ["BASELINE-001"],
+      "evidence_ids": ["EVIDENCE-001", "EVIDENCE-002"],
+      "code_refs": ["app/index.html:22", "app/index.html:54"],
+      "root_cause": ".btn/.btn.primary define no :disabled variant, so the disabled attribute only blocks events",
+      "confidence": "high",
+      "recommendation": "Add .btn:disabled { opacity: .45; cursor: not-allowed; } using existing tokens (see DEMO-001 variant B)",
+      "demo_ids": ["DEMO-001"]
+    },
+    {
+      "finding_id": "SPEC-001",
+      "category": "SPEC",
+      "severity": "P3",
+      "screen_ids": ["SCREEN-001"],
+      "state_ids": ["STATE-001"],
+      "env_ids": ["ENV-001"],
+      "title": "Due-date tag hard-codes a hex color instead of the --warn token",
+      "summary": "The .tag.due badge uses #c9a227 while the project defines --warn (#b3720a) for warning semantics; every other semantic color on the board goes through a token.",
+      "expected": "Semantic colors come from :root tokens per the inferred baseline.",
+      "actual": ".tag.due { color: #c9a227; border-color: #c9a227; } bypasses the token set.",
+      "user_impact": "Warning color drifts from the rest of the product and will not follow future token updates.",
+      "baseline_refs": ["BASELINE-001"],
+      "evidence_ids": ["EVIDENCE-001", "EVIDENCE-002"],
+      "code_refs": ["app/index.html:34"],
+      "root_cause": "Hard-coded hex value predating the token set",
+      "confidence": "high",
+      "recommendation": "Replace #c9a227 with var(--warn)",
+      "demo_ids": []
+    }
+  ],
+  "demos": [
+    {
+      "demo_id": "DEMO-001",
+      "finding_ids": ["EDGE-001"],
+      "title": "Disabled-button affordance: current vs dimmed proposal",
+      "status": "READY",
+      "a": {
+        "label": "Current (no disabled affordance)",
+        "entry": "demos/DEMO-001/index.html",
+        "screenshots": ["demos/DEMO-001/a/ENV-001.png"],
+        "anchor_evidence_id": "EVIDENCE-001",
+        "fidelity": "structural"
+      },
+      "b": {
+        "label": "Proposed (:disabled dims via opacity, existing tokens only)",
+        "entry": "demos/DEMO-001/index.html?variant=b",
+        "screenshots": ["demos/DEMO-001/b/ENV-001.png"]
+      },
+      "fixture": "inline mock (new-task action row)",
+      "env_ids": ["ENV-001"],
+      "baseline_refs": ["BASELINE-001"],
+      "rationale": "Uses only the existing token language; opacity plus cursor communicates the disabled state without introducing new colors.",
+      "risks": ["Opacity value should be re-checked against the real page background before implementation"],
+      "spec_status": "COMPLIANT",
+      "user_question": "Accept dimming disabled buttons via opacity?"
+    }
+  ],
+  "reviews": [
+    {"review_id": "REVIEW-001", "reviewer_role": "example-self-review", "fresh_context": false, "target": "EDGE-001", "disposition": "ACCEPT", "evidence": "computed-style comparison matches the screenshots", "note": "Bundled example; a real audit uses independent reviewers"}
+  ],
+  "decisions": [],
+  "artifacts": {
+    "coverage": {"label": "1 screen × 1 state × 1 env (bundled example)", "screens_total": 1, "cells_captured": 1, "cells_blocked": 0}
+  },
+  "continuation": {
+    "manifest_path": "audit-manifest.json",
+    "acceptance_export": "acceptance/decisions.json",
+    "audit_id": "ui-demo-taskboard",
+    "note": "Example audit: decisions here are for demonstration only"
+  }
+}

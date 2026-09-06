@@ -1,0 +1,8 @@
+# Local tool artifacts
+.playwright-mcp/
+.DS_Store
+__pycache__/
+*.pyc
+
+# Audit workspaces generated while using the skill
+work/

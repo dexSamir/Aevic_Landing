@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>__TITLE__</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#f5f7fb; --panel:#fff; --text:#18202d; --muted:#667085; --line:#e4e7ec; --accent:#2563eb; --good:#13795b; --bad:#b42318; --warn:#b54708; --shadow:0 12px 32px rgba(16,24,40,.08); }
+    @media (prefers-color-scheme: dark) { :root { --bg:#111827; --panel:#18212f; --text:#f2f4f7; --muted:#aab4c3; --line:#344054; --shadow:0 12px 32px rgba(0,0,0,.24); } }
+    /* Dark-mode badge/status text needs lighter hues to hold WCAG AA contrast on the panel color. */
+    @media (prefers-color-scheme: dark) {
+      .badge.spec { color:#b692f6; } .badge.polish { color:#7ab3ff; } .badge.edge { color:#f97066; } .badge.opt { color:#4cc38a; } .badge.spec_change_required { color:#fdb022; }
+      .ok { color:#4cc38a; } .warn { color:#fdb022; } .error { color:#f97066; }
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button,select,input,textarea { font:inherit; }
+    button { cursor:pointer; }
+    .app { max-width:1500px; margin:0 auto; padding:24px; }
+    header { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:20px; }
+    h1 { margin:0 0 4px; font-size:26px; letter-spacing:-.02em; }
+    h2,h3 { margin:0; }
+    .muted { color:var(--muted); }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .button { border:1px solid var(--line); border-radius:9px; padding:9px 13px; color:var(--text); background:var(--panel); }
+    .button.primary { color:#fff; background:var(--accent); border-color:var(--accent); }
+    .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:16px; }
+    .stat,.panel,.finding { background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); }
+    .stat { padding:14px 16px; }
+    .stat strong { display:block; font-size:22px; }
+    .toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding:14px; margin-bottom:16px; background:var(--panel); border:1px solid var(--line); border-radius:14px; }
+    .toolbar input,.toolbar select { min-height:38px; border:1px solid var(--line); border-radius:8px; padding:0 10px; color:var(--text); background:var(--bg); }
+    .toolbar input { flex:1 1 260px; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:16px; align-items:start; }
+    .list { display:grid; gap:14px; }
+    .finding { padding:18px; }
+    .finding-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+    .finding-title { font-size:17px; font-weight:700; }
+    .badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+    .badge { display:inline-flex; align-items:center; border-radius:999px; padding:3px 8px; font-size:12px; background:var(--bg); border:1px solid var(--line); }
+    .badge.spec { color:#6941c6; } .badge.polish { color:#175cd3; } .badge.edge { color:var(--bad); } .badge.opt { color:var(--good); } .badge.spec_change_required { color:var(--warn); }
+    .finding-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+    .field { margin-top:10px; } .field-label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    .evidence { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:10px; margin-top:10px; }
+    figure { margin:0; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--bg); }
+    figure img { display:block; width:100%; max-height:320px; object-fit:contain; background:#0b1220; }
+    figure.missing { background:rgba(180,35,24,.08); }
+    figure.missing::before { content:"Screenshot missing or failed to load"; display:block; padding:32px 10px; color:var(--bad); text-align:center; font-weight:600; }
+    figcaption { padding:7px 9px; font-size:12px; color:var(--muted); word-break:break-word; }
+    .decision { display:flex; gap:7px; flex-wrap:wrap; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); }
+    .decision button { border:1px solid var(--line); border-radius:8px; padding:8px 10px; color:var(--text); background:var(--panel); }
+    .decision button.selected { color:#fff; background:var(--accent); border-color:var(--accent); }
+    .decision button[data-value="REJECTED"].selected { background:var(--bad); border-color:var(--bad); }
+    .decision button[data-value="DEFERRED"].selected { background:var(--warn); border-color:var(--warn); }
+    .decision button[data-value="NEEDS_REVISION"].selected { background:#6941c6; border-color:#6941c6; }
+    textarea.note { width:100%; min-height:58px; margin-top:9px; border:1px solid var(--line); border-radius:8px; padding:8px; resize:vertical; color:var(--text); background:var(--bg); }
+    .side { position:sticky; top:16px; display:grid; gap:12px; }
+    .panel { padding:16px; }
+    .panel h3 { margin-bottom:8px; font-size:15px; }
+    .panel .button { width:100%; margin-top:8px; }
+    .panel input { width:100%; min-height:36px; border:1px solid var(--line); border-radius:8px; padding:0 10px; color:var(--text); background:var(--bg); margin-top:6px; }
+    .check { display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); }
+    .check:last-child { border-bottom:0; }
+    .ok { color:var(--good); } .warn { color:var(--warn); } .error { color:var(--bad); }
+    .empty { padding:30px; text-align:center; color:var(--muted); background:var(--panel); border:1px dashed var(--line); border-radius:14px; }
+    .export { display:none; margin:0 0 16px; padding:16px; background:var(--panel); border:1px solid #8ce0c0; border-radius:14px; box-shadow:var(--shadow); }
+    .export.show { display:block; }
+    .export h2 { margin:0 0 5px; font-size:18px; }
+    .export textarea { width:100%; min-height:120px; margin-top:10px; padding:10px; border:1px solid var(--line); border-radius:8px; resize:vertical; color:var(--text); background:var(--bg); font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .export-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:9px; }
+    .toast { position:fixed; right:20px; bottom:20px; max-width:420px; padding:12px 14px; color:#fff; background:#101828; border-radius:10px; box-shadow:var(--shadow); opacity:0; transform:translateY(8px); pointer-events:none; transition:.2s ease; }
+    .toast.show { opacity:1; transform:none; }
+    .dirty { color:var(--warn); font-size:12px; align-self:center; }
+    @media (max-width:900px) { .layout { grid-template-columns:1fr; } .side { position:static; } .finding-grid { grid-template-columns:1fr; } header { flex-direction:column; } .actions { justify-content:flex-start; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div><h1 id="title"></h1><div id="subtitle" class="muted"></div></div>
+      <div class="actions"><span class="dirty" id="dirty-indicator" aria-live="polite"></span><button class="button" id="reset">Reset local decisions</button><button class="button" id="defer-open">Defer remaining</button><button class="button primary" id="save">Save &amp; Generate Next-Step Prompt</button></div>
+    </header>
+    <section class="export" id="export-panel" aria-live="polite"><h2>Next-step package generated</h2><div class="muted" id="export-status"></div><div class="export-actions"><a class="button" id="download-json" download>Re-download decisions JSON</a><a class="button" id="download-prompt" download>Re-download next-step prompt</a><button class="button" id="copy-json">Copy decisions JSON</button><button class="button" id="copy-prompt">Copy next-step prompt</button></div><textarea id="prompt-preview" readonly aria-label="Next-step prompt preview"></textarea></section>
+    <section class="summary" id="summary"></section>
+    <section class="toolbar">
+      <input id="search" placeholder="Search findings, screens, environments, or demos">
+      <select id="category"><option value="">All categories</option><option>SPEC</option><option>POLISH</option><option>EDGE</option><option>OPT</option><option>SPEC_CHANGE_REQUIRED</option></select>
+      <select id="severity"><option value="">All severities</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select>
+      <select id="decision-filter"><option value="">All decisions</option><option value="PENDING_CONFIRMATION">Pending</option><option value="ACCEPTED">Accepted</option><option value="REJECTED">Rejected</option><option value="NEEDS_REVISION">Needs revision</option><option value="DEFERRED">Deferred</option></select>
+      <label class="muted"><input type="checkbox" id="only-open"> Unresolved only</label>
+    </section>
+    <div class="layout"><section class="list" id="list"></section><aside class="side" id="side"></aside></div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script id="audit-data" type="application/json">__AUDIT_DATA__</script>
+  <script>
+  (() => {
+    let data = {};
+    try { data = JSON.parse(document.getElementById('audit-data').textContent || '{}'); } catch (error) { data = {audit_id:'unbuilt-ui-check', title:'UI Audit Acceptance (not built)', subtitle:'Inject audit-manifest.json with build_acceptance_demo.py, then reopen this page.', findings:[], demos:[], environments:[], decisions:[], artifacts:{}}; }
+    const auditId = data.audit_id || 'ui-check-audit';
+    const storageKey = `ui-check:${auditId}:decisions`;
+    const findings = Array.isArray(data.findings) ? data.findings : [];
+    const demos = Array.isArray(data.demos) ? data.demos : [];
+    const environments = Array.isArray(data.environments) ? data.environments : [];
+    const evidencePool = Array.isArray(data.evidence) ? data.evidence : [];
+    const $ = id => document.getElementById(id);
+    const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const arr = value => Array.isArray(value) ? value : (value ? [value] : []);
+    const initial = Object.fromEntries((data.decisions || []).map(x => [x.demo_id || x.finding_id, x]).filter(([k]) => k));
+    let stored = {};
+    try { stored = JSON.parse(localStorage.getItem(storageKey) || '{}') || {}; }
+    catch (error) { stored = {}; try { localStorage.removeItem(storageKey); } catch (ignored) {} }
+    let decisions = {...initial, ...stored};
+    let dirty = false;
+    // Decision units: every demo linked to a finding in either direction, plus every finding without demos.
+    const demoById = new Map(demos.map(d => [d.demo_id, d]));
+    const linkedDemoIds = f => {
+      const ids = new Set(arr(f.demo_ids));
+      demos.forEach(d => { if (arr(d.finding_ids).includes(f.finding_id)) ids.add(d.demo_id); });
+      return [...ids].filter(id => demoById.has(id));
+    };
+    const units = (() => {
+      const list = []; const seen = new Set();
+      findings.forEach(f => {
+        const ids = linkedDemoIds(f);
+        if (!ids.length) { if (!seen.has(f.finding_id)) { seen.add(f.finding_id); list.push({key:f.finding_id, isDemo:false, demo:null, findings:[f]}); } }
+        else ids.forEach(id => { if (!seen.has(id)) { seen.add(id); list.push({key:id, isDemo:true, demo:demoById.get(id), findings:[]}); } });
+      });
+      demos.forEach(d => { if (!seen.has(d.demo_id)) { seen.add(d.demo_id); list.push({key:d.demo_id, isDemo:true, demo:d, findings:[]}); } });
+      list.forEach(u => { if (u.isDemo) u.findings = findings.filter(f => linkedDemoIds(f).includes(u.key)); });
+      return list;
+    })();
+    const fieldFor = u => u.isDemo ? 'demo_id' : 'finding_id';
+    const decisionFor = u => decisions[u.key]?.status || 'PENDING_CONFIRMATION';
+    const persist = () => { try { localStorage.setItem(storageKey, JSON.stringify(decisions)); } catch (ignored) {} };
+    const showToast = msg => { const el = $('toast'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3600); };
+    const gallery = u => {
+      const items = [];
+      const push = (path, label) => { if (path && !items.some(x => x.path === path)) items.push({path, label}); };
+      arr(u.demo?.a?.screenshots).forEach(p => push(p, 'A'));
+      arr(u.demo?.b?.screenshots).forEach(p => push(p, 'B'));
+      u.findings.forEach(f => arr(f.evidence_ids).forEach(id => { const ev = evidencePool.find(x => x.evidence_id === id); if (ev && ev.kind === 'screenshot' && ev.path) push(ev.path, 'Evidence'); }));
+      return items;
+    };
+    const displayImage = item => `<figure><img loading="lazy" src="${esc(item.path)}" alt="${esc(item.label)}" onerror="this.parentElement.classList.add('missing');this.style.display='none'"><figcaption>${esc(item.label)} · ${esc(item.path)}</figcaption></figure>`;
+    const filtered = () => {
+      const q = $('search').value.trim().toLowerCase(), cat = $('category').value, sev = $('severity').value, df = $('decision-filter').value, only = $('only-open').checked;
+      return units.filter(u => {
+        const status = decisionFor(u);
+        const cats = u.findings.map(f => f.category), sevs = u.findings.map(f => f.severity);
+        const hay = JSON.stringify({demo:u.demo, findings:u.findings}).toLowerCase();
+        return (!q || hay.includes(q)) && (!cat || cats.includes(cat)) && (!sev || sevs.includes(sev)) && (!df || status === df) && (!only || status === 'PENDING_CONFIRMATION' || status === 'NEEDS_REVISION');
+      });
+    };
+    const renderSummary = () => {
+      const statuses = units.map(decisionFor);
+      const counts = {Total:units.length, Pending:statuses.filter(x => x === 'PENDING_CONFIRMATION').length, Accepted:statuses.filter(x => x === 'ACCEPTED').length, Rejected:statuses.filter(x => x === 'REJECTED').length, 'Needs revision':statuses.filter(x => x === 'NEEDS_REVISION').length, Deferred:statuses.filter(x => x === 'DEFERRED').length};
+      const tally = (pool, key) => { const map = new Map(); pool.forEach(f => { const v = f[key]; if (v) map.set(v, (map.get(v) || 0) + 1); }); return [...map.entries()]; };
+      const catLine = tally(findings, 'category').map(([k,v]) => `${k} ${v}`).join(' · ');
+      const sevLine = tally(findings, 'severity').map(([k,v]) => `${k} ${v}`).join(' · ');
+      $('summary').innerHTML = Object.entries(counts).map(([k,v]) => `<div class="stat"><span class="muted">${k}</span><strong>${v}</strong></div>`).join('')
+        + ((catLine || sevLine) ? `<div class="stat"><span class="muted">By category / severity</span><div class="muted" style="margin-top:4px">${esc(catLine || '—')}<br>${esc(sevLine || '—')}</div></div>` : '');
+    };
+    const renderSide = () => {
+      const pending = units.filter(u => decisionFor(u) === 'PENDING_CONFIRMATION').length;
+      const coverage = data.artifacts?.coverage || {};
+      $('side').innerHTML = `<section class="panel"><h3>Audit info</h3><div class="check"><span>Audit ID</span><span>${esc(auditId)}</span></div><div class="check"><span>Baseline mode</span><span>${esc(data.baseline?.mode || 'not recorded')}</span></div><div class="check"><span>Environments</span><span>${environments.length}</span></div><div class="check"><span>Pending</span><span class="${pending ? 'warn' : 'ok'}">${pending}</span></div><div class="check"><span>Coverage</span><span>${esc(coverage.label || 'see report')}</span></div><label class="muted">Reviewer (optional)<input id="reviewer" placeholder="name or role"></label></section><section class="panel"><h3>Before saving</h3><p class="muted">Every item needs an explicit decision (use "Defer remaining" for the rest). Saving downloads the decisions JSON and the next-step prompt; it never modifies product code.</p><button class="button primary" id="save-side">Save &amp; Generate Next-Step Prompt</button></section>`;
+      const reviewerInput = $('reviewer');
+      reviewerInput.value = reviewerName;
+      reviewerInput.addEventListener('input', e => { reviewerName = e.target.value; });
+      $('save-side').addEventListener('click', save);
+    };
+    const render = () => {
+      renderSummary(); renderSide();
+      const list = filtered();
+      if (!list.length) { $('list').innerHTML = '<div class="empty">No items match the current filters.</div>'; updateDirty(); return; }
+      $('list').innerHTML = list.map(u => {
+        const primary = u.findings[0] || {};
+        const status = decisionFor(u);
+        const shots = gallery(u);
+        const code = [...new Set(u.findings.flatMap(f => arr(f.code_refs)))].join(', ');
+        const baseline = [...new Set(u.findings.flatMap(f => arr(f.baseline_refs)))].join(', ');
+        const envs = [...new Set(u.findings.flatMap(f => arr(f.env_ids)))].join(', ');
+        const screens = [...new Set(u.findings.flatMap(f => arr(f.screen_ids)))].join(', ');
+        const states = [...new Set(u.findings.flatMap(f => arr(f.state_ids)))].join(', ');
+        const knownCats = ['spec','polish','edge','opt','spec_change_required'];
+        const catBadges = [...new Set(u.findings.map(f => f.category).filter(Boolean))].map(c => { const cls = knownCats.includes(String(c).toLowerCase()) ? String(c).toLowerCase() : ''; return `<span class="badge ${cls}">${esc(c)}</span>`; }).join('') || '<span class="badge">Uncategorized</span>';
+        const sevBadges = [...new Set(u.findings.map(f => f.severity).filter(Boolean))].map(s => `<span class="badge">${esc(s)}</span>`).join('');
+        const demoLinks = u.demo ? [u.demo.a?.entry, u.demo.b?.entry].filter(Boolean).map((p,i) => `<a class="muted" href="${esc(p)}" target="_blank" rel="noreferrer">Open ${i === 0 ? 'A' : 'B'} demo</a>`).join(' · ') : '';
+        const problem = u.findings.map(f => [f.summary || f.actual || '', f.user_impact ? `Impact: ${f.user_impact}` : ''].filter(Boolean).join(' ')).filter(Boolean).join(' — ') || u.demo?.rationale || '';
+        const proposal = u.findings.map(f => f.expected || f.recommendation || '').filter(Boolean).join(' — ') || u.demo?.rationale || '';
+        const risks = arr(u.demo?.risks).join('; ');
+        return `<article class="finding" data-key="${esc(u.key)}"><div class="finding-head"><div><div class="finding-title">${esc(primary.title || u.demo?.title || u.key)}</div><div class="badges">${catBadges}${sevBadges}<span class="badge">${esc(status)}</span></div></div><span class="muted">${esc(u.key)}</span></div><div class="finding-grid"><div><div class="field"><div class="field-label">Problem and impact</div><div>${esc(problem)}</div></div><div class="field"><div class="field-label">Expected and proposal</div><div>${esc(proposal)}</div></div>${risks ? `<div class="field"><div class="field-label">Risks</div><div>${esc(risks)}</div></div>` : ''}<div class="field"><div class="field-label">Evidence</div><div class="muted">Screens: ${esc(screens || 'not recorded')} · States: ${esc(states || 'not recorded')}<br>Screenshots: ${esc(shots.length ? shots.map(s => s.path).join('; ') : 'not recorded')}<br>Code: ${esc(code || 'not recorded')}<br>Baseline: ${esc(baseline || 'not recorded')}<br>Environments: ${esc(envs || 'not recorded')}</div></div>${demoLinks ? `<div class="field">${demoLinks}</div>` : ''}</div><div><div class="field-label">A/B comparison</div><div class="evidence">${shots.map(displayImage).join('') || '<div class="muted">No screenshots</div>'}</div></div></div><div class="decision" role="group" aria-label="Decision"><span class="muted">Your decision:</span>${['ACCEPTED','REJECTED','NEEDS_REVISION','DEFERRED'].map(v => `<button data-value="${v}" class="${status === v ? 'selected' : ''}">${({ACCEPTED:'Accept',REJECTED:'Reject',NEEDS_REVISION:'Needs revision',DEFERRED:'Defer'})[v]}</button>`).join('')}</div><textarea class="note" placeholder="Notes (optional)">${esc(decisions[u.key]?.note || '')}</textarea></article>`;
+      }).join('');
+      document.querySelectorAll('.finding').forEach(card => {
+        const key = card.dataset.key;
+        const unit = units.find(u => u.key === key);
+        card.querySelectorAll('.decision button').forEach(btn => btn.addEventListener('click', () => { decisions[key] = {...decisions[key], [fieldFor(unit)]:key, status:btn.dataset.value, updated_at:new Date().toISOString()}; dirty = true; persist(); render(); }));
+        card.querySelector('textarea').addEventListener('change', e => { decisions[key] = {...decisions[key], [fieldFor(unit)]:key, note:e.target.value, updated_at:new Date().toISOString()}; dirty = true; persist(); updateDirty(); });
+      });
+      updateDirty();
+    };
+    const updateDirty = () => { $('dirty-indicator').textContent = dirty ? 'Unsaved decisions' : ''; };
+    const download = (name, content, type) => { const url = URL.createObjectURL(new Blob([content], {type})); const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); return url; };
+    const continuation = result => `# UI Audit Continuation Prompt\n\nRead the audit artifacts and the saved user decisions before continuing.\n\n- Audit ID: ${auditId}\n- Manifest: ${data.artifacts?.manifest_name || 'audit-manifest.json'} in the audit workspace (recorded absolute path: ${data.artifacts?.manifest_path || 'unknown'})\n- Decisions file: ${result.file_name} — move it into the audit workspace at acceptance/decisions.json before starting\n- Accepted: ${result.accepted.join(', ') || 'none'}\n- Rejected: ${result.rejected.join(', ') || 'none'}\n- Needs revision: ${result.revision.join(', ') || 'none'}\n- Deferred: ${result.deferred.join(', ') || 'none'}\n\nRequirements: re-read the current code and the audit evidence; implement only the explicitly accepted items; do not implement rejected or deferred items; regenerate A/B evidence for needs-revision items before implementing them; re-confirm the UI baseline and the affected environments before changing anything; implement, test, and review item by item; stop and ask when scope, authority, or evidence is insufficient.`;
+    let lastExport = {json:'', prompt:''};
+    let reviewerName = '';
+    const copyText = async (value, label) => { try { await navigator.clipboard.writeText(value); showToast(`Copied ${label}.`); } catch (error) { const el = $('prompt-preview'); el.value = value; el.focus(); el.select(); showToast(`Automatic copy failed — copy the ${label} manually.`); } };
+    const save = () => {
+      const pending = units.filter(u => decisionFor(u) === 'PENDING_CONFIRMATION');
+      if (pending.length) { showToast(`${pending.length} item(s) still undecided. Decide each item or use "Defer remaining".`); return; }
+      try {
+        const now = new Date().toISOString();
+        const result = {
+          schema_version:'1.0',
+          manifest_schema_version:data.schema_version || '',
+          audit_id:auditId,
+          saved_at:now,
+          reviewer:reviewerName.trim(),
+          decisions:units.map(u => ({[fieldFor(u)]:u.key, status:decisionFor(u), note:decisions[u.key]?.note || '', updated_at:decisions[u.key]?.updated_at || now})),
+          accepted:units.filter(u => decisionFor(u) === 'ACCEPTED').map(u => u.key),
+          rejected:units.filter(u => decisionFor(u) === 'REJECTED').map(u => u.key),
+          revision:units.filter(u => decisionFor(u) === 'NEEDS_REVISION').map(u => u.key),
+          deferred:units.filter(u => decisionFor(u) === 'DEFERRED').map(u => u.key)
+        };
+        result.file_name = `${auditId}-decisions.json`;
+        const json = JSON.stringify(result, null, 2);
+        const prompt = continuation(result);
+        lastExport = {json, prompt};
+        const jsonUrl = download(result.file_name, json, 'application/json');
+        const promptUrl = download(`${auditId}-continuation-prompt.md`, prompt, 'text/markdown');
+        $('download-json').href = jsonUrl; $('download-json').download = result.file_name;
+        $('download-prompt').href = promptUrl; $('download-prompt').download = `${auditId}-continuation-prompt.md`;
+        $('export-panel').classList.add('show');
+        $('export-status').textContent = `Downloads were triggered for ${result.file_name} and the next-step prompt. Confirm both files actually landed in your downloads folder — browsers can block them silently. If blocked, use the re-download or copy buttons below. Then move both files into the audit's acceptance/ directory as decisions.json and continuation-prompt.md.`;
+        $('prompt-preview').value = prompt;
+        dirty = false; updateDirty();
+        navigator.clipboard?.writeText(prompt).catch(() => {});
+        showToast('Export generated. Confirm the downloads landed before treating decisions as saved.');
+      } catch (error) {
+        $('export-panel').classList.add('show');
+        $('export-status').textContent = `Save failed: ${error.message}. Nothing was saved. Copy the content from the preview below and store it manually.`;
+        try { $('prompt-preview').value = lastExport.prompt || ''; } catch (ignored) {}
+        showToast('Save failed — copy the content manually.');
+      }
+    };
+    window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
+    $('title').textContent = data.title || 'UI Audit Acceptance';
+    $('subtitle').textContent = data.subtitle || `Audit ID: ${auditId} · Records decisions only — product code is never modified`;
+    ['search','category','severity','decision-filter','only-open'].forEach(id => $(id).addEventListener('input', render));
+    $('save').addEventListener('click', save);
+    $('copy-json').addEventListener('click', () => copyText(lastExport.json, 'decisions JSON'));
+    $('copy-prompt').addEventListener('click', () => copyText(lastExport.prompt, 'next-step prompt'));
+    $('defer-open').addEventListener('click', () => { const pending = units.filter(u => decisionFor(u) === 'PENDING_CONFIRMATION'); if (!pending.length) { showToast('No pending items.'); return; } if (!confirm(`Defer ${pending.length} undecided item(s)? They stay visible but out of the current implementation scope.`)) return; const now = new Date().toISOString(); pending.forEach(u => { decisions[u.key] = {...decisions[u.key], [fieldFor(u)]:u.key, status:'DEFERRED', updated_at:now}; }); dirty = true; persist(); render(); showToast(`Deferred ${pending.length} item(s).`); });
+    $('reset').addEventListener('click', () => { if (confirm('Clear the decisions saved in this browser?')) { try { localStorage.removeItem(storageKey); } catch (ignored) {} decisions = {...initial}; dirty = false; $('export-panel').classList.remove('show'); render(); showToast('Local decisions reset.'); } });
+    render();
+  })();
+  </script>
+</body>
+</html>
