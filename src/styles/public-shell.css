@@ -347,3 +347,9 @@
   .site-header__tools, .public-nav-actions { gap: .5rem; }
   .site-header .public-rules-link span { display: none; }
 }
+
+/* Footer closes the editorial rhythm with the same rounded purple surface. */
+.site-footer { margin: var(--space-xl) var(--page-gutter) var(--space-md); padding: var(--space-xl) 0 var(--space-md); border: 1px solid var(--border-subtle); border-radius: var(--card-radius); background: var(--surface-accent); }
+.site-footer__inner { width: 100%; padding-inline: var(--card-padding); }
+.site-footer__group h2 { color: var(--gold-primary); font-size: var(--text-xs); }
+.site-footer__bottom { margin-top: var(--space-lg); border-color: var(--border-default); }

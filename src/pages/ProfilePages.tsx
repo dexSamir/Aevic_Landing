@@ -71,7 +71,7 @@ function PublicTeamSummaryPage() {
   const { teamSlug } = useParams();
   const { teams } = usePublicPlatformData();
   const team = teams.find((item) => item.slug === teamSlug);
-  return <section className="page-section"><div className="container">{team ? <><PageHeader eyebrow="Təsdiqlənmiş komanda kimliyi" title={team.name} description="İctimai komanda kataloqunda dərc edilmiş məlumatlar." /><TeamLogo name={team.name} src={team.logoUrl} size="xl" /><p>{team.rosterSize} oyunçulu PUBG Mobile heyəti.</p><p>Ətraflı profil və yarış tarixçəsi hələ bu buraxılışda əlçatan deyil.</p></> : <EmptyState heading="h1" title="Komanda tapılmadı" body="Bu kimlik ictimai kataloqda yoxdur." />}<Link className="button button--secondary" to="/teams">Komanda kataloquna qayıt</Link></div></section>;
+  return <section className="page-section public-team-preview"><div className="container">{team ? <><PageHeader eyebrow="Təsdiqlənmiş komanda kimliyi" title={team.name} description="İctimai komanda kataloqunda dərc edilmiş məlumatlar." /><TeamLogo name={team.name} src={team.logoUrl} size="xl" /><p>{team.rosterSize} oyunçulu PUBG Mobile heyəti.</p><p>Ətraflı profil və yarış tarixçəsi hələ bu buraxılışda əlçatan deyil.</p></> : <EmptyState heading="h1" title="Komanda tapılmadı" body="Bu kimlik ictimai kataloqda yoxdur." />}<Link className="button button--secondary" to="/teams">Komanda kataloquna qayıt</Link></div></section>;
 }
 
 export function TeamProfilePage() {

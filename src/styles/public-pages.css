@@ -1459,3 +1459,68 @@
 @media (max-width: 390px) {
   .record-grid { grid-template-columns: 1fr; }
 }
+
+/* Public editorial system: large titles, rounded media, clear reading intervals. */
+.site-shell .page-header h1, .records-center__masthead h1 { font-family: var(--heading-editorial); font-size: clamp(2.75rem, 5.5vw, 5rem); line-height: 1.08; }
+.site-shell .section-heading h2 { font-family: var(--heading-editorial); font-size: clamp(1.75rem, 3vw, 2.75rem); }
+.site-shell .page-header { margin-bottom: var(--space-2xl); }
+.tournament-row { padding: var(--space-lg); background: var(--card-surface); border-color: var(--card-border); }
+.tournament-row__date { padding: var(--space-sm); border-radius: var(--radius-md); background: var(--surface-accent); }
+.tournament-row__main h2 { font-family: var(--heading-editorial); font-size: var(--text-xl); }
+.tournament-row__meta > a { border-radius: var(--radius-pill); background: var(--surface-gold); color: var(--gold-primary); }
+.tournament-detail-hero { margin: calc(var(--header-height) + var(--space-md)) var(--page-gutter) 0; border-radius: var(--card-radius); overflow: hidden; }
+.tournament-detail-hero > .tournament-detail-hero__stage { padding-top: var(--space-xl); }
+.tournament-detail-hero__copy h1 { font-family: var(--heading-editorial); font-size: clamp(3rem, 6vw, 6rem); line-height: 1.05; }
+.tournament-hero-ledger { border: 1px solid var(--border-default); border-radius: var(--card-radius); background: var(--surface-command); overflow: hidden; }
+.tournament-hero-ledger > div { border-top-color: var(--border-subtle); }
+.tournament-hero-ledger > div:first-child { border-top: 0; }
+.tournament-hero-ledger dd { margin: 0; font-family: var(--font-ui); }
+.tournament-context-wrap { border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.tournament-format-block { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
+.tournament-format-block > aside { grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); align-items: center; padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.tournament-results__summary { gap: var(--space-sm); border: 0; }
+.tournament-results__summary > span { border: 1px solid var(--card-border); border-radius: var(--radius-md); background: var(--card-surface); }
+.tournament-scoring, .tournament-rules { padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.tournament-scoring__intro > dl { gap: var(--space-xs); background: transparent; }
+.tournament-scoring__intro > dl div { border-radius: var(--radius-md); background: var(--surface-accent); }
+.tournament-scoring__sequence li { border-radius: var(--radius-md); }
+.team-directory-logo-wall { gap: var(--space-sm); background: transparent; border: 0; }
+.team-directory-logo-wall .team-logo-tile { border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.team-directory-logo-wall .team-logo-tile.is-selected { border-color: var(--gold-primary); background: var(--surface-gold); }
+.team-directory-active { padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--surface-accent); }
+.team-directory-active h2 { font-family: var(--heading-editorial); font-size: var(--text-xl); }
+.teams-directory__discovery { gap: var(--space-lg); margin-bottom: var(--space-xl); }
+.teams-directory__count { padding: var(--space-md); border-radius: var(--radius-md); background: var(--surface-gold); }
+.teams-directory__count strong { color: var(--gold-primary); }
+.team-profile-hero { margin: calc(var(--header-height) + var(--space-md)) var(--page-gutter) 0; border-radius: var(--card-radius); }
+.team-profile-hero__stage { padding-top: var(--space-2xl); }
+.team-profile-identity h1 { font-family: var(--heading-editorial); font-size: clamp(2.5rem, 5vw, 5rem); }
+.team-profile-hero__next .upcoming-match-card { border-radius: var(--card-radius); background: var(--surface-1); }
+.team-profile-panel { padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.public-team-preview > .container { display: grid; justify-items: start; gap: var(--space-lg); }
+.public-team-preview .page-header { margin-bottom: 0; }
+.public-team-preview .team-logo { padding: var(--space-md); border-radius: var(--card-radius); background: var(--surface-accent); }
+.record-featured { border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--surface-accent); gap: var(--space-xl); }
+.record-featured__number > strong { font-family: var(--heading-editorial); line-height: 1; }
+.record-featured__story h2 { font-family: var(--heading-editorial); font-size: var(--text-2xl); }
+.record-ledger { gap: var(--space-sm); background: transparent; }
+.record-card { padding: var(--space-lg); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.record-card:hover { border-color: var(--gold-primary); background: var(--surface-2); }
+.record-card__value { font-family: var(--heading-editorial); }
+.record-inline-detail { padding: var(--card-padding); border: 1px solid var(--gold-primary); border-radius: var(--card-radius); background: var(--card-surface); }
+.champion-row { border: 1px solid var(--color-gold-muted); border-radius: var(--card-radius); background: var(--surface-gold); padding: var(--card-padding); }
+.champion-row > b { font-family: var(--heading-editorial); }
+.archive-years > section { margin-bottom: var(--space-xl); padding: var(--card-padding); background: var(--card-surface); border: 1px solid var(--card-border); border-radius: var(--card-radius); }
+.archive-years > section > header > span { color: var(--gold-primary); font-family: var(--heading-editorial); }
+.recap-hero, .recap-champion, .recap-stats > div, .recap-records > article { border-radius: var(--card-radius); }
+.recap-hero h1 { font-family: var(--heading-editorial); }
+.site-shell :is(.regulations-layout > article, .information-page__body) { padding: var(--card-padding); background: var(--card-surface); border: 1px solid var(--card-border); border-radius: var(--card-radius); }
+@media (max-width: 768px) {
+  .tournament-detail-hero__identity { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
+  .tournament-detail-hero > .tournament-detail-hero__stage { padding-inline: var(--space-md); }
+  .tournament-format-block { grid-template-columns: minmax(0, 1fr); }
+  .tournament-results__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .record-featured { grid-template-columns: minmax(0, 1fr); }
+  .record-featured__story { padding-left: 0; border-left: 0; }
+  .team-profile-hero__stage { padding: var(--space-xl) var(--space-md); }
+}

@@ -1,0 +1,25 @@
+/* One stat pattern for public facts, team readiness and admin operations.
+   3:2 is the preferred ratio; long values may grow rather than be clipped. */
+.team-stat-slider { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--stat-card-gap); margin: 0; padding: .25rem; list-style: none; }
+.team-stat-slider > li { min-width: 0; }
+.team-stat-slider__card { height: 100%; min-width: 0; aspect-ratio: var(--stat-card-ratio); display: flex; flex-direction: column; align-items: stretch; gap: var(--space-sm); padding: var(--space-md); color: var(--text-primary); background: var(--stat-card-ink); border: 1px solid var(--border-subtle); border-radius: var(--stat-card-radius); }
+.team-stat-slider__heading { display: flex; align-items: start; justify-content: space-between; gap: var(--space-xs); }
+.team-stat-slider__heading > :last-child { flex: 0 0 auto; }
+.team-stat-slider__eyebrow { font: 700 var(--text-xs)/1.4 var(--font-ui); letter-spacing: .04em; }
+.team-stat-slider__card strong { margin-top: auto; font: 700 clamp(1.3rem, 2.2vw, 2rem)/1.15 var(--heading-product); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.team-stat-slider__card small { font-size: var(--text-xs); line-height: 1.5; }
+.team-stat-slider__card--gold { color: var(--text-on-gold); background: var(--stat-card-gold); border-color: transparent; }
+.team-stat-slider__card--purple { color: var(--text-on-accent); background: var(--stat-card-purple); border-color: transparent; }
+.team-stat-slider__card--soft { color: var(--text-on-accent); background: var(--stat-card-soft); }
+.team-stat-slider__card--ink .team-stat-slider__heading > :last-child { color: var(--gold-primary); }
+a.team-stat-slider__card { transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
+a.team-stat-slider__card:hover { transform: translateY(-2px); box-shadow: var(--shadow-raised); }
+a.team-stat-slider__card:active { transform: translateY(0); }
+@media (max-width: 700px) {
+  .team-stat-slider { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(75vw, 16rem); overflow-x: auto; scroll-snap-type: x proximity; padding: .3rem .3rem .85rem; scrollbar-width: thin; scrollbar-color: var(--gold-primary) var(--surface-1); }
+  .team-stat-slider > li { scroll-snap-align: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  a.team-stat-slider__card { transition: none; }
+  a.team-stat-slider__card:hover { transform: none; }
+}

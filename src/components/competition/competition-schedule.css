@@ -118,3 +118,8 @@
 .tournaments-calendar-page .tournament-calendar__agenda { background: var(--surface-1); }
 .tournaments-calendar-page .tournament-calendar__agenda :is(h2, h3) { font-size: clamp(1.55rem, 2.2vw, 2.15rem); }
 .tournaments-calendar-page .tournament-calendar:not(.tournament-calendar--empty) { margin-bottom: var(--section-normal); }
+
+/* Shared calendar finish used by Home and the tournament listing. */
+.tournament-calendar { border-radius: var(--card-radius); box-shadow: none; border: 1px solid var(--card-border); }
+.tournament-calendar__picker > header span { font-family: var(--heading-product); font-weight: 700; }
+.tournament-calendar__picker nav button, .tournament-calendar__days > button { border-radius: var(--control-radius); }

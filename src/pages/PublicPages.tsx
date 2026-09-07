@@ -10,6 +10,7 @@ import {
 import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { officialAssets } from '../assets/official';
+import { StatCardStrip } from '../components/common/StatCardStrip';
 import { MediaBackdrop } from '../components/common/MediaBackdrop';
 import { CompetitionRoundProgram } from '../components/competition/CompetitionVisuals';
 import { TournamentCalendar } from '../components/competition/TournamentCalendar';
@@ -92,7 +93,12 @@ export function TournamentDetailPage() {
     <section id="overview" className="page-section tournament-destination__body">
       <div className="container">
         <div className="tournament-format-block">
-          <div><SectionHeading title="Yarış formatı" description="Tarix, check-in və rəqabət strukturu bir baxışda." /><div className="format-ledger"><div><CalendarDays size={19} /><span>Tarix<strong>{formatDate(tournament.startsAt)} — {formatDate(tournament.endsAt)}</strong></span></div><div><Clock3 size={19} /><span>Check-in<strong>{formatDate(tournament.checkInOpensAt, true)}</strong></span></div><div><Crown size={19} /><span>Prestij<strong>AEVIC reytinq turniri</strong></span></div><div><Users size={19} /><span>Komanda limiti<strong>{tournament.maxSlots} komanda</strong></span></div></div></div>
+          <div><SectionHeading title="Yarış formatı" description="Tarix, check-in və rəqabət strukturu bir baxışda." /><StatCardStrip label="Yarış formatı" items={[
+            { key: 'date', eyebrow: 'Tarix', value: formatDate(tournament.startsAt), meta: formatDate(tournament.endsAt), icon: <CalendarDays size={20} />, tone: 'gold' },
+            { key: 'check-in', eyebrow: 'Check-in', value: formatEventTime(tournament.checkInOpensAt), meta: formatDate(tournament.checkInOpensAt), icon: <Clock3 size={20} />, tone: 'purple' },
+            { key: 'prestige', eyebrow: 'Prestij', value: 'AEVIC reytinq turniri', icon: <Crown size={20} />, tone: 'soft' },
+            { key: 'teams', eyebrow: 'Komanda limiti', value: `${tournament.maxSlots} komanda`, icon: <Users size={20} />, tone: 'ink' },
+          ]} /></div>
           <aside><span>QEYDİYYAT PƏNCƏRƏSİ</span><Countdown target={tournament.registrationDeadline} /><ProgressBar value={tournament.usedSlots} max={tournament.maxSlots} label="Dolu slotlar" /><strong>{remaining ? `${remaining} boş slot` : 'Bütün slotlar doludur'}</strong></aside>
         </div>
         {matchesQuery.loading ? <section id="matches"><LoadingSkeleton rows={3} /></section> : matchesQuery.error ? <section id="matches"><EmptyState title="Raund proqramı yüklənmədi" body="Matç servisi hazırda cavab vermir. Matç mərkəzindən yenidən yoxlayın." /></section> : roundProgram.length ? <CompetitionRoundProgram rounds={roundProgram} tournamentId={tournament.id} /> : <section id="matches"><EmptyState title="Raund cədvəli təsdiq gözləyir" body="Bu turnirin xəritə və başlama vaxtları hələ dərc edilməyib. İştirak şərtlərini indidən nəzərdən keçirin." action={<Link className="text-link" to="/regulations">Yarış qaydaları</Link>} /></section>}
