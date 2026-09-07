@@ -1,3 +1,5 @@
+import { CompetitionFeature } from '../components/competition/CompetitionFeature';
+import { PlacementScoring } from '../components/competition/PlacementScoring';
 import {
   ArrowRight,
   CalendarClock,
@@ -39,15 +41,17 @@ import type { RankMovementData } from '../types/domain';
 import { AEVIC_EVENT_TIMEZONE, datePartsInTimeZone, formatEventDate, formatEventTime } from '../utils/calendar';
 import { tournamentById } from '../utils/routes';
 import { resolveTournamentTemporalPhase } from '../utils/tournamentTime';
-import { selectLeaderboardTournament } from '../utils/competitionSelectors';
+import { selectLeaderboardTournament, selectPrimaryCompetition } from '../utils/competitionSelectors';
 
 const formatDate = (value: string, withTime = false) => formatEventDate(value, { withTime });
 
 export function TournamentsPage() {
   const { tournaments } = usePublicPlatformData();
+  const featured = selectPrimaryCompetition(tournaments, competitionNow());
   return <section className="page-section tournaments-calendar-page"><div className="container">
     <PageHeader eyebrow="Yarış planlaması" title="Turnir təqvimi" description={tournaments.length ? 'Tarixi seçin, turnirin vəziyyətini və iştirak şərtlərini görün.' : 'Turnir elanları və iştirak şərtləri.'} />
-    <TournamentCalendar tournaments={tournaments} />
+    {featured && <div className="tournaments-feature"><CompetitionFeature tournament={featured} /></div>}
+    <div className="tournament-program"><aside className="tournament-program__index"><TournamentCalendar tournaments={tournaments} compact /></aside><div className="tournament-program__ledger">
     {tournaments.length > 0 && <><SectionHeading title="Yarış xətti" description="Yaxın və tamamlanmış turnirlərin kompakt cədvəli." />
     <div className="tournament-list">{tournaments.map((tournament) => {
       const remaining = Math.max(0, tournament.maxSlots - tournament.usedSlots);
@@ -56,6 +60,7 @@ export function TournamentsPage() {
       const phase = resolveTournamentTemporalPhase(tournament, competitionNow());
       return <article key={tournament.id} className="tournament-row"><div className="tournament-row__date"><strong>{parts.day}</strong><span>{eventDate.toLocaleDateString('az-AZ', { month: 'short', year: 'numeric', timeZone: AEVIC_EVENT_TIMEZONE })}</span></div><div className="tournament-row__main"><div>{phase === 'registration-open' ? <StatusBadge status="open" /> : phase === 'completed' ? <StatusBadge status="completed" /> : phase === 'live' ? <StatusBadge status="live" /> : <StatusBadge status="draft">Planlaşdırılıb</StatusBadge>}<span>{tournament.days} gün · {tournament.roundsPerDay * tournament.days} raund</span></div><h2>{tournament.name}</h2></div><div className="tournament-row__meta"><span>Başlanğıc<strong>{`${formatEventTime(tournament.startsAt)} AZT`}</strong></span><span>Slot<strong>{remaining} / {tournament.maxSlots}</strong></span><Link to={`/tournaments/${tournament.id}`} aria-label={`${tournament.name} detallarını aç`}><ArrowRight size={19} /></Link></div></article>;
     })}</div></>}
+    </div></div>
   </div></section>;
 }
 
@@ -107,7 +112,7 @@ export function TournamentDetailPage() {
 
         {resultsQuery.loading ? <section id="results"><LoadingSkeleton rows={5} /></section> : resultsQuery.error ? <section id="results"><EmptyState title="Nəticələr yüklənmədi" body="Rəsmi standings servisi hazırda cavab vermir. Qismən raund məlumatından sıralama yaradılmır." /></section> : <TournamentResults standings={resultsQuery.data ?? []} teamNames={leaderboardTeams} teams={teams} publishedRoundCount={matchesQuery.data?.history.length ?? 0} tournamentName={tournament.name} tournamentId={tournament.id} publishedAt={tournament.resultsPublishedAt} />}
 
-        <section id="scoring" className="tournament-scoring"><div className="tournament-scoring__intro"><SectionHeading title="Xal formulu" description={`WWCD bonusu +${tournament.pointFormula.wwcdBonus} · hər kill +${tournament.pointFormula.finishPointValue}`} /><p>Yer xalları bir davamlı ardıcıllıqda #1-dən turnirin {tournament.maxSlots}-ci yerinə qədər göstərilir.</p><dl><div><dt>WWCD</dt><dd>+{tournament.pointFormula.wwcdBonus}</dd></div><div><dt>Kill</dt><dd>+{tournament.pointFormula.finishPointValue}</dd></div></dl></div><ol className="tournament-scoring__sequence" aria-label={`#1-dən #${tournament.maxSlots}-ə qədər yer xalları`}>{placementSequence.map((item) => <li key={item.placement}><span>#{item.placement}</span><strong>{item.points}</strong><small>xal</small></li>)}</ol><div className="tournament-scoring__tiebreak"><span>TIE-BREAK ARDICILLIĞI</span><ol>{tournament.pointFormula.tieBreakRules.map((rule) => <li key={rule}>{rule}</li>)}</ol></div></section>
+        <section id="scoring" className="tournament-scoring"><div className="tournament-scoring__intro"><SectionHeading title="Xal formulu" description={`WWCD bonusu +${tournament.pointFormula.wwcdBonus} · hər kill +${tournament.pointFormula.finishPointValue}`} /><p>Yer xalları bir davamlı ardıcıllıqda #1-dən turnirin {tournament.maxSlots}-ci yerinə qədər göstərilir.</p><dl><div><dt>WWCD</dt><dd>+{tournament.pointFormula.wwcdBonus}</dd></div><div><dt>Kill</dt><dd>+{tournament.pointFormula.finishPointValue}</dd></div></dl></div><PlacementScoring placements={placementSequence} /><div className="tournament-scoring__tiebreak"><span>TIE-BREAK ARDICILLIĞI</span><ol>{tournament.pointFormula.tieBreakRules.map((rule) => <li key={rule}>{rule}</li>)}</ol></div></section>
         <section id="rules" className="tournament-rules"><SectionHeading title="Əsas qaydalar" description="Qoşulma zamanı uyğunluq server tərəfindən yenidən təsdiqlənir." /><ol className="regulation-list">{tournament.rules.slice(0, 3).map((rule, index) => <li key={rule}><span>{String(index + 1).padStart(2, '0')}</span><p>{rule}</p></li>)}</ol>{tournament.rules.length > 3 && <details><summary>Tam qaydaları göstər</summary><ol className="regulation-list">{tournament.rules.slice(3).map((rule, index) => <li key={rule}><span>{String(index + 4).padStart(2, '0')}</span><p>{rule}</p></li>)}</ol></details>}</section>
       </div>
     </section>

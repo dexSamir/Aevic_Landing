@@ -2,12 +2,11 @@ import { AdminLayout, AuthLayout, ProtectedRoute, PublicLayout, RouteError, Team
 import { HomePage } from '../pages/HomePage';
 import { AdminPlatformProvider, PublicPlatformProvider, TeamPlatformProvider } from '../services/PlatformDataContext';
 import { AevicHydrationFallback } from '../components/common/AevicHydrationFallback';
-import { loadRouteStyles } from './routeStyles';
 import { routePath } from './routeManifest';
 import { applyRouteCapabilities } from './capabilityRoutes';
 
 async function loadLifecyclePages() {
-  await loadRouteStyles('/reset-password');
+
   return import('../pages/AuthLifecyclePages');
 }
 
@@ -15,6 +14,7 @@ async function loadLifecyclePages() {
 export const routes = applyRouteCapabilities([
   {
     id: 'root',
+    errorElement: <RouteError />,
     HydrateFallback: AevicHydrationFallback,
     children: [
   {
@@ -75,7 +75,7 @@ export const routes = applyRouteCapabilities([
   {
     path: routePath('team'),
     lazy: async () => {
-      await loadRouteStyles('/team');
+
       return { Component: () => <ProtectedRoute area="team"><TeamPlatformProvider><TeamLayout /></TeamPlatformProvider></ProtectedRoute> };
     },
     children: [
@@ -105,7 +105,7 @@ export const routes = applyRouteCapabilities([
   {
     path: routePath('admin'),
     lazy: async () => {
-      await loadRouteStyles('/admin');
+
       return { Component: () => <ProtectedRoute area="admin"><AdminPlatformProvider><AdminLayout /></AdminPlatformProvider></ProtectedRoute> };
     },
     children: [
@@ -138,7 +138,7 @@ export const routes = applyRouteCapabilities([
   {
     path: routePath('account'),
     lazy: async () => {
-      const [, { AccountLayout }] = await Promise.all([loadRouteStyles('/account'), import('../pages/AccountPages')]);
+      const { AccountLayout } = await import('../pages/AccountPages');
       return { Component: () => <ProtectedRoute area="team"><AccountLayout /></ProtectedRoute> };
     },
     children: [

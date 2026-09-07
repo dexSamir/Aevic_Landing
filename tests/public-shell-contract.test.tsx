@@ -50,7 +50,7 @@ describe('public IA is independent of backend availability', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Menyunu aç' }));
     const drawer = await screen.findByRole('dialog');
     expect(within(drawer).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([...primary, '/regulations', '/login', '/register']);
-    expect(within(screen.getByRole('contentinfo')).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual(['/', ...footerPaths]);
+    expect(within(screen.getByRole('contentinfo')).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual(['/', ...primary, '/contact', '/privacy', '/terms']);
     if (mode === 'api') expect(getSession).not.toHaveBeenCalled();
     else await waitFor(() => expect(getSession).toHaveBeenCalled());
   });

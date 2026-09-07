@@ -1,5 +1,5 @@
 import { sanitizeOutboundUrl } from '../utils/outboundUrl';
-import { ArrowRight, CalendarDays, Flag, Gamepad2, Globe2, History, Image, Link2, Search, Share2, ShieldCheck, Sparkles, Swords } from 'lucide-react';
+import { ArrowRight, CalendarDays, Flag, Gamepad2, Globe2, History, Image, Link2, Search, Share2, ShieldCheck, Swords } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { BadgeCabinetEditor, BadgeCollectionDrawer, FeaturedBadgeCabinet } from '../components/team/BadgeCabinet';
@@ -12,7 +12,6 @@ import { MediaBackdrop } from '../components/common/MediaBackdrop';
 import { serviceCapabilities, services } from '../services';
 import { useAdminPlatformData, usePublicPlatformData, useTeamPlatformData } from '../services/PlatformDataContext';
 import type { Organization, PublicTeamProfile } from '../types/domain';
-import { yearPeriod } from '../utils/wrapped';
 import { organizationTeamPath } from '../utils/routes';
 import { deriveTeamSpecialization, TEAM_SPECIALIZATION_MINIMUM_MATCHES } from '../utils/competitionAnalytics';
 
@@ -79,8 +78,6 @@ export function TeamProfilePage() {
   const [profile, setProfile] = useState<PublicTeamProfile>();
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
-  const [cabinetOpen, setCabinetOpen] = useState(false);
-  const [wrappedYear, setWrappedYear] = useState<number>();
 
   useEffect(() => {
     setLoading(true);
@@ -88,21 +85,11 @@ export function TeamProfilePage() {
     services.profiles.teamBySlug(teamSlug).then(setProfile).catch(() => setFailed(true)).finally(() => setLoading(false));
   }, [teamSlug]);
 
-  useEffect(() => {
-    let current = true;
-    setWrappedYear(undefined);
-    if (!profile) return () => { current = false; };
-    const years = [...new Set(profile.recentMatches.map((match) => new Date(match.playedAt).getFullYear()))].sort((a, b) => b - a);
-    void Promise.all(years.map(async (candidate) => ({ candidate, summary: await services.wrapped.forTeam(teamSlug, yearPeriod(candidate)) })))
-      .then((items) => { if (current) setWrappedYear(items.find((item) => item.summary?.available)?.candidate); })
-      .catch(() => { if (current) setWrappedYear(undefined); });
-    return () => { current = false; };
-  }, [profile, teamSlug]);
 
   useEffect(() => {
     if (!profile) return;
     const hash = window.location.hash.slice(1);
-    if (['overview', 'roster', 'performance', 'matches', 'achievements'].includes(hash)) {
+    if (['overview', 'roster', 'performance', 'matches'].includes(hash)) {
       const settleHash = () => window.requestAnimationFrame(() => {
         const root = document.documentElement;
         const previousBehavior = root.style.scrollBehavior;
@@ -119,11 +106,7 @@ export function TeamProfilePage() {
   if (failed) return <section className="page-section"><div className="container"><EmptyState title="Profil yüklənmədi" body="Public profil servisi hazırda cavab vermir. Bir az sonra yenidən cəhd edin." /></div></section>;
   if (!profile) return <section className="page-section"><div className="container"><EmptyState heading="h1" title="Komanda tapılmadı" body="Profil mövcud deyil və ya ictimai görünürlükdən çıxarılıb. Təsdiqlənmiş kimlikləri kataloqdan seçin." action={<Link className="button button--secondary" to="/teams">Komanda kataloqu</Link>} /></div></section>;
 
-  const { team, organization, achievements } = profile;
-  const featured = profile.featuredAchievementIds.map((id, index) => {
-    const achievement = achievements.find((item) => item.id === id);
-    return achievement ? { ...achievement, displayOrder: index + 1 } : undefined;
-  }).filter((item): item is NonNullable<typeof item> => Boolean(item));
+  const { team, organization } = profile;
   const metric = (key: string) => profile.career?.metrics.find((item) => item.key === key)?.value;
   const specialization = profile.specialization ?? deriveTeamSpecialization(profile.recentMatches);
   return <>
@@ -139,15 +122,30 @@ export function TeamProfilePage() {
         </div>
       </header>
 
-      <div className="container team-profile-body">
+      <div className="container team-profile-body team-profile-canvas">
+        <nav className="team-profile-index" aria-label="Komanda profilinin bölmələri"><span>KOMANDA DOSYESİ</span><a href="#overview">01 · Göstəricilər</a><a href="#roster">02 · Aktiv heyət</a><a href="#matches">03 · Nəticələr</a><a href="#performance">04 · Xəritələr</a><a href="#team-share">05 · Komanda kartı</a></nav><div className="team-profile-sections">
         <section id="overview" aria-labelledby="overview-title" className="team-profile-panel team-profile-panel--overview">
+          {profile.career ? <CareerSummary data={profile.career} comparisonHref={`/teams/compare?team=${teamSlug}`} /> : <EmptyState title="Karyera ilk rəsmi nəticədən başlayır" body="Bu komanda üçün karyera xülasəsi hələ yoxdur. Yalnız dərc edilmiş matçlar karyera göstəricilərinə daxil edilir." action={<Link className="text-link" to="/regulations#rule-5">Xal sistemi ilə tanış ol</Link>} />}
           <div className="team-profile-form-band"><TeamForm form={profile.form} /></div>
           <div className="team-profile-overview">
             <div><span className="profile-kicker">Public team profile</span><h2 id="overview-title">Komanda kimliyi</h2><p>{team.description || 'Komanda hələ public təsvir əlavə etməyib.'}</p><div className="team-profile-meta"><span><Flag size={17} />{team.country || 'Ölkə qeyd edilməyib'}</span><span><History size={17} />{new Date(team.foundedAt ?? team.registeredAt).getFullYear()} tarixindən</span><span><ShieldCheck size={17} />Təsdiqlənib</span></div></div>
             <aside className={specialization ? 'has-specialization' : 'is-forming'}><span>Ən güclü göstərici</span>{specialization ? <><strong>{specialization.label}</strong><small>{specialization.evidence} · {specialization.sampleSize} matç nümunəsi</small></> : <><strong>Profil formalaşır</strong><small>{profile.recentMatches.length} / {TEAM_SPECIALIZATION_MINIMUM_MATCHES} dərc edilmiş matç</small></>}</aside>
           </div>
-          {profile.career ? <CareerSummary data={profile.career} comparisonHref={`/teams/compare?team=${teamSlug}`} /> : <EmptyState title="Karyera ilk rəsmi nəticədən başlayır" body="Bu komanda üçün karyera xülasəsi hələ yoxdur. Yalnız dərc edilmiş matçlar karyera göstəricilərinə daxil edilir." action={<Link className="text-link" to="/regulations#rule-5">Xal sistemi ilə tanış ol</Link>} />}
-          <aside className="team-card-discovery">
+
+
+        </section>
+
+        <section id="roster" aria-labelledby="roster-title" className="team-profile-panel team-profile-panel--roster team-roster-public"><SectionHeading title="Aktiv heyət" description="Kapitan, əsas heyət və əvəzedici rolları" /><span id="roster-title" className="sr-only">Aktiv heyət</span><PublicRoster roster={team.roster} /></section>
+
+
+
+        <section id="matches" aria-labelledby="matches-title" className="team-profile-panel team-profile-panel--matches team-matches-public"><SectionHeading title="Son matçlar" description="Yalnız dərc edilmiş raund nəticələri" action={<Link to="/matches">Match center</Link>} /><span id="matches-title" className="sr-only">Son matçlar</span><div className="team-matches-public__grid"><RecentMatchList matches={profile.recentMatches} /><PerformanceTrend matches={profile.recentMatches} /></div></section>
+
+        <section id="performance" aria-labelledby="performance-title" className="team-profile-panel team-profile-panel--performance">
+          <span id="performance-title" className="sr-only">Komanda performansı</span>
+          <MapSpecialization summary={profile.mapSpecialization} />
+        </section>
+          <aside id="team-share" className="team-card-discovery">
             <div className="team-card-discovery__preview" aria-hidden="true">
               <span>AEVIC // TEAM IDENTITY</span>
               <div><TeamLogo name={team.name} src={team.logoUrl} /><strong>{team.name}</strong><small>{organization?.shortName || team.tag || 'PUBG MOBILE'}</small></div>
@@ -155,22 +153,8 @@ export function TeamProfilePage() {
             </div>
             <div><span>KOMANDA KARTI</span><h2>Komandanı AEVIC-dən kənarda da tanıt.</h2><p>Rəsmi komanda kimliyini sosial formatlarda hazırla və paylaş.</p><Link className="button button--secondary" to={`/teams/${teamSlug}/share-card`}><Share2 size={17} /><span>Komanda kartını yarat</span><ArrowRight size={17} /></Link></div>
           </aside>
-        </section>
-
-        <section id="roster" aria-labelledby="roster-title" className="team-profile-panel team-profile-panel--roster team-roster-public"><SectionHeading title="Aktiv heyət" description="Kapitan, əsas heyət və əvəzedici rolları" /><span id="roster-title" className="sr-only">Aktiv heyət</span><PublicRoster roster={team.roster} /></section>
-
-        <section id="performance" aria-labelledby="performance-title" className="team-profile-panel team-profile-panel--performance">
-          <span id="performance-title" className="sr-only">Komanda performansı</span>
-          {wrappedYear && <aside className="wrapped-entry"><div className="wrapped-entry__preview" aria-hidden="true"><span>AEVIC</span><b>{wrappedYear}</b><strong>{team.name}</strong><i>{metric('matches') ?? profile.recentMatches.length} MATÇ · {metric('wwcd') ?? profile.recentMatches.filter((match) => match.wwcd).length} WWCD</i><em><span /><span /><span /></em></div><div className="wrapped-entry__copy"><span>YOUR {wrappedYear} IS READY</span><h2>Bu mövsümün hekayəsini yenidən yaşa.</h2><p>Komanda kimliyi və yalnız dərc edilmiş nəticələrlə qurulan 9:16 AEVIC story.</p><strong>{metric('matches') ?? profile.recentMatches.length} MATÇ <i>·</i> {metric('wwcd') ?? profile.recentMatches.filter((match) => match.wwcd).length} WWCD</strong><Link className="button button--primary" to={`/teams/${teamSlug}/wrapped/${wrappedYear}`}><Sparkles size={18} /><span>Wrapped-a bax</span><ArrowRight size={17} /></Link></div></aside>}
-          <MapSpecialization summary={profile.mapSpecialization} />
-        </section>
-
-        <section id="matches" aria-labelledby="matches-title" className="team-profile-panel team-profile-panel--matches team-matches-public"><SectionHeading title="Son matçlar" description="Yalnız dərc edilmiş raund nəticələri" action={<Link to="/matches">Match center</Link>} /><span id="matches-title" className="sr-only">Son matçlar</span><div className="team-matches-public__grid"><RecentMatchList matches={profile.recentMatches} /><PerformanceTrend matches={profile.recentMatches} /></div></section>
-
-        <section id="achievements" aria-labelledby="achievements-title" className="team-profile-panel team-profile-panel--achievements"><span id="achievements-title" className="sr-only">Nailiyyətlər</span>{featured.length ? <FeaturedBadgeCabinet achievements={featured} onViewAll={() => setCabinetOpen(true)} /> : <EmptyState icon={<Swords size={27} />} title="Seçilmiş nailiyyət yoxdur" body="Qazanılmış və public üçün seçilmiş nişanlar burada görünəcək." />}</section>
-      </div>
+      </div></div>
     </article>
-    <BadgeCollectionDrawer open={cabinetOpen} achievements={achievements} onClose={() => setCabinetOpen(false)} />
   </>;
 }
 export function PublicTeamComparisonPage() {

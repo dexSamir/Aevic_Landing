@@ -1,0 +1,20 @@
+/* A wide identity feature with an attached competition ledger. */
+.competition-feature { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) minmax(11rem, .28fr); min-height: 28rem; overflow: hidden; background: var(--surface-command); border-radius: var(--radius-md); }
+.competition-feature__media { z-index: -1; }
+.competition-feature__media .media-backdrop__shade { background: linear-gradient(90deg, color-mix(in srgb, var(--surface-command) 92%, transparent), color-mix(in srgb, var(--surface-command) 25%, transparent)), linear-gradient(0deg, var(--surface-command), transparent); }
+.competition-feature__identity { display: grid; justify-items: start; align-content: end; gap: var(--space-sm); padding: clamp(1.5rem, 4vw, 3.5rem); }
+.competition-feature__identity > span { color: var(--gold-primary); font-size: var(--text-xs); letter-spacing: .1em; }
+.competition-feature h2 { max-width: 15ch; font: 700 clamp(2.5rem, 4.5vw, 4.5rem)/1.02 var(--font-public-display); text-transform: uppercase; }
+.competition-feature p { max-width: 48ch; color: var(--text-secondary); font-size: var(--text-sm); }
+.competition-feature a { display: flex; align-items: center; gap: var(--space-xl); min-height: 44px; margin-top: var(--space-sm); border-bottom: 1px solid var(--gold-primary); color: var(--gold-primary); font-weight: 700; }
+.competition-feature dl { display: grid; align-content: end; gap: var(--space-lg); margin: 0; padding: var(--space-lg); border-left: var(--module-divider); background: color-mix(in srgb, var(--surface-command) 75%, transparent); }
+.competition-feature dl > div { display: grid; gap: .35rem; padding-top: var(--space-md); border-top: var(--module-divider); }
+.competition-feature dt { color: var(--text-muted); font-size: var(--text-xs); }
+.competition-feature dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 700; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .competition-feature { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .competition-feature__identity { padding: var(--space-xl) var(--space-lg); }
+  .competition-feature dl { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-sm); border-left: 0; padding: var(--space-lg); }
+  .competition-feature dd { font-size: var(--text-xs); }
+}
+@media (prefers-reduced-transparency: reduce) { .competition-feature dl { background: var(--surface-command); } }

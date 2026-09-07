@@ -46,7 +46,7 @@ function StatusIcon({ status }: { status: TournamentCalendarStatus }) {
   return <LockKeyhole size={14} aria-hidden="true" />;
 }
 
-export function TournamentCalendar({ tournaments, compact = false }: { tournaments: Tournament[]; compact?: boolean }) {
+export function TournamentCalendar({ tournaments, compact = false, overview = false }: { tournaments: Tournament[]; compact?: boolean; overview?: boolean }) {
   const EventHeading = compact ? 'h3' : 'h2';
   const [now, setNow] = useState(competitionNow);
   const calendarRef = useRef<HTMLElement>(null);
@@ -101,7 +101,7 @@ export function TournamentCalendar({ tournaments, compact = false }: { tournamen
   };
   const stripDays = Array.from({ length: 7 }, (_, index) => { const day = new Date(selectedDate); day.setUTCDate(selectedDate.getUTCDate() + index - 3); return day; });
 
-  if (tournaments.length === 0) return <section className={`tournament-calendar tournament-calendar--empty ${compact ? 'tournament-calendar--compact' : ''}`} aria-label="AEVIC turnir təqvimi">
+  if (tournaments.length === 0) return <section className={`tournament-calendar tournament-calendar--empty ${compact ? 'tournament-calendar--compact' : ''} ${overview ? 'tournament-calendar--overview' : ''}`} aria-label="AEVIC turnir təqvimi">
     <EmptyState
       icon={<CalendarClock size={28} />}
       title="Növbəti yarış elanları burada yayımlanacaq"
@@ -110,7 +110,7 @@ export function TournamentCalendar({ tournaments, compact = false }: { tournamen
     />
   </section>;
 
-  return <section ref={calendarRef} className={`tournament-calendar ${compact ? 'tournament-calendar--compact' : ''}`} aria-label="AEVIC turnir təqvimi">
+  return <section ref={calendarRef} className={`tournament-calendar ${compact ? 'tournament-calendar--compact' : ''} ${overview ? 'tournament-calendar--overview' : ''}`} aria-label="AEVIC turnir təqvimi">
     <div className="tournament-calendar__picker">
       <header><div><span>{monthLabels[viewMonth.month]}</span><strong>{viewMonth.year}</strong></div><nav aria-label="Təqvim ayı"><button type="button" onClick={() => moveMonth(-1)} aria-label="Əvvəlki ay"><ChevronLeft size={18} /></button><button type="button" onClick={() => moveMonth(1)} aria-label="Növbəti ay"><ChevronRight size={18} /></button></nav></header>
       <div className="tournament-calendar__month"><div className="tournament-calendar__weekdays" aria-hidden="true">{weekdayLabels.map((day) => <span key={day}>{day}</span>)}</div><div className="tournament-calendar__days">{days.map((date, index) => date ? <button type="button" key={calendarDateKey(date)} data-calendar-date={calendarDateKey(date)} data-event-status={eventsByDay.get(calendarDateKey(date))?.[0]?.status} aria-current={calendarDateKey(date) === todayKey ? 'date' : undefined} tabIndex={calendarDateKey(date) === calendarDateKey(selectedDate) ? 0 : -1} className={`${calendarDateKey(date) === calendarDateKey(selectedDate) ? 'is-selected' : ''} ${calendarDateKey(date) === todayKey ? 'is-today' : ''} ${eventsByDay.has(calendarDateKey(date)) ? 'has-event' : ''}`} aria-label={`${readableDate(date)}${eventsByDay.has(calendarDateKey(date)) ? `, ${eventsByDay.get(calendarDateKey(date))!.length} turnir, ${statusCopy[eventsByDay.get(calendarDateKey(date))![0].status]}` : ', turnir yoxdur'}`} aria-pressed={calendarDateKey(date) === calendarDateKey(selectedDate)} onClick={() => selectDay(date)} onKeyDown={(event) => onDayKeyDown(event, date)}><span>{date.getUTCDate()}</span>{eventsByDay.has(calendarDateKey(date)) && <i aria-hidden="true" />}</button> : <span key={`empty-${index}`} aria-hidden="true" />)}</div></div>
@@ -123,8 +123,8 @@ export function TournamentCalendar({ tournaments, compact = false }: { tournamen
         {selectedEvents.length > 1 && <div className="calendar-event-switcher" role="group" aria-label="Bu günün turnirləri">{selectedEvents.map((item) => <button key={item.id} type="button" aria-pressed={item.id === selectedTournament.id} onClick={() => setSelectedTournamentId(item.id)}>{item.shortName}</button>)}</div>}
         <div className="calendar-event-inspector__heading"><div className={`calendar-event-status calendar-event-status--${eventStatus(selectedTournament, now)}`}><StatusIcon status={eventStatus(selectedTournament, now)} /><span>{statusCopy[eventStatus(selectedTournament, now)]}</span>{demoMode && <small>Nümunə</small>}</div><EventHeading>{selectedTournament.name}</EventHeading></div>
         <dl><div><dt>Başlanğıc</dt><dd>{formatEventTime(selectedTournament.startsAt, AEVIC_EVENT_TIMEZONE)} AZT</dd></div><div><dt>Boş slot</dt><dd>{Math.max(0, selectedTournament.maxSlots - selectedTournament.usedSlots - (joined[selectedTournament.id] ? 1 : 0))} / {selectedTournament.maxSlots}</dd></div><div><dt>Raund</dt><dd>{selectedTournament.roundsPerDay * selectedTournament.days}</dd></div></dl>
-        {eventStatus(selectedTournament, now) === 'completed' ? <Link className="button button--secondary" to={`/tournaments/${selectedTournament.id}`}><span>Nəticələrə bax</span><ArrowRight size={17} /></Link> : eventStatus(selectedTournament, now) === 'live' ? <Link className="button button--primary" to={`/tournaments/${selectedTournament.id}`}><span>Turniri izlə</span><Radio size={17} /></Link> : <TournamentJoinAction tournament={selectedTournament} showTeamState onJoined={() => setJoined((current) => ({ ...current, [selectedTournament.id]: true }))} />}
-        <small className="calendar-authority-note">Slot və uyğunluq göndərmə anında servis tərəfindən yenidən yoxlanır.</small>
+        {overview ? <Link className="text-link" to={`/tournaments/${selectedTournament.id}`}>Turnirə bax <ArrowRight size={17} /></Link> : eventStatus(selectedTournament, now) === 'completed' ? <Link className="button button--secondary" to={`/tournaments/${selectedTournament.id}`}><span>Nəticələrə bax</span><ArrowRight size={17} /></Link> : eventStatus(selectedTournament, now) === 'live' ? <Link className="button button--primary" to={`/tournaments/${selectedTournament.id}`}><span>Turniri izlə</span><Radio size={17} /></Link> : <TournamentJoinAction tournament={selectedTournament} showTeamState onJoined={() => setJoined((current) => ({ ...current, [selectedTournament.id]: true }))} />}
+        {!overview && <small className="calendar-authority-note">Slot və uyğunluq göndərmə anında servis tərəfindən yenidən yoxlanır.</small>}
       </article> : <div className="tournament-calendar__empty"><CalendarClock size={24} /><strong>Bu gün turnir yoxdur.</strong><p>Başqa tarixi seçin və ya bütün yarış xəttinə baxın.</p><Link to="/tournaments">Bütün turnirlər <ArrowRight size={15} /></Link></div>}
     </div>
   </section>;

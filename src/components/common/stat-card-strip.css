@@ -1,25 +1,16 @@
-/* One stat pattern for public facts, team readiness and admin operations.
-   3:2 is the preferred ratio; long values may grow rather than be clipped. */
-.team-stat-slider { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(min(100%, 12rem), 1fr); overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--gold-primary) var(--surface-1); gap: var(--stat-card-gap); margin: 0; padding: .4rem; list-style: none; }
-.team-stat-slider > li { min-width: 0; }
-.team-stat-slider__card { height: 100%; min-width: 0; aspect-ratio: var(--stat-card-ratio); display: flex; flex-direction: column; align-items: stretch; gap: var(--space-sm); padding: var(--space-md); color: var(--text-primary); background: var(--stat-card-ink); border: 1px solid var(--border-subtle); border-radius: var(--stat-card-radius); }
-.team-stat-slider__heading { display: flex; align-items: start; justify-content: space-between; gap: var(--space-xs); }
-.team-stat-slider__heading > :last-child { flex: 0 0 auto; }
-.team-stat-slider__eyebrow { font: 700 var(--text-xs)/1.4 var(--font-ui); letter-spacing: .04em; }
-.team-stat-slider__card strong { margin-top: auto; font: 700 clamp(1.3rem, 2.2vw, 2rem)/1.15 var(--heading-product); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.team-stat-slider__card small { font-size: var(--text-xs); line-height: 1.5; }
-.team-stat-slider__card--gold { color: var(--text-on-gold); background: var(--stat-card-gold); border-color: transparent; }
-.team-stat-slider__card--purple { color: var(--text-on-accent); background: var(--stat-card-purple); border-color: transparent; }
-.team-stat-slider__card--soft { color: var(--text-on-accent); background: var(--stat-card-soft); }
-.team-stat-slider__card--ink .team-stat-slider__heading > :last-child { color: var(--gold-primary); }
-a.team-stat-slider__card { transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
-a.team-stat-slider__card:hover { transform: translateY(-2px); box-shadow: var(--shadow-raised); }
-a.team-stat-slider__card:active { transform: translateY(0); }
-@media (max-width: 700px) {
-  .team-stat-slider { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(75vw, 16rem); overflow-x: auto; scroll-snap-type: x proximity; padding: .3rem .3rem .85rem; scrollbar-width: thin; scrollbar-color: var(--gold-primary) var(--surface-1); }
-  .team-stat-slider > li { scroll-snap-align: start; }
-}
-@media (prefers-reduced-motion: reduce) {
-  a.team-stat-slider__card { transition: none; }
-  a.team-stat-slider__card:hover { transform: none; }
-}
+/* Compact facts share a single ruled surface. */
+.team-stat-slider { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(10rem, 1fr); overflow-x: auto; scrollbar-width: thin; gap: 0; margin: 0; padding: 0; list-style: none; border-block: var(--module-divider); }
+.team-stat-slider > li { min-width: 0; border-right: var(--module-divider); }
+.team-stat-slider > li:last-child { border-right: 0; }
+.team-stat-slider__card { height: 100%; min-width: 0; display: flex; flex-direction: column; gap: .35rem; padding: 1rem; color: var(--text-primary); background: transparent; }
+.team-stat-slider__heading { display: flex; align-items: center; justify-content: space-between; gap: .5rem; color: var(--text-secondary); }
+.team-stat-slider__heading > :last-child { display: inline-flex; flex: 0 0 auto; }
+.team-stat-slider__heading svg { width: 16px; height: 16px; }
+.team-stat-slider__eyebrow { font: 600 var(--text-xs)/1.4 var(--font-ui); }
+.team-stat-slider__card strong { font: 700 clamp(1.15rem, 2vw, 1.5rem)/1.25 var(--font-ui); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.team-stat-slider__card small { color: var(--text-secondary); font-size: var(--text-xs); line-height: 1.5; }
+.team-stat-slider__card--gold strong { color: var(--gold-primary); }
+a.team-stat-slider__card { transition: background-color var(--motion-fast); }
+a.team-stat-slider__card:hover { background: var(--surface-2); }
+@media (max-width: 700px) { .team-stat-slider { grid-auto-flow: row; grid-template-columns: repeat(2,minmax(0,1fr)); } .team-stat-slider > li { border-bottom: var(--module-divider); } .team-stat-slider__card { padding: .85rem; } }
+@media (prefers-reduced-motion: reduce) { a.team-stat-slider__card { transition: none; } }

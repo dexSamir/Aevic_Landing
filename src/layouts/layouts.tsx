@@ -9,8 +9,6 @@ import {
   FileText,
   GitCompareArrows,
   History,
-  House,
-  Swords,
   LayoutDashboard,
   ListChecks,
   LogIn,
@@ -43,8 +41,6 @@ import { useTeamCompetitionContexts, useTeamPlatformData } from '../services/Pla
 import { activePublicRoute } from '../utils/routes';
 import { formatEventDate } from '../utils/calendar';
 import { productRouteMetadata, type ProductArea } from '../utils/routeMetadata';
-
-const publicNavIcons = { '/': House, '/tournaments': Trophy, '/teams': Users, '/matches': Swords };
 
 const teamLinks = [
   { to: '/team', label: 'İcmal', icon: LayoutDashboard, end: true, group: 'Əsas' },
@@ -122,7 +118,7 @@ function PublicNavLinks({ onNavigate, drawer = false }: { onNavigate?: () => voi
     '--nav-indicator-width': `${indicator.width}px`,
   } as CSSProperties;
 
-  return <nav ref={navRef} className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya" data-indicator-ready={indicator.ready || undefined} style={drawer ? undefined : indicatorStyle}>{!drawer && <span className="public-nav-indicator" aria-hidden="true" />}{publicNavigation.primary.map((link) => { const Icon = publicNavIcons[link.to as keyof typeof publicNavIcons] ?? Trophy; const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} ref={(node) => { if (node) itemRefs.current.set(link.to, node); else itemRefs.current.delete(link.to); }} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}><Icon size={18} aria-hidden="true" /><span>{link.label}</span></NavLink>; })}</nav>;
+  return <nav ref={navRef} className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya" data-indicator-ready={indicator.ready || undefined} style={drawer ? undefined : indicatorStyle}>{!drawer && <span className="public-nav-indicator" aria-hidden="true" />}{publicNavigation.primary.map((link) => { const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} ref={(node) => { if (node) itemRefs.current.set(link.to, node); else itemRefs.current.delete(link.to); }} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}><span>{link.label}</span></NavLink>; })}</nav>;
 }
 
 function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
@@ -239,7 +235,7 @@ export function AuthLayout() {
       <MediaBackdrop src={officialAssets.authBackdrop} srcSet={officialAssets.authBackdropSrcSet} sources={officialAssets.authBackdropSources} sizes="100vw" className="auth-shell__media" priority width={1586} height={992} focalDesktop="49% 48%" focalMobile="44% 45%" />
       <div className="auth-shell__content"><RouteTransitionOutlet family="auth" /></div>
     </main>
-    <PublicFooter />
+    <PublicFooter showCta={false} />
   </div>;
 }
 
@@ -275,7 +271,7 @@ export function RouteError() {
   const error = useRouteError();
   const status = isRouteErrorResponse(error) ? error.status : 500;
   const forbidden = status === 401 || status === 403;
-  return <main className="route-error"><span>{status}</span><h1>{forbidden ? 'Bu səhifə üçün icazəniz yoxdur.' : status === 404 ? 'Bu səhifə yarış cədvəlində yoxdur.' : 'Platforma sorğunu tamamlaya bilmədi.'}</h1><p>{forbidden ? 'Hesab rolunuzu yoxlayın və ya dəstək xidməti ilə əlaqə saxlayın.' : status === 404 ? 'Ünvan dəyişdirilmiş və ya silinmiş ola bilər.' : 'Bir az sonra yenidən cəhd edin. Raw server xətası göstərilmir.'}</p><Link className="button button--primary" to={forbidden ? '/login' : '/'}><span>{forbidden ? 'Girişə keç' : 'Ana səhifəyə qayıt'}</span></Link></main>;
+  return <main className="route-error"><BrandMark variant="signature" /><span>{status}</span><h1>{forbidden ? 'Bu səhifə üçün icazəniz yoxdur.' : status === 404 ? 'Bu səhifə yarış cədvəlində yoxdur.' : 'Platforma sorğunu tamamlaya bilmədi.'}</h1><p>{forbidden ? 'Hesab rolunuzu yoxlayın və ya dəstək xidməti ilə əlaqə saxlayın.' : status === 404 ? 'Ünvan dəyişdirilmiş və ya silinmiş ola bilər.' : 'Bir az sonra yenidən cəhd edin və ya ana səhifəyə qayıdın.'}</p><Link className="button button--primary" to={forbidden ? '/login' : '/'}><span>{forbidden ? 'Girişə keç' : 'Ana səhifəyə qayıt'}</span></Link></main>;
 }
 
 export function ProtectedRoute({ area, children }: { area: 'team' | 'admin'; children: ReactNode }) {

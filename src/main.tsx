@@ -6,6 +6,7 @@ import './styles/components.css';
 import './styles/public-shell.css';
 import './styles/home.css';
 import './styles/motion.css';
+import './app/routeStyles';
 
 // The static Home can paint before the application graph downloads. Vite loads
 // each component's owned CSS with the dynamic chunk, before that chunk executes.

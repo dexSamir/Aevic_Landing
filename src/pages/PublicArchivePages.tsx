@@ -42,14 +42,15 @@ export function RecordsCenterPage() {
     {!loading && failed && <EmptyState title="Rekordlar əlçatan deyil" body="Rekord servisi cavab vermir. Bir az sonra yenidən cəhd edin." />}
     {!loading && !failed && !records.length && <EmptyState title="İlk rekord üçün rəsmi nəticə lazımdır" body="Təsdiqlənmiş rekordlar mənbəyi ilə burada görünəcək. Xalın necə hesablandığı ilə indidən tanış olun." action={<Link className="text-link" to="/regulations#rule-5">Xal qaydalarına bax</Link>} />}
     {!loading && !failed && records.length > 0 && <>
-      <RecordFeatured record={records[0]} />
-      {searchParams.has('record') && !selectedRecord && <EmptyState title="Rekord tapılmadı" body="Seçilmiş rekord arxivdə yoxdur." action={<Link className="button button--secondary" to="/records"><span>Arxivə qayıt</span></Link>} />}
-      {selectedRecord && <RecordInlineDetail record={selectedRecord} />}
-      <section className="record-categories">
-        <SectionHeading title="Arxiv reyestri" description="Yalnız mövcud nəticə mənbəyinin sübut etdiyi kateqoriyalar" />
-        <Tabs active={category} onChange={setCategory} items={[{ id: 'all', label: 'Hamısı', count: records.length }, ...categories.map((recordCategoryId) => ({ id: recordCategoryId, label: recordCategoryLabels[recordCategoryId], count: records.filter((record) => recordCategory(record) === recordCategoryId).length }))]} />
-        <div className="record-grid record-ledger">{visible.map((record, index) => <RecordCard key={record.id} record={record} index={index} />)}</div>
-      </section>
+      <div className="records-board">
+        <aside className="records-board__index"><span>ARXİV REYESTRİ</span><strong>{String(records.length).padStart(2, '0')}</strong><Tabs active={category} onChange={setCategory} items={[{ id: 'all', label: 'Hamısı', count: records.length }, ...categories.map((recordCategoryId) => ({ id: recordCategoryId, label: recordCategoryLabels[recordCategoryId], count: records.filter((record) => recordCategory(record) === recordCategoryId).length }))]} /></aside>
+        <div className="records-board__canvas">
+          <div className="records-board__features"><RecordFeatured record={records[0]} />{records.length > 1 && <aside className="records-board__highlights">{records.slice(1, 3).map((record) => <Link key={record.id} to={`/records?record=${record.id}#record-detail`}><span>{recordCategoryLabels[recordCategory(record)]}</span><strong>{recordValue(record)}</strong><h2>{record.label}</h2><div><TeamLogo name={record.teamName} src={record.teamLogo} size="sm" /><span>{record.teamName}</span><ArrowRight size={17} aria-hidden="true" /></div></Link>)}</aside>}</div>
+          {searchParams.has('record') && !selectedRecord && <EmptyState title="Rekord tapılmadı" body="Seçilmiş rekord arxivdə yoxdur." action={<Link className="button button--secondary" to="/records"><span>Arxivə qayıt</span></Link>} />}
+          {selectedRecord && <RecordInlineDetail record={selectedRecord} />}
+          <section className="record-categories"><SectionHeading title="Arxiv reyestri" description="Yalnız mövcud nəticə mənbəyinin sübut etdiyi kateqoriyalar" /><div className="record-grid record-ledger">{visible.map((record, index) => <RecordCard key={record.id} record={record} index={index} />)}</div></section>
+        </div>
+      </div>
     </>}
   </div></section>;
 }

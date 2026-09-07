@@ -20,7 +20,7 @@ describe('Home first-paint rendering contract', () => {
     try {
       const html = renderHome();
       expect(html).toContain('home-live-hero__copy');
-      expect(html).toContain('Rəqabətin <em>rəsmi səhnəsi.</em>');
+      expect(html).toContain('Rəqabətin <em>yeni səhnəsi.</em>');
       expect(html).toContain('home-live-hero__media');
       expect(html).toContain('image/avif');
       expect(html).toContain('Yarış məlumatı yoxlanılır…');
@@ -45,6 +45,7 @@ describe('Home first-paint rendering contract', () => {
     expect(startup).toContain("root.dataset.prerender === 'home'");
     expect(startup).toContain('hydrateRoot(root, application)');
     expect(startup).toContain('createRoot(root).render(application)');
-    expect(startup).toContain('await loadRouteStyles(window.location.pathname)');
+    expect(readFileSync('src/main.tsx', 'utf8')).toContain("import './app/routeStyles';");
+    expect(startup).not.toContain('loadRouteStyles');
   });
 });

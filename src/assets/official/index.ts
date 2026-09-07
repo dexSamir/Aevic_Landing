@@ -26,7 +26,6 @@ import mapRondo from './map-rondo.jpg';
 import mapRondo320 from './map-rondo-320.jpg';
 import mapRondo640 from './map-rondo-640.jpg';
 import mapRondo960 from './map-rondo-960.jpg';
-import { modernImageSources } from '../imageDelivery';
 
 const maps = [mapErangelRound1, mapMiramar, mapRondo, mapErangelRound4] as const;
 
@@ -45,12 +44,6 @@ export const officialAssets = {
     `${mapRondo320} 320w, ${mapRondo640} 640w, ${mapRondo960} 960w, ${mapRondo} 1600w`,
     `${mapErangelRound4320} 320w, ${mapErangelRound4640} 640w, ${mapErangelRound4960} 960w, ${mapErangelRound4} 1600w`,
   ],
-  mapSources: maps.map((map, index) => modernImageSources(map, [320, 640, 960, 1600], [
-    [mapErangelRound1320, mapMiramar320, mapRondo320, mapErangelRound4320][index],
-    [mapErangelRound1640, mapMiramar640, mapRondo640, mapErangelRound4640][index],
-    [mapErangelRound1960, mapMiramar960, mapRondo960, mapErangelRound4960][index],
-    map,
-  ])),
 } as const;
 
 export const officialRotation = ['Erangel', 'Miramar', 'Rondo', 'Erangel'] as const;

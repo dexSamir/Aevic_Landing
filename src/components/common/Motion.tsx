@@ -27,8 +27,62 @@ export function pageFamilyForPath(pathname: string): PageFamily {
   return 'editorial';
 }
 
+/** Ease discrete mouse-wheel steps only; native gestures and navigation retain control. */
+function useHomeWheelEase(enabled: boolean) {
+  useEffect(() => {
+    if (!enabled) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
+    let target = window.scrollY;
+    let previous = 0;
+    const stop = () => { cancelAnimationFrame(frame); frame = 0; };
+    const tick = (time: number) => {
+      const elapsed = Math.min(32, time - previous || 16);
+      previous = time;
+      const distance = target - window.scrollY;
+      window.scrollTo({ top: Math.abs(distance) < .75 ? target : window.scrollY + distance * (1 - Math.exp(-elapsed / 85)), behavior: 'instant' });
+      if (Math.abs(target - window.scrollY) > .75) frame = requestAnimationFrame(tick);
+      else frame = 0;
+    };
+    const wheel = (event: WheelEvent) => {
+      if (reduced.matches || event.ctrlKey || event.metaKey || event.shiftKey || event.deltaX || !event.cancelable) return;
+      // Small/fractional deltas are touchpad gestures, which already have OS inertia.
+      if (event.deltaMode === 0 && (Math.abs(event.deltaY) < 50 || !Number.isInteger(event.deltaY))) { stop(); return; }
+      let node = event.target instanceof Element ? event.target : null;
+      while (node && node !== document.body) {
+        if (node.matches('input, textarea, select, [contenteditable], [role="dialog"]')) return;
+        const style = getComputedStyle(node);
+        if (/(auto|scroll)/.test(style.overflowY + style.overflowX) && (node.scrollHeight > node.clientHeight || node.scrollWidth > node.clientWidth)) return;
+        node = node.parentElement;
+      }
+      if (!frame) target = window.scrollY;
+      const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1);
+      target = Math.max(0, Math.min(document.documentElement.scrollHeight - window.innerHeight, target + delta));
+      if (target === window.scrollY) return;
+      event.preventDefault();
+      if (!frame) { previous = performance.now(); frame = requestAnimationFrame(tick); }
+    };
+    window.addEventListener('wheel', wheel, { passive: false });
+    window.addEventListener('keydown', stop);
+    window.addEventListener('pointerdown', stop);
+    window.addEventListener('touchstart', stop, { passive: true });
+    window.addEventListener('hashchange', stop);
+    reduced.addEventListener('change', stop);
+    return () => {
+      stop();
+      window.removeEventListener('wheel', wheel);
+      window.removeEventListener('keydown', stop);
+      window.removeEventListener('pointerdown', stop);
+      window.removeEventListener('touchstart', stop);
+      window.removeEventListener('hashchange', stop);
+      reduced.removeEventListener('change', stop);
+    };
+  }, [enabled]);
+}
+
 export function PageTransition({ children, routeKey, family }: { children: ReactNode; routeKey: string; family: PageFamily }) {
   const pageRef = useRef<HTMLDivElement>(null);
+  useHomeWheelEase(routeKey === "/");
   useEffect(() => {
     if (family !== 'editorial' && family !== 'competition') return;
     const root = pageRef.current;

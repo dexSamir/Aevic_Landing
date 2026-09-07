@@ -46,6 +46,15 @@ export function SocialLinks({ links, ownerName, compact = false }: { links?: Soc
   return <nav className={`social-links ${compact ? 'social-links--compact' : ''}`} aria-label={`${ownerName} sosial keçidləri`}>{configured.map(([platform, url]) => <SocialIconButton key={platform} platform={platform} url={url} ownerName={ownerName} showLabel={!compact} />)}</nav>;
 }
 
+export function PlatformFooterSocials() {
+  const platforms: SocialPlatform[] = ['instagram', 'tiktok', 'linkedin', 'x'];
+  return <nav className="social-links social-links--compact" aria-label="AEVIC Esports sosial keçidləri">{platforms.map((platform) => {
+    const url = officialPlatformSocialLinks[platform];
+    const Icon = socialConfig[platform].icon;
+    return url ? <SocialIconButton key={platform} platform={platform} url={url} ownerName="AEVIC Esports" /> : <span key={platform} className="social-icon-button" role="img" aria-label={`${socialConfig[platform].label} — rəsmi keçid hələ əlavə edilməyib`} title={`${socialConfig[platform].label} — rəsmi keçid hələ əlavə edilməyib`}><Icon size={19} /></span>;
+  })}</nav>;
+}
+
 export const officialPlatformSocialLinks: SocialLinkMap = {
   instagram: import.meta.env.VITE_AEVIC_INSTAGRAM_URL || undefined,
   tiktok: import.meta.env.VITE_AEVIC_TIKTOK_URL || undefined,

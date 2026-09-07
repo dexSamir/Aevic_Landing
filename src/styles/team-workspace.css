@@ -33,7 +33,7 @@
   overflow: hidden;
   background: var(--team-surface-primary);
   border: 1px solid var(--team-border-subtle);
-  border-radius: var(--team-card-radius);
+  border-radius: var(--radius-sm);
   box-shadow: none;
 }
 
@@ -71,8 +71,8 @@
 }
 .product-shell--team .side-nav a:hover { color: var(--color-text-primary); background: var(--team-surface-primary); border-color: var(--team-border-subtle); }
 .product-shell--team .side-nav a:active { transform: scale(.985); }
-.product-shell--team .side-nav a.active { color: var(--gold-primary); background: var(--surface-gold); border-color: var(--team-border-accent); box-shadow: inset 3px 0 var(--gold-primary); }
-.product-shell--team .side-nav a.active .side-nav__icon { color: var(--text-on-gold); background: var(--gold-primary); }
+.product-shell--team .side-nav a.active {color: var(--gold-primary);     background: var(--surface-2); border-color: transparent; box-shadow: none; }
+.product-shell--team .side-nav a.active .side-nav__icon {color: var(--gold-primary); background: transparent; }
 .product-shell--team .side-nav a b { color: var(--color-text-inverse); background: var(--color-brand-primary); }
 
 .product-shell--team .sidebar-note {
@@ -116,11 +116,11 @@
 .product-shell--team :is(.team-tournament-list > article, .history-tournament, .inbox-list, .inbox-layout > aside, .operation-form, .request-detail-grid > section, .request-detail-grid > aside, .completion-grid > section, .completion-grid > form, .settings-panel, .badge-editor, .profile-card-studio > aside) {
   background: var(--team-surface-primary);
   border: 1px solid var(--team-border-subtle);
-  border-radius: var(--team-card-radius);
+  border-radius: var(--radius-sm);
   box-shadow: var(--team-shell-shadow);
 }
 .product-shell--team :is(.section-heading, .page-header) p { color: var(--team-text-secondary); }
-.product-shell--team :is(.data-table, .mobile-data-list, .request-ledger, .notification-center-list, .entity-ledger, .authority-ledger, .invitation-ledger, .history-ledger) { overflow: hidden; background: var(--team-border-subtle); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
+.product-shell--team :is(.data-table, .mobile-data-list, .request-ledger, .notification-center-list, .entity-ledger, .authority-ledger, .invitation-ledger, .history-ledger) { overflow: hidden; background: var(--team-border-subtle); border: 1px solid var(--team-border-subtle); border-radius: var(--radius-sm); }
 .product-shell--team :is(.request-ledger > a, .notification-center-list > div, .entity-ledger > a, .entity-ledger > article, .authority-ledger > article, .invitation-ledger > article, .history-ledger > article) { background: var(--team-surface-primary); border-color: var(--team-border-subtle); }
 .product-shell--team :is(.request-ledger > a, .entity-ledger > a):hover { background: var(--team-surface-hover); }
 
@@ -132,7 +132,7 @@
 .product-shell--team .team-ops-header { min-width: 0; display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--team-border-subtle); }
 .product-shell--team .team-ops-header > div { min-width: 0; display: grid; gap: .35rem; }
 .product-shell--team .team-ops-header > div > span,
-.product-shell--team :is(.team-now__action, .team-competition-anchor, .team-run-sheet, .team-change-ledger, .team-readiness-ledger) header span { color: var(--team-accent-secondary); font: 700 .66rem/1 var(--font-competition); letter-spacing: .11em; }
+.product-shell--team :is(.team-now__action, .team-competition-anchor, .team-run-sheet, .team-change-ledger, .team-readiness-ledger) header span { color: var(--team-accent-secondary); font: 700 .7rem/1.3 var(--font-ui); letter-spacing: .11em; }
 .product-shell--team .team-ops-header h1 { max-width: 20ch; font: 700 clamp(1.7rem, 3vw, 2.7rem)/1 var(--font-heading); letter-spacing: -.025em; text-wrap: balance; }
 .product-shell--team .team-ops-header p { color: var(--team-text-secondary); }
 .product-shell--team .team-ops-header > a { min-width: 12rem; min-height: 3.5rem; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .2rem .75rem; padding: .7rem .85rem; color: var(--color-text-primary); background: var(--team-surface-primary); border: 1px solid var(--team-border-subtle); border-radius: var(--team-control-radius); box-shadow: inset 0 1px var(--team-selection-highlight); }
@@ -141,24 +141,27 @@
 .product-shell--team .team-ops-header > a svg { grid-column: 2; grid-row: 1 / 3; color: var(--color-brand-primary); }
 
 
-.product-shell--team .team-now { min-width: 0; display: grid; grid-template-columns: minmax(18rem, 1.2fr) minmax(24rem, .8fr); overflow: hidden; background: var(--team-surface-inset); border: 1px solid var(--team-border-default); border-radius: var(--team-card-radius); box-shadow: 0 24px 58px rgba(0, 0, 0, .26); }
-.product-shell--team .team-now__action { position: relative; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; justify-items: start; gap: .55rem; padding: clamp(1.35rem, 3vw, 2.4rem); }
+.product-shell--team .team-now {min-width: 0; display: grid; grid-template-columns: minmax(18rem, 1.2fr) minmax(24rem, .8fr); overflow: hidden; background: var(--team-surface-inset);     box-shadow: none; border: 0; border-block: var(--module-divider); border-radius: 0; }
+.product-shell--team .team-now__action {position: relative; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; justify-items: start; gap: .55rem;   padding: 1.25rem; }
 .product-shell--team .team-now__action::after { content: ''; position: absolute; inset: auto 2.4rem 0; height: 1px; background: linear-gradient(90deg, var(--color-brand-primary), transparent 68%); }
-.product-shell--team .team-now__action h2 { max-width: 18ch; font: 700 clamp(1.9rem, 4vw, 3.4rem)/.98 var(--font-heading); letter-spacing: -.03em; text-wrap: balance; }
+.product-shell--team .team-now__action h2 {max-width: 18ch; font: 700 clamp(1.9rem, 4vw, 3.4rem)/.98 var(--font-heading); letter-spacing: -.03em; text-wrap: balance;    font-family: var(--font-ui); font-size: clamp(1.5rem,2.3vw,2.1rem); line-height: 1.15; }
 .product-shell--team .team-now__action p { max-width: 54ch; color: var(--team-text-secondary); text-wrap: pretty; }
 .product-shell--team .team-now__action time { color: var(--color-warning); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
 .product-shell--team .team-now__action .button { margin-top: .5rem; }
 .product-shell--team .team-now__quickline { min-width: 0; display: grid; grid-template-rows: 1fr 1fr; margin: 0; background: var(--team-border-subtle); gap: 1px; }
 .product-shell--team .team-now__quickline > div { min-width: 0; display: grid; align-content: center; gap: .65rem; padding: 1.25rem 1.4rem; background: var(--team-surface-primary); }
-.product-shell--team .team-now__quickline dt { color: var(--team-text-muted); font: 700 .66rem/1 var(--font-competition); letter-spacing: .1em; }
+.product-shell--team .team-now__quickline dt { color: var(--team-text-muted); font: 700 .7rem/1.3 var(--font-ui); letter-spacing: .1em; }
 .product-shell--team .team-now__quickline dd { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 1rem; margin: 0; }
 .product-shell--team .team-now__quickline strong { min-width: 0; overflow: hidden; color: var(--color-text-primary); text-overflow: ellipsis; white-space: nowrap; }
 .product-shell--team .team-now__quickline time { color: var(--team-text-muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-.product-shell--team .team-competition-anchor { min-width: 0; display: grid; grid-template-columns: minmax(16rem, .9fr) minmax(24rem, 1.1fr) auto; align-items: center; gap: 1.5rem; padding: 1.25rem 1.35rem; background: var(--team-purple-wash); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
+.product-shell--team .team-competition-anchor {min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 1.5rem; padding: 1.25rem 1.35rem;     background: transparent; border: 0; border-block: var(--module-divider); border-radius: 0; box-shadow: none; }
+.product-shell--team .team-competition-anchor > dl { grid-column: 1 / -1; grid-row: 2; }
+.product-shell--team .team-competition-anchor > a { grid-column: 2; grid-row: 1; }
+@media (max-width: 640px) { .product-shell--team .team-competition-anchor > a { grid-column: 1; grid-row: 3; } }
 .product-shell--team .team-competition-anchor > header { min-width: 0; display: flex; align-items: start; justify-content: space-between; gap: .8rem; }
 .product-shell--team .team-competition-anchor header > div { min-width: 0; display: grid; gap: .3rem; }
-.product-shell--team .team-competition-anchor h2 { overflow-wrap: anywhere; font: 700 var(--text-md)/1.15 var(--font-heading); }
+.product-shell--team .team-competition-anchor h2 {overflow-wrap: anywhere; font: 700 var(--text-md)/1.15 var(--font-heading);  font-family: var(--font-ui); font-size: 1.15rem; }
 .product-shell--team .team-competition-anchor p { color: var(--team-text-muted); font-size: var(--text-sm); }
 .product-shell--team .team-competition-anchor dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; }
 .product-shell--team .team-competition-anchor dl > div { min-width: 0; display: grid; gap: .25rem; padding-inline: 1rem; border-left: 1px solid var(--team-border-subtle); }
@@ -167,7 +170,7 @@
 .product-shell--team .team-competition-anchor > a { min-height: 44px; display: inline-flex; align-items: center; gap: .4rem; color: var(--color-brand-primary); font-size: var(--text-sm); font-weight: 700; white-space: nowrap; }
 
 .product-shell--team .team-ops-columns { min-width: 0; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(20rem, .85fr); gap: 1rem; }
-.product-shell--team :is(.team-run-sheet, .team-change-ledger) { min-width: 0; overflow: hidden; background: var(--team-surface-primary); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
+.product-shell--team :is(.team-run-sheet, .team-change-ledger) {min-width: 0; overflow: hidden;     background: transparent; border: 0; border-block: var(--module-divider); border-radius: 0; box-shadow: none; }
 .product-shell--team :is(.team-run-sheet, .team-change-ledger) > header { min-height: 4.6rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.2rem; border-bottom: 1px solid var(--team-border-subtle); }
 .product-shell--team :is(.team-run-sheet, .team-change-ledger) header > div { display: grid; gap: .25rem; }
 .product-shell--team :is(.team-run-sheet, .team-change-ledger) h2 { font: 700 var(--text-md)/1.1 var(--font-heading); }
@@ -190,7 +193,7 @@
 .product-shell--team .team-change-ledger li > a { position: absolute; top: 50%; right: 1rem; width: 40px; height: 40px; display: grid; place-items: center; color: var(--team-text-secondary); transform: translateY(-50%); }
 .product-shell--team .team-change-ledger > p { padding: 1.2rem; color: var(--team-text-secondary); }
 
-.product-shell--team .team-readiness-ledger { min-width: 0; overflow: hidden; background: var(--team-surface-primary); border-radius: var(--team-card-radius); box-shadow: 0 0 0 1px var(--team-border-subtle), 0 12px 28px rgba(0, 0, 0, .14); }
+.product-shell--team .team-readiness-ledger {min-width: 0; overflow: hidden;     background: transparent; border: 0; border-block: var(--module-divider); border-radius: 0; box-shadow: none; }
 .product-shell--team .team-readiness-ledger > header { min-height: 3.75rem; display: flex; align-items: center; justify-content: space-between; gap: .75rem 1.25rem; padding: .65rem .85rem .65rem 1rem; border-bottom: 1px solid var(--team-border-subtle); }
 .product-shell--team .team-readiness-ledger header > div { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; justify-content: start; gap: .2rem .55rem; }
 .product-shell--team .team-readiness-ledger h2 { font: 700 var(--text-md)/1.1 var(--font-heading); }
@@ -200,20 +203,20 @@
 .product-shell--team .team-readiness-ledger nav a { min-height: 40px; display: inline-flex; align-items: center; gap: .3rem; color: var(--team-text-secondary); font-size: .78rem; font-weight: 600; }
 .product-shell--team .team-readiness-ledger nav a:hover { color: var(--color-brand-primary); }
 .product-shell--team .team-readiness-ledger ul { display: grid; grid-template-columns: .85fr .8fr 1.05fr 1.1fr 1.35fr; gap: .35rem; margin: 0; padding: .5rem; list-style: none; }
-.product-shell--team .team-readiness-ledger li { min-width: 0; min-height: 3.5rem; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; align-content: center; gap: .18rem .55rem; padding: .5rem .65rem; background: var(--team-surface-inset); border-radius: var(--team-control-radius); }
+.product-shell--team .team-readiness-ledger li {min-width: 0; min-height: 3.5rem; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; align-content: center; gap: .18rem .55rem; padding: .5rem .65rem;    background: transparent; border-radius: 0; }
 .product-shell--team .team-readiness-ledger li svg { grid-row: 1 / 3; color: var(--team-accent-secondary); }
 .product-shell--team .team-readiness-ledger li[data-state='ready'] svg { color: var(--color-success); }
 .product-shell--team .team-readiness-ledger li[data-state='pending'] svg { color: var(--color-warning); }
 .product-shell--team .team-readiness-ledger li span { color: var(--team-text-muted); font-size: .68rem; }
 .product-shell--team .team-readiness-ledger li strong { min-width: 0; overflow: hidden; font-size: .8rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
-.product-shell--team .team-readiness-ledger li.is-next { background: var(--team-purple-wash); box-shadow: inset 0 0 0 1px rgba(178, 155, 209, .12); }
+.product-shell--team .team-readiness-ledger li.is-next {background: var(--surface-2); box-shadow: none; }
 .product-shell--team .team-readiness-ledger li.is-next svg { color: var(--color-brand-primary); }
 
 .product-shell--team .team-overview-intelligence { min-width: 0; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(18rem, .75fr); gap: 1rem; }
-.product-shell--team :is(.team-standing-preview, .team-room-status) { min-width: 0; background: var(--team-surface-primary); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
+.product-shell--team :is(.team-standing-preview, .team-room-status) {min-width: 0;     background: transparent; border: 0; border-block: var(--module-divider); border-radius: 0; box-shadow: none; }
 .product-shell--team :is(.team-standing-preview, .team-room-status) > header { min-height: 4.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 1.1rem; border-bottom: 1px solid var(--team-border-subtle); }
 .product-shell--team :is(.team-standing-preview, .team-room-status) header > div { display: grid; gap: .22rem; }
-.product-shell--team :is(.team-standing-preview, .team-room-status) header span { color: var(--team-accent-secondary); font: 700 .66rem/1 var(--font-competition); letter-spacing: .1em; }
+.product-shell--team :is(.team-standing-preview, .team-room-status) header span { color: var(--team-accent-secondary); font: 700 .7rem/1.3 var(--font-ui); letter-spacing: .1em; }
 .product-shell--team :is(.team-standing-preview, .team-room-status) h2 { font: 700 var(--text-md)/1.15 var(--font-heading); }
 .product-shell--team .team-standing-preview header p { color: var(--team-text-muted); font-size: var(--text-sm); }
 .product-shell--team .team-standing-preview header p strong { color: var(--color-text-primary); font-family: var(--font-heading); }
@@ -241,15 +244,15 @@
 .product-shell--team .team-tournament-history { background: var(--team-surface-secondary); }
 .product-shell--team .entry-facts { overflow: hidden; background: var(--team-border-subtle); border-radius: var(--team-control-radius); }
 .product-shell--team .entry-facts span { background: var(--team-surface-inset); }
-.product-shell--team .tournament-operation-identity { grid-template-columns: minmax(0, 1fr) auto minmax(min(18rem, 40%), .7fr); padding: 1.25rem; background: var(--team-surface-primary); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
-.product-shell--team .operational-timeline ol { max-width: 100%; overflow-x: auto; background: var(--team-surface-primary); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); scrollbar-width: thin; }
+.product-shell--team .tournament-operation-identity { grid-template-columns: minmax(0, 1fr) auto minmax(min(18rem, 40%), .7fr); padding: 1.25rem; background: var(--team-surface-primary); border: 1px solid var(--team-border-subtle); border-radius: var(--radius-sm); }
+.product-shell--team .operational-timeline ol { max-width: 100%; overflow-x: auto; background: var(--team-surface-primary); border: 1px solid var(--team-border-subtle); border-radius: var(--radius-sm); scrollbar-width: thin; }
 .product-shell--team .operational-timeline li { border-color: var(--team-border-subtle); }
 .product-shell--team .tournament-operations-console { grid-template-columns: minmax(0, 1.25fr) minmax(min(18rem, 40%), .75fr); gap: 1rem; background: transparent; }
-.product-shell--team .tournament-operations-console > section { background: var(--team-surface-primary); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
+.product-shell--team .tournament-operations-console > section { background: var(--team-surface-primary); border: 1px solid var(--team-border-subtle); border-radius: var(--radius-sm); }
 .product-shell--team .room-card.credential-panel { background: var(--team-surface-inset); }
 .product-shell--team .credential-placeholder { background: var(--team-surface-secondary); }
-.product-shell--team .danger-zone { border: 1px solid rgba(230, 57, 70, .38); border-radius: var(--team-card-radius); }
-.product-shell--team .history-summary { gap: 1px; overflow: hidden; background: var(--team-border-subtle); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
+.product-shell--team .danger-zone { border: 1px solid rgba(230, 57, 70, .38); border-radius: var(--radius-sm); }
+.product-shell--team .history-summary { gap: 1px; overflow: hidden; background: var(--team-border-subtle); border: 1px solid var(--team-border-subtle); border-radius: var(--radius-sm); }
 .product-shell--team .history-summary > div { background: var(--team-surface-primary); }
 .product-shell--team .history-tournament { border-color: var(--team-border-accent); }
 .product-shell--team .team-comparison__identity { background: var(--team-surface-primary); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius) var(--team-card-radius) 0 0; }
@@ -257,8 +260,8 @@
 .product-shell--team .team-comparison > p { background: var(--team-surface-inset); border: 1px solid var(--team-border-subtle); border-radius: 0 0 var(--team-card-radius) var(--team-card-radius); }
 
 /* Roster, messages, requests and invitations. */
-.product-shell--team .roster-lock-banner { border: 1px solid rgba(255, 140, 0, .28); border-radius: var(--team-card-radius); }
-.product-shell--team .roster-management { gap: 1px; overflow: hidden; background: var(--team-border-subtle); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
+.product-shell--team .roster-lock-banner { border: 1px solid rgba(255, 140, 0, .28); border-radius: var(--radius-sm); }
+.product-shell--team .roster-management { gap: 1px; overflow: hidden; background: var(--team-border-subtle); border: 1px solid var(--team-border-subtle); border-radius: var(--radius-sm); }
 .product-shell--team .roster-management article { background: var(--team-surface-primary); }
 .product-shell--team .roster-management article:hover { background: var(--team-surface-secondary); }
 .product-shell--team .inbox-layout { grid-template-columns: minmax(0, 1fr) minmax(min(19rem, 38%), .38fr); gap: 1rem; }
@@ -266,13 +269,13 @@
 .product-shell--team .inbox-layout > aside { box-shadow: none; }
 .product-shell--team .replacement-pair > div { background: var(--team-surface-inset); border: 1px solid var(--team-border-subtle); border-radius: var(--team-control-radius); }
 .product-shell--team .detail-ledger > div { border-color: var(--team-border-subtle); }
-.product-shell--team .integration-boundary { border: 1px solid rgba(255, 140, 0, .25); border-radius: var(--team-card-radius); }
-.product-shell--team .verification-status { background: var(--team-purple-wash); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
-.product-shell--team .danger-ledger { background: var(--team-surface-primary); border-radius: var(--team-card-radius); }
+.product-shell--team .integration-boundary { border: 1px solid rgba(255, 140, 0, .25); border-radius: var(--radius-sm); }
+.product-shell--team .verification-status { background: var(--team-purple-wash); border: 1px solid var(--team-border-subtle); border-radius: var(--radius-sm); }
+.product-shell--team .danger-ledger { background: var(--team-surface-primary); border-radius: var(--radius-sm); }
 
 /* Settings, studio and badges share the workspace surface hierarchy. */
 .product-shell--team .settings-workspace { grid-template-columns: minmax(min(15rem, 32%), .32fr) minmax(0, 1fr); gap: 1rem; }
-.product-shell--team .settings-subnav { padding: .35rem; background: var(--team-surface-inset); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
+.product-shell--team .settings-subnav { padding: .35rem; background: var(--team-surface-inset); border: 1px solid var(--team-border-subtle); border-radius: var(--radius-sm); }
 .product-shell--team .settings-subnav button { border-radius: var(--team-control-radius); }
 .product-shell--team .settings-subnav button:hover { background: var(--team-surface-primary); }
 .product-shell--team .settings-subnav button.is-active { background: var(--team-surface-raised); box-shadow: inset 2px 0 0 var(--color-brand-primary); }
@@ -290,8 +293,8 @@
 .product-shell--team .asset-type-selector > button:hover { background: var(--team-surface-secondary); }
 .product-shell--team .asset-type-selector > button[aria-checked='true'] { background: var(--team-surface-raised); border-color: var(--team-border-accent); box-shadow: inset 0 2px 0 var(--color-brand-primary); }
 .product-shell--team .share-studio-panel { padding-top: 0; }
-.product-shell--team .profile-card-canvas { background: var(--team-surface-inset); border-color: var(--team-border-subtle); border-radius: var(--team-card-radius); }
-.product-shell--team .badge-art-pending { background: var(--team-surface-inset); border-color: var(--team-border-default); border-radius: var(--team-card-radius); }
+.product-shell--team .profile-card-canvas { background: var(--team-surface-inset); border-color: var(--team-border-subtle); border-radius: var(--radius-sm); }
+.product-shell--team .badge-art-pending { background: var(--team-surface-inset); border-color: var(--team-border-default); border-radius: var(--radius-sm); }
 
 .product-shell--team :is(.field input, .field select, .field textarea, .search-field input) { background: var(--team-surface-inset); border-color: var(--team-border-default); border-radius: var(--team-control-radius); }
 .product-shell--team :is(.field input, .field select, .field textarea):hover { border-color: var(--team-border-hover); }
@@ -312,7 +315,7 @@
   .product-shell--team .team-competition-anchor dl { grid-template-columns: 1fr; }
   .product-shell--team .team-competition-anchor dl > div { padding: .7rem 0; border-left: 0; border-bottom: 1px solid var(--team-border-subtle); }
   .product-shell--team .team-readiness-ledger ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .product-shell--team .team-readiness-ledger li.is-next { grid-column: 1 / -1; }
+  .product-shell--team .team-readiness-ledger li.is-next {grid-column: 1 / -1;  background: var(--surface-2); box-shadow: none; }
   .product-shell--team .tournament-operation-identity { grid-template-columns: minmax(0, 1fr) auto; }
   .product-shell--team .tournament-operation-identity dl { grid-column: 1 / -1; }
   .product-shell--team .asset-type-selector { grid-template-columns: 1fr; }
@@ -362,13 +365,13 @@
   .product-shell--team .page-header__actions .button { flex: 1 1 auto; }
   .product-shell--team .team-ops-overview { gap: .75rem; }
   .product-shell--team .team-ops-header { padding-bottom: .75rem; }
-  .product-shell--team .team-now__action { padding: 16px; }
-  .product-shell--team .team-now__action h2 { max-width: 100%; overflow-wrap: anywhere; font-size: clamp(1.75rem, 10vw, 2.5rem); }
+  .product-shell--team .team-now__action {padding: 1.25rem; }
+  .product-shell--team .team-now__action h2 {max-width: 100%; overflow-wrap: anywhere;     font-family: var(--font-ui); font-size: clamp(1.5rem,2.3vw,2.1rem); line-height: 1.15; }
   .product-shell--team .team-now__action .button { min-width: 0; max-width: 100%; white-space: normal; }
   .product-shell--team .team-now__quickline > div { padding: 1rem; }
   .product-shell--team .team-now__quickline dd { grid-template-columns: 1fr; gap: .3rem; }
   .product-shell--team .team-now__quickline strong { white-space: normal; overflow-wrap: anywhere; }
-  .product-shell--team .team-competition-anchor { grid-template-columns: minmax(0, 1fr); gap: 1rem; padding: 16px; }
+  .product-shell--team .team-competition-anchor {grid-template-columns: minmax(0, 1fr); gap: 1rem; padding: 16px;  background: transparent; border: 0; border-block: var(--module-divider); border-radius: 0; box-shadow: none; }
   .product-shell--team .team-competition-anchor :is(.status, a) { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
   .product-shell--team .team-competition-anchor > header { align-items: flex-start; flex-direction: column; }
   .product-shell--team .team-run-sheet li { grid-template-columns: 40px minmax(0, 1fr); gap: 8px; padding-inline: 16px; }
@@ -381,8 +384,8 @@
   .product-shell--team .team-readiness-ledger nav a { min-width: 0; min-height: 44px; justify-content: center; padding-inline: .15rem; font-size: .68rem; line-height: 1.15; text-align: center; }
   .product-shell--team .team-readiness-ledger nav a svg { display: none; }
   .product-shell--team .team-readiness-ledger ul { grid-template-columns: repeat(auto-fit, minmax(min(100%, 6rem), 1fr)); padding: .4rem; }
-  .product-shell--team .team-readiness-ledger li { min-height: 3.35rem; padding-inline: .55rem; }
-  .product-shell--team .team-readiness-ledger li.is-next { grid-column: 1 / -1; }
+  .product-shell--team .team-readiness-ledger li {min-height: 3.35rem; padding-inline: .55rem;  background: transparent; border-radius: 0; }
+  .product-shell--team .team-readiness-ledger li.is-next {grid-column: 1 / -1;  background: var(--surface-2); box-shadow: none; }
   .product-shell--team .team-readiness-ledger li strong { white-space: normal; overflow-wrap: anywhere; }
   .product-shell--team .team-change-ledger li { grid-template-columns: minmax(0, 1fr); padding: 16px 56px 16px 16px; }
   .product-shell--team .team-change-ledger li > div { flex-direction: column; gap: 4px; }
@@ -409,53 +412,4 @@
 
 @media (prefers-reduced-motion: reduce) {
   .product-shell--team .side-nav a { transition: none; }
-}
-
-/* Product pages: readable headings, open spacing and purposeful color. */
-.product-shell--team { --font-heading: var(--heading-product); }
-.product-shell--team .page-header h1, .product-shell--team .team-ops-header h1 { max-width: 26ch; font-family: var(--heading-product); font-size: clamp(1.85rem, 3.2vw, 3rem); line-height: 1.15; }
-.product-shell--team .page-header__copy::before { display: none; }
-.product-shell--team .page-header__copy { padding-inline-start: 0; }
-.product-shell--team .team-ops-overview { gap: var(--space-lg); }
-.product-shell--team .team-now { border-radius: var(--card-radius); border: 1px solid var(--team-border-accent); background: var(--surface-gold); overflow: hidden; }
-.product-shell--team .team-now__action { padding: var(--card-padding); background: var(--surface-gold); }
-.product-shell--team .team-now__action h2 { font-family: var(--heading-product); font-size: clamp(1.6rem, 2.5vw, 2.5rem); line-height: 1.2; }
-.product-shell--team .team-now__quickline > div { padding: var(--space-lg); background: var(--team-surface-primary); }
-.product-shell--team .team-now__quickline dt { color: var(--team-accent-secondary); }
-.product-shell--team .team-competition-anchor { padding: var(--card-padding); background: var(--team-purple-wash); border-radius: var(--card-radius); }
-.product-shell--team .team-ops-columns { gap: var(--space-lg); }
-.product-shell--team :is(.team-run-sheet, .team-change-ledger, .team-readiness-ledger, .team-standing-preview, .team-room-status) { border-radius: var(--card-radius); box-shadow: none; }
-.product-shell--team .team-run-sheet li { min-height: 5rem; }
-.product-shell--team .team-readiness-ledger ul { gap: var(--space-xs); padding: var(--space-sm); }
-.product-shell--team .team-readiness-ledger li { border: 1px solid var(--team-border-subtle); border-radius: var(--control-radius); }
-.product-shell--team .team-tournament-list > article { padding: var(--card-padding); box-shadow: none; }
-.product-shell--team .entry-facts { gap: var(--space-xs); background: transparent; }
-.product-shell--team .entry-facts > span { padding: var(--space-md); border-radius: var(--control-radius); }
-.product-shell--team .roster-management { gap: var(--space-xs); border: 0; background: transparent; overflow: visible; }
-.product-shell--team .roster-management article { min-height: 5.5rem; border: 1px solid var(--team-border-subtle); border-radius: var(--card-radius); }
-.product-shell--team .roster-number { font-family: var(--font-ui); font-size: var(--text-sm); }
-.product-shell--team :is(.request-ledger, .invitation-ledger, .authority-ledger, .notification-center-list) { border: 0; background: transparent; overflow: visible; display: grid; gap: var(--space-xs); }
-.product-shell--team :is(.request-ledger > a, .invitation-ledger > article, .authority-ledger > article, .notification-center-list > div) { padding: var(--space-md); border: 1px solid var(--team-border-subtle); border-radius: var(--card-radius); }
-.product-shell--team :is(.request-detail-grid > section, .request-detail-grid > aside, .completion-grid > section, .completion-grid > form, .operation-form) { padding: var(--card-padding); box-shadow: none; }
-.product-shell--team .replacement-pair > div { padding: var(--space-lg); background: var(--team-purple-wash); }
-.product-shell--team .detail-ledger dd { line-height: 1.6; }
-.product-shell--team .inbox-list { padding: var(--space-sm) var(--space-lg); box-shadow: none; }
-.product-shell--team .inbox-layout > aside { background: var(--team-purple-wash); padding: var(--card-padding); }
-.product-shell--team .history-summary { gap: var(--space-sm); border: 0; background: transparent; overflow: visible; }
-.product-shell--team .history-summary > div { padding: var(--space-lg); border: 1px solid var(--team-border-subtle); border-radius: var(--card-radius); }
-.product-shell--team .history-summary > div:nth-child(2) { background: var(--team-purple-wash); }
-.product-shell--team .history-summary strong { font-family: var(--heading-product); }
-.product-shell--team .history-tournament { padding: var(--card-padding); background: var(--surface-gold); box-shadow: none; }
-.product-shell--team .asset-type-selector > button { min-height: 5rem; border-radius: var(--card-radius); padding: var(--space-md); }
-.product-shell--team .asset-type-selector > button[aria-checked='true'] { background: var(--team-purple-wash); border-color: var(--team-accent-secondary); box-shadow: none; }
-.product-shell--team .profile-card-canvas, .product-shell--team .sharecard-canvas { padding: var(--card-padding); border: 1px solid var(--team-border-subtle); background: var(--team-surface-inset); }
-.product-shell--team .settings-panel { box-shadow: none; }
-.product-shell--team .settings-panel > header { min-height: 0; padding: var(--card-padding); background: var(--team-purple-wash); border-radius: var(--card-radius) var(--card-radius) 0 0; }
-.product-shell--team .settings-section { padding: var(--card-padding); }
-.product-shell--team .settings-subnav button.is-active { background: var(--surface-gold); color: var(--gold-primary); }
-.product-shell--team .settings-savebar { padding: var(--space-md) var(--card-padding); border-radius: 0 0 var(--card-radius) var(--card-radius); }
-@media (max-width: 768px) {
-  .product-shell--team .team-ops-overview { gap: var(--space-md); }
-  .product-shell--team .team-now__quickline > div { padding: var(--space-md); }
-  .product-shell--team .settings-savebar { flex-wrap: wrap; }
 }

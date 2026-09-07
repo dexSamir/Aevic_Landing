@@ -1,6 +1,7 @@
 import { BellPlus, CalendarClock, Crown, GitCompareArrows, Share2, Swords, Trophy } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import './public-roster.css';
 import { services } from '../../services';
 import type { MatchHistoryEntry, MatchScheduleItem, TeamMember } from '../../types/domain';
 import { Button, EmptyState, StatusBadge, Toast } from '../common/primitives';
@@ -23,7 +24,7 @@ export function ShareProfileAction({ teamName }: { teamName: string }) {
 
 export function PublicRoster({ roster }: { roster: TeamMember[] }) {
   const ordered = [...roster].sort((a, b) => ({ captain: 0, starter: 1, substitute: 2 }[a.role] - { captain: 0, starter: 1, substitute: 2 }[b.role]));
-  return <div className="public-roster">{ordered.map((player, index) => <article className={player.role === 'substitute' ? 'public-roster__sub' : ''} key={player.id}><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{player.ign}</h3><p>{player.role === 'captain' ? 'Kapitan' : player.role === 'starter' ? 'Əsas heyət' : 'Əvəzedici'}</p></div>{player.role === 'captain' && <Crown size={17} aria-label="Kapitan" />}</article>)}</div>;
+  return <div className="team-roster-rail">{ordered.map((player, index) => <article className={player.role === 'substitute' ? 'public-roster__sub' : ''} key={player.id}><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{player.ign}</h3><p>{player.role === 'captain' ? 'Kapitan' : player.role === 'starter' ? 'Əsas heyət' : 'Əvəzedici'}</p></div>{player.role === 'captain' && <Crown size={17} aria-label="Kapitan" />}</article>)}</div>;
 }
 
 export function UpcomingMatchCard({ match }: { match?: MatchScheduleItem }) {

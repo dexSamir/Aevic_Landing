@@ -79,7 +79,7 @@ describe('public experience refinements', () => {
     const tokens = readFileSync(`${process.cwd()}/src/styles/tokens.css`, 'utf8');
     const globals = readFileSync(`${process.cwd()}/src/styles/globals.css`, 'utf8');
     const components = readFileSync(`${process.cwd()}/src/styles/components.css`, 'utf8');
-    expect(tokens).toContain('--press-scale: .96');
+    expect(tokens).toContain('--press-scale: .985');
     expect(tokens).toContain('@media (prefers-reduced-transparency: reduce)');
     expect(tokens).toContain('@media (prefers-contrast: more)');
     expect(globals).toContain('backdrop-filter: none !important');
@@ -179,10 +179,15 @@ describe('public experience refinements', () => {
     expect(completed.recent[0].playedAt >= completed.recent[1].playedAt).toBe(true);
   });
 
-  it('renders the public team as one editorial flow without the old anchor navigation', async () => {
+  it('renders the team dossier with an integrated roster and no Wrapped or badge promotion', async () => {
     render(<MemoryRouter initialEntries={['/teams/caspian-wolves']}><Routes><Route path="/teams/:teamSlug" element={<TeamProfilePage />} /></Routes></MemoryRouter>);
     await screen.findByRole('heading', { name: /caspian wolves/i });
-    expect(screen.queryByRole('navigation', { name: /komanda profili bölmələri/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Komanda profilinin bölmələri' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Aktiv heyət' })).toBeInTheDocument();
+    expect(screen.queryByText(/YOUR .* IS READY/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Badge Cabinet')).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Wrapped-a bax/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('Seçilmiş insigniyalar')).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'İcmal' })).not.toBeInTheDocument();
   });
 });

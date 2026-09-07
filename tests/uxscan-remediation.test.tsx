@@ -20,7 +20,7 @@ describe('UXScan remediation contracts', () => {
     const layouts = readFileSync('src/layouts/layouts.tsx', 'utf8');
     expect(capabilities).toMatchObject({ publicSession: false, publicPlayers: false, publicRecords: false, login: false, register: false, teamWorkspace: false, adminWorkspace: false });
     expect(layouts).toContain('if (!serviceCapabilities.publicSession)');
-    expect(homePage).toContain('if (!serviceCapabilities.publicPlayers)');
+    expect(homePage).not.toContain('services.players.list(');
     expect(homePage).toContain('if (!serviceCapabilities.publicRecords)');
   });
 
@@ -31,16 +31,15 @@ describe('UXScan remediation contracts', () => {
     expect(team).not.toContain('dangerouslySetInnerHTML');
   });
 
-  it('loads deferred product CSS for both direct entry and client-side route transitions', () => {
+  it('installs route styles statically in a deterministic order before navigation', () => {
     const router = readFileSync('src/app/router.tsx', 'utf8');
     const routeStyles = readFileSync('src/app/routeStyles.ts', 'utf8');
-    expect(router).toContain("await loadRouteStyles('/team')");
-    expect(router).toContain("await loadRouteStyles('/admin')");
-    expect(router).toContain("loadRouteStyles('/account')");
-    expect(routeStyles).toContain("await import('./workspaceStyles')");
+    expect(router).not.toContain('loadRouteStyles');
+    expect(routeStyles).not.toContain('await import(');
+    expect(routeStyles).toContain("import './workspaceStyles';");
     const workspaceStyles = readFileSync('src/app/workspaceStyles.ts', 'utf8');
     expect(workspaceStyles).toMatch(/import '\.\.\/styles\/workspace\.css';\s+import '\.\.\/styles\/team-workspace\.css';\s+import '\.\.\/styles\/lifecycle\.css';/);
-    expect(routeStyles.indexOf("await import('../styles/public-pages.css')")).toBeLessThan(routeStyles.indexOf("await import('./workspaceStyles')"));
+    expect(routeStyles.indexOf("import '../styles/public-pages.css'")).toBeLessThan(routeStyles.indexOf("import './workspaceStyles'"));
   });
 
   it('retains checked-in image fallbacks when a selected transform fails', () => {

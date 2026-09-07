@@ -45,7 +45,7 @@ body {
   transition: transform var(--duration-fast) var(--ease-out);
 }
 
-.skip-link:focus { transform: translateY(0); }
+.skip-link:focus-visible { transform: translateY(0); }
 
 body.drawer-open {
   overflow: hidden;

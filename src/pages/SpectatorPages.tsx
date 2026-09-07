@@ -91,7 +91,7 @@ export function MatchCenterPage() {
         {primary ? <PrimaryMatch match={primary} tournament={primaryTournament} live={primaryIsLive} /> : <EmptyState icon={<Radio size={28} />} title="Hazırda canlı və ya planlanmış matç yoxdur" body="Yeni raund dərc edilənədək son rəsmi nəticələrə baxa bilərsiniz." />}
       </section>
 
-      <section id="next" className="match-center-section match-center-section--next">
+      <div className="match-center-run-sheets"><section id="next" className="match-center-section match-center-section--next">
         <SectionHeading title="Növbəti" description="Yaxın raundlar xronoloji ardıcıllıqla" />
         {queued.length ? <div className="match-center__list match-run-board">{queued.map((match, index) => <ScheduleRow key={match.id} match={match} tournament={tournaments.find((item) => item.id === match.tournamentId)} next={live.length > 0 && index === 0} />)}</div> : <EmptyState icon={<CalendarClock size={28} />} title="Əlavə matç planlanmayıb" body={primary && !live.length ? 'Ən yaxın matç İndi bölməsində göstərilir.' : 'Yeni yarış raundu dərc edildikdə burada görünəcək.'} />}
       </section>
@@ -100,6 +100,6 @@ export function MatchCenterPage() {
         <SectionHeading title="Son nəticələr" description="Dərc edilmiş matçlar daha sıx arxiv görünüşündə" action={<Link to="/records">Rekordlar</Link>} />
         {recent.length ? <div className="match-center__list match-run-board match-run-board--completed">{recent.map((match) => <CompletedRow key={match.id} match={match} />)}</div> : <EmptyState icon={<Swords size={28} />} title="Dərc edilmiş nəticə yoxdur" body="Rəsmi nəticələr dərc edildikdən sonra bu arxivdə görünəcək." />}
       </section>
-    </>}
+    </div></>}
   </div></section>;
 }

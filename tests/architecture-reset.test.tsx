@@ -26,7 +26,7 @@ describe('UX architecture reset contracts', () => {
     expect(productRouteTitle('/admin/results/result-1/correct', 'admin')).toBe('Nəticə düzəlişi');
   });
 
-  it('pairs linked KPI cards with the captain run-sheet and prioritized action', async () => {
+  it('keeps the captain action ahead of room, readiness and results without KPI cards', async () => {
     const view = render(<MemoryRouter><TeamPlatformProvider><TeamDashboardPage /></TeamPlatformProvider></MemoryRouter>);
     await screen.findByRole('heading', { name: 'Caspian Wolves' });
     expect(view.container.querySelector('.team-command-center')).not.toBeInTheDocument();
@@ -34,10 +34,11 @@ describe('UX architecture reset contracts', () => {
     expect(view.container.querySelector('.team-competition-anchor')).toBeInTheDocument();
     expect(view.container.querySelector('.team-readiness-ledger')).toBeInTheDocument();
     expect(view.container.querySelector('.dashboard-quick-links')).not.toBeInTheDocument();
-    const stats = screen.getByRole('list', { name: 'Ən vacib komanda göstəriciləri' });
-    expect(within(stats).getAllByRole('link')).toHaveLength(5);
-    expect(within(stats).getByRole('link', { name: /Heyət/ })).toHaveAttribute('href', '/team/roster');
-    expect(within(stats).getByRole('link', { name: /Bildirişlər/ })).toHaveAttribute('href', '/team/notifications');
+    expect(screen.queryByRole('list', { name: 'Ən vacib komanda göstəriciləri' })).not.toBeInTheDocument();
+    const action = view.container.querySelector('.team-now')!;
+    const room = view.container.querySelector('.team-room-status')!;
+    expect(action.compareDocumentPosition(room) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Heyəti idarə et/ })).toHaveAttribute('href', '/team/roster');
     expect(screen.getAllByText('DƏYİŞƏN').length).toBeGreaterThan(0);
     expect(screen.getByText('AKTİV YARIŞ')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'AEVIC Daily Cup #24' })).toBeInTheDocument();
