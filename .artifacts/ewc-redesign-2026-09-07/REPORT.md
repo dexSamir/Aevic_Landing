@@ -45,3 +45,27 @@ CSS-only visual changes are documented by their owning component in subsequent p
 - `AdminOperationsPages.tsx`: team review, roster requests, disputes, audit and users receive rounded panels/queues, consistent row spacing, readable metadata and grouped decisions through their existing selectors.
 - Related admin views in `CompletionPages.tsx` and `ProfilePages.tsx`: verification/support queues and detail forms, player review, result correction, lifecycle, missed check-ins and organization review use the same panel/queue treatment.
 - Verification: build, 20 domain tests, 175 component tests and lint passed. No test changes in this phase.
+
+## Phase 6 — Auth, account, completion and profile finish
+- `AuthPages.tsx` via `auth.css`: LoginPage (including admin login), RegisterPage and ForgotPasswordPage receive opaque rounded form surfaces, restrained headings, shared input radii, step indicator and preview/action treatment. Form handlers, validation, autocomplete and copy stay intact.
+- `AuthLifecyclePages.tsx` via `auth.css`/`lifecycle.css`: ResetPasswordPage, VerifyEmailPage and access/session/locked/rate-limit states share readable headings, purple icon wells and rounded state panels.
+- `AccountPages.tsx`: account navigation icons marked decorative and labels wrapped; `lifecycle.css` restyles AccountLayout, AccountProfilePage, AccountSecurityPage (password, 2FA and recovery codes), AccountNotificationsPage and AccountSessionsPage. Destructive/export controls remain distinct and wrap under their descriptions.
+- `CompletionPages.tsx`: SearchResultsPage, FollowingPage, PlayerClaimPage, TeamGovernancePage, BadgeDetailPage, TeamInvitationsPage, VerificationApplicationPage, AdminVerificationQueuePage, AdminVerificationDetailPage, AdminPlayerDetailPage, AdminSupportQueuePage, AdminResultCorrectionPage, OrganizationWorkspacePage, TournamentLifecycleAdminPage and AdminMissedCheckInsPage are covered across phases 4–6 by completion panels, entity/search/review/history/invitation/authority/request ledgers, operation forms, lifecycle states, verification and badge surfaces. Nested forms keep a single panel boundary.
+- `ProfilePages.tsx`: phase 3 covered TeamsDirectoryPage, PublicTeamProfileRoute and TeamProfilePage; phase 4 covered PublicTeamComparisonPage and TeamBadgeCabinetPage; phase 5 covered AdminOrganizationsPage. This phase completes OrganizationsDirectoryPage and OrganizationProfilePage (directory/team rows, organization overview and profile navigation).
+- Supporting full-site surfaces: SupportPages FAQ/search/contact panel and account ticket threads; SystemPages state icon/heading treatment; shared public empty states, recap highlights and tournament round/media cards.
+- Final responsive refinements: shared KPI strips remain one horizontal row at intermediate widths; long KPI values can grow in height rather than truncate. Small-screen record values, directory detail, scoring facts and account controls wrap. The 3:2 ratio remains the preferred card ratio with content-driven growth for longer labels. No auto-rotation or swipe-only links.
+- Verification: final `npm run build && npm run test && npm run lint` passed (20 domain tests + 175 component tests). All six phase gates passed before their commits. No tests changed in this phase.
+
+## Commit sequence
+1. `901e852` — foundation tokens and components
+2. `5e05c9b` — navigation and shell
+3. `9e4e211` — public pages and shared stat pattern
+4. `501d9b8` — team workspace and stronger existing dashboard test
+5. `fea3090` — admin overview and operational density
+6. Final commit — auth/account, remaining completion/profile surfaces and this report
+
+## Preserved contracts and verification limits
+- `src/services/contracts.ts`, `src/app/routeManifest.ts` and `src/components/team/NextActionCard.tsx` have no changes.
+- Sidebar grouping/collapse state, data derivation, API calls, existing routes and Azerbaijani content remain in place. No dependencies or external images added. No `.status-badge` CSS selectors introduced.
+- Build includes existing Node/server HTML prerendering, not a browser. Tests use the existing domain/Vitest setup; no E2E suite or image export was run.
+- This is source-level and build/test/lint verification as requested. Rendered appearance, actual viewport layout and visual parity with the reference were not inspected or certified.

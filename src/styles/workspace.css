@@ -455,7 +455,7 @@
 .product-shell--admin .slot-admin-summary { gap: var(--space-sm); background: transparent; }
 .product-shell--admin .slot-admin-summary > div { padding: var(--space-md); border: 1px solid var(--card-border); border-radius: var(--radius-md); background: var(--surface-accent); }
 .product-shell--admin .slot-management-item { border-radius: var(--radius-md); border: 1px solid var(--card-border); background: var(--card-surface); }
-.product-shell--admin :is(.result-entry, .result-review, .message-admin-layout > form, .message-admin-layout > aside, .rbac-note, .provider-status) { border-radius: var(--card-radius); background: var(--card-surface); border: 1px solid var(--card-border); }
+.product-shell--admin :is(.result-entry, .smart-review-result, .message-admin-layout > form, .message-admin-layout > aside, .rbac-note, .provider-status) { border-radius: var(--card-radius); background: var(--card-surface); border: 1px solid var(--card-border); }
 .product-shell--admin .mock-banner { padding: var(--space-sm); border-radius: var(--control-radius); font-size: var(--text-xs); }
 @media (max-width: 700px) {
   .product-shell--admin .admin-command__lead { grid-template-columns: minmax(0, 1fr); }

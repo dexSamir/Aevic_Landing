@@ -4,3 +4,7 @@
 .system-state h1 { max-width: 18ch; font-family: var(--font-heading); font-size: var(--text-xl); }
 .system-state p { max-width: 58ch; color: var(--color-text-muted); }
 .system-state > div { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-top: var(--space-md); }
+
+.system-state { font-family: var(--font-ui); }
+.system-state h1 { font-family: var(--heading-product); font-size: var(--text-xl); line-height: 1.2; }
+.system-state > svg { width: 56px; height: 56px; padding: var(--space-sm); background: var(--surface-accent); border-radius: var(--card-radius); }

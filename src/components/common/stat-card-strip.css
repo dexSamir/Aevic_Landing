@@ -1,6 +1,6 @@
 /* One stat pattern for public facts, team readiness and admin operations.
    3:2 is the preferred ratio; long values may grow rather than be clipped. */
-.team-stat-slider { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--stat-card-gap); margin: 0; padding: .25rem; list-style: none; }
+.team-stat-slider { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(min(100%, 12rem), 1fr); overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--gold-primary) var(--surface-1); gap: var(--stat-card-gap); margin: 0; padding: .4rem; list-style: none; }
 .team-stat-slider > li { min-width: 0; }
 .team-stat-slider__card { height: 100%; min-width: 0; aspect-ratio: var(--stat-card-ratio); display: flex; flex-direction: column; align-items: stretch; gap: var(--space-sm); padding: var(--space-md); color: var(--text-primary); background: var(--stat-card-ink); border: 1px solid var(--border-subtle); border-radius: var(--stat-card-radius); }
 .team-stat-slider__heading { display: flex; align-items: start; justify-content: space-between; gap: var(--space-xs); }

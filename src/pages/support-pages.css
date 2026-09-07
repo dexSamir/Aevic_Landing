@@ -14,3 +14,9 @@
   .support-layout { grid-template-columns: 1fr; }
   .support-layout > aside { position: static; }
 }
+
+.support-search, .support-layout > aside { border-radius: var(--card-radius); }
+.support-layout > aside { background: var(--surface-accent); }
+.faq-list { gap: var(--space-xs); }
+.faq-list details { padding-inline: var(--space-lg); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.faq-list summary { gap: var(--space-sm); min-height: 64px; }

@@ -1512,7 +1512,7 @@
 .champion-row > b { font-family: var(--heading-editorial); }
 .archive-years > section { margin-bottom: var(--space-xl); padding: var(--card-padding); background: var(--card-surface); border: 1px solid var(--card-border); border-radius: var(--card-radius); }
 .archive-years > section > header > span { color: var(--gold-primary); font-family: var(--heading-editorial); }
-.recap-hero, .recap-champion, .recap-stats > div, .recap-records > article { border-radius: var(--card-radius); }
+.recap-hero, .recap-champion { border-radius: var(--card-radius); }
 .recap-hero h1 { font-family: var(--heading-editorial); }
 .site-shell :is(.regulations-layout > article, .information-page__body) { padding: var(--card-padding); background: var(--card-surface); border: 1px solid var(--card-border); border-radius: var(--card-radius); }
 @media (max-width: 768px) {
@@ -1555,3 +1555,27 @@
 .badge-reorder-actions button { min-width: 44px; min-height: 44px; border-radius: var(--control-radius); }
 .team-legacy-profile { border-radius: var(--card-radius); background: var(--surface-accent); }
 .team-legacy-profile__identity { gap: var(--space-lg); }
+
+/* Remaining profile and public completion surfaces. */
+.organization-directory__row, .organization-team-row { padding: var(--card-padding); margin-bottom: var(--space-sm); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.organization-profile .profile-banner { border-radius: var(--card-radius); overflow: hidden; }
+.organization-overview { padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--surface-accent); }
+.organization-profile .profile-anchor-nav { padding-inline: var(--space-sm); border-radius: var(--control-radius); background: var(--card-surface); }
+.discovery-toolbar { gap: var(--space-md); }
+.team-card-discovery { border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.recap-highlights > article { padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--surface-accent); }
+.site-shell .empty-state { border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); padding: var(--space-xl); }
+@media (max-width: 640px) {
+  .record-card { padding: var(--space-md); grid-template-columns: 1.5rem minmax(0, 1fr) auto; }
+  .record-card__value { max-width: 9ch; white-space: normal; overflow-wrap: anywhere; }
+  .team-directory-active { grid-template-columns: minmax(0, 1fr); }
+  .team-directory-active h2 { font-size: var(--text-lg); }
+  .tournament-scoring__intro > dl { grid-column: 1; grid-row: auto; flex-wrap: wrap; }
+  .tournament-scoring__intro { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Existing round artwork stays in soft media cards; no external assets. */
+.competition-round-program ol { gap: var(--space-md); background: transparent; }
+.competition-round-program li { border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); overflow: hidden; }
+.competition-round-program__art { border-radius: var(--radius-md); }
+.home-rotation .map-program__frame { border-radius: var(--card-radius); }

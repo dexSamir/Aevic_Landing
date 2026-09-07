@@ -178,3 +178,41 @@
   .danger-ledger .button { justify-self: start; }
   .player-profile__actions { justify-items: start; }
 }
+
+/* Personal account and completion flows keep the shared surface language calm. */
+.account-shell { --font-heading: var(--heading-product); }
+.account-shell > aside { padding: var(--space-lg) var(--space-sm); }
+.account-shell > aside > div { padding: var(--space-md); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--surface-accent); }
+.account-shell > aside nav { gap: .4rem; }
+.account-shell > aside nav a { min-height: 50px; gap: var(--space-sm); border-radius: var(--control-radius); font-size: var(--text-sm); }
+.account-shell > aside nav a.active { color: var(--gold-primary); background: var(--surface-gold); box-shadow: inset 3px 0 var(--gold-primary); }
+.account-shell > main { margin-inline: auto; }
+.account-shell .page-header h1 { font-family: var(--heading-product); font-size: clamp(1.85rem, 3vw, 2.75rem); line-height: 1.2; }
+.account-shell .page-header__copy::before { display: none; }
+.account-shell .page-header__copy { padding-inline-start: 0; }
+.account-shell .section-heading h2 { font-family: var(--heading-product); font-size: var(--text-md); }
+.account-form > section, .account-security-grid > .account-form, .two-factor-panel, .notification-settings { padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.account-boundary > div { row-gap: var(--space-sm); }
+.account-boundary > div > .button { grid-column: 2 / -1; justify-self: start; }
+.account-shell__team-link { min-height: 44px; display: inline-flex; align-items: center; padding-inline: var(--space-sm); }
+.two-factor-panel > svg { padding: .5rem; width: 44px; height: 44px; background: var(--surface-accent); border-radius: var(--control-radius); }
+.recovery-codes { border: 1px solid var(--border-default); border-radius: var(--radius-md); }
+.session-list article { padding: var(--space-lg); border-radius: var(--card-radius); }
+.session-list article:has(> b) { border-color: var(--color-success); }
+.notification-settings .check { min-height: 48px; }
+.completion-grid > section, .completion-grid > form { padding: var(--card-padding); border-radius: var(--card-radius); }
+:is(.completion-page, .account-shell) :is(.operation-form, .verification-status, .badge-art-pending, .lifecycle-state) { border-radius: var(--card-radius); }
+:is(.completion-page, .account-shell) :is(.entity-ledger, .search-results-ledger, .review-ledger, .history-ledger) { gap: var(--space-xs); background: transparent; }
+:is(.completion-page, .account-shell) :is(.entity-ledger > a, .entity-ledger > article, .search-results-ledger > a, .review-ledger > article, .history-ledger > article) { border: 1px solid var(--card-border); border-radius: var(--card-radius); padding: var(--space-lg); background: var(--card-surface); }
+.lifecycle-state { padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.integration-boundary { border-radius: var(--control-radius); }
+.ticket-thread article { padding: var(--space-lg); border: 1px solid var(--card-border); border-radius: var(--card-radius); }
+.ticket-thread article.is-support { background: var(--surface-accent); }
+/* A form inside a completion panel remains visually part of that panel. */
+.product-shell .completion-grid .operation-form { padding: 0; border: 0; background: transparent; box-shadow: none; }
+@media (max-width: 640px) {
+  .account-shell > aside nav a { flex: 1 1 auto; }
+  .account-shell .page-header { align-items: start; }
+  .account-boundary > div { grid-template-columns: auto minmax(0, 1fr); }
+  .session-list article { padding: var(--space-md); }
+}
