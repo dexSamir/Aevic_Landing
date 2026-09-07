@@ -28,3 +28,13 @@ CSS-only visual changes are documented by their owning component in subsequent p
 - `PublicFooter.tsx` via `public-shell.css`: inset purple footer, gold group headings, spacing and separated lower navigation.
 - `competition-schedule.css`: shared Home/listing calendar surface, heading and controls.
 - Verification: build, 20 domain tests, 175 component tests and lint passed. No tests changed.
+
+## Phase 4 — Team workspace
+- `TeamPages.tsx`: dashboard now renders the shared StatCardStrip with the same five destinations and existing values. `team-workspace.css` replaces obsolete KPI CSS (including dark purple-card text and an undefined ink-card foreground token).
+- Dashboard next-action presentation, quickline, competition anchor, run-sheet, awareness/change area, readiness, standings and room panels restyled. `NextActionCard.tsx` has no JSX; its `deriveNextAction` logic is unchanged and its consuming `.team-now` presentation is reskinned.
+- Every `TeamPages.tsx` page: dashboard, tournament list/detail, history, comparison, roster, messages, share studio, settings. Existing selectors in `team-workspace.css` handle their surfaces, heading hierarchy, selected states and spacing.
+- `TeamOperationsPages.tsx`: notifications, roster request list/detail, disputes list/new/detail via notification/request ledgers, replacement pair, operation forms and detail panels.
+- `CompletionPages.tsx` Team routes: invitations, manager governance and verification via invitation/authority ledgers, completion-grid forms and existing branded header tokens.
+- Every file in `src/components/team/`: `TeamExperience.tsx` career/performance/comparison/schedule treatments; `Achievements.tsx` medals, progress, placeholder and legacy surfaces; `BadgeCabinet.tsx` featured cabinet, detail, collection, reorder and picker surfaces; `CompetitionAwareness.tsx` severity-led presentation; `NextActionCard.tsx` consuming presentation as explained above. Shared component rules live in `public-pages.css`/`components.css` so public profiles and drawers benefit too.
+- Test update: `tests/architecture-reset.test.tsx` replaces the stale run-sheet-only test name and adds assertions for five KPI links and roster/notification destinations. No existing assertion was removed or weakened. The obsolete CSS comment is updated.
+- Verification: build, 20 domain tests, 175 component tests and lint passed.

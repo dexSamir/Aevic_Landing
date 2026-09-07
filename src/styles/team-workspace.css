@@ -127,7 +127,7 @@
 .product-shell--team .tabs { width: max-content; max-width: 100%; margin-bottom: 1.25rem; padding: .25rem; overflow-x: auto; background: var(--team-surface-inset); border: 1px solid var(--team-border-subtle); border-radius: var(--team-control-radius); scrollbar-width: none; }
 .product-shell--team .tabs button { border-radius: .45rem; }
 
-/* Overview: a captain run-sheet, not a KPI-card dashboard. */
+/* Overview: shared KPI cards lead into prioritized action and the captain run-sheet. */
 .product-shell--team .team-ops-overview { display: grid; gap: 1rem; }
 .product-shell--team .team-ops-header { min-width: 0; display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--team-border-subtle); }
 .product-shell--team .team-ops-header > div { min-width: 0; display: grid; gap: .35rem; }
@@ -140,23 +140,6 @@
 .product-shell--team .team-ops-header > a strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .product-shell--team .team-ops-header > a svg { grid-column: 2; grid-row: 1 / 3; color: var(--color-brand-primary); }
 
-.product-shell--team .team-stat-slider { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .75rem; margin: 0; padding: 0; list-style: none; }
-.product-shell--team .team-stat-slider > li { min-width: 0; }
-.product-shell--team .team-stat-slider__card { position: relative; aspect-ratio: 1.5 / 1; display: grid; grid-template-rows: auto 1fr auto; align-content: space-between; min-width: 0; padding: 1rem 1.1rem; color: var(--color-text-inverse); background: var(--team-surface-inset); border: 1px solid var(--team-border-default); border-radius: var(--team-card-radius); overflow: hidden; transition: transform .25s var(--ease-standard, ease), box-shadow .25s var(--ease-standard, ease); }
-.product-shell--team .team-stat-slider__card:hover, .product-shell--team .team-stat-slider__card:focus-visible { transform: translateY(-3px); box-shadow: 0 18px 34px rgba(0, 0, 0, .32); }
-.product-shell--team .team-stat-slider__card svg { color: currentColor; opacity: .85; }
-.product-shell--team .team-stat-slider__eyebrow { color: currentColor; opacity: .72; font: 700 .62rem/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; }
-.product-shell--team .team-stat-slider__card strong { overflow: hidden; font: 800 clamp(1.3rem, 2.4vw, 1.9rem)/1.05 var(--font-competition); text-overflow: ellipsis; white-space: nowrap; }
-.product-shell--team .team-stat-slider__card small { color: currentColor; opacity: .68; font-size: .72rem; }
-.product-shell--team .team-stat-slider__card--gold { color: #21170a; background: linear-gradient(150deg, var(--color-brand-primary-hover), var(--color-brand-primary) 60%, var(--color-brand-primary-pressed)); border-color: transparent; }
-.product-shell--team .team-stat-slider__card--purple { color: var(--color-text-inverse); background: linear-gradient(150deg, color-mix(in srgb, var(--purple-atmospheric) 92%, white 8%), var(--purple-atmospheric) 55%, color-mix(in srgb, var(--purple-atmospheric) 80%, black 30%)); border-color: transparent; }
-.product-shell--team .team-stat-slider__card--ink { color: var(--team-text-primary); }
-.product-shell--team .team-stat-slider__card--ink svg { color: var(--color-brand-primary); }
-@media (max-width: 860px) {
-  .product-shell--team .team-stat-slider { grid-auto-flow: column; grid-auto-columns: minmax(9.5rem, 40vw); grid-template-columns: none; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: .2rem; scrollbar-width: none; }
-  .product-shell--team .team-stat-slider::-webkit-scrollbar { display: none; }
-  .product-shell--team .team-stat-slider > li { scroll-snap-align: start; }
-}
 
 .product-shell--team .team-now { min-width: 0; display: grid; grid-template-columns: minmax(18rem, 1.2fr) minmax(24rem, .8fr); overflow: hidden; background: var(--team-surface-inset); border: 1px solid var(--team-border-default); border-radius: var(--team-card-radius); box-shadow: 0 24px 58px rgba(0, 0, 0, .26); }
 .product-shell--team .team-now__action { position: relative; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; justify-items: start; gap: .55rem; padding: clamp(1.35rem, 3vw, 2.4rem); }
@@ -287,7 +270,7 @@
 .product-shell--team .verification-status { background: var(--team-purple-wash); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
 .product-shell--team .danger-ledger { background: var(--team-surface-primary); border-radius: var(--team-card-radius); }
 
-/* Settings, studio and badges use the same levels without becoming card grids. */
+/* Settings, studio and badges share the workspace surface hierarchy. */
 .product-shell--team .settings-workspace { grid-template-columns: minmax(min(15rem, 32%), .32fr) minmax(0, 1fr); gap: 1rem; }
 .product-shell--team .settings-subnav { padding: .35rem; background: var(--team-surface-inset); border: 1px solid var(--team-border-subtle); border-radius: var(--team-card-radius); }
 .product-shell--team .settings-subnav button { border-radius: var(--team-control-radius); }
@@ -426,4 +409,53 @@
 
 @media (prefers-reduced-motion: reduce) {
   .product-shell--team .side-nav a { transition: none; }
+}
+
+/* Product pages: readable headings, open spacing and purposeful color. */
+.product-shell--team { --font-heading: var(--heading-product); }
+.product-shell--team .page-header h1, .product-shell--team .team-ops-header h1 { max-width: 26ch; font-family: var(--heading-product); font-size: clamp(1.85rem, 3.2vw, 3rem); line-height: 1.15; }
+.product-shell--team .page-header__copy::before { display: none; }
+.product-shell--team .page-header__copy { padding-inline-start: 0; }
+.product-shell--team .team-ops-overview { gap: var(--space-lg); }
+.product-shell--team .team-now { border-radius: var(--card-radius); border: 1px solid var(--team-border-accent); background: var(--surface-gold); overflow: hidden; }
+.product-shell--team .team-now__action { padding: var(--card-padding); background: var(--surface-gold); }
+.product-shell--team .team-now__action h2 { font-family: var(--heading-product); font-size: clamp(1.6rem, 2.5vw, 2.5rem); line-height: 1.2; }
+.product-shell--team .team-now__quickline > div { padding: var(--space-lg); background: var(--team-surface-primary); }
+.product-shell--team .team-now__quickline dt { color: var(--team-accent-secondary); }
+.product-shell--team .team-competition-anchor { padding: var(--card-padding); background: var(--team-purple-wash); border-radius: var(--card-radius); }
+.product-shell--team .team-ops-columns { gap: var(--space-lg); }
+.product-shell--team :is(.team-run-sheet, .team-change-ledger, .team-readiness-ledger, .team-standing-preview, .team-room-status) { border-radius: var(--card-radius); box-shadow: none; }
+.product-shell--team .team-run-sheet li { min-height: 5rem; }
+.product-shell--team .team-readiness-ledger ul { gap: var(--space-xs); padding: var(--space-sm); }
+.product-shell--team .team-readiness-ledger li { border: 1px solid var(--team-border-subtle); border-radius: var(--control-radius); }
+.product-shell--team .team-tournament-list > article { padding: var(--card-padding); box-shadow: none; }
+.product-shell--team .entry-facts { gap: var(--space-xs); background: transparent; }
+.product-shell--team .entry-facts > span { padding: var(--space-md); border-radius: var(--control-radius); }
+.product-shell--team .roster-management { gap: var(--space-xs); border: 0; background: transparent; overflow: visible; }
+.product-shell--team .roster-management article { min-height: 5.5rem; border: 1px solid var(--team-border-subtle); border-radius: var(--card-radius); }
+.product-shell--team .roster-number { font-family: var(--font-ui); font-size: var(--text-sm); }
+.product-shell--team :is(.request-ledger, .invitation-ledger, .authority-ledger, .notification-center-list) { border: 0; background: transparent; overflow: visible; display: grid; gap: var(--space-xs); }
+.product-shell--team :is(.request-ledger > a, .invitation-ledger > article, .authority-ledger > article, .notification-center-list > div) { padding: var(--space-md); border: 1px solid var(--team-border-subtle); border-radius: var(--card-radius); }
+.product-shell--team :is(.request-detail-grid > section, .request-detail-grid > aside, .completion-grid > section, .completion-grid > form, .operation-form) { padding: var(--card-padding); box-shadow: none; }
+.product-shell--team .replacement-pair > div { padding: var(--space-lg); background: var(--team-purple-wash); }
+.product-shell--team .detail-ledger dd { line-height: 1.6; }
+.product-shell--team .inbox-list { padding: var(--space-sm) var(--space-lg); box-shadow: none; }
+.product-shell--team .inbox-layout > aside { background: var(--team-purple-wash); padding: var(--card-padding); }
+.product-shell--team .history-summary { gap: var(--space-sm); border: 0; background: transparent; overflow: visible; }
+.product-shell--team .history-summary > div { padding: var(--space-lg); border: 1px solid var(--team-border-subtle); border-radius: var(--card-radius); }
+.product-shell--team .history-summary > div:nth-child(2) { background: var(--team-purple-wash); }
+.product-shell--team .history-summary strong { font-family: var(--heading-product); }
+.product-shell--team .history-tournament { padding: var(--card-padding); background: var(--surface-gold); box-shadow: none; }
+.product-shell--team .asset-type-selector > button { min-height: 5rem; border-radius: var(--card-radius); padding: var(--space-md); }
+.product-shell--team .asset-type-selector > button[aria-checked='true'] { background: var(--team-purple-wash); border-color: var(--team-accent-secondary); box-shadow: none; }
+.product-shell--team .profile-card-canvas, .product-shell--team .sharecard-canvas { padding: var(--card-padding); border: 1px solid var(--team-border-subtle); background: var(--team-surface-inset); }
+.product-shell--team .settings-panel { box-shadow: none; }
+.product-shell--team .settings-panel > header { min-height: 0; padding: var(--card-padding); background: var(--team-purple-wash); border-radius: var(--card-radius) var(--card-radius) 0 0; }
+.product-shell--team .settings-section { padding: var(--card-padding); }
+.product-shell--team .settings-subnav button.is-active { background: var(--surface-gold); color: var(--gold-primary); }
+.product-shell--team .settings-savebar { padding: var(--space-md) var(--card-padding); border-radius: 0 0 var(--card-radius) var(--card-radius); }
+@media (max-width: 768px) {
+  .product-shell--team .team-ops-overview { gap: var(--space-md); }
+  .product-shell--team .team-now__quickline > div { padding: var(--space-md); }
+  .product-shell--team .settings-savebar { flex-wrap: wrap; }
 }

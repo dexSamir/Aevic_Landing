@@ -26,7 +26,7 @@ describe('UX architecture reset contracts', () => {
     expect(productRouteTitle('/admin/results/result-1/correct', 'admin')).toBe('Nəticə düzəlişi');
   });
 
-  it('rebuilds the dashboard as a captain run-sheet without legacy command-center or quick-link structures', async () => {
+  it('pairs linked KPI cards with the captain run-sheet and prioritized action', async () => {
     const view = render(<MemoryRouter><TeamPlatformProvider><TeamDashboardPage /></TeamPlatformProvider></MemoryRouter>);
     await screen.findByRole('heading', { name: 'Caspian Wolves' });
     expect(view.container.querySelector('.team-command-center')).not.toBeInTheDocument();
@@ -34,6 +34,10 @@ describe('UX architecture reset contracts', () => {
     expect(view.container.querySelector('.team-competition-anchor')).toBeInTheDocument();
     expect(view.container.querySelector('.team-readiness-ledger')).toBeInTheDocument();
     expect(view.container.querySelector('.dashboard-quick-links')).not.toBeInTheDocument();
+    const stats = screen.getByRole('list', { name: 'Ən vacib komanda göstəriciləri' });
+    expect(within(stats).getAllByRole('link')).toHaveLength(5);
+    expect(within(stats).getByRole('link', { name: /Heyət/ })).toHaveAttribute('href', '/team/roster');
+    expect(within(stats).getByRole('link', { name: /Bildirişlər/ })).toHaveAttribute('href', '/team/notifications');
     expect(screen.getAllByText('DƏYİŞƏN').length).toBeGreaterThan(0);
     expect(screen.getByText('AKTİV YARIŞ')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'AEVIC Daily Cup #24' })).toBeInTheDocument();

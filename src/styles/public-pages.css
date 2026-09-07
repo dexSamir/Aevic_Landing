@@ -1524,3 +1524,34 @@
   .record-featured__story { padding-left: 0; border-left: 0; }
   .team-profile-hero__stage { padding: var(--space-xl) var(--space-md); }
 }
+
+/* TeamExperience and achievement components also appear in public profiles/drawers. */
+.career-summary__rail { gap: var(--space-sm); background: transparent; }
+.career-summary__rail article { padding: var(--space-lg); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.career-summary__rail article.is-prestige { background: var(--surface-accent); }
+.career-summary__rail article > strong { font-family: var(--heading-product); font-size: var(--text-xl); }
+.performance-summary { padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.performance-summary__lead { padding: var(--space-lg); background: var(--surface-gold); border-radius: var(--radius-md); }
+.team-comparison__selectors { padding: var(--space-lg); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); margin-bottom: var(--space-lg); }
+.team-comparison__identity { background: var(--surface-accent); }
+.team-comparison__identity h2 { font-family: var(--heading-product); font-size: var(--text-lg); }
+.team-comparison dl > div { min-height: 4rem; padding-block: var(--space-sm); }
+.team-comparison dl > div:nth-child(even) { background: var(--surface-1); }
+.team-comparison dd { font-family: var(--heading-product); font-variant-numeric: tabular-nums; }
+.schedule-preview-link { padding: var(--space-md); border: 1px solid var(--card-border); border-radius: var(--control-radius); background: var(--surface-accent); }
+.featured-cabinet { padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.featured-cabinet__rail { gap: var(--space-md); }
+.achievement-medal { border-radius: var(--card-radius); }
+.achievement-medal__copy h3 { font-family: var(--heading-product); line-height: 1.35; }
+.achievement-medal__insignia { border-radius: var(--radius-md); }
+.badge-artwork-placeholder { border-radius: var(--radius-md); }
+.achievement-progress > span { border-radius: var(--radius-pill); overflow: hidden; }
+.badge-details { padding: var(--space-lg); background: var(--surface-1); border-radius: var(--card-radius); }
+.badge-collection__wall { gap: var(--space-md); }
+.badge-editor { padding: var(--card-padding); border-radius: var(--card-radius); }
+.badge-editor__picker > div > article { border-radius: var(--card-radius); overflow: hidden; }
+.badge-reorder-list { display: grid; gap: var(--space-xs); }
+.badge-reorder-list > li { padding: var(--space-sm); background: var(--surface-2); border: 1px solid var(--card-border); border-radius: var(--control-radius); }
+.badge-reorder-actions button { min-width: 44px; min-height: 44px; border-radius: var(--control-radius); }
+.team-legacy-profile { border-radius: var(--card-radius); background: var(--surface-accent); }
+.team-legacy-profile__identity { gap: var(--space-lg); }

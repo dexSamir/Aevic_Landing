@@ -1,3 +1,4 @@
+import { StatCardStrip } from '../components/common/StatCardStrip';
 import {
   AlertTriangle,
   ArrowRight,
@@ -102,7 +103,7 @@ export function TeamDashboardPage() {
   return <>{toast && <Toast title="Check-in tamamlandı" body={`Komandanız ${activeTournament.name} üçün hazır kimi qeyd edildi.`} onClose={() => setToast(false)} />}
     <div className="team-ops-overview">
       <header className="team-ops-header"><div><span>KAPİTAN XƏTTİ</span><h1>{currentTeam.name}</h1><p>{activeTournament.name} üçün cari əməliyyat vəziyyəti.</p></div><Link to={`/team/tournaments/${activeTournament.id}`}><span>AKTİV TURNİR</span><strong>{activeTournament.shortName || activeTournament.name}</strong><ArrowRight size={16} /></Link></header>
-      <ul className="team-stat-slider" aria-label="Ən vacib komanda göstəriciləri">{statSlides.map((slide) => <li key={slide.key}><Link to={slide.href} className={`team-stat-slider__card team-stat-slider__card--${slide.tone}`}>{slide.icon}<span className="team-stat-slider__eyebrow">{slide.eyebrow}</span><strong>{slide.value}</strong><small>{slide.meta}</small></Link></li>)}</ul>
+      <StatCardStrip items={statSlides} label="Ən vacib komanda göstəriciləri" />
       <section className={`team-now team-now--${nextAction.kind}`} aria-labelledby="team-now-title">
         <div className="team-now__action"><span>{nextAction.eyebrow}</span><h2 id="team-now-title">{nextAction.title}</h2><p>{nextAction.body}</p>{nextAction.startsAt && <time dateTime={nextAction.startsAt}>{new Date(nextAction.startsAt).toLocaleString('az-AZ', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</time>}{actionControl}</div>
         <dl className="team-now__quickline">
