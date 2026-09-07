@@ -405,3 +405,10 @@
   .recent-message { align-items: flex-start; }
   .recent-message > div { min-width: 0; overflow-wrap: anywhere; }
 }
+
+/* Workspace chrome is restrained so content and active destinations lead. */
+.product-sidebar { padding: var(--space-lg) var(--space-sm); }
+.product-topbar__route > strong { font-family: var(--heading-product); }
+.product-topbar__actions .icon-button { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--control-radius); }
+.admin-identity { background: var(--surface-accent); border: 1px solid var(--border-subtle); border-radius: var(--card-radius); }
+.product-page { margin-inline: auto; }

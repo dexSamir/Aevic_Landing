@@ -329,3 +329,21 @@
   .site-footer__bottom nav { display: grid; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) { .site-footer a { transition: none; } }
+
+/* AEVIC navigation: compact branded controls with an opaque active surface. */
+.site-header--scrolled, .site-header--standard-top { background: var(--material-sticky); border-bottom: 1px solid var(--border-subtle); backdrop-filter: var(--material-blur-sticky); }
+.public-nav-capsule { height: 60px; border: 1px solid var(--material-navigation-edge); border-radius: var(--radius-lg); box-shadow: none; }
+.public-nav-capsule a { min-height: 44px; gap: .5rem; padding-inline: .9rem; border-radius: var(--radius-md); }
+.public-nav-capsule a.active { color: var(--gold-primary); border-radius: var(--radius-md); }
+.public-nav-indicator { border-radius: var(--radius-md); background: var(--surface-gold); box-shadow: inset 0 0 0 1px var(--color-gold-muted); }
+.public-nav-actions .nav-login, .public-nav-actions .nav-cta { border-radius: var(--control-radius); box-shadow: none; }
+.public-nav-capsule--drawer a { justify-content: flex-start; min-height: 52px; gap: var(--space-sm); }
+.public-nav-capsule--drawer a.active { background: var(--surface-gold); box-shadow: inset 3px 0 var(--gold-primary); }
+@media (min-width: 1024px) {
+  .site-header .site-header__inner { width: 100%; padding-inline: var(--page-gutter); gap: var(--space-md); }
+  .site-header .public-nav-capsule a { padding-inline: .8rem; font-size: var(--text-sm); }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .site-header__tools, .public-nav-actions { gap: .5rem; }
+  .site-header .public-rules-link span { display: none; }
+}

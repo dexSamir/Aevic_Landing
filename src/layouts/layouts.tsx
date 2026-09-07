@@ -9,6 +9,8 @@ import {
   FileText,
   GitCompareArrows,
   History,
+  House,
+  Swords,
   LayoutDashboard,
   ListChecks,
   LogIn,
@@ -41,6 +43,8 @@ import { useTeamCompetitionContexts, useTeamPlatformData } from '../services/Pla
 import { activePublicRoute } from '../utils/routes';
 import { formatEventDate } from '../utils/calendar';
 import { productRouteMetadata, type ProductArea } from '../utils/routeMetadata';
+
+const publicNavIcons = { '/': House, '/tournaments': Trophy, '/teams': Users, '/matches': Swords };
 
 const teamLinks = [
   { to: '/team', label: 'İcmal', icon: LayoutDashboard, end: true, group: 'Əsas' },
@@ -118,7 +122,7 @@ function PublicNavLinks({ onNavigate, drawer = false }: { onNavigate?: () => voi
     '--nav-indicator-width': `${indicator.width}px`,
   } as CSSProperties;
 
-  return <nav ref={navRef} className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya" data-indicator-ready={indicator.ready || undefined} style={drawer ? undefined : indicatorStyle}>{!drawer && <span className="public-nav-indicator" aria-hidden="true" />}{publicNavigation.primary.map((link) => { const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} ref={(node) => { if (node) itemRefs.current.set(link.to, node); else itemRefs.current.delete(link.to); }} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}>{link.label}</NavLink>; })}</nav>;
+  return <nav ref={navRef} className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya" data-indicator-ready={indicator.ready || undefined} style={drawer ? undefined : indicatorStyle}>{!drawer && <span className="public-nav-indicator" aria-hidden="true" />}{publicNavigation.primary.map((link) => { const Icon = publicNavIcons[link.to as keyof typeof publicNavIcons] ?? Trophy; const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} ref={(node) => { if (node) itemRefs.current.set(link.to, node); else itemRefs.current.delete(link.to); }} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}><Icon size={18} aria-hidden="true" /><span>{link.label}</span></NavLink>; })}</nav>;
 }
 
 function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {

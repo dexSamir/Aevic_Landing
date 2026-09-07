@@ -14,3 +14,14 @@
 .side-nav__group-items { display: grid; gap: .18rem; animation: side-nav-group-open .2s var(--ease-standard, ease) both; }
 @keyframes side-nav-group-open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 .side-nav__section:first-child .side-nav__group { margin-top: 0; }
+
+/* Icon + label rhythm shared by desktop sidebars and their mobile drawers. */
+.side-nav { padding: .25rem; gap: var(--space-xs); }
+.side-nav a { grid-template-columns: 32px minmax(0, 1fr) auto; gap: .65rem; min-height: 50px; padding: .45rem .7rem; border-radius: var(--control-radius); transition: background-color var(--motion-fast), color var(--motion-fast); }
+.side-nav a > span:not(.side-nav__icon) { overflow-wrap: anywhere; line-height: 1.35; }
+.side-nav__icon { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.side-nav a.active { color: var(--gold-primary); background: var(--surface-gold); box-shadow: inset 3px 0 var(--gold-primary); }
+.side-nav a.active .side-nav__icon { color: var(--text-on-gold); background: var(--gold-primary); }
+.side-nav__group { min-height: 44px; margin-block: .4rem .15rem; padding-inline: .7rem; color: var(--text-secondary); font-size: var(--text-xs); letter-spacing: .06em; }
+.side-nav__group small { font-size: inherit; }
+.side-nav__group-items { gap: .3rem; }

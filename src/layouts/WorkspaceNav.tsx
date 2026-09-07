@@ -28,7 +28,7 @@ export function SidebarNav({ links, onNavigate, unread = 0, label = 'Məhsul nav
           <ChevronDown size={14} className={isOpen ? 'side-nav__group-chevron is-open' : 'side-nav__group-chevron'} aria-hidden="true" />
         </button>}
         {isOpen && <div className="side-nav__group-items">
-          {section.items.map(({ to, label: linkLabel, icon: Icon }) => <Link key={to} to={to} className={active === to ? 'active' : undefined} aria-current={active === to ? 'page' : undefined} onClick={onNavigate}><Icon size={19} /><span>{linkLabel}</span>{linkLabel === 'Bildirişlər' && unread > 0 && <b>{unread}</b>}</Link>)}
+          {section.items.map(({ to, label: linkLabel, icon: Icon }) => <Link key={to} to={to} className={active === to ? 'active' : undefined} aria-current={active === to ? 'page' : undefined} onClick={onNavigate}><span className="side-nav__icon"><Icon size={19} aria-hidden="true" /></span><span>{linkLabel}</span>{linkLabel === 'Bildirişlər' && unread > 0 && <b>{unread}</b>}</Link>)}
         </div>}
       </div>;
     })}
