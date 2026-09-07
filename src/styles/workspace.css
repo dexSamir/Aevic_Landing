@@ -412,3 +412,53 @@
 .product-topbar__actions .icon-button { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--control-radius); }
 .admin-identity { background: var(--surface-accent); border: 1px solid var(--border-subtle); border-radius: var(--card-radius); }
 .product-page { margin-inline: auto; }
+
+/* Admin: compact operational reading, shared card language and stable columns. */
+.product-shell--admin { --font-heading: var(--heading-product); --card-padding: clamp(1rem, 2vw, 1.5rem); }
+.product-shell--admin .product-page { padding: clamp(1rem, 2.5vw, 2rem); }
+.product-shell--admin .page-header { min-height: 0; margin-bottom: var(--space-lg); padding-bottom: var(--space-md); }
+.product-shell--admin .page-header h1 { font-family: var(--heading-product); font-size: clamp(1.75rem, 2.8vw, 2.6rem); line-height: 1.2; }
+.product-shell--admin .page-header__copy::before { display: none; }
+.product-shell--admin .page-header__copy { padding-inline-start: 0; }
+.product-shell--admin .section-heading h2 { font-family: var(--heading-product); font-size: var(--text-md); }
+.product-shell--admin .admin-command { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-md); background: transparent; margin-bottom: var(--space-lg); }
+.product-shell--admin .admin-command__lead { min-height: 0; padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); grid-template-columns: minmax(0, 1fr) minmax(14rem, .6fr); gap: .35rem var(--space-xl); }
+.product-shell--admin .admin-command__lead > span, .product-shell--admin .admin-command__lead > h2, .product-shell--admin .admin-command__lead > p { grid-column: 1; }
+.product-shell--admin .admin-command__lead > div { grid-column: 2; grid-row: 1 / 4; margin: 0; align-self: center; }
+.product-shell--admin .admin-command__lead h2 { max-width: none; font-size: var(--text-lg); }
+.product-shell--admin .admin-dashboard-grid { gap: var(--space-md); }
+.product-shell--admin .admin-dashboard-grid > section { padding: var(--card-padding); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.product-shell--admin .action-queue a { min-height: 64px; border-radius: var(--control-radius); padding-inline: var(--space-sm); }
+.product-shell--admin .action-queue a:hover { background: var(--surface-2); }
+.product-shell--admin .action-queue a > span { border-radius: var(--control-radius); background: var(--surface-accent); }
+.product-shell--admin .recent-message { padding-block: var(--space-sm); }
+.product-shell--admin .admin-toolbar { padding: var(--space-sm); border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); gap: var(--space-sm); }
+.product-shell--admin .admin-toolbar .search-field { background: var(--surface-command); border-radius: var(--control-radius); }
+.product-shell--admin :is(.data-table, .admin-tournament-table, .request-ledger, .audit-ledger, .admin-user-list, .blacklist-list) { border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.product-shell--admin .data-table { overflow-x: auto; }
+.product-shell--admin .data-table th { background: var(--surface-2); color: var(--text-secondary); font-size: var(--text-xs); letter-spacing: .025em; }
+.product-shell--admin .data-table :is(td, th) { padding: var(--table-cell-block) var(--table-cell-inline); font-variant-numeric: tabular-nums; }
+.product-shell--admin .data-table tbody tr:nth-child(even) { background: var(--surface-1); }
+.product-shell--admin .data-table tbody tr:hover { background: var(--surface-hover); }
+.product-shell--admin :is(.admin-tournament-table > article, .request-ledger > a, .audit-ledger > article, .admin-user-list > article, .blacklist-list > article) { padding: var(--space-sm) var(--space-md); min-height: 72px; border-bottom: 1px solid var(--border-subtle); background: transparent; }
+.product-shell--admin :is(.admin-tournament-table > article, .request-ledger > a, .audit-ledger > article, .admin-user-list > article, .blacklist-list > article):last-child { border-bottom: 0; }
+.product-shell--admin :is(.request-ledger > a, .admin-tournament-table > article):hover { background: var(--surface-2); }
+.product-shell--admin .audit-ledger :is(code, time) { font-size: var(--text-xs); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.product-shell--admin .audit-ledger code { padding: var(--space-xs); border-radius: var(--radius-sm); background: var(--surface-command); }
+.product-shell--admin :is(.admin-entity-detail > section, .admin-entity-detail > aside, .request-detail-grid > section, .request-detail-grid > aside, .completion-grid > section, .completion-grid > form, .operation-form, .admin-settings > section, .admin-organization-review) { padding: var(--card-padding); background: var(--card-surface); border: 1px solid var(--card-border); border-radius: var(--card-radius); }
+.product-shell--admin .admin-entity-detail > section > header { padding: var(--space-md); background: var(--surface-accent); border-radius: var(--radius-md); }
+.product-shell--admin .compact-roster > a { min-height: 60px; padding: var(--space-sm); border-radius: var(--control-radius); }
+.product-shell--admin .compact-roster > a:hover { background: var(--surface-hover); }
+.product-shell--admin .decision-actions { gap: var(--space-sm); padding-top: var(--space-md); border-top: 1px solid var(--border-subtle); }
+.product-shell--admin .admin-wizard__form { border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--card-surface); }
+.product-shell--admin .admin-wizard > aside nav button { min-height: 48px; border-radius: var(--control-radius); }
+.product-shell--admin .slot-admin-summary { gap: var(--space-sm); background: transparent; }
+.product-shell--admin .slot-admin-summary > div { padding: var(--space-md); border: 1px solid var(--card-border); border-radius: var(--radius-md); background: var(--surface-accent); }
+.product-shell--admin .slot-management-item { border-radius: var(--radius-md); border: 1px solid var(--card-border); background: var(--card-surface); }
+.product-shell--admin :is(.result-entry, .result-review, .message-admin-layout > form, .message-admin-layout > aside, .rbac-note, .provider-status) { border-radius: var(--card-radius); background: var(--card-surface); border: 1px solid var(--card-border); }
+.product-shell--admin .mock-banner { padding: var(--space-sm); border-radius: var(--control-radius); font-size: var(--text-xs); }
+@media (max-width: 700px) {
+  .product-shell--admin .admin-command__lead { grid-template-columns: minmax(0, 1fr); }
+  .product-shell--admin .admin-command__lead > div { grid-column: 1; grid-row: auto; margin-top: var(--space-sm); }
+  .product-shell--admin .decision-actions { flex-wrap: wrap; }
+}

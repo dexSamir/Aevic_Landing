@@ -38,3 +38,10 @@ CSS-only visual changes are documented by their owning component in subsequent p
 - Every file in `src/components/team/`: `TeamExperience.tsx` career/performance/comparison/schedule treatments; `Achievements.tsx` medals, progress, placeholder and legacy surfaces; `BadgeCabinet.tsx` featured cabinet, detail, collection, reorder and picker surfaces; `CompetitionAwareness.tsx` severity-led presentation; `NextActionCard.tsx` consuming presentation as explained above. Shared component rules live in `public-pages.css`/`components.css` so public profiles and drawers benefit too.
 - Test update: `tests/architecture-reset.test.tsx` replaces the stale run-sheet-only test name and adds assertions for five KPI links and roster/notification destinations. No existing assertion was removed or weakened. The obsolete CSS comment is updated.
 - Verification: build, 20 domain tests, 175 component tests and lint passed.
+
+## Phase 5 — Admin
+- `AdminPages.tsx`: overview reuses StatCardStrip, retaining all four metrics, source-unavailable states and copy. Each KPI links to the existing team, slot, missed-check-in or results destination.
+- `workspace.css`: compact command lead, dashboard queues, table/header density, tabular numbers, filter toolbar, tournament rows, wizard, slot management, results entry/review, messages, blacklist and settings. This covers every export of `AdminPages.tsx`.
+- `AdminOperationsPages.tsx`: team review, roster requests, disputes, audit and users receive rounded panels/queues, consistent row spacing, readable metadata and grouped decisions through their existing selectors.
+- Related admin views in `CompletionPages.tsx` and `ProfilePages.tsx`: verification/support queues and detail forms, player review, result correction, lifecycle, missed check-ins and organization review use the same panel/queue treatment.
+- Verification: build, 20 domain tests, 175 component tests and lint passed. No test changes in this phase.
