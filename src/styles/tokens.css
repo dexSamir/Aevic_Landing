@@ -26,7 +26,7 @@
   --color-surface-hover: #272931;
   --color-text-primary: #f5f4f0;
   --color-text-muted: #b6b3ac;
-  --color-text-soft: #817e78;
+  --color-text-soft: #a09ca6;
   --color-text-inverse: #12110d;
   --color-border: #282a31;
   --color-border-strong: #3b3e48;
@@ -105,7 +105,7 @@
   --radius-md: 0.875rem;
   --radius-lg: 1.375rem;
   --radius-pill: 999px;
-  --radius-frame: var(--radius-xs);
+  --radius-frame: var(--radius-lg);
 
   --shadow-raised: 0 16px 38px rgba(0, 0, 0, 0.24), 0 2px 7px rgba(0, 0, 0, 0.14);
   --shadow-overlay: 0 28px 80px rgba(0, 0, 0, 0.48), 0 4px 14px rgba(0, 0, 0, 0.3);
@@ -165,6 +165,29 @@
   --header-height: 4.75rem;
   --sidebar-width: 17.5rem;
 
+  /* Editorial surfaces: primitives above → semantic roles → component tokens.
+     Gold identifies action; purple provides a secondary branded surface. */
+  --surface-accent: var(--color-brand-secondary-soft);
+  --surface-gold: var(--color-medal-gold-surface);
+  --text-on-accent: var(--color-text-primary);
+  --text-on-gold: var(--color-text-inverse);
+  --heading-editorial: var(--font-public-display);
+  --heading-product: var(--font-ui);
+  --card-surface: var(--surface-1);
+  --card-border: var(--border-subtle);
+  --card-radius: var(--radius-lg);
+  --card-padding: clamp(1.25rem, 2.5vw, 2rem);
+  --control-radius: var(--radius-md);
+  --stat-card-radius: var(--card-radius);
+  --stat-card-ratio: 3 / 2;
+  --stat-card-gap: var(--space-sm);
+  --stat-card-gold: var(--gold-primary);
+  --stat-card-purple: var(--color-brand-secondary);
+  --stat-card-ink: var(--surface-2);
+  --stat-card-soft: var(--surface-accent);
+  --table-cell-block: .85rem;
+  --table-cell-inline: 1rem;
+
   /* Team workspace: semantic surfaces and component decisions. */
   --team-workspace: #111012;
   --team-chrome: #0b0a0c;
@@ -184,8 +207,8 @@
   --team-purple-wash: #211725;
   --team-border-accent: #5e4f2d;
   --team-border-hover: #554f59;
-  --team-card-radius: 0.875rem;
-  --team-control-radius: 0.625rem;
+  --team-card-radius: var(--radius-lg);
+  --team-control-radius: var(--radius-md);
   --team-shell-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
   --team-selection-edge: color-mix(in srgb, var(--color-medal-silver) 42%, transparent);
   --team-selection-highlight: rgba(255, 255, 255, .055);

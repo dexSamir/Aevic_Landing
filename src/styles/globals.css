@@ -186,3 +186,7 @@ html[data-demo-mode='false'] .mock-banner { display: none !important; }
 @media (prefers-contrast: more) {
   :focus-visible { outline-width: 3px; outline-offset: 4px; }
 }
+
+/* Anchors and keyboard focus clear the shared sticky header. */
+[id] { scroll-margin-top: calc(var(--header-height) + var(--space-lg)); }
+html { scroll-padding-top: calc(var(--header-height) + var(--space-lg)); }
