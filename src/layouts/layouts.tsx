@@ -1,3 +1,5 @@
+import loginBackground from '../assets/official/login-background.png';
+import registerBackground from '../assets/official/register-background.png';
 import { SidebarNav } from './WorkspaceNav';
 import '../styles/public-shell.css';
 import {
@@ -229,10 +231,10 @@ export function PublicLayout() {
 export function AuthLayout() {
   const location = useLocation();
   const isRegister = location.pathname === '/register';
-  return <div className={`auth-shell ${isRegister ? 'auth-shell--register' : ''}`}>
+  return <div className={`auth-shell ${isRegister ? 'auth-shell--register auth-identity' : location.pathname === '/login' ? 'auth-shell--login auth-identity' : ''}`}>
     <RouteSeo /><OfflineNotice /><a className="skip-link" href="#main-content">Əsas məzmuna keç</a><PublicHeader />
     <main id="main-content" tabIndex={-1}>
-      <MediaBackdrop src={officialAssets.authBackdrop} srcSet={officialAssets.authBackdropSrcSet} sources={officialAssets.authBackdropSources} sizes="100vw" className="auth-shell__media" priority width={1586} height={992} focalDesktop="49% 48%" focalMobile="44% 45%" />
+      {isRegister || location.pathname === "/login" ? <MediaBackdrop src={isRegister ? registerBackground : loginBackground} className="auth-shell__media" priority width={1672} height={941} focalDesktop={isRegister ? "58% center" : "60% center"} focalMobile={isRegister ? "72% center" : "74% center"} /> : <MediaBackdrop src={officialAssets.authBackdrop} srcSet={officialAssets.authBackdropSrcSet} sources={officialAssets.authBackdropSources} sizes="100vw" className="auth-shell__media" priority width={1586} height={992} focalDesktop="49% 48%" focalMobile="44% 45%" />}
       <div className="auth-shell__content"><RouteTransitionOutlet family="auth" /></div>
     </main>
     <PublicFooter showCta={false} />

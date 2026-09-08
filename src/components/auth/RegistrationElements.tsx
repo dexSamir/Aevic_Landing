@@ -1,5 +1,5 @@
-import { AlertTriangle, Check, CheckCircle2, ChevronDown, Clock3, Cloud, LoaderCircle, Pencil, ShieldCheck, UserCheck } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { AlertTriangle, Check, CheckCircle2, Clock3, Cloud, LoaderCircle, Pencil, ShieldCheck, UserCheck } from 'lucide-react';
+import { type ReactNode } from 'react';
 import type { KnownPlayerLookup, RegistrationPlayerDraft, TeamRegistrationState } from '../../types/domain';
 import { Button } from '../common/primitives';
 
@@ -44,21 +44,17 @@ export function RegistrationPreviewRoster({ players }: { players: RegistrationPl
   return <div className="registration-preview-roster"><header><span>Əsas heyət</span><strong>{starters.filter((player) => player.ign.trim()).length} / 4</strong></header><ol>{starters.map((player, index) => <li className={player.ign.trim() ? 'is-complete' : ''} key={index}><span>{index === 0 ? 'C' : 'P'}</span><strong>{player.ign.trim() || 'Oyunçu tələb olunur'}</strong>{player.ign.trim() && <Check size={14} aria-label="Əlavə edilib" />}</li>)}</ol>{players[4]?.ign.trim() && <p><span>E</span><strong>{players[4].ign}</strong><small>Əvəzedici</small></p>}</div>;
 }
 
-export function RegistrationTeamPreview({ step, teamName, tag, captainName, players, logoUrl, tournamentName, availability = 'idle' }: { step: number; teamName: string; tag: string; captainName: string; players: RegistrationPlayerDraft[]; logoUrl?: string; tournamentName: string; availability?: 'idle' | 'checking' | 'available' | 'unavailable' | 'error' }) {
-  const [expanded, setExpanded] = useState(false);
-  const mainCount = players.slice(0, 4).filter((player) => player.ign.trim()).length;
-  const substituteCount = players[4]?.ign.trim() ? 1 : 0;
-  const ready = Boolean(teamName.trim() && captainName.trim() && mainCount === 4);
+export function RegistrationTeamPreview({ step, teamName, tag, logoUrl, captainName, players, ready = false }: { step: number; teamName: string; tag: string; captainName: string; players: RegistrationPlayerDraft[]; logoUrl?: string; tournamentName: string; availability?: 'idle' | 'checking' | 'available' | 'unavailable' | 'error'; ready?: boolean }) {
   const identity = teamName.trim() || 'Komanda adı';
-  return <aside className={`registration-team-preview ${expanded ? 'is-expanded' : ''} ${teamName ? 'has-data' : ''}`} aria-label="Komanda kimliyinin canlı önizləməsi">
-    <button className="registration-team-preview__toggle" type="button" aria-expanded={expanded} aria-controls="registration-preview-content" onClick={() => setExpanded((value) => !value)}><span className="registration-team-preview__mini-mark">{logoUrl ? <img src={logoUrl} alt="" /> : tag.slice(0, 3) || identity.slice(0, 2).toUpperCase()}</span><span><strong>{identity}</strong><small>{mainCount} / 4 əsas heyət</small></span><ChevronDown size={18} /></button>
-    <div id="registration-preview-content" className="registration-team-preview__content">
-      <header><span>{step === 4 ? 'Yoxlama üçün hazırdır' : 'Komanda önizləməsi'}</span>{availability === 'available' && <small><CheckCircle2 size={13} />Ad mövcuddur</small>}</header>
-      <div className="registration-team-preview__identity"><div className="registration-team-preview__mark">{logoUrl ? <img src={logoUrl} alt={`${identity} loqosu önizləməsi`} /> : tag.slice(0, 3) || identity.slice(0, 2).toUpperCase()}</div><div>{teamName ? <h3>{teamName}</h3> : <><span className="preview-skeleton preview-skeleton--title" /><span className="preview-skeleton" /></>}<p>{tag || 'TEAM TAG'} · AEVIC COMPETITIVE</p></div></div>
-      <div className="registration-team-preview__tournament"><span>Qeydiyyat</span><strong>{tournamentName}</strong></div>
-      {step >= 2 && <dl><div><dt>Kapitan</dt><dd>{captainName || 'Ad gözlənilir'}</dd></div><div><dt>Əsas heyət</dt><dd>{mainCount} / 4</dd></div></dl>}
-      {step >= 3 && <RegistrationPreviewRoster players={players} />}
-      {step === 4 && <footer><span className={ready ? 'is-ready' : ''}><ShieldCheck size={17} />{ready ? 'Kimlik tamamdır' : 'Məlumat tamamlanmalıdır'}</span><small>Əvəzedici: {substituteCount}</small></footer>}
+  const namedPlayers = players.filter(player => player.ign.trim());
+  return <aside className="registration-team-preview" aria-label="Komanda kimliyinin canlı önizləməsi">
+    <div className="registration-team-preview__content">
+      <header><span>{step === 4 ? 'İctimai profil önizləməsi' : 'Komanda önizləməsi'}</span></header>
+      <div className="registration-team-preview__identity"><div className="registration-team-preview__mark">{logoUrl ? <img src={logoUrl} alt={`${identity} loqosu önizləməsi`} /> : tag.slice(0, 3) || 'KO'}</div><div><h3>{identity}</h3><p>{tag || 'TEAM TAG'} · AEVIC</p></div></div>
+      {step >= 2 && <div className="preview-captain"><span>Kapitan</span><strong>{captainName || 'Ad gözlənilir'}</strong></div>}
+      {step >= 3 && <div className="preview-public-roster"><header><span>Heyət</span><small>{namedPlayers.length} oyunçu</small></header><ul>{players.map((player,index) => (index < 4 || player.ign.trim()) && <li key={index}><strong>{player.ign || 'Oyunçu gözlənilir'}</strong><span>{index === 4 ? 'Ehtiyat' : index === 0 ? 'Kapitan' : 'Əsas'}</span></li>)}</ul></div>}
+      {step === 4 && <div className="preview-readiness"><strong>{ready ? 'Məlumatlar tamamdır' : 'Məlumatlar tamamlanmalıdır'}</strong><span>Qaralama · hələ göndərilməyib</span><small>İctimai görünüş: komanda, kapitan və heyət. Əlaqə məlumatları göstərilmir.</small></div>}
+      <p className="auth-motto">Ad Aeternam Victoriam.</p>
     </div>
   </aside>;
 }
