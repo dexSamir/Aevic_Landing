@@ -1,4 +1,5 @@
-import { AlertTriangle, CheckCircle2, Clock3, LockKeyhole, MailCheck, ShieldAlert } from 'lucide-react';
+import { AuthRecoveryShell } from '../components/auth/AuthRecoveryShell';
+import { ArrowLeft, ArrowRight, AlertTriangle, CheckCircle2, Clock3, LockKeyhole, MailCheck, ShieldAlert } from 'lucide-react';
 import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button, LoadingSkeleton, PasswordInput, Toast } from '../components/common/primitives';
@@ -32,14 +33,14 @@ export function ResetPasswordPage() {
     try { await services.auth.resetPassword(token, password); setDone(true); } catch { setState('invalid'); }
     finally { setLoading(false); }
   };
-  if (!state) return <div className="auth-form-shell"><LoadingSkeleton rows={4} /></div>;
-  if (done) return <div className="auth-form-shell auth-success"><CheckCircle2 size={42} /><h1>Şifrə yeniləndi.</h1><p>Bütün aktiv sessiyaların ləğvi backend təhlükəsizlik siyasəti ilə idarə olunur.</p><Link className="button button--primary" to="/login"><span>Girişə keç</span></Link></div>;
+  if (!state) return <AuthRecoveryShell title="Bərpa linki yoxlanılır"><LoadingSkeleton rows={4} /></AuthRecoveryShell>;
+  if (done) return <AuthRecoveryShell title={<>Şifrə uğurla<br /><em>yeniləndi.</em></>}><div className="recovery-state" role="status"><CheckCircle2 className="recovery-state__icon" size={52} /><h2>Yeni şifrəniz hazırdır.</h2><p>Yeni şifrənizlə hesabınıza daxil ola bilərsiniz.</p><Link className="button button--primary" to="/login"><span>Girişə keç</span><ArrowRight size={20} /></Link></div></AuthRecoveryShell>;
   if (state !== 'valid') { const copy = resetCopy[state === 'already-verified' ? 'invalid' : state]; return <AuthBlockedState icon={state === 'expired' ? <Clock3 /> : <AlertTriangle />} title={copy.title} body={copy.body} />; }
-  return <div className="auth-form-shell"><header className="auth-header"><span>AEVIC secure access</span><h1>{resetCopy.valid.title}</h1><p>{resetCopy.valid.body}</p></header>{error && <Toast tone="error" title="Şifrə yenilənmədi" body={error} />}<form className="auth-form" onSubmit={submit}><PasswordInput label="Yeni şifrə" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" required /><PasswordInput label="Şifrəni təsdiqlə" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} autoComplete="new-password" required /><ul className="password-requirements" aria-label="Şifrə şərtləri"><li className={requirements[0] ? 'met' : ''}><CheckCircle2 size={15} />Minimum 8 simvol</li><li className={requirements[1] ? 'met' : ''}><CheckCircle2 size={15} />Bir böyük hərf</li><li className={requirements[2] ? 'met' : ''}><CheckCircle2 size={15} />Bir rəqəm</li></ul><Button type="submit" loading={loading}>Şifrəni yenilə</Button></form></div>;
+  return <AuthRecoveryShell title={<>Yeni şifrə<br /><em>yarat</em></>} description={resetCopy.valid.body}>{error && <Toast tone="error" title="Şifrə yenilənmədi" body={error} />}<form className="auth-form" onSubmit={submit}><PasswordInput label="Yeni şifrə" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" required /><PasswordInput label="Şifrəni təsdiqlə" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} autoComplete="new-password" required /><ul className="password-requirements" aria-label="Şifrə şərtləri"><li className={requirements[0] ? 'met' : ''}><CheckCircle2 size={15} />Minimum 8 simvol</li><li className={requirements[1] ? 'met' : ''}><CheckCircle2 size={15} />Bir böyük hərf</li><li className={requirements[2] ? 'met' : ''}><CheckCircle2 size={15} />Bir rəqəm</li></ul><Button type="submit" icon={<ArrowRight size={20} />} loading={loading}>Şifrəni yenilə</Button></form><Link className="back-link" to="/login"><ArrowLeft size={16} />Girişə qayıt</Link></AuthRecoveryShell>;
 }
 
 function AuthBlockedState({ icon, title, body }: { icon: ReactNode; title: string; body: string }) {
-  return <div className="auth-form-shell auth-lifecycle-state"><span className="auth-lifecycle-state__icon">{icon}</span><h1>{title}</h1><p>{body}</p><div><Link className="button button--primary" to="/forgot-password"><span>Yeni link göndər</span></Link><Link className="button button--ghost" to="/login"><span>Girişə qayıt</span></Link></div></div>;
+  return <AuthRecoveryShell title={<>Şifrəni<br /><em>bərpa et</em></>}><div className="recovery-state" role="status"><span className="recovery-state__icon recovery-state__icon--error">{icon}</span><h2>{title}</h2><p>{body}</p><Link className="button button--primary" to="/forgot-password"><span>Yeni bərpa linki istə</span><ArrowRight size={20} /></Link></div><Link className="back-link" to="/login"><ArrowLeft size={16} />Girişə qayıt</Link></AuthRecoveryShell>;
 }
 
 export function VerifyEmailPage() {
