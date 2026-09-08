@@ -3,10 +3,10 @@
 .site-shell > main > .motion-page > .page-section { padding-top: calc(var(--header-height) + var(--space-2xl)); }
 .site-shell :is(.page-header h1, .section-heading h2) { font-family: var(--font-public-display); }
 .site-shell .section-heading h2 { font-size: clamp(1.7rem,3vw,2.6rem); line-height: 1.15; }
-.site-header { position: sticky; top: 0; z-index: var(--z-header); height: var(--header-height); margin-bottom: calc(var(--header-height) * -1); padding-block: .5rem; background: transparent; transition: background-color 220ms ease; }
+.site-header { position: sticky; top: var(--system-banner-height); z-index: var(--z-header); height: var(--header-height); margin-bottom: calc(var(--header-height) * -1); padding-block: .5rem; background: transparent; transition: background-color 220ms ease; }
 .site-header__inner {height: 100%; display: grid;  align-items: center; gap: var(--space-lg);  grid-template-columns: auto minmax(0,1fr) auto; }
 .site-header__desktop, .site-header__auth { display: contents; }
-.site-header__tools { display: flex; justify-self: end; align-items: center; gap: .75rem; }
+.site-header__tools { margin-inline-start: auto; grid-column: 3; display: flex; justify-self: end; align-items: center; gap: .75rem; }
 .brand-mark, .brand-emblem { display: inline-grid; place-items: center; }
 .brand-emblem > picture, .brand-emblem > picture > img { width: 100%; height: 100%; display: block; object-fit: contain; }
 .brand-mark--navigation, .brand-mark--navigation .brand-emblem, .brand-emblem--navigation, .brand-mark--signature, .brand-mark--signature .brand-emblem, .brand-emblem--signature { width: 72px; min-width: 72px; height: 72px; min-height: 72px; }
@@ -50,7 +50,7 @@
 .public-nav-capsule--drawer a.active { background: var(--surface-2); }
 .drawer-public-nav .public-nav-actions { display: grid; grid-template-columns: 1fr 1fr; }
 .drawer-install { margin-top: var(--space-lg); padding-top: var(--space-md); border-top: var(--module-divider); }
-.offline-notice { position: sticky; top: 0; z-index: calc(var(--z-header) + 1); padding: .5rem var(--page-gutter); display: flex; align-items: center; justify-content: center; gap: .5rem; background: var(--color-warning-soft); color: var(--text-primary); font-size: var(--text-xs); }
+.offline-notice { position: fixed; inset-inline: 0; top: var(--update-banner-height, 0px); z-index: calc(var(--z-header) + 1); padding: .5rem var(--page-gutter); display: flex; align-items: center; justify-content: center; gap: .5rem; background: var(--color-warning-soft); color: var(--text-primary); font-size: var(--text-xs); }
 .participation-band { background: var(--gold-primary); color: var(--color-text-inverse); }
 .participation-band > .container { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-xl); padding-block: var(--space-2xl); }
 .participation-band > .container > div { display: grid; }
@@ -78,7 +78,7 @@
 @media (max-width: 1199px) {
   .site-header__inner {gap: .75rem;  grid-template-columns: auto minmax(0,1fr) auto; }
   .site-header__tools { gap: .5rem; }
-  .site-header__tools .public-rules-link span, .site-header__tools .public-identity-trigger > span, .site-header__tools .public-identity-trigger > svg:last-child { display: none; }
+  .site-header__tools .public-rules-link span, .site-header__tools .public-identity-trigger > .public-identity-label, .site-header__tools .public-identity-trigger > svg:last-child { display: none; }
   .public-nav-capsule a { padding-inline: .75rem; }
   .site-footer__main:has(.site-footer__social) { grid-template-columns: minmax(14rem, 1.4fr) repeat(2, minmax(8rem, 1fr)); }
   .site-footer__social { grid-column: 1 / -1; }
@@ -106,3 +106,8 @@
   .site-header--scrolled .public-nav-capsule {background: var(--surface-command); backdrop-filter: none; -webkit-backdrop-filter: none;  justify-self: start; }
   .public-rules-link, .public-identity-trigger, .public-nav-actions .nav-login { background: var(--surface-2); }
 }
+
+:root { --system-banner-height: calc(var(--offline-banner-height, 0px) + var(--update-banner-height, 0px)); }
+#root { padding-top: var(--system-banner-height); }
+.update-notice { top: 0; }
+.offline-notice > svg { flex-shrink: 0; }

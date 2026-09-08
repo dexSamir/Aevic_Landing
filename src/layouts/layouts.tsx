@@ -188,7 +188,7 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
   return <div className="public-nav-actions public-nav-actions--authenticated" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
     <button ref={buttonRef} type="button" className="public-identity-trigger" aria-label={`${identity} hesab menyusu`} aria-haspopup="menu" aria-expanded={open} aria-controls="public-identity-menu" onClick={() => setOpen((value) => !value)}>
       {hasTeamArea && team ? <TeamLogo name={team.name} src={team.logoUrl} size="sm" /> : <CircleUserRound size={20} />}
-      <span>{identity}</span><ChevronRight size={15} aria-hidden="true" />
+      <span className="public-identity-label">{identity}</span><ChevronRight size={15} aria-hidden="true" />
     </button>
     {open && <div ref={menuRef} id="public-identity-menu" className="public-identity-menu" role="menu" aria-label="Hesab əməliyyatları" onKeyDown={handleMenuKeyDown}>
       <header><span>{isAdmin ? 'ADMIN ACCESS' : team?.tag || 'AEVIC TEAM'}</span><strong>{identity}</strong></header>

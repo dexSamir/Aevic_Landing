@@ -135,7 +135,7 @@
 @media (max-width: 640px) {
   .auth-shell { padding-top: var(--header-height); }
   .auth-shell > main { padding-top: 0; }
-  .auth-shell > .site-header {position: fixed;  background: transparent; border-bottom: 0; box-shadow: none; }
+  .auth-shell > .site-header {position: fixed; inset-inline: 0; width: 100%;  background: transparent; border-bottom: 0; box-shadow: none; }
 }
 .auth-shell { min-width: 0; background: var(--surface-base); }
 .auth-shell > .site-header {background: transparent; border-bottom: 0; box-shadow: none; }
@@ -516,7 +516,7 @@
 .auth-shell--register.auth-identity .auth-shell__media .media-backdrop__shade { background: linear-gradient(90deg, rgba(2,3,5,.86) 0%, rgba(2,3,5,.68) 36%, rgba(2,3,5,.28) 62%, rgba(2,3,5,.04) 82%); }
 .auth-identity .auth-shell__content { max-width: 1160px; }
 .auth-identity .auth-form-shell, .auth-identity .register-shell { padding: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; }
-.auth-shell--login .auth-form-shell { width: min(100%, 460px); margin-right: 0; justify-self: start; }
+.auth-shell--login .auth-form-shell { width: min(100%, 460px); margin-inline: auto; justify-self: center; }
 .auth-identity .auth-header { display: block; margin-bottom: 18px; }
 .auth-identity .auth-header > span { color: #f3c450; font-size: 13px; letter-spacing: .06em; }
 .auth-identity .auth-header h1 { max-width: 17ch; margin-top: 16px; color: #fff; font-size: clamp(32px, 3.6vw, 48px); line-height: 1.15; letter-spacing: -.025em; }
@@ -530,7 +530,7 @@
 .auth-identity .field input:hover { border-color: rgba(255,255,255,.18); }
 .auth-identity .field input:focus { border-color: #f3c450; outline: none; box-shadow: 0 0 0 3px rgba(243,196,80,.12); }
 .auth-identity .auth-icon-field { position: relative; }
-.auth-identity .auth-icon-field > svg { position: absolute; left: 18px; top: 41px; z-index: 1; color: #b9b9bf; pointer-events: none; }
+
 .auth-identity .auth-icon-field input { padding-left: 50px; }
 .auth-identity .form-inline { gap: 12px; font-size: 13px; }
 .auth-identity .form-inline a, .auth-identity .auth-switch a { color: #f3c450; }
@@ -577,10 +577,10 @@
 .auth-identity .register-login { width: calc((100% - 28px) / 2.6 * 1.6); }
 @media (max-width: 768px) {
  .auth-identity > main { padding: calc(var(--header-height) + 32px) 20px 48px; }
- .auth-shell--login .auth-form-shell { margin-right: 0; }
+ .auth-shell--login .auth-form-shell { margin-inline: auto; }
  .auth-identity .login-card, .auth-identity .register-workspace__form { padding: 24px; }
  .auth-shell--register.auth-identity .register-workspace { display: flex; flex-direction: column; gap: 24px; }
- .auth-shell--register.auth-identity .register-workspace__form { order: 0; }
+ .auth-shell--register.auth-identity .register-workspace__form { order: 0; width: 100%; }
  .auth-shell--register.auth-identity .registration-team-preview { order: 1; }
  .auth-identity .registration-team-preview__content { padding: 24px; }
  .auth-identity .register-login { width: 100%; }
@@ -603,7 +603,7 @@
 .auth-identity .auth-header h1 { margin-top: 10px; }
 .auth-identity .auth-header p { margin-top: 10px; font-size: 14px; line-height: 1.5; }
 .auth-shell--register.auth-identity .auth-shell__content { max-width: 1160px; }
-.auth-shell--register.auth-identity .register-shell { max-width: 920px; justify-self: start; gap: 0; }
+.auth-shell--register.auth-identity .register-shell { max-width: 920px; margin-inline: auto; justify-self: center; gap: 0; }
 .auth-shell--register.auth-identity .register-workspace { grid-template-columns: minmax(0, 1fr) 270px; gap: 22px; }
 .auth-identity .register-login { width: calc(100% - 292px); }
 .auth-identity .registration-team-preview__identity { grid-template-columns: 56px minmax(0,1fr); gap: 12px; }
@@ -616,7 +616,7 @@
  .auth-shell--register.auth-identity .register-workspace__form { height: 100%; min-height: 0; grid-template-rows: minmax(0,1fr) auto; }
  .auth-shell--register.auth-identity .register-workspace__scroller { overflow-y: auto; padding: 0 6px 0 0; }
  .auth-shell--register.auth-identity .register-workspace__form:has(> .auth-availability) { grid-template-rows: minmax(0,1fr) auto auto; }
- .auth-shell--register.auth-identity .registration-team-preview { position: static; align-self: end; }
+ .auth-shell--register.auth-identity .registration-team-preview { position: static; align-self: start; }
  .auth-identity .team-step-fields { grid-template-columns: minmax(0,1fr) 140px; }
  .auth-identity .team-step-fields > div:has(> .file-upload), .auth-identity .team-step-fields > .team-availability { grid-column: 1 / -1; }
 }
@@ -740,7 +740,7 @@ html:has(.auth-identity)::-webkit-scrollbar, body:has(.auth-identity)::-webkit-s
 }
 @media (max-width: 1023px) {
  .auth-shell--register.auth-identity .register-workspace { display: flex; flex-direction: column; }
- .auth-shell--register.auth-identity .register-workspace__form { order: 0; }
+ .auth-shell--register.auth-identity .register-workspace__form { order: 0; width: 100%; }
  .auth-shell--register.auth-identity .registration-team-preview { order: 1; position: static; width: 100%; }
  .auth-identity .register-login { width: 100%; }
  .auth-identity .register-shell { height: auto; }
@@ -792,4 +792,25 @@ html:has(.auth-identity)::-webkit-scrollbar, body:has(.auth-identity)::-webkit-s
  .auth-identity .register-shell[data-step='3'] .form-section-title { margin-bottom: 8px; }
  .auth-identity .registration-review { gap: 8px; }
  .auth-identity .registration-review-group { padding-top: 4px; }
+}
+
+/* Control geometry owns icons; labels and validation cannot shift their centerline. */
+.input-control { position: relative; display: block; min-width: 0; }
+.input-control > input { width: 100%; }
+.input-control__icon { position: absolute; inset-inline-start: 18px; top: 50%; transform: translateY(-50%); display: flex; color: #b9b9bf; pointer-events: none; }
+.input-control--icon > input { padding-inline-start: 50px; }
+.auth-identity { --auth-block-space: 24px; --register-preview-width: 270px; --register-column-gap: 22px; }
+.auth-identity > main { min-height: calc(100svh - var(--system-banner-height)); padding-block: calc(var(--header-height) + var(--auth-block-space)) var(--auth-block-space); }
+.auth-shell--register.auth-identity .register-workspace { grid-template-columns: minmax(0, 1fr) var(--register-preview-width); gap: var(--register-column-gap); }
+.auth-shell--register.auth-identity .register-shell > .registration-stepper,
+.auth-shell--register.auth-identity .register-shell > .button--ghost { width: calc(100% - var(--register-preview-width) - var(--register-column-gap)); justify-self: start; }
+.auth-shell--register.auth-identity .register-shell > .button--ghost { justify-content: end; }
+@media (min-width: 1024px) {
+ .auth-shell--register.auth-identity .register-shell { height: calc(100svh - var(--system-banner-height) - var(--header-height) - 2 * var(--auth-block-space)); }
+}
+@media (min-width: 1024px) and (max-height: 800px) { .auth-identity { --auth-block-space: 12px; } }
+@media (min-width: 1024px) and (max-width: 1439px) { .auth-identity { --register-preview-width: 240px; } }
+@media (max-width: 1023px) {
+ .auth-shell--register.auth-identity .register-shell > .registration-stepper,
+ .auth-shell--register.auth-identity .register-shell > .button--ghost { width: 100%; }
 }

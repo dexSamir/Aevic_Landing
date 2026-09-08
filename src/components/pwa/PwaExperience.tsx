@@ -1,5 +1,5 @@
 import { Download, Share2, WifiOff } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Button, Modal } from '../common/primitives';
 import { acceptPwaUpdate, hasPwaUpdate } from '../../app/registerPwa';
 
@@ -27,16 +27,33 @@ export function InstallAevic({ compact = false }: { compact?: boolean }) {
   return <><Button variant="ghost" className={compact ? 'install-aevic--compact' : ''} icon={<Download size={17} />} onClick={() => void install()}>Install AEVIC</Button><Modal open={instructions} title="AEVIC-i quraşdır" onClose={() => setInstructions(false)}><div className="ios-install-guide"><Share2 size={24} /><p>Safari paylaşım menyusunu açın və <strong>“Add to Home Screen”</strong> seçin.</p><small>Bu təlimat yalnız siz Install AEVIC seçdikdən sonra göstərilir.</small></div></Modal></>;
 }
 
+// Measure wrapped notices so every public layout shares the same top boundary.
+function useBannerHeight(visible: boolean, property: string) {
+  const ref = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!visible || !element) return;
+    const measure = () => document.documentElement.style.setProperty(property, `${element.getBoundingClientRect().height}px`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => { observer.disconnect(); document.documentElement.style.removeProperty(property); };
+  }, [visible, property]);
+  return ref;
+}
+
 export function OfflineNotice() {
   const [online, setOnline] = useState(true);
   useEffect(() => { setOnline(navigator.onLine); const on = () => setOnline(true); const off = () => setOnline(false); window.addEventListener('online', on); window.addEventListener('offline', off); return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off); }; }, []);
+  const bannerRef = useBannerHeight(!online, '--offline-banner-height');
   if (online) return null;
-  return <aside className="offline-notice" role="status"><WifiOff size={16} /><span><strong>BAĞLANTI YOXDUR</strong> · Canlı status yenilənmir. Hesab məlumatları oflayn saxlanmır.</span></aside>;
+  return <aside ref={bannerRef} className="offline-notice" role="status"><WifiOff size={16} /><span><strong>BAĞLANTI YOXDUR</strong> · Canlı status yenilənmir. Hesab məlumatları oflayn saxlanmır.</span></aside>;
 }
 
 export function PwaUpdateNotice() {
   const [available, setAvailable] = useState(hasPwaUpdate);
   useEffect(() => { const update = () => setAvailable(hasPwaUpdate()); window.addEventListener('aevic:pwa-update', update); return () => window.removeEventListener('aevic:pwa-update', update); }, []);
+  const bannerRef = useBannerHeight(available, '--update-banner-height');
   if (!available) return null;
-  return <aside className="offline-notice" role="status"><span>Yeni versiya hazırdır. Yadda saxlanmamış dəyişiklikləri tamamlayın.</span><Button variant="ghost" onClick={acceptPwaUpdate}>İndi yenilə</Button><Button variant="ghost" onClick={() => setAvailable(false)}>Sonra</Button></aside>;
+  return <aside ref={bannerRef} className="offline-notice update-notice" role="status"><span>Yeni versiya hazırdır. Yadda saxlanmamış dəyişiklikləri tamamlayın.</span><Button variant="ghost" onClick={acceptPwaUpdate}>İndi yenilə</Button><Button variant="ghost" onClick={() => setAvailable(false)}>Sonra</Button></aside>;
 }

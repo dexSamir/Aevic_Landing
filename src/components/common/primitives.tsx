@@ -63,16 +63,17 @@ interface FieldProps {
   error?: string;
   success?: string;
   optional?: boolean;
+  leadingIcon?: ReactNode;
 }
 
-export function Input({ label, hint, error, success, optional, id: providedId, className = '', ...props }: InputHTMLAttributes<HTMLInputElement> & FieldProps) {
+export function Input({ label, hint, error, success, optional, leadingIcon, id: providedId, className = '', ...props }: InputHTMLAttributes<HTMLInputElement> & FieldProps) {
   const generatedId = useId();
   const id = providedId ?? generatedId;
   const descriptionId = `${id}-description`;
   return (
     <label className={`field ${error ? 'field--error' : ''} ${success ? 'field--success' : ''} ${className}`} htmlFor={id}>
       <span className="field__label">{label}{optional && <span>İstəyə bağlı</span>}</span>
-      <input id={id} aria-invalid={Boolean(error)} aria-describedby={(error || hint || success) ? descriptionId : undefined} {...props} />
+      <span className={`input-control ${leadingIcon ? "input-control--icon" : ""}`}>{leadingIcon && <span className="input-control__icon">{leadingIcon}</span>}<input id={id} aria-invalid={Boolean(error)} aria-describedby={(error || hint || success) ? descriptionId : undefined} {...props} /></span>
       {(error || success || hint) && <span id={descriptionId} className="field__message" role={error ? 'alert' : undefined}>{error || success || hint}</span>}
     </label>
   );
@@ -83,11 +84,12 @@ export function PasswordInput(props: InputHTMLAttributes<HTMLInputElement> & Fie
   const generatedId = useId();
   const id = props.id ?? generatedId;
   const descriptionId = `${id}-description`;
-  const { label, hint, error, success, optional, ...inputProps } = props;
+  const { label, hint, error, success, optional, leadingIcon, ...inputProps } = props;
   return (
     <div className={`field password-field ${error ? 'field--error' : ''} ${success ? 'field--success' : ''}`}>
       <label className="field__label" htmlFor={id}>{label}{optional && <span>İstəyə bağlı</span>}</label>
-      <span className="password-field__control">
+      <span className={`password-field__control input-control ${leadingIcon ? "input-control--icon" : ""}`}>
+        {leadingIcon && <span className="input-control__icon">{leadingIcon}</span>}
         <input {...inputProps} id={id} aria-invalid={Boolean(error)} aria-describedby={(error || hint || success) ? descriptionId : undefined} type={visible ? 'text' : 'password'} />
         <IconButton type="button" className="password-field__toggle" label={visible ? 'Şifrəni gizlət' : 'Şifrəni göstər'} onClick={() => setVisible((value) => !value)}>
           {visible ? <EyeOff size={18} /> : <Eye size={18} />}
