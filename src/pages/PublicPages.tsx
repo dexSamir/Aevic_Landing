@@ -1,4 +1,3 @@
-import { CompetitionFeature } from '../components/competition/CompetitionFeature';
 import { PlacementScoring } from '../components/competition/PlacementScoring';
 import {
   ArrowRight,
@@ -15,7 +14,6 @@ import { officialAssets } from '../assets/official';
 import { StatCardStrip } from '../components/common/StatCardStrip';
 import { MediaBackdrop } from '../components/common/MediaBackdrop';
 import { CompetitionRoundProgram } from '../components/competition/CompetitionVisuals';
-import { TournamentCalendar } from '../components/competition/TournamentCalendar';
 import { TournamentJoinAction } from '../components/competition/TournamentJoinAction';
 import { CalendarAction } from '../components/competition/CalendarAction';
 import { LeaderboardMovementCell } from '../components/competition/CompetitionIntelligence';
@@ -38,31 +36,14 @@ import { competitionNow, demoMode, services } from '../services';
 import { usePublicPlatformData } from '../services/PlatformDataContext';
 import { queryPolicy, usePlatformQuery } from '../services/queryCache';
 import type { RankMovementData } from '../types/domain';
-import { AEVIC_EVENT_TIMEZONE, datePartsInTimeZone, formatEventDate, formatEventTime } from '../utils/calendar';
+import { AEVIC_EVENT_TIMEZONE, formatEventDate, formatEventTime } from '../utils/calendar';
 import { tournamentById } from '../utils/routes';
 import { resolveTournamentTemporalPhase } from '../utils/tournamentTime';
-import { selectLeaderboardTournament, selectPrimaryCompetition } from '../utils/competitionSelectors';
+import { selectLeaderboardTournament } from '../utils/competitionSelectors';
 
 const formatDate = (value: string, withTime = false) => formatEventDate(value, { withTime });
 
-export function TournamentsPage() {
-  const { tournaments } = usePublicPlatformData();
-  const featured = selectPrimaryCompetition(tournaments, competitionNow());
-  return <section className="page-section tournaments-calendar-page"><div className="container">
-    <PageHeader eyebrow="Yarış planlaması" title="Turnir təqvimi" description={tournaments.length ? 'Tarixi seçin, turnirin vəziyyətini və iştirak şərtlərini görün.' : 'Turnir elanları və iştirak şərtləri.'} />
-    {featured && <div className="tournaments-feature"><CompetitionFeature tournament={featured} /></div>}
-    <div className="tournament-program"><aside className="tournament-program__index"><TournamentCalendar tournaments={tournaments} compact /></aside><div className="tournament-program__ledger">
-    {tournaments.length > 0 && <><SectionHeading title="Yarış xətti" description="Yaxın və tamamlanmış turnirlərin kompakt cədvəli." />
-    <div className="tournament-list">{tournaments.map((tournament) => {
-      const remaining = Math.max(0, tournament.maxSlots - tournament.usedSlots);
-      const eventDate = new Date(tournament.startsAt);
-      const parts = datePartsInTimeZone(eventDate);
-      const phase = resolveTournamentTemporalPhase(tournament, competitionNow());
-      return <article key={tournament.id} className="tournament-row"><div className="tournament-row__date"><strong>{parts.day}</strong><span>{eventDate.toLocaleDateString('az-AZ', { month: 'short', year: 'numeric', timeZone: AEVIC_EVENT_TIMEZONE })}</span></div><div className="tournament-row__main"><div>{phase === 'registration-open' ? <StatusBadge status="open" /> : phase === 'completed' ? <StatusBadge status="completed" /> : phase === 'live' ? <StatusBadge status="live" /> : <StatusBadge status="draft">Planlaşdırılıb</StatusBadge>}<span>{tournament.days} gün · {tournament.roundsPerDay * tournament.days} raund</span></div><h2>{tournament.name}</h2></div><div className="tournament-row__meta"><span>Başlanğıc<strong>{`${formatEventTime(tournament.startsAt)} AZT`}</strong></span><span>Slot<strong>{remaining} / {tournament.maxSlots}</strong></span><Link to={`/tournaments/${tournament.id}`} aria-label={`${tournament.name} detallarını aç`}><ArrowRight size={19} /></Link></div></article>;
-    })}</div></>}
-    </div></div>
-  </div></section>;
-}
+export { TournamentsPage } from './TournamentsPage';
 
 export function TournamentDetailPage() {
   const { tournaments, leaderboardTeams, teams } = usePublicPlatformData();

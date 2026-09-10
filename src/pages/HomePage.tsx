@@ -1,3 +1,4 @@
+import { BrandJoinCta } from '../components/common/BrandJoinCta';
 import { CompetitionFeature } from '../components/competition/CompetitionFeature';
 import { ArrowRight, ChevronLeft, ChevronRight, Crown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -73,6 +74,6 @@ export function HomePage() {
 
     {featuredRecord && <section className="home-record-spotlight"><MediaBackdrop {...homeArtwork.record} sizes="100vw" className="home-record-spotlight__media" focalDesktop="65% 0%" focalMobile="70% 40%" /><div className="container" data-reveal data-reveal-variant="fade-up"><div><span>REKORDLARDA AEVIC</span><strong>{featuredRecord.value}<small>{featuredRecord.unit}</small></strong><h2>{featuredRecord.label}</h2><p>{featuredRecord.teamName} · {featuredRecord.map || featuredRecord.tournamentName} · {demoMode ? 'dərc edilmiş nümunə rekordu' : 'rəsmi rekord'}</p></div><Link className="button button--secondary" to="/records"><span>Statistikaları araşdır</span><ArrowRight size={17} /></Link></div></section>}
 
-    <section className="home-brand-statement" aria-labelledby="home-brand-title"><MediaBackdrop {...homeArtwork.participation} sizes="100vw" className="home-brand-statement__media" focalDesktop="70% 50%" focalMobile="72% 42%" /><div className="container"><div data-reveal data-reveal-variant="fade-up"><h2 id="home-brand-title">Burada oyun<br />daha böyükdür.</h2><p>E-sport tək oyun deyil,<br />bir icma, bir səhnə, bir mirasdır.</p><Link className="button" to={serviceCapabilities.register ? '/register' : '/regulations'}><span>Rəqabətin bir hissəsi ol</span><ArrowRight size={18} /></Link></div></div></section>
+    <BrandJoinCta />
   </>;
 }

@@ -1,5 +1,5 @@
 import { Check, CheckCircle2, LoaderCircle, LockKeyhole, ShieldAlert, UserPlus, Users } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { competitionNow, serviceCapabilities, services } from '../../services';
 import { ApiError } from '../../services/apiError';
@@ -26,6 +26,7 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
   onStateChange?: (participation: TournamentCalendarParticipation | 'pending' | undefined, team?: Team) => void;
   onJoined?: () => void;
 }) {
+  const actionId = useId();
   const [checking, setChecking] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [team, setTeam] = useState<Team>();
@@ -116,7 +117,7 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
     return <Button variant="secondary" disabled loading>Status yoxlanılır</Button>;
   })();
 
-  return <div className="tournament-join" id="tournament-join">
+  return <div className="tournament-join" id={`tournament-join-${actionId}`}>
     {showTeamState && team && <div className="calendar-team-state"><span>Sizin komanda</span><strong>{team.name}</strong><small>{participation ? state === 'approved' ? 'Təsdiqlənmiş iştirak' : state === 'pending' ? 'Qeydiyyat yoxlanılır' : 'Qeydiyyat tapıldı' : state === 'roster-incomplete' ? 'Heyət tamamlanmalıdır' : state === 'ineligible' ? 'Komanda təsdiqi tələb olunur' : 'Turnir qeydiyyatı yoxdur'}</small></div>}
     <div className="tournament-join__action">{action}</div>
     {state === 'roster-incomplete' && <p className="tournament-join__message">Qeydiyyatı tamamlamazdan əvvəl heyətinizi tamamlayın.</p>}

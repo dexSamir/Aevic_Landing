@@ -107,25 +107,13 @@
 .tournament-calendar--empty { display: block; padding: clamp(1rem, 3vw, 2rem); background: var(--surface-1); }
 .tournament-calendar.tournament-calendar--empty .empty-state { max-width: 42rem; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; align-items: start; justify-items: start; text-align: left; }
 
-/* Tournament-index context lives with the component owner. */
-.tournaments-calendar-page .tournament-calendar {
-  border-radius: var(--control-radius, 8px);
-  outline: none;
-  box-shadow: none;
-  border-block: 1px solid var(--border-subtle);
-}
-.tournaments-calendar-page .tournament-calendar__picker { background: var(--surface-command); }
-.tournaments-calendar-page .tournament-calendar__agenda { background: var(--surface-1); }
-.tournaments-calendar-page .tournament-calendar__agenda :is(h2, h3) { font-size: clamp(1.55rem, 2.2vw, 2.15rem); }
-.tournaments-calendar-page .tournament-calendar:not(.tournament-calendar--empty) { margin-bottom: var(--section-normal); }
-
 /* Shared calendar finish used by Home and the tournament listing. */
 .tournament-calendar { border-radius: var(--card-radius); box-shadow: none; border: 1px solid var(--card-border); }
 .tournament-calendar__picker > header span { font-family: var(--heading-product); font-weight: 700; }
 .tournament-calendar__picker nav button { border-radius: var(--control-radius); }
 
 /* Compact calendar embedded in the competition index. */
-.tournament-program__index .tournament-calendar { display: block; border: 0; border-radius: 0; background: transparent; }
+
 
 /* Home's calendar is an index with a short linked event summary. */
 .tournament-calendar--overview { display: block; border: 0; border-radius: 0; background: transparent; }
@@ -181,3 +169,38 @@
 @media (prefers-reduced-motion: reduce) {
   .tournament-calendar :is(.tournament-calendar__days, .tournament-calendar__strip) > button { transition: none; }
 }
+
+/* Planning page detail is one continuous panel; Home keeps its overview. */
+.tournaments-calendar-page .tournament-calendar { display: block; border: 1px solid var(--border-subtle); border-radius: 8px; background: var(--color-bg-deep); }
+.tournaments-calendar-page .tournament-calendar__picker { padding: 24px; background: transparent; }
+.tournaments-calendar-page .tournament-calendar__picker > header span { font: 600 24px/1.2 var(--font-public-display); text-transform: uppercase; }
+.tournaments-calendar-page .tournament-calendar__picker > header > div::before { content: '//'; color: var(--gold-primary); font: 600 24px var(--font-public-display); margin-right: 8px; }
+.tournaments-calendar-page .tournament-calendar__picker > header strong { font: 600 22px var(--font-public-display); color: var(--gold-primary); }
+.tournaments-calendar-page .tournament-calendar__days button { color: var(--text-primary); font: 500 18px var(--font-public-display); }
+.tournaments-calendar-page .tournament-calendar button[data-event-status='live'] > i { background: var(--planning-live); }
+.tournaments-calendar-page .tournament-calendar button[data-event-status='registration-closed'] > i { background: var(--planning-scheduled); }
+.tournaments-calendar-page .tournament-calendar button[data-event-status='completed'] > i { background: var(--planning-completed); }
+.planning-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; font-size: 10px; color: var(--text-secondary); }
+.planning-legend span { display: flex; align-items: center; gap: 5px; }
+.planning-legend i { width: 8px; height: 8px; border-radius: 50%; background: var(--gold-primary); }
+.planning-legend span:nth-child(2) i { background: var(--planning-live); }
+.planning-legend span:nth-child(3) i { background: var(--planning-scheduled); }
+.planning-legend span:nth-child(4) i { background: var(--planning-completed); }
+.tournaments-calendar-page .tournament-calendar__agenda { display: block; padding: 0; background: transparent; }
+.tournaments-calendar-page .tournament-calendar__agenda > header { display: flex; align-items: center; padding: 18px 24px; background: var(--color-bg-elevated); border: 0; font-size: 14px; }
+.tournaments-calendar-page .calendar-event-inspector { padding: 24px; gap: 16px; }
+.tournaments-calendar-page .calendar-event-inspector__heading { grid-template-columns: 1fr auto; align-items: center; gap: 12px 8px; }
+.tournaments-calendar-page .calendar-event-inspector__heading .planning-eyebrow { font-size: 12px; }
+.tournaments-calendar-page .calendar-event-inspector__heading h3 { grid-column: 1 / -1; font: 600 32px/1.15 var(--font-public-display); }
+.tournaments-calendar-page .calendar-event-status { font-size: 10px; min-height: 24px; gap: 4px; }
+.tournaments-calendar-page .calendar-event-status small { display: none; }
+.tournaments-calendar-page .calendar-event-inspector > p { font-size: 13px; margin: 0; }
+.tournaments-calendar-page .calendar-event-inspector dl { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; background: transparent; }
+.tournaments-calendar-page .calendar-event-inspector dl > div { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 14px 4px; background: var(--color-bg-deep); border: 1px solid var(--border-subtle); border-radius: 6px; }
+.tournaments-calendar-page .calendar-event-inspector dl svg { color: var(--gold-primary); }
+.tournaments-calendar-page .calendar-event-inspector dd { font: 500 16px var(--font-public-display); }
+.tournaments-calendar-page .tournament-join__action { width: 100%; }
+.tournaments-calendar-page .calendar-event-inspector .tournament-join__action > :is(button,a) { width: 100%; }
+.tournaments-calendar-page .tournament-calendar__empty { padding: 24px; }
+@media (max-width: 1023px) and (min-width: 768px) { .tournaments-calendar-page .tournament-calendar { display: grid; grid-template-columns: 1fr 1fr; } .tournaments-calendar-page .tournament-calendar__agenda { border-left: 1px solid var(--border-subtle); } }
+@media (max-width: 420px) { .tournaments-calendar-page .tournament-calendar__picker { padding: 16px; } .tournaments-calendar-page .calendar-event-inspector { padding: 18px; } .tournaments-calendar-page .calendar-event-inspector__heading { grid-template-columns: 1fr; } }

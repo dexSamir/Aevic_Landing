@@ -6,7 +6,7 @@ import { SharecardGenerator } from '../src/components/competition/SharecardGener
 import { buildCompetitionAwareness, CompetitionAwareness } from '../src/components/team/CompetitionAwareness';
 import { deriveNextAction } from '../src/components/team/NextActionCard';
 import { productRouteTitle } from '../src/layouts/layouts';
-import { adminMessages, currentTeam, matchSchedule, notifications, teamAnnouncements, tournaments } from '../src/mocks/data';
+import { adminMessages, currentTeam, matchHistory, matchSchedule, notifications, teamAnnouncements, tournaments } from '../src/mocks/data';
 import { RecordDetailPage } from '../src/pages/PublicArchivePages';
 import { TeamDashboardPage, TeamSharecardsPage } from '../src/pages/TeamPages';
 import { TeamPlatformProvider } from '../src/services/PlatformDataContext';
@@ -29,22 +29,28 @@ describe('UX architecture reset contracts', () => {
   it('keeps the captain action ahead of room, readiness and results without KPI cards', async () => {
     const view = render(<MemoryRouter><TeamPlatformProvider><TeamDashboardPage /></TeamPlatformProvider></MemoryRouter>);
     await screen.findByRole('heading', { name: 'Caspian Wolves' });
-    expect(view.container.querySelector('.team-command-center')).not.toBeInTheDocument();
-    expect(view.container.querySelector('.team-now')).toBeInTheDocument();
-    expect(view.container.querySelector('.team-competition-anchor')).toBeInTheDocument();
-    expect(view.container.querySelector('.team-readiness-ledger')).toBeInTheDocument();
-    expect(view.container.querySelector('.dashboard-quick-links')).not.toBeInTheDocument();
-    expect(screen.queryByRole('list', { name: 'Ən vacib komanda göstəriciləri' })).not.toBeInTheDocument();
-    const action = view.container.querySelector('.team-now')!;
-    const room = view.container.querySelector('.team-room-status')!;
-    expect(action.compareDocumentPosition(room) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Heyəti idarə et/ })).toHaveAttribute('href', '/team/roster');
-    expect(screen.getAllByText('DƏYİŞƏN').length).toBeGreaterThan(0);
-    expect(screen.getByText('AKTİV YARIŞ')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'AEVIC Daily Cup #24' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Matç detalı' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Check-in et' })).not.toBeInTheDocument();
-    expect(screen.getByText('HAZIRLIQ')).toBeInTheDocument();
+    const command = view.container.querySelector('.overview-next-action')!;
+    expect(command).toBeInTheDocument();
+    for (const selector of ['.overview-status--room', '.overview-status--roster', '.overview-operations', '.overview-recent']) {
+      const later = view.container.querySelector(selector)!;
+      expect(later).toBeInTheDocument();
+      expect(command.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+    expect(view.container.querySelector('.overview-statistics, .overview-stat-grid, .dashboard-quick-links')).not.toBeInTheDocument();
+    expect(view.container.querySelectorAll('.overview-status-grid > a')).toHaveLength(4);
+    expect([...view.container.querySelectorAll('.overview-recent li')].map(el => el.textContent)).toEqual(matchHistory.slice(0, 5).map(match => match.placement === 1 ? 'WWCD' : String(match.placement)));
+    expect(view.container.querySelector('.overview-standings table')).not.toBeInTheDocument();
+    expect(screen.getByText('Komandanız üçün cari sıralama dərc edilməyib.')).toBeInTheDocument();
+    expect(view.container.querySelectorAll('.overview-rounds li')).toHaveLength(matchSchedule.length);
+    const events = buildCompetitionAwareness({ notifications, adminMessages, announcements: teamAnnouncements }).slice(0, 3);
+    expect(view.container.querySelectorAll('.overview-updates li')).toHaveLength(events.length);
+    events.forEach(event => expect(within(view.container.querySelector('.overview-updates') as HTMLElement).getByRole('link', { name: new RegExp(event.title) })).toHaveAttribute('href', event.actionTarget));
+    expect(within(command as HTMLElement).getByRole('link', { name: 'Matç detalı' })).toHaveAttribute('href', '/team/tournaments/daily-cup-24');
+    expect(view.container.querySelector('.overview-status--room')).toHaveAttribute('href', '/team/tournaments/daily-cup-24#room');
+    expect(view.container.querySelector('.overview-status--roster')).toHaveAttribute('href', '/team/roster');
+    expect(screen.getByRole('link', { name: /Nəticə tarixçəsi/ })).toHaveAttribute('href', '/team/history');
+    expect(view.container.textContent).not.toContain('AEVIC24');
+    expect(view.container.textContent).not.toContain('1234567');
   });
 
   it('prioritizes unseen critical competition events and preserves their deep link', () => {
