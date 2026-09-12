@@ -226,7 +226,7 @@ export function PublicHeader() {
 export function PublicLayout() {
   const { pathname } = useLocation();
   const needsData = pathname === '/leaderboard' || ['/teams', '/tournaments', '/organizations'].some((root) => pathname === root || pathname.startsWith(root + '/'));
-  return <div className={`site-shell${pathname === '/tournaments' ? ' public-shell--wide' : ''}`}><RouteSeo /><OfflineNotice /><a className="skip-link" href="#main-content">Əsas məzmuna keç</a><PublicHeader /><main id="main-content" tabIndex={-1}>{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter showCta={pathname !== '/tournaments'} /></div>;
+  return <div className={`site-shell${pathname === '/tournaments' ? ' public-shell--wide' : ''}`}><RouteSeo /><OfflineNotice /><a className="skip-link" href="#main-content">Əsas məzmuna keç</a><PublicHeader /><main id="main-content" tabIndex={-1}>{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter showCta={pathname !== '/tournaments' && pathname !== '/teams'} /></div>;
 }
 
 export function AuthLayout() {
