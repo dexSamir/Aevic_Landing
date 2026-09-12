@@ -14,12 +14,18 @@ export function FollowTeamEntry({ teamId }: { teamId: string }) {
 
 export function ShareProfileAction({ teamName }: { teamName: string }) {
   const [shared, setShared] = useState(false);
+  const [shareError, setShareError] = useState(false);
   const share = async () => {
     const data = { title: `${teamName} · AEVIC`, text: `${teamName} komandasının public profilinə bax.`, url: window.location.href };
-    if (navigator.share) await navigator.share(data); else await navigator.clipboard.writeText(window.location.href);
-    setShared(true); window.setTimeout(() => setShared(false), 1800);
+    setShareError(false);
+    try {
+      if (navigator.share) await navigator.share(data); else await navigator.clipboard.writeText(window.location.href);
+      setShared(true); window.setTimeout(() => setShared(false), 1800);
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'AbortError')) setShareError(true);
+    }
   };
-  return <>{shared && <Toast title="Profil keçidi hazırdır" body="Keçid paylaşma panelinə göndərildi və ya panoya kopyalandı." onClose={() => setShared(false)} />}<Button variant="ghost" onClick={() => void share()} icon={<Share2 size={17} />}>Paylaş</Button></>;
+  return <>{shareError && <Toast title="Keçid paylaşılmadı" body="Yenidən cəhd edin və ya ünvan sətrindən profil keçidini kopyalayın." onClose={() => setShareError(false)} />}{shared && <Toast title="Profil keçidi hazırdır" body="Keçid paylaşma panelinə göndərildi və ya panoya kopyalandı." onClose={() => setShared(false)} />}<Button variant="ghost" onClick={() => void share()} icon={<Share2 size={17} />}>Paylaş</Button></>;
 }
 
 export function PublicRoster({ roster }: { roster: TeamMember[] }) {

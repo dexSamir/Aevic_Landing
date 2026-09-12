@@ -1,22 +1,20 @@
+import { PublicTeamDetail } from '../components/profile/PublicTeamDetail';
 import { DirectoryTeamCard } from '../components/profile/DirectoryTeamCard';
 import { BrandJoinCta } from '../components/common/BrandJoinCta';
 import { featuredTournamentArtwork } from '../assets/tournaments';
 import { sanitizeOutboundUrl } from '../utils/outboundUrl';
-import { ArrowRight, GitCompareArrows, X, CalendarDays, Flag, Gamepad2, Globe2, History, Image, Link2, Search, Share2, ShieldCheck, Swords } from 'lucide-react';
+import { ArrowRight, GitCompareArrows, X, CalendarDays, Flag, Gamepad2, Globe2, Image, Link2, Search, Swords } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BadgeCabinetEditor, BadgeCollectionDrawer, FeaturedBadgeCabinet } from '../components/team/BadgeCabinet';
-import { OrganizationBanner, OrganizationBannerUploader, OrganizationIdentity, SocialLinkList, TeamOrganizationLink, VerificationCrest } from '../components/profile/ProfileElements';
+import { OrganizationBanner, OrganizationBannerUploader, OrganizationIdentity, SocialLinkList, VerificationCrest } from '../components/profile/ProfileElements';
 import { Button, EmptyState, Input, LoadingSkeleton, PageHeader, SectionHeading, Select, StatusBadge, TeamLogo, Toast } from '../components/common/primitives';
-import { ComparisonLink, FollowTeamEntry, PerformanceTrend, PublicRoster, RecentMatchList, ShareProfileAction, UpcomingMatchCard } from '../components/profile/PublicTeamExperience';
-import { MapSpecialization, TeamForm } from '../components/competition/CompetitionIntelligence';
-import { CareerSummary, TeamComparison } from '../components/team/TeamExperience';
+import { TeamComparison } from '../components/team/TeamExperience';
 import { MediaBackdrop } from '../components/common/MediaBackdrop';
 import { serviceCapabilities, services } from '../services';
 import { useAdminPlatformData, usePublicPlatformData, useTeamPlatformData } from '../services/PlatformDataContext';
 import type { Organization, PublicTeamProfile } from '../types/domain';
 import { organizationTeamPath } from '../utils/routes';
-import { deriveTeamSpecialization, TEAM_SPECIALIZATION_MINIMUM_MATCHES } from '../utils/competitionAnalytics';
 
 export function TeamsDirectoryPage() {
   const { teams: teamsList, teamComparisonRecords = [] } = usePublicPlatformData(); const [query, setQuery] = useState('');
@@ -95,7 +93,7 @@ function PublicTeamSummaryPage() {
   const { teamSlug } = useParams();
   const { teams } = usePublicPlatformData();
   const team = teams.find((item) => item.slug === teamSlug);
-  return <section className="page-section public-team-preview"><div className="container">{team ? <><PageHeader eyebrow="Təsdiqlənmiş komanda kimliyi" title={team.name} description="İctimai komanda kataloqunda dərc edilmiş məlumatlar." /><TeamLogo name={team.name} src={team.logoUrl} size="xl" /><p>{team.rosterSize} oyunçulu PUBG Mobile heyəti.</p><p>Ətraflı profil və yarış tarixçəsi hələ bu buraxılışda əlçatan deyil.</p></> : <EmptyState heading="h1" title="Komanda tapılmadı" body="Bu kimlik ictimai kataloqda yoxdur." />}<Link className="button button--secondary" to="/teams">Komanda kataloquna qayıt</Link></div></section>;
+  return team ? <PublicTeamDetail team={team} /> : <section className="page-section"><div className="container"><EmptyState heading="h1" title="Komanda tapılmadı" body="Bu kimlik ictimai kataloqda yoxdur." /><Link to="/teams">Komanda kataloquna qayıt</Link></div></section>;
 }
 
 export function TeamProfilePage() {
@@ -105,16 +103,18 @@ export function TeamProfilePage() {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    let active = true;
     setLoading(true);
     setFailed(false);
-    services.profiles.teamBySlug(teamSlug).then(setProfile).catch(() => setFailed(true)).finally(() => setLoading(false));
+    services.profiles.teamBySlug(teamSlug).then(value => { if (active) setProfile(value); }).catch(() => { if (active) setFailed(true); }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [teamSlug]);
 
 
   useEffect(() => {
     if (!profile) return;
     const hash = window.location.hash.slice(1);
-    if (['overview', 'roster', 'performance', 'matches'].includes(hash)) {
+    if (['overview', 'form', 'roster', 'performance', 'matches'].includes(hash)) {
       const settleHash = () => window.requestAnimationFrame(() => {
         const root = document.documentElement;
         const previousBehavior = root.style.scrollBehavior;
@@ -131,56 +131,7 @@ export function TeamProfilePage() {
   if (failed) return <section className="page-section"><div className="container"><EmptyState title="Profil yüklənmədi" body="Public profil servisi hazırda cavab vermir. Bir az sonra yenidən cəhd edin." /></div></section>;
   if (!profile) return <section className="page-section"><div className="container"><EmptyState heading="h1" title="Komanda tapılmadı" body="Profil mövcud deyil və ya ictimai görünürlükdən çıxarılıb. Təsdiqlənmiş kimlikləri kataloqdan seçin." action={<Link className="button button--secondary" to="/teams">Komanda kataloqu</Link>} /></div></section>;
 
-  const { team, organization } = profile;
-  const metric = (key: string) => profile.career?.metrics.find((item) => item.key === key)?.value;
-  const specialization = profile.specialization ?? deriveTeamSpecialization(profile.recentMatches);
-  return <>
-    <article className="public-profile team-public-profile">
-      <header className={`team-profile-hero ${team.bannerUrl ? 'team-profile-hero--image' : 'team-profile-hero--fallback'}`}>
-        {team.bannerUrl && <MediaBackdrop src={team.bannerUrl} alt={team.bannerAlt ?? `${team.name} banneri`} focalDesktop="50% 46%" focalMobile="50% 50%" priority />}
-        <div className="container team-profile-hero__stage">
-          <div className="team-profile-hero__content">
-            <div className="team-profile-identity"><TeamLogo name={team.name} src={team.logoUrl} size="lg" /><div><span>{team.tag || 'PUBG MOBILE'} · PUBG Mobile</span><h1>{team.name} {team.verificationLevel && <VerificationCrest level={team.verificationLevel} />}</h1><TeamOrganizationLink team={team} organization={organization} />{team.description && <p>{team.description}</p>}</div></div>
-            <div className="team-profile-hero__actions"><SocialLinkList links={team.socialLinks} ownerName={team.name} compact /><div className="team-profile-primary-actions"><FollowTeamEntry teamId={team.id} /><ComparisonLink teamSlug={teamSlug} /><ShareProfileAction teamName={team.name} /></div></div>
-          </div>
-          <div className="team-profile-hero__next"><UpcomingMatchCard match={profile.upcomingMatch} /></div>
-        </div>
-      </header>
-
-      <div className="container team-profile-body team-profile-canvas">
-        <nav className="team-profile-index" aria-label="Komanda profilinin bölmələri"><span>KOMANDA DOSYESİ</span><a href="#overview">01 · Göstəricilər</a><a href="#roster">02 · Aktiv heyət</a><a href="#matches">03 · Nəticələr</a><a href="#performance">04 · Xəritələr</a><a href="#team-share">05 · Komanda kartı</a></nav><div className="team-profile-sections">
-        <section id="overview" aria-labelledby="overview-title" className="team-profile-panel team-profile-panel--overview">
-          {profile.career ? <CareerSummary data={profile.career} comparisonHref={`/teams/compare?team=${teamSlug}`} /> : <EmptyState title="Karyera ilk rəsmi nəticədən başlayır" body="Bu komanda üçün karyera xülasəsi hələ yoxdur. Yalnız dərc edilmiş matçlar karyera göstəricilərinə daxil edilir." action={<Link className="text-link" to="/regulations#rule-5">Xal sistemi ilə tanış ol</Link>} />}
-          <div className="team-profile-form-band"><TeamForm form={profile.form} /></div>
-          <div className="team-profile-overview">
-            <div><span className="profile-kicker">Public team profile</span><h2 id="overview-title">Komanda kimliyi</h2><p>{team.description || 'Komanda hələ public təsvir əlavə etməyib.'}</p><div className="team-profile-meta"><span><Flag size={17} />{team.country || 'Ölkə qeyd edilməyib'}</span><span><History size={17} />{new Date(team.foundedAt ?? team.registeredAt).getFullYear()} tarixindən</span><span><ShieldCheck size={17} />Təsdiqlənib</span></div></div>
-            <aside className={specialization ? 'has-specialization' : 'is-forming'}><span>Ən güclü göstərici</span>{specialization ? <><strong>{specialization.label}</strong><small>{specialization.evidence} · {specialization.sampleSize} matç nümunəsi</small></> : <><strong>Profil formalaşır</strong><small>{profile.recentMatches.length} / {TEAM_SPECIALIZATION_MINIMUM_MATCHES} dərc edilmiş matç</small></>}</aside>
-          </div>
-
-
-        </section>
-
-        <section id="roster" aria-labelledby="roster-title" className="team-profile-panel team-profile-panel--roster team-roster-public"><SectionHeading title="Aktiv heyət" description="Kapitan, əsas heyət və əvəzedici rolları" /><span id="roster-title" className="sr-only">Aktiv heyət</span><PublicRoster roster={team.roster} /></section>
-
-
-
-        <section id="matches" aria-labelledby="matches-title" className="team-profile-panel team-profile-panel--matches team-matches-public"><SectionHeading title="Son matçlar" description="Yalnız dərc edilmiş raund nəticələri" action={<Link to="/matches">Match center</Link>} /><span id="matches-title" className="sr-only">Son matçlar</span><div className="team-matches-public__grid"><RecentMatchList matches={profile.recentMatches} /><PerformanceTrend matches={profile.recentMatches} /></div></section>
-
-        <section id="performance" aria-labelledby="performance-title" className="team-profile-panel team-profile-panel--performance">
-          <span id="performance-title" className="sr-only">Komanda performansı</span>
-          <MapSpecialization summary={profile.mapSpecialization} />
-        </section>
-          <aside id="team-share" className="team-card-discovery">
-            <div className="team-card-discovery__preview" aria-hidden="true">
-              <span>AEVIC // TEAM IDENTITY</span>
-              <div><TeamLogo name={team.name} src={team.logoUrl} /><strong>{team.name}</strong><small>{organization?.shortName || team.tag || 'PUBG MOBILE'}</small></div>
-              <dl>{metric('wwcd') ? <div><dt>WWCD</dt><dd>{metric('wwcd')}</dd></div> : null}{metric('championships') ? <div><dt>Çempionluq</dt><dd>{metric('championships')}</dd></div> : null}{metric('matches') ? <div><dt>Matç</dt><dd>{metric('matches')}</dd></div> : null}</dl>
-            </div>
-            <div><span>KOMANDA KARTI</span><h2>Komandanı AEVIC-dən kənarda da tanıt.</h2><p>Rəsmi komanda kimliyini sosial formatlarda hazırla və paylaş.</p><Link className="button button--secondary" to={`/teams/${teamSlug}/share-card`}><Share2 size={17} /><span>Komanda kartını yarat</span><ArrowRight size={17} /></Link></div>
-          </aside>
-      </div></div>
-    </article>
-  </>;
+  return <PublicTeamDetail team={profile.team} profile={profile} />;
 }
 export function PublicTeamComparisonPage() {
   const { teamComparisonRecords, teams } = usePublicPlatformData();
