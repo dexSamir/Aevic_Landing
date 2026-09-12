@@ -20,8 +20,10 @@ function normalizeFailure(error: unknown): { code: TournamentJoinFailureCode; me
   return { code: 'UNKNOWN', message: 'Qeydiyyat tamamlanmadı. Bağlantını yoxlayıb yenidən cəhd edin.' };
 }
 
-export function TournamentJoinAction({ tournament, showTeamState = false, onStateChange, onJoined }: {
+export function TournamentJoinAction({ tournament, showTeamState = false, onStateChange, onJoined, refreshKey = 0, currentTime }: {
   tournament: Tournament;
+  refreshKey?: number;
+  currentTime?: Date;
   showTeamState?: boolean;
   onStateChange?: (participation: TournamentCalendarParticipation | 'pending' | undefined, team?: Team) => void;
   onJoined?: () => void;
@@ -57,9 +59,9 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
       onStateChange?.(nextParticipation, currentTeam);
     }).catch((error) => { if (active) setFailure(normalizeFailure(error)); }).finally(() => { if (active) setChecking(false); });
     return () => { active = false; };
-  }, [attempt, tournament.id]);
+  }, [attempt, tournament.id, refreshKey]);
 
-  const state = resolveTournamentJoinState({ checking, authenticated, team, tournament, participation, registering, failureCode: failure?.code, now: competitionNow() });
+  const state = resolveTournamentJoinState({ checking, authenticated, team, tournament, participation, registering, failureCode: failure?.code, now: currentTime ?? competitionNow() });
   const dateLabel = useMemo(() => new Date(tournament.startsAt).toLocaleDateString('az-AZ', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Baku' }), [tournament.startsAt]);
 
   const join = async () => {

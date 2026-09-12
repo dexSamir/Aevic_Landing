@@ -202,5 +202,5 @@
 .tournaments-calendar-page .tournament-join__action { width: 100%; }
 .tournaments-calendar-page .calendar-event-inspector .tournament-join__action > :is(button,a) { width: 100%; }
 .tournaments-calendar-page .tournament-calendar__empty { padding: 24px; }
-@media (max-width: 1023px) and (min-width: 768px) { .tournaments-calendar-page .tournament-calendar { display: grid; grid-template-columns: 1fr 1fr; } .tournaments-calendar-page .tournament-calendar__agenda { border-left: 1px solid var(--border-subtle); } }
+@media (max-width: 1100px) and (min-width: 768px) { .tournaments-calendar-page .tournament-calendar { display: grid; grid-template-columns: 1fr 1fr; } .tournaments-calendar-page .tournament-calendar__agenda { border-left: 1px solid var(--border-subtle); } }
 @media (max-width: 420px) { .tournaments-calendar-page .tournament-calendar__picker { padding: 16px; } .tournaments-calendar-page .calendar-event-inspector { padding: 18px; } .tournaments-calendar-page .calendar-event-inspector__heading { grid-template-columns: 1fr; } }

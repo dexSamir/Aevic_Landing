@@ -206,7 +206,7 @@ export function PublicHeader() {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const transparentAtTop = pathname === '/' || /^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname);
+  const transparentAtTop = pathname === '/' || pathname === '/teams' || /^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname);
 
   useEffect(() => {
     let frame = 0;

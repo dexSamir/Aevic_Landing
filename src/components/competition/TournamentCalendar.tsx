@@ -46,22 +46,30 @@ function StatusIcon({ status }: { status: TournamentCalendarStatus }) {
   return <LockKeyhole size={14} aria-hidden="true" />;
 }
 
-export function TournamentCalendar({ tournaments, compact = false, overview = false, planning = false, onDateSelect }: { tournaments: Tournament[]; compact?: boolean; overview?: boolean; planning?: boolean; onDateSelect?: (date: string) => void }) {
+export function TournamentCalendar({ tournaments, compact = false, overview = false, planning = false, onDateSelect, currentTime, selection, onSelectionChange, participationVersion = 0, onParticipationChange }: { tournaments: Tournament[]; compact?: boolean; overview?: boolean; planning?: boolean; onDateSelect?: (date: string) => void; currentTime?: Date; selection?: { date: string; tournamentId: string }; onSelectionChange?: (selection: { date: string; tournamentId: string }) => void; participationVersion?: number; onParticipationChange?: (id: string) => void }) {
   const EventHeading = compact ? 'h3' : 'h2';
-  const [now, setNow] = useState(competitionNow);
+  const [localNow, setNow] = useState(competitionNow);
+  const now = currentTime ?? localNow;
   const calendarRef = useRef<HTMLElement>(null);
   useEffect(() => {
+    if (currentTime) return;
     const tick = () => setNow(competitionNow());
     const timer = window.setInterval(tick, 30_000);
     document.addEventListener('visibilitychange', tick);
     return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', tick); };
-  }, []);
+  }, [Boolean(currentTime)]);
   const firstTournament = selectPrimaryCompetition(tournaments, now);
   const initialDate = calendarDateFromKey(firstTournament ? eventDateKey(firstTournament.startsAt) : eventDateKey(now));
   const [selectedDate, setSelectedDate] = useState(initialDate);
   const [viewMonth, setViewMonth] = useState({ year: initialDate.getUTCFullYear(), month: initialDate.getUTCMonth() });
   const [selectedTournamentId, setSelectedTournamentId] = useState(firstTournament?.id ?? '');
   const [joined, setJoined] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    if (!selection) return;
+    const date = calendarDateFromKey(selection.date);
+    setSelectedDate(date); setSelectedTournamentId(selection.tournamentId);
+    setViewMonth({ year: date.getUTCFullYear(), month: date.getUTCMonth() });
+  }, [selection?.date, selection?.tournamentId]);
 
   const events = useMemo<TournamentCalendarEvent[]>(() => tournaments.map((tournament) => ({
     id: `calendar-${tournament.id}`,
@@ -82,6 +90,7 @@ export function TournamentCalendar({ tournaments, compact = false, overview = fa
   const selectDay = (date: Date) => {
     setSelectedDate(date);
     onDateSelect?.(calendarDateKey(date));
+    onSelectionChange?.({ date: calendarDateKey(date), tournamentId: eventsByDay.get(calendarDateKey(date))?.[0]?.tournamentId ?? '' });
     setViewMonth({ year: date.getUTCFullYear(), month: date.getUTCMonth() });
     setSelectedTournamentId(eventsByDay.get(calendarDateKey(date))?.[0]?.tournamentId ?? '');
   };
@@ -121,11 +130,11 @@ export function TournamentCalendar({ tournaments, compact = false, overview = fa
     <div className="tournament-calendar__agenda">
       <header><span>{planning ? 'SEÇİLMİŞ TARİX' : 'Seçilmiş gün'}</span><time dateTime={calendarDateKey(selectedDate)}>{readableDate(selectedDate, true)}</time></header>
       {selectedTournament ? <article className="calendar-event-inspector">
-        {selectedEvents.length > 1 && <div className="calendar-event-switcher" role="group" aria-label="Bu günün turnirləri">{selectedEvents.map((item) => <button key={item.id} type="button" aria-pressed={item.id === selectedTournament.id} onClick={() => setSelectedTournamentId(item.id)}>{item.shortName}</button>)}</div>}
+        {selectedEvents.length > 1 && <div className="calendar-event-switcher" role="group" aria-label="Bu günün turnirləri">{selectedEvents.map((item) => <button key={item.id} type="button" aria-pressed={item.id === selectedTournament.id} onClick={() => { setSelectedTournamentId(item.id); onSelectionChange?.({ date: calendarDateKey(selectedDate), tournamentId: item.id }); }}>{item.shortName}</button>)}</div>}
         <div className="calendar-event-inspector__heading">{planning && <span className="planning-eyebrow">// &nbsp; TURNİR DETALI</span>}<div className={`calendar-event-status calendar-event-status--${eventStatus(selectedTournament, now)}`}><StatusIcon status={eventStatus(selectedTournament, now)} /><span>{statusCopy[eventStatus(selectedTournament, now)]}</span>{demoMode && <small>Nümunə</small>}</div><EventHeading>{selectedTournament.name}</EventHeading></div>
         {planning && <p>{selectedTournament.description}</p>}
-        <dl><div>{planning && <Clock3 size={22} />}<dt>Başlanğıc</dt><dd>{formatEventTime(selectedTournament.startsAt, AEVIC_EVENT_TIMEZONE)} AZT</dd></div><div>{planning && <Users size={22} />}<dt>{planning ? 'Komanda yeri' : 'Boş slot'}</dt><dd>{planning ? Math.min(selectedTournament.maxSlots, selectedTournament.usedSlots + (joined[selectedTournament.id] ? 1 : 0)) : Math.max(0, selectedTournament.maxSlots - selectedTournament.usedSlots - (joined[selectedTournament.id] ? 1 : 0))} / {selectedTournament.maxSlots}</dd></div><div>{planning && <Layers3 size={22} />}<dt>Raund</dt><dd>{selectedTournament.roundsPerDay * selectedTournament.days}</dd></div></dl>
-        {overview ? <Link className="text-link" to={`/tournaments/${selectedTournament.id}`}>Turnirə bax <ArrowRight size={17} /></Link> : eventStatus(selectedTournament, now) === 'completed' ? <Link className="button button--secondary" to={`/tournaments/${selectedTournament.id}`}><span>Nəticələrə bax</span><ArrowRight size={17} /></Link> : eventStatus(selectedTournament, now) === 'live' ? <Link className="button button--primary" to={`/tournaments/${selectedTournament.id}`}><span>Turniri izlə</span><Radio size={17} /></Link> : <TournamentJoinAction tournament={selectedTournament} showTeamState onJoined={() => setJoined((current) => ({ ...current, [selectedTournament.id]: true }))} />}
+        <dl><div>{planning && <Clock3 size={22} />}<dt>Başlanğıc</dt><dd>{formatEventTime(selectedTournament.startsAt, AEVIC_EVENT_TIMEZONE)} AZT</dd></div><div>{planning && <Users size={22} />}<dt>{planning ? 'Komanda yeri' : 'Boş slot'}</dt><dd>{planning ? Math.min(selectedTournament.maxSlots, selectedTournament.usedSlots + (!planning && joined[selectedTournament.id] ? 1 : 0)) : Math.max(0, selectedTournament.maxSlots - selectedTournament.usedSlots - (joined[selectedTournament.id] ? 1 : 0))} / {selectedTournament.maxSlots}</dd></div><div>{planning && <Layers3 size={22} />}<dt>Raund</dt><dd>{selectedTournament.roundsPerDay * selectedTournament.days}</dd></div></dl>
+        {overview ? <Link className="text-link" to={`/tournaments/${selectedTournament.id}`}>Turnirə bax <ArrowRight size={17} /></Link> : eventStatus(selectedTournament, now) === 'completed' ? <Link className="button button--secondary" to={`/tournaments/${selectedTournament.id}`}><span>Nəticələrə bax</span><ArrowRight size={17} /></Link> : eventStatus(selectedTournament, now) === 'live' ? <Link className="button button--primary" to={`/tournaments/${selectedTournament.id}`}><span>Turniri izlə</span><Radio size={17} /></Link> : <TournamentJoinAction tournament={selectedTournament} showTeamState currentTime={currentTime} refreshKey={participationVersion} onJoined={() => { setJoined((current) => ({ ...current, [selectedTournament.id]: true })); onParticipationChange?.(selectedTournament.id); }} />}
         {!overview && <small className="calendar-authority-note">Slot və uyğunluq göndərmə anında servis tərəfindən yenidən yoxlanır.</small>}
       </article> : <div className="tournament-calendar__empty"><CalendarClock size={24} /><strong>Bu gün turnir yoxdur.</strong><p>Başqa tarixi seçin və ya bütün yarış xəttinə baxın.</p><Link to="/tournaments">Bütün turnirlər <ArrowRight size={15} /></Link></div>}
     </div>
