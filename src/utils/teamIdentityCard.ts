@@ -206,3 +206,30 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
 export function teamIdentityCardBlob(canvas: HTMLCanvasElement) {
   return new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('PNG export failed')), 'image/png'));
 }
+
+/** Horizontal public dossier card; the same canvas is previewed and exported. */
+export function drawPublicTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfileCardData, assets: TeamIdentityCardAssets) {
+  canvas.width = 1200; canvas.height = 660;
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('Canvas unavailable');
+  context.fillStyle = '#080a0b'; context.fillRect(0, 0, 1200, 660);
+  if (assets.banner) drawCover(context, assets.banner, 0, 0, 950, 660);
+  const shade = context.createLinearGradient(0, 0, 0, 660);
+  shade.addColorStop(0, 'rgba(0,0,0,.65)'); shade.addColorStop(.4, 'rgba(0,0,0,0)'); shade.addColorStop(1, 'rgba(0,0,0,.8)');
+  context.fillStyle = shade; context.fillRect(0, 0, 950, 660);
+  context.fillStyle = '#ffd338'; context.font = '700 116px Oswald, sans-serif';
+  if (assets.logo) drawContain(context, assets.logo, 40, 35, 160, 130);
+  else context.fillText(initials(data.teamName), 40, 160, 170);
+  context.fillStyle = '#f5f4f0'; context.font = '600 58px Oswald, sans-serif'; context.fillText(data.teamName, 240, 110, 665);
+  context.fillStyle = '#ffd338'; context.font = '500 20px Oswald, sans-serif'; context.fillText(data.teamTag ?? '', 244, 153, 650);
+  context.fillStyle = '#080a0b'; context.fillRect(950, 0, 250, 660);
+  const stats = [{ value: data.matches, label: 'MATÇ' }, { value: data.finishes, label: 'KILL' }, { value: data.wwcd, label: 'WWCD' }, { value: data.championships, label: 'ÇEMPİONLUQ' }];
+  stats.forEach((stat, i) => {
+    const y = 95 + i * 139;
+    context.fillStyle = '#ffd338'; context.font = '600 64px Oswald, sans-serif'; context.fillText(String(stat.value ?? '—'), 1004, y, 165);
+    context.fillStyle = '#f5f4f0'; context.font = '500 21px Oswald, sans-serif'; context.fillText(stat.label, 1004, y + 31);
+  });
+  context.fillStyle = '#dedbd4'; context.font = '500 19px Oswald, sans-serif'; context.letterSpacing = '3px';
+  context.fillText('PUBG MOBILE', 36, 602); context.fillText((data.country ?? '').toLocaleUpperCase('az'), 36, 634, 550);
+  context.textAlign = 'right'; if (data.year) context.fillText(`EST. ${data.year}`, 912, 634); context.textAlign = 'left'; context.letterSpacing = '0px';
+}

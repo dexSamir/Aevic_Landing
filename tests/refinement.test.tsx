@@ -179,14 +179,15 @@ describe('public experience refinements', () => {
     expect(completed.recent[0].playedAt >= completed.recent[1].playedAt).toBe(true);
   });
 
-  it('renders the team dossier with an integrated roster and no Wrapped or badge promotion', async () => {
+  it('renders the team dossier with its roster and season features', async () => {
     render(<MemoryRouter initialEntries={['/teams/caspian-wolves']}><Routes><Route path="/teams/:teamSlug" element={<TeamProfilePage />} /></Routes></MemoryRouter>);
-    await screen.findByRole('heading', { name: /caspian wolves/i });
+    await screen.findByRole('heading', { name: /caspian wolves/i, level: 1 });
     expect(screen.getByRole('navigation', { name: 'Komanda profilinin bölmələri' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Aktiv heyət' })).toBeInTheDocument();
     expect(screen.queryByText(/YOUR .* IS READY/)).not.toBeInTheDocument();
     expect(screen.queryByText('Badge Cabinet')).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /Wrapped-a bax/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'İcmala bax' })).toHaveAttribute('href', expect.stringMatching(/wrapped\/\d{4}$/));
+    expect(screen.getByRole('region', { name: 'Caspian Wolves' })).toBeInTheDocument();
     expect(screen.queryByText('Seçilmiş insigniyalar')).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'İcmal' })).not.toBeInTheDocument();
   });

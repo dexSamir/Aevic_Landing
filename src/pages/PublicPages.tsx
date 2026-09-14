@@ -1,25 +1,21 @@
-import { PlacementScoring } from '../components/competition/PlacementScoring';
 import {
   ArrowRight,
-  CalendarClock,
+  BarChart3,
+  CircleDollarSign,
+  Map as MapIcon,
+  MapPin,
+  Trophy,
   CalendarDays,
-  Clock3,
   Crown,
   Swords,
   Users,
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { officialAssets } from '../assets/official';
-import { StatCardStrip } from '../components/common/StatCardStrip';
-import { MediaBackdrop } from '../components/common/MediaBackdrop';
-import { CompetitionRoundProgram } from '../components/competition/CompetitionVisuals';
+import { officialAssets, officialRotation } from '../assets/official';
 import { TournamentJoinAction } from '../components/competition/TournamentJoinAction';
-import { CalendarAction } from '../components/competition/CalendarAction';
 import { LeaderboardMovementCell } from '../components/competition/CompetitionIntelligence';
-import { TournamentParticipantField } from '../components/competition/TournamentParticipants';
 import { TournamentResults } from '../components/competition/TournamentResults';
-import { Breadcrumbs, EntityContextNav } from '../components/common/EntityContextNav';
 import {
   Countdown,
   DataTable,
@@ -27,16 +23,14 @@ import {
   LoadingSkeleton,
   MobileDataList,
   PageHeader,
-  ProgressBar,
   SectionHeading,
-  StatusBadge,
   TeamLogo,
 } from '../components/common/primitives';
 import { competitionNow, demoMode, services } from '../services';
 import { usePublicPlatformData } from '../services/PlatformDataContext';
 import { queryPolicy, usePlatformQuery } from '../services/queryCache';
 import type { RankMovementData } from '../types/domain';
-import { AEVIC_EVENT_TIMEZONE, formatEventDate, formatEventTime } from '../utils/calendar';
+import { formatEventDate } from '../utils/calendar';
 import { tournamentById } from '../utils/routes';
 import { resolveTournamentTemporalPhase } from '../utils/tournamentTime';
 import { selectLeaderboardTournament } from '../utils/competitionSelectors';
@@ -49,54 +43,53 @@ export function TournamentDetailPage() {
   const { tournaments, leaderboardTeams, teams } = usePublicPlatformData();
   const { tournamentId } = useParams();
   const tournament = tournamentById(tournaments, tournamentId);
+  const [now, setNow] = useState(competitionNow);
+  const [activeSection, setActiveSection] = useState('overview');
+  const [showAllTeams, setShowAllTeams] = useState(false);
+  useEffect(() => { const timer = window.setInterval(() => setNow(competitionNow()), 1000); return () => window.clearInterval(timer); }, []);
+  useEffect(() => { setShowAllTeams(false); setActiveSection('overview'); }, [tournamentId]);
   const participantsQuery = usePlatformQuery({ key: `tournament:${tournamentId}:participants`, query: () => services.tournaments.publicParticipants(tournamentId ?? ''), staleTime: queryPolicy.publicCompetition, enabled: Boolean(tournament), retry: 0 });
   const matchesQuery = usePlatformQuery({ key: `tournament:${tournamentId}:matches`, query: async () => {
     const [schedule, history] = await Promise.all([services.publicMatches.schedule(), services.publicMatches.history()]);
-    return { schedule: schedule.filter((match) => match.tournamentId === tournamentId), history: history.filter((match) => match.tournamentId === tournamentId) };
+    return { schedule: schedule.filter(match => match.tournamentId === tournamentId), history: history.filter(match => match.tournamentId === tournamentId) };
   }, staleTime: queryPolicy.publicCompetition, enabled: Boolean(tournament), retry: 0 });
   const resultsQuery = usePlatformQuery({ key: `tournament:${tournamentId}:standings`, query: () => services.results.leaderboard(tournamentId ?? ''), staleTime: queryPolicy.publicCompetition, enabled: Boolean(tournament), retry: 0 });
-  if (!tournament) return <section className="page-section"><div className="container"><EmptyState heading="h1" title="Turnir tapılmadı" body="Bu turnir mövcud deyil və başqa yarışla əvəz edilmədi." action={<Link className="button button--secondary" to="/tournaments"><span>Turnir təqviminə qayıt</span></Link>} /></div></section>;
-  const remaining = Math.max(0, tournament.maxSlots - tournament.usedSlots);
-  const tournamentPhase = resolveTournamentTemporalPhase(tournament, competitionNow());
-  const tournamentMatches = [...(matchesQuery.data?.schedule ?? []), ...(matchesQuery.data?.history ?? [])].sort((left, right) => new Date('playedAt' in left ? left.playedAt : left.startsAt).getTime() - new Date('playedAt' in right ? right.playedAt : right.startsAt).getTime());
-  const roundProgram = tournamentMatches.map((match, index) => ({ id: match.id, map: match.map, round: 'round' in match ? match.round : index + 1, startsAt: 'playedAt' in match ? match.playedAt : match.startsAt, status: 'playedAt' in match ? 'completed' as const : match.status, stageLabel: 'stageLabel' in match ? match.stageLabel : `${match.stage === 'final' ? 'Final' : 'Qrup mərhələsi'} · Raund ${match.round}` }));
-  const placementSequence = Array.from({ length: tournament.maxSlots }, (_, index) => ({ placement: index + 1, points: tournament.pointFormula.placement.find((item) => item.placement === index + 1)?.points ?? 0 }));
-  const calendarEvent = { id: `tournament-${tournament.id}`, title: tournament.name, description: `${tournament.shortName} · ${tournament.days} gün · ${tournament.roundsPerDay * tournament.days} raund`, startsAt: tournament.startsAt, endsAt: tournament.endsAt, timezone: 'Asia/Baku', location: 'AEVIC Esports', publicUrl: new URL(`/tournaments/${tournament.id}`, window.location.origin).toString() };
+  if (!tournament) return <section className="page-section"><div className="container"><EmptyState heading="h1" title="Turnir tapılmadı" body="Bu turnir mövcud deyil və başqa yarışla əvəz edilmədi." action={<Link className="button button--secondary" to="/tournaments">Turnir təqviminə qayıt</Link>} /></div></section>;
+  const phase = resolveTournamentTemporalPhase(tournament, now);
+  const open = phase === 'registration-open';
+  const participants = participantsQuery.data ?? [];
+  const standings = (resultsQuery.data ?? []).filter(row => row.tournamentId === tournament.id);
+  const history = matchesQuery.data?.history ?? [];
+  // Published rounds replace their scheduled entry; schedule times are never invented.
+  const rounds = [...(matchesQuery.data?.schedule ?? []).filter(match => !history.some(result => result.id === match.id)).map(match => ({ id: match.id, map: match.map, round: match.round, date: match.startsAt, status: match.status })), ...[...history].sort((a,b) => Date.parse(a.playedAt) - Date.parse(b.playedAt)).map((match, index) => ({ id: match.id, map: match.map, round: index + 1, date: match.playedAt, status: 'completed' }))];
+  const placements = Array.from({ length: Math.max(16, tournament.maxSlots, ...tournament.pointFormula.placement.map(item => item.placement)) }, (_, i) => ({ placement: i + 1, points: tournament.pointFormula.placement.find(item => item.placement === i + 1)?.points ?? 0 }));
+  const statusLabel = open ? 'AÇIQDIR' : phase === 'upcoming' ? 'TEZLİKLƏ' : phase === 'live' ? 'CANLI' : phase === 'completed' ? 'TAMAMLANIB' : phase === 'cancelled' ? 'LƏĞV EDİLİB' : 'BAĞLIDIR';
   return <article className="tournament-destination">
-    <section className="tournament-detail-hero" data-reveal data-reveal-variant="fade">
-      <MediaBackdrop src={officialAssets.maps[0]} srcSet={officialAssets.mapSrcSets[0]} sizes="100vw" className="tournament-detail-hero__media" width={1600} height={900} focalDesktop="57% 48%" focalMobile="60% 48%" priority />
-      <div className="container tournament-detail-hero__stage">
-        <Breadcrumbs items={[{ label: 'Turnirlər', to: '/tournaments' }, { label: tournament.shortName }]} />
-        <div className="tournament-detail-hero__identity">
-          <div className="tournament-detail-hero__copy"><div><StatusBadge status={tournamentPhase === 'registration-open' ? 'open' : tournamentPhase === 'live' ? 'live' : tournamentPhase === 'completed' ? 'completed' : 'draft'} />{demoMode && <span className="demo-label">NÜMUNƏ MƏLUMAT</span>}</div><span>AEVIC RƏSMİ YARIŞ XƏTTİ</span><h1>{tournament.name}</h1><p>{tournament.description}</p></div>
-          <dl className="tournament-hero-ledger"><div><dt>Turnir ID</dt><dd>{tournament.id}</dd></div><div><dt>Yarış həcmi</dt><dd>{tournament.maxSlots} komanda</dd></div><div><dt>Proqram</dt><dd>{tournament.days * tournament.roundsPerDay} raund · {tournament.days} gün</dd></div></dl>
-        </div>
-        <div className="tournament-detail-hero__actions">{tournamentPhase !== 'completed' && <TournamentJoinAction tournament={tournament} />}{tournamentPhase === 'completed' && <Link className="button button--primary" to={`/tournaments/${tournament.id}/recap`}><span>Final icmalı</span></Link>}<CalendarAction event={calendarEvent} /></div>
-        <div className="tournament-context-wrap"><EntityContextNav label={`${tournament.shortName} bölmələri`} back={{ label: 'Turnirlər', to: '/tournaments' }} items={[{ label: 'İcmal', href: '#overview', current: true }, { label: 'Komandalar', href: '#participants' }, { label: 'Nəticələr', href: '#results' }, { label: 'Matçlar', href: '#matches' }, { label: 'Xal sistemi', href: '#scoring' }, { label: 'Qaydalar', href: '#rules' }]} action={tournamentPhase === 'completed' ? <Link to={`/tournaments/${tournament.id}/recap`}>Final icmalı <ArrowRight size={16} /></Link> : undefined} /></div>
+    <header className="tournament-detail-hero">
+      <div className="tournament-detail-width tournament-detail-hero__stage">
+        <div className="tournament-detail-hero__copy"><span className="tournament-detail-eyebrow">// AEVIC REYTİNQ TURNİRİ</span><h1>{tournament.name}</h1><p>{tournament.description}</p><div className="tournament-detail-meta"><span><CalendarDays size={20} />{formatDate(tournament.startsAt)}{formatDate(tournament.startsAt) !== formatDate(tournament.endsAt) && <> – {formatDate(tournament.endsAt)}</>}</span><span><MapPin size={20} />PUBG MOBILE</span><span><Users size={20} />Squad (4 nəfər)</span></div></div>
+        <aside className="tournament-registration" aria-label="Qeydiyyat pəncərəsi"><header><h2><span>//</span> QEYDİYYAT PƏNCƏRƏSİ</h2><span className={open ? 'is-open' : ''}>{statusLabel}</span></header><Countdown key={`${tournament.id}:${phase}`} target={phase === 'upcoming' ? tournament.registrationOpensAt : tournament.registrationDeadline} /><p>{open ? 'Qeydiyyat mövcud komandaların iştirakına təsir etmir — matç vaxtları artıq təsdiqlənib.' : phase === 'upcoming' ? 'Qeydiyyat pəncərəsi açıldıqda uyğun komandalar qoşula bilər.' : 'Qeydiyyat başa çatıb. Turnirin cədvəlini və dərc edilmiş nəticələrini izləyin.'}</p><TournamentJoinAction tournament={tournament} currentTime={now} joinLabel="İştirak et" />{phase === 'completed' && <Link className="tournament-detail-link" to={`/tournaments/${tournament.id}/recap`}>Final icmalı<ArrowRight size={17} /></Link>}</aside>
       </div>
-    </section>
-
-    <section id="overview" className="page-section tournament-destination__body">
-      <div className="container">
-        <div className="tournament-format-block">
-          <div><SectionHeading title="Yarış formatı" description="Tarix, check-in və rəqabət strukturu bir baxışda." /><StatCardStrip label="Yarış formatı" items={[
-            { key: 'date', eyebrow: 'Tarix', value: formatDate(tournament.startsAt), meta: formatDate(tournament.endsAt), icon: <CalendarDays size={20} />, tone: 'gold' },
-            { key: 'check-in', eyebrow: 'Check-in', value: formatEventTime(tournament.checkInOpensAt), meta: formatDate(tournament.checkInOpensAt), icon: <Clock3 size={20} />, tone: 'purple' },
-            { key: 'prestige', eyebrow: 'Prestij', value: 'AEVIC reytinq turniri', icon: <Crown size={20} />, tone: 'soft' },
-            { key: 'teams', eyebrow: 'Komanda limiti', value: `${tournament.maxSlots} komanda`, icon: <Users size={20} />, tone: 'ink' },
-          ]} /></div>
-          <aside><span>QEYDİYYAT PƏNCƏRƏSİ</span><Countdown target={tournament.registrationDeadline} /><ProgressBar value={tournament.usedSlots} max={tournament.maxSlots} label="Dolu slotlar" /><strong>{remaining ? `${remaining} boş slot` : 'Bütün slotlar doludur'}</strong></aside>
-        </div>
-        {matchesQuery.loading ? <section id="matches"><LoadingSkeleton rows={3} /></section> : matchesQuery.error ? <section id="matches"><EmptyState title="Raund proqramı yüklənmədi" body="Matç servisi hazırda cavab vermir. Matç mərkəzindən yenidən yoxlayın." /></section> : roundProgram.length ? <CompetitionRoundProgram rounds={roundProgram} tournamentId={tournament.id} /> : <section id="matches"><EmptyState title="Raund cədvəli təsdiq gözləyir" body="Bu turnirin xəritə və başlama vaxtları hələ dərc edilməyib. İştirak şərtlərini indidən nəzərdən keçirin." action={<Link className="text-link" to="/regulations">Yarış qaydaları</Link>} /></section>}
-
-        {participantsQuery.loading ? <section id="participants" className="tournament-data-state"><LoadingSkeleton rows={4} /></section> : participantsQuery.error ? <section id="participants"><EmptyState title="İştirakçılar yüklənmədi" body="Təsdiqlənmiş iştirakçı servisi cavab vermir. Public kataloq iştirak kimi əvəz edilmir." /></section> : <TournamentParticipantField participants={participantsQuery.data ?? []} />}
-
-        {resultsQuery.loading ? <section id="results"><LoadingSkeleton rows={5} /></section> : resultsQuery.error ? <section id="results"><EmptyState title="Nəticələr yüklənmədi" body="Rəsmi standings servisi hazırda cavab vermir. Qismən raund məlumatından sıralama yaradılmır." /></section> : <TournamentResults standings={resultsQuery.data ?? []} teamNames={leaderboardTeams} teams={teams} publishedRoundCount={matchesQuery.data?.history.length ?? 0} tournamentName={tournament.name} tournamentId={tournament.id} publishedAt={tournament.resultsPublishedAt} />}
-
-        <section id="scoring" className="tournament-scoring"><div className="tournament-scoring__intro"><SectionHeading title="Xal formulu" description={`WWCD bonusu +${tournament.pointFormula.wwcdBonus} · hər kill +${tournament.pointFormula.finishPointValue}`} /><p>Yer xalları bir davamlı ardıcıllıqda #1-dən turnirin {tournament.maxSlots}-ci yerinə qədər göstərilir.</p><dl><div><dt>WWCD</dt><dd>+{tournament.pointFormula.wwcdBonus}</dd></div><div><dt>Kill</dt><dd>+{tournament.pointFormula.finishPointValue}</dd></div></dl></div><PlacementScoring placements={placementSequence} /><div className="tournament-scoring__tiebreak"><span>TIE-BREAK ARDICILLIĞI</span><ol>{tournament.pointFormula.tieBreakRules.map((rule) => <li key={rule}>{rule}</li>)}</ol></div></section>
-        <section id="rules" className="tournament-rules"><SectionHeading title="Əsas qaydalar" description="Qoşulma zamanı uyğunluq server tərəfindən yenidən təsdiqlənir." /><ol className="regulation-list">{tournament.rules.slice(0, 3).map((rule, index) => <li key={rule}><span>{String(index + 1).padStart(2, '0')}</span><p>{rule}</p></li>)}</ol>{tournament.rules.length > 3 && <details><summary>Tam qaydaları göstər</summary><ol className="regulation-list">{tournament.rules.slice(3).map((rule, index) => <li key={rule}><span>{String(index + 4).padStart(2, '0')}</span><p>{rule}</p></li>)}</ol></details>}</section>
-      </div>
-    </section>
+    </header>
+    <nav className="tournament-detail-tabs" aria-label={`${tournament.shortName} bölmələri`}><div className="tournament-detail-width">{[['overview','Ümumi baxış'],['participants','Komandalar'],['matches','Matçlar'],['results','Sıralama'],['rules','Qaydalar']].map(([id,label]) => <a key={id} href={`#${id}`} aria-current={activeSection === id ? 'location' : undefined} onClick={() => setActiveSection(id)}>{label}</a>)}</div></nav>
+    <div className="tournament-detail-width tournament-detail-body">
+      <section id="overview"><SectionHeading title="Turnir formatı" description="Turnir haqqında əsas məlumatlar" /><dl className="tournament-detail-format">
+        <div><Users /><dt>Turnir ID</dt><dd>{tournament.shortName}</dd><small>{tournament.id}</small></div>
+        <div><CircleDollarSign /><dt>Turnir həcmi</dt><dd><em>{tournament.maxSlots}</em> komanda</dd><small>Squad (4 nəfər)</small></div>
+        <div><MapIcon /><dt>Turnir formatı</dt><dd>{tournament.roundsPerDay} raund × {tournament.days} gün</dd><small>Ümumi {tournament.roundsPerDay * tournament.days} matç</small></div>
+        <div><Trophy /><dt>Mükafat fondu</dt><dd>{tournament.prizePool.toLocaleString('az-AZ')} {tournament.prizeCurrency}</dd><small>Ümumi mükafat fondu</small></div>
+      </dl></section>
+      <section id="matches" className="tournament-detail-schedule competition-round-program"><SectionHeading title="Xəritə və matç cədvəli" action={<Link className="tournament-detail-link" to="/matches">Matç Mərkəzində aç<ArrowRight size={17} /></Link>} />{matchesQuery.loading ? <LoadingSkeleton rows={3} /> : matchesQuery.error ? <EmptyState title="Raund proqramı yüklənmədi" body="Matç mərkəzindən yenidən yoxlayın." /> : <ol>{officialRotation.map((map,index) => {
+        const entries = rounds.filter(round => (round.round - 1) % 4 === index && round.map === map).sort((a,b) => Date.parse(a.date)-Date.parse(b.date));
+        const next = entries.find(round => round.status !== 'completed') ?? entries[0];
+        const status = !next ? 'TƏSDİQ GÖZLƏYİR' : next.status === 'completed' ? 'TAMAMLANIB' : next.status === 'live' ? 'CANLI' : 'PLANLANIB';
+        return <li key={`${map}-${index}`}><Link to={`/tournaments/${tournament.id}#results`} state={{ roundId: next?.id }} aria-label={`Raund ${index + 1}, ${map} nəticələrinə keç`}><img src={officialAssets.maps[index]} srcSet={officialAssets.mapSrcSets[index]} sizes="(max-width: 800px) 45vw, 23vw" width="1600" height="900" loading="lazy" alt="" /><span className="tournament-map-status">{status}</span><span className="tournament-map-number" aria-hidden="true">{String(index+1).padStart(2,'0')}</span><div className="tournament-map-copy"><h3>{map}</h3>{next ? <time dateTime={next.date}><CalendarDays size={17} />{formatEventDate(next.date, { withTime: true })}</time> : <p>Vaxt təsdiq gözləyir</p>}<p><Swords size={17} />{entries.length} matç</p></div></Link></li>;
+      })}</ol>}</section>
+      <section id="participants"><SectionHeading title="İştirakçı komandalar" description={`Turnirdə iştirak edən komandalar (${participants.length})`} action={participants.length > 10 ? <button className="tournament-detail-link" onClick={() => setShowAllTeams(value => !value)}>{showAllTeams ? 'Daha az göstər' : 'Hamısına bax'}<ArrowRight size={17} /></button> : undefined} />{participantsQuery.loading ? <LoadingSkeleton rows={3} /> : participantsQuery.error ? <EmptyState title="İştirakçılar yüklənmədi" body="Təsdiqlənmiş iştirakçı servisi cavab vermir." /> : participants.length ? <ul className="tournament-detail-teams">{participants.slice(0,showAllTeams ? undefined : 10).map(participant => { const result = standings.find(row => row.teamId === participant.team.id); const starters = participant.roster.filter(player => player.role !== 'substitute').length; return <li key={participant.team.id}><Link to={`/teams/${participant.team.slug}`}><TeamLogo name={participant.team.name} src={participant.team.logoUrl} size="lg" /><h3>{participant.team.name}</h3><div><span><Users size={15} />{starters}/4</span>{result && <span>{result.wwcd} <small>WWCD</small></span>}</div></Link></li>; })}</ul> : <EmptyState title="İştirakçılar hələ təsdiqlənməyib" body="Təsdiqlənmiş komandalar burada görünəcək." />}</section>
+      {resultsQuery.loading ? <section id="results"><LoadingSkeleton rows={3} /></section> : resultsQuery.error ? <section id="results"><EmptyState title="Nəticələr yüklənmədi" body="Rəsmi nəticə servisi hazırda cavab vermir." /></section> : standings.length ? <TournamentResults standings={standings} teamNames={leaderboardTeams} teams={teams} publishedRoundCount={history.length} tournamentName={tournament.name} tournamentId={tournament.id} publishedAt={tournament.resultsPublishedAt} /> : <section id="results"><SectionHeading title="Ümumi sıralama" description="Turnir bitdikdən sonra ümumi sıralama burada dərc ediləcək." action={<Link className="tournament-detail-link" to="/matches">Matç Mərkəzinə keç<ArrowRight size={17} /></Link>} /><EmptyState icon={<BarChart3 size={42} />} title="Ümumi sıralama dərc edilməyib" body="Matçlar başa çatdıqdan sonra yekun sıralama burada görünəcək." action={<Link className="button button--secondary" to="/matches">Matç Mərkəzi<ArrowRight size={17} /></Link>} /></section>}
+      <section id="scoring"><SectionHeading title="Xal formulu" description="Hər matçda yerlərə görə verilən xallar" /><dl className="tournament-detail-scoring">{placements.map(item => <div key={item.placement}><dt>#{item.placement}</dt><dd>{item.points}<small>xal</small></dd></div>)}</dl><p className="tournament-scoring-note">Hər kill +{tournament.pointFormula.finishPointValue} · WWCD bonusu +{tournament.pointFormula.wwcdBonus}</p><details className="tournament-detail-tiebreak"><summary>Bərabərlik meyarları</summary><ol>{tournament.pointFormula.tieBreakRules.map(rule => <li key={rule}>{rule}</li>)}</ol></details></section>
+      <section id="rules"><SectionHeading title="Əsas qaydalar" description="Turnirlə bağlı vacib məqamlar" /><div className="tournament-detail-rules"><ol>{tournament.rules.slice(0,4).map((rule,index) => <li key={rule}><span>{String(index+1).padStart(2,'0')}</span>{rule}</li>)}</ol><Link className="button button--secondary" to="/regulations">Tam qaydaları oxu<ArrowRight size={17} /></Link></div>{tournament.rules.length > 4 && <details className="tournament-detail-tiebreak"><summary>Digər turnir qaydaları</summary><ol>{tournament.rules.slice(4).map(rule => <li key={rule}>{rule}</li>)}</ol></details>}</section>
+    </div>
   </article>;
 }
 

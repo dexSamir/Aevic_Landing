@@ -20,8 +20,9 @@ function normalizeFailure(error: unknown): { code: TournamentJoinFailureCode; me
   return { code: 'UNKNOWN', message: 'Qeydiyyat tamamlanmadı. Bağlantını yoxlayıb yenidən cəhd edin.' };
 }
 
-export function TournamentJoinAction({ tournament, showTeamState = false, onStateChange, onJoined, refreshKey = 0, currentTime }: {
+export function TournamentJoinAction({ tournament, showTeamState = false, onStateChange, onJoined, refreshKey = 0, currentTime, joinLabel = 'Turnirə qoşul' }: {
   tournament: Tournament;
+  joinLabel?: string;
   refreshKey?: number;
   currentTime?: Date;
   showTeamState?: boolean;
@@ -107,7 +108,7 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
     if (state === 'login') return <Link className="button button--primary" to={`/login?returnTo=${encodeURIComponent(`/tournaments/${tournament.id}`)}`}><UserPlus size={17} /><span>Daxil ol və qoşul</span></Link>;
     if (state === 'create-team') return <Link className="button button--primary" to="/register"><Users size={17} /><span>Komanda yarat</span></Link>;
     if (state === 'roster-incomplete') return <Link className="button button--secondary" to="/team/roster"><ShieldAlert size={17} /><span>Heyəti tamamla</span></Link>;
-    if (state === 'join') return <Button icon={<Check size={17} />} onClick={() => setConfirmOpen(true)}>Turnirə qoşul</Button>;
+    if (state === 'join') return <Button icon={<Check size={17} />} onClick={() => setConfirmOpen(true)}>{joinLabel}</Button>;
     if (state === 'registering') return <Button loading disabled>Qeydiyyat göndərilir</Button>;
     if (state === 'registered') return <Button variant="secondary" disabled icon={<CheckCircle2 size={17} />}>Qeydiyyatdan keçib</Button>;
     if (state === 'approved') return <Button variant="secondary" disabled icon={<CheckCircle2 size={17} />}>Təsdiqlənib</Button>;
