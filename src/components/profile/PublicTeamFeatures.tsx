@@ -1,14 +1,14 @@
 import { ArrowRight, Download, Share2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import phone from '../../assets/official/team-wrapped-phone.png';
-import artwork from '../../assets/official/team-share-card-background.png';
+import { responsiveArtwork } from '../../assets/official/responsive';
+const phone = responsiveArtwork['team-wrapped-phone'];
+const artwork = responsiveArtwork['team-share-card-background'].src;
 import { competitionNow, services } from '../../services';
 import { queryPolicy, usePlatformQuery } from '../../services/queryCache';
 import type { PublicTeamProfile, PublicTeamSummary, Team, TeamProfileCardData } from '../../types/domain';
 import { yearPeriod } from '../../utils/wrapped';
 import { publicTeamUrl } from '../../utils/publicUrl';
-import { drawPublicTeamIdentityCard, loadCardImage, teamIdentityCardBlob } from '../../utils/teamIdentityCard';
 import { Button } from '../common/primitives';
 
 export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamSummary; profile?: PublicTeamProfile }) {
@@ -17,6 +17,14 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
   const period = useMemo(() => yearPeriod(year), [year]);
   const wrapped = usePlatformQuery({ key: `wrapped:${slug}:${period.label}`, query: () => services.wrapped.forTeam(slug, period), staleTime: queryPolicy.historical, retry: 0 });
   const canvas = useRef<HTMLCanvasElement>(null);
+  const region = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(() => typeof IntersectionObserver === 'undefined');
+  useEffect(() => {
+    if (visible || !region.current) return;
+    const observer = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting)) { setVisible(true); observer.disconnect(); } }, { rootMargin: '200px' });
+    observer.observe(region.current);
+    return () => observer.disconnect();
+  }, [visible]);
   const [ready, setReady] = useState(false);
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
@@ -26,15 +34,17 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
     return { teamId: team.id, teamName: team.name, teamTag: team.tag, teamLogo: team.logoUrl, country: team.country, profileUrl: publicTeamUrl(slug), matches: metric('matches'), finishes: metric('finishes'), wwcd: metric('wwcd'), championships: metric('championships'), year: founded && Number.isFinite(founded) ? founded : undefined, roster: [] };
   }, [team, profile, slug]);
   useEffect(() => {
+    if (!visible) return;
     let cancelled = false; setReady(false);
     void (async () => {
+      const { drawPublicTeamIdentityCard, loadCardImage } = await import('../../utils/teamIdentityCard');
       await document.fonts?.ready;
       const [banner, logo] = await Promise.all([loadCardImage(artwork), loadCardImage(data.teamLogo).catch(() => undefined)]);
       if (cancelled || !canvas.current) return;
       drawPublicTeamIdentityCard(canvas.current, data, { banner, logo }); setReady(true);
     })().catch(() => { if (!cancelled) setNotice('Kart yüklənmədi. Səhifəni yeniləyib cəhd edin.'); });
     return () => { cancelled = true; };
-  }, [data]);
+  }, [data, visible]);
   const downloadBlob = (blob: Blob) => {
     const url = URL.createObjectURL(blob); const link = document.createElement('a');
     link.href = url; link.download = `aevic-${slug}-official-team.png`; link.click();
@@ -44,6 +54,7 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
     if (!ready || !canvas.current || busy) return;
     setBusy(true); setNotice('');
     try {
+      const { teamIdentityCardBlob } = await import('../../utils/teamIdentityCard');
       const blob = await teamIdentityCardBlob(canvas.current);
       const file = new File([blob], `aevic-${slug}.png`, { type: 'image/png' });
       if (!share) { downloadBlob(blob); setNotice('PNG hazırdır.'); }
@@ -54,13 +65,13 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
       if (!(error instanceof DOMException && error.name === 'AbortError')) setNotice('Əməliyyat alınmadı. Yenidən cəhd edin və ya profil keçidini ünvan sətrindən kopyalayın.');
     } finally { setBusy(false); }
   };
-  return <div className="public-team-features">
+  return <div ref={region} className="public-team-features">
     <section className="public-team-wrapped" aria-labelledby="team-wrapped-title">
       <div className="public-team-feature-copy"><span className="public-team-eyebrow">// SEZON XÜLASƏSİ</span><h2 id="team-wrapped-title">{year} mövsümü üçün hazırdır.</h2><p>Bu mövsümün hekayəsini yenidən yaşa.</p>
         <dl className="public-team-wrapped-stats">{[['Matç', wrapped.data?.matches], ['WWCD', wrapped.data?.wwcd], ['Kill', wrapped.data?.kills]].map(([label, value]) => <div key={label}><dd>{value ?? '—'}</dd><dt>{label}</dt></div>)}</dl>
         <Link className="button button--primary" to={`/teams/${slug}/wrapped/${year}`}>İcmala bax<ArrowRight size={19} /></Link>
       </div>
-      <div className="public-team-wrapped-visual" aria-hidden="true"><img src={phone} alt="" width="1024" height="1536" loading="lazy" /><div className="public-team-phone-title"><strong>{team.name.split(/\s+/).slice(0, 2).map(part => part[0]).join('')}</strong><span>{team.name}</span><small>{year} SEZON XÜLASƏSİ</small></div></div>
+      <div className="public-team-wrapped-visual" aria-hidden="true"><picture><source type="image/avif" srcSet={phone.sources[0].srcSet} sizes="(max-width: 768px) 80vw, 440px" /><img src={phone.src} srcSet={phone.srcSet} sizes="(max-width: 768px) 80vw, 440px" alt="" width={phone.width} height={phone.height} loading="lazy" decoding="async" /></picture><div className="public-team-phone-title"><strong>{team.name.split(/\s+/).slice(0, 2).map(part => part[0]).join('')}</strong><span>{team.name}</span><small>{year} SEZON XÜLASƏSİ</small></div></div>
       <p className="public-team-wrapped-tagline">SAYILAR<br />OYNAYIR<br />HEKAYƏNİ<br />DANIŞIR.</p>
     </section>
     <section className="public-team-official" aria-labelledby="team-official-title">

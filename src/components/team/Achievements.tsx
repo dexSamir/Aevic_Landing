@@ -1,3 +1,4 @@
+import '../../styles/team-profile-components.css';
 import type { CSSProperties } from 'react';
 import { Award } from 'lucide-react';
 import type { AchievementTier, Team, TeamAchievement, TeamLegacyStats } from '../../types/domain';

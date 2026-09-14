@@ -1,3 +1,4 @@
+import '../styles/wrapped.css';
 import { ArrowLeft, Download, Pause, Play, RotateCcw, Share2, Swords, Trophy, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';

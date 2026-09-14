@@ -1,0 +1,38 @@
+.public-team-hero { background: linear-gradient(90deg, rgba(5,5,7,.8), rgba(5,5,7,.55) 36%, rgba(5,5,7,.08) 80%), linear-gradient(0deg, #080a0b 0%, transparent 38%), var(--public-team-hero-image) center / cover; border-bottom: 1px solid var(--team-line); }
+.public-team-hero__grid { min-height: clamp(480px, 44vw, 650px); padding-top: calc(var(--header-height) + 48px); padding-bottom: 32px; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr); align-items: center; gap: 36px; }
+.public-team-hero__copy { min-width: 0; }
+.public-team-eyebrow { display: block; color: var(--team-gold); font: 700 16px/1.4 var(--font-public-display); letter-spacing: .045em; margin-bottom: 10px; }
+.public-team-hero :is(h1, h2) { font: 700 clamp(48px, 6.4vw, 100px)/1.06 var(--font-public-display); letter-spacing: -.02em; overflow-wrap: anywhere; margin: 0 0 20px; }
+.public-team-live { display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--team-gold); border-radius: 4px; background: #080a0bad; padding: 10px 14px; font-size: 14px; margin-bottom: 20px; }
+.public-team-live i { width: 10px; height: 10px; border-radius: 50%; background: #b9df36; }
+.public-team-tagline { display: flex; align-items: center; flex-wrap: wrap; gap: 22px; font-size: 14px; color: var(--color-text-muted); }
+.public-team-tagline > strong { border: 1px solid var(--team-gold); border-radius: 3px; padding: 2px 17px; color: var(--team-gold); font-size: 18px; }
+.public-team-tagline b { color: var(--color-text-primary); }
+.public-team-bio { max-width: 43ch; margin: 22px 0; font-size: 15px; line-height: 1.65; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.public-team-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 20px 28px; margin-top: 26px; font-size: 13px; }
+.public-team-meta > span { display: inline-flex; align-items: center; gap: 10px; }
+.public-team-meta svg { color: var(--team-gold); }
+.public-team-brand { display: grid; justify-items: center; align-self: end; gap: 28px; }
+.public-team-brand > .team-logo { width: clamp(200px, 23vw, 350px); height: clamp(200px, 23vw, 350px); background: transparent; border: 0; border-radius: 0; box-shadow: none; font: 700 clamp(76px, 10vw, 140px)/1 var(--font-public-display); color: var(--team-gold); text-shadow: 0 4px 35px #000; }
+.public-team-brand > .team-logo img { object-fit: contain; }
+.public-team-social { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+.public-team-social .button, .public-team-social .social-link { border: 1px solid var(--team-line); border-radius: 4px; background: #080a0bc9; }
+.public-team-social .social-links { gap: 8px; }
+.public-team-hero { position: relative; isolation: isolate; --team-gold: var(--color-brand-primary); --team-line: var(--color-border); }
+.public-team-hero__banner { position: absolute; inset: 0; z-index: -1; }
+.public-team-hero__grid { position: relative; }
+.public-team-hero--preview { container-type: inline-size; }
+.public-team-hero--preview .public-team-width { width: 100%; padding: 32px 24px; }
+.public-team-hero--preview .public-team-hero__grid { min-height: 380px; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.public-team-hero--preview h2 { font: 700 clamp(2.5rem, 7cqi, 4rem)/1.05 var(--font-public-display); text-transform: uppercase; }
+.public-team-hero--preview .public-team-brand { justify-items: start; align-self: start; grid-row: 1; }
+.public-team-hero--preview .public-team-brand > .team-logo { width: 100px; height: 100px; min-width: 0; font-size: 3rem; }
+.public-team-hero--preview .public-team-social { justify-content: flex-start; }
+
+.public-team-hero { --public-team-hero-image: url('../../assets/official/public-team-hero-640.webp'); --public-team-hero-image: image-set(url('../../assets/official/public-team-hero-640.avif') type('image/avif'), url('../../assets/official/public-team-hero-640.webp') type('image/webp')); }
+
+@media (min-width: 641px) { .public-team-hero { --public-team-hero-image: url('../../assets/official/public-team-hero-1120.webp'); --public-team-hero-image: image-set(url('../../assets/official/public-team-hero-1120.avif') type('image/avif'), url('../../assets/official/public-team-hero-1120.webp') type('image/webp')); } }
+
+@media (min-width: 1121px) { .public-team-hero { --public-team-hero-image: url('../../assets/official/public-team-hero-1983.webp'); --public-team-hero-image: image-set(url('../../assets/official/public-team-hero-1983.avif') type('image/avif'), url('../../assets/official/public-team-hero-1983.webp') type('image/webp')); } }
+
+.public-team-local-banner { width: 100%; height: 100%; object-fit: cover; opacity: .4; }

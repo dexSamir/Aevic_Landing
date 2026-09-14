@@ -1,3 +1,4 @@
+import '../styles/public-pages.css';
 import { ArrowRight, History, Trophy } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { EmptyState, LoadingSkeleton, PageHeader } from '../components/common/primitives';

@@ -123,9 +123,6 @@
 /* Settings, studio and badges share the workspace surface hierarchy. */
 .product-shell--team .settings-workspace { grid-template-columns: minmax(min(15rem, 32%), .32fr) minmax(0, 1fr); gap: 1rem; }
 .product-shell--team .settings-subnav { padding: .35rem; background: var(--team-surface-inset); border: 1px solid var(--team-border-subtle); border-radius: var(--radius-sm); }
-.product-shell--team .settings-subnav button { border-radius: var(--team-control-radius); }
-.product-shell--team .settings-subnav button:hover { background: var(--team-surface-primary); }
-.product-shell--team .settings-subnav button.is-active { background: var(--team-surface-raised); box-shadow: inset 2px 0 0 var(--color-brand-primary); }
 .product-shell--team .settings-section { border-color: var(--team-border-subtle); }
 .product-shell--team .settings-savebar { background: var(--team-surface-inset); border-color: var(--team-border-subtle); }
 .product-shell--team .page-header.share-studio-header { margin-bottom: .75rem; padding: 0 0 .75rem; }
@@ -218,4 +215,66 @@
 
 @media (prefers-reduced-motion: reduce) {
   .product-shell--team .side-nav a { transition: none; }
+}
+
+/* Shared editorial ledger for overview and career; values have official provenance. */
+.team-stat-ledger { display: flex; flex-wrap: wrap; margin: 24px 0; border-block: 1px solid var(--team-border-subtle); }
+.team-stat-ledger > div { flex: 1 1 120px; padding: 20px; border-right: 1px solid var(--team-border-subtle); display: flex; flex-direction: column-reverse; gap: 8px; }
+.team-stat-ledger > div:last-child { border-right: 0; }
+.team-stat-ledger dt { color: var(--team-text-muted); font-size: .75rem; }
+.team-stat-ledger dd { margin: 0; font: 700 2rem/1.1 var(--font-public-display); }
+.team-stat-ledger a { display: inline-flex; align-items: center; gap: 10px; }
+.product-shell--team .product-sidebar { padding: 16px; }
+.product-shell--team .side-nav { flex: 1; min-height: 0; overflow-y: auto; }
+.product-shell--team .side-nav__group { min-height: 44px; margin-top: 4px; }
+.product-shell--team .side-nav a { min-height: 44px; }
+.product-shell--team .product-topbar__actions .icon-button { min-width: 44px; min-height: 44px; }
+.product-shell--team .page-header h1 { font: 700 clamp(2.4rem, 4.8vw, 4rem)/1.05 var(--font-public-display); text-transform: uppercase; letter-spacing: -.02em; }
+.product-shell--team .team-tournament-list { grid-template-columns: minmax(0, 1fr); }
+.product-shell--team .team-tournament-active h2 { font: 700 clamp(2.1rem, 4vw, 3.8rem)/1.1 var(--font-public-display); text-transform: uppercase; }
+.product-shell--team .team-tournament-history { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 14px 24px; border-inline: 0; border-top: 0; background: transparent; }
+.product-shell--team .team-tournament-history > span { grid-column: 1 / -1; }
+.product-shell--team .team-tournament-history h2 { font-family: var(--font-public-display); }
+.product-shell--team .roster-group > h2 { font: 700 .8rem/1.4 var(--font-ui); color: var(--team-text-muted); letter-spacing: .12em; margin: 28px 0 12px; }
+.product-shell--team .roster-management { border-inline: 0; border-radius: 0; }
+.product-shell--team .roster-management article { min-height: 88px; }
+.product-shell--team .roster-management article > div > strong { font: 700 1.5rem/1.2 var(--font-public-display); }
+.product-shell--team .roster-lock-banner { color: var(--team-text-secondary); background: var(--team-surface-primary); border-color: var(--team-border-default); }
+.team-profile-workspace { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 24px; align-items: start; }
+.team-profile-controls { display: grid; gap: 24px; min-width: 0; }
+.team-profile-controls .settings-section { display: grid; gap: 18px; }
+.team-profile-preview { min-width: 0; position: sticky; top: 80px; border: 1px solid var(--team-border-default); background: var(--team-surface-inset); }
+.team-profile-preview > header { display: grid; gap: 6px; padding: 18px 24px; font-size: .75rem; }
+.team-profile-preview > header small, .team-profile-preview > footer { color: var(--team-text-muted); }
+.team-profile-preview > footer { padding: 20px 24px; font-size: .8rem; line-height: 1.6; border-top: 1px solid var(--team-border-subtle); }
+.team-profile-preview__roster { padding: 24px; }
+.team-profile-preview__roster > span { color: var(--team-text-muted); font-size: .7rem; letter-spacing: .12em; }
+.team-profile-preview__roster p { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-block: 12px; margin: 0; border-bottom: 1px solid var(--team-border-subtle); }
+.team-profile-preview__roster p > span { color: var(--team-text-muted); font-size: .75rem; }
+.career-nav { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-bottom: 24px; border-bottom: 1px solid var(--team-border-subtle); }
+.career-nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--team-text-muted); font-size: .8rem; }
+.career-nav .active { color: var(--color-brand-primary); border-bottom: 2px solid currentColor; }
+.career-map-section { margin-block: 32px; }
+.career-map-ledger { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid var(--team-border-subtle); }
+.career-map-ledger article { min-width: 0; padding: 24px; border-right: 1px solid var(--team-border-subtle); }
+.career-map-ledger h3 { font: 700 2rem/1.1 var(--font-public-display); text-transform: uppercase; }
+.career-map-ledger dl > div { display: flex; justify-content: space-between; gap: 16px; padding-block: 8px; }
+.career-map-ledger dt, .career-map-ledger p { color: var(--team-text-muted); font-size: .8rem; }
+.career-map-ledger dd { margin: 0; font-variant-numeric: tabular-nums; }
+.team-wrapped-entry { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; padding: 28px; margin-block: 28px; border-block: 1px solid var(--team-border-default); background: var(--team-purple-wash); }
+.team-wrapped-entry h2 { margin-block: 10px; font: 700 2.8rem/1.1 var(--font-public-display); }
+.team-wrapped-entry span, .team-wrapped-entry p { color: var(--team-text-secondary); font-size: .8rem; }
+.career-secondary a { display: inline-flex; align-items: center; gap: 20px; min-height: 44px; color: var(--team-text-muted); }
+.product-shell--team .settings-subnav a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 14px; font-size: .8rem; }
+.product-shell--team .data-table { overflow-x: auto; }
+@container (max-width: 50rem) {
+  .team-profile-workspace, .career-map-ledger { grid-template-columns: 1fr; }
+  .team-profile-preview { position: static; }
+  .product-shell--team .team-tournament-history { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .team-profile-workspace, .career-map-ledger { grid-template-columns: 1fr; }
+  .team-profile-preview { position: static; }
+  .product-shell--team .team-tournament-history { grid-template-columns: 1fr; }
+  .team-stat-ledger > div { padding: 16px; }
 }

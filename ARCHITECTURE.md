@@ -138,3 +138,12 @@ List contracts for players, invitations, notifications, support tickets, verific
 ### Required database entities (design only; no migrations exist)
 
 Production persistence needs sessions, two-factor setups/recovery-code hashes, account export/deletion jobs, team authority memberships, team invitations, player claims, membership history, organization members, organization invitations, verification requests/evidence ACLs, notification events/preferences, support tickets/messages, roster requests, disputes, result versions, room-access events, badge unlock history, record/roster snapshots, and append-only audit events. Ownership transfer, invitation acceptance, tournament cancellation, result correction, roster replacement, and verification decisions require database transactions, unique constraints, expected-version checks, and durable audit correlation IDs.
+
+
+## Team workspace ownership (September 2026)
+
+`TeamRoute` loads static workspace CSS before rendering its protected layout. Public pages, auth forms, registration fields, Team operations, profile components, Share Studio and Wrapped each own their relevant stylesheet; no runtime CSS injection is used. Heavy generators and media previews are imported only by their consuming route or interaction. The public team canvas starts when its section approaches the viewport.
+
+`/team/profile` reuses `PublicTeamIdentity` for a local preview. Only social links have a current Team write contract; name, tag, country, founded date, description and media are explicitly unpublished previews. `BrandUploadRequest` has metadata but no file payload, so the UI does not claim to upload bytes. Public captain identity comes from the roster IGN, never account contact details. Official career and competition metrics remain read-only. Acknowledged social, preference, check-in and withdrawal responses update the existing query snapshot without duplicate reads.
+
+`/team/career` groups official metrics, Erangel/Miramar/Rondo statistics and year-filtered Wrapped. Existing history, comparison, badges and PNG generators remain available. `/team/settings` stores notification preferences through `NotificationService`. The management route uses authority membership and existing capability gates; destructive flows require an explicit review and confirmation, and remain unavailable in the mock adapter.

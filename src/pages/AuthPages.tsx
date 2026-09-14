@@ -1,3 +1,5 @@
+import '../styles/registration-fields.css';
+import '../styles/auth.css';
 import { AuthRecoveryShell } from '../components/auth/AuthRecoveryShell';
 import { TeamLogoEditor } from '../components/auth/TeamLogoEditor';
 import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';

@@ -1,3 +1,4 @@
+import '../styles/public-pages.css';
 import { ArrowLeft, ArrowRight, CalendarDays, Crown, History, Medal, Share2, Swords, Trophy, Users } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';

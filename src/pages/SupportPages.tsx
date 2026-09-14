@@ -1,3 +1,4 @@
+import '../app/workspaceStyles';
 import './support-pages.css';
 import { EVIDENCE_UPLOAD_TYPES } from '../utils/fileValidation';
 import { ArrowLeft, ArrowRight, CircleHelp, LifeBuoy, MessageCircleQuestion, Search } from 'lucide-react';

@@ -1,3 +1,4 @@
+import { PublicTeamIdentity } from './PublicTeamIdentity';
 import { ArrowRight, CalendarDays, CirclePlus, Crown, Crosshair, Flag, Grid2X2, History, Info, ShieldCheck, Trophy, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -48,19 +49,7 @@ export function PublicTeamDetail({ team, profile }: { team: Team | PublicTeamSum
     return () => observer.disconnect();
   }, [team.id]);
   return <><article className="public-team-detail">
-    <header className="public-team-hero">
-      <div className="public-team-width public-team-hero__grid">
-        <div className="public-team-hero__copy">
-          {live && <Link className="public-team-live" to={`/tournaments/${live.id}`}><i aria-hidden="true" />Canlı: {live.name}<ArrowRight size={17} /></Link>}
-          <span className="public-team-eyebrow">// PUBG MOBILE</span>
-          <h1>{team.name}</h1>
-          <div className="public-team-tagline">{team.tag && <strong>{team.tag}</strong>}{captain && <span>Kapitan ləqəbi: <b>{captain.ign}</b></span>}</div>
-          {fullTeam?.description && <p className="public-team-bio">{fullTeam.description}</p>}
-          <div className="public-team-meta">{team.country && <span><Flag size={18} />{team.country}</span>}{founded && Number.isFinite(founded) && <span><CalendarDays size={18} />{founded}</span>}{team.verificationLevel && <VerificationCrest level={team.verificationLevel} showLabel />}</div>
-        </div>
-        <div className="public-team-brand"><TeamLogo name={team.name} src={team.logoUrl} size="xl" /><div className="public-team-social"><ShareProfileAction teamName={team.name} /><SocialLinkList links={fullTeam?.socialLinks} ownerName={team.name} compact /></div></div>
-      </div>
-    </header>
+    <PublicTeamIdentity team={team} details={fullTeam} live={live} />
     <div className="public-team-width public-team-content">
       <div className="public-team-overview">
         <nav className="public-team-index" aria-label="Komanda profilinin bölmələri"><span>KOMANDA DOSYESİ</span>{sections.map(({ id, label, icon: Icon }) => <a key={id} href={`#${id}`} aria-current={active === id ? 'location' : undefined} onClick={() => setActive(id)}><Icon size={19} /><span>{label}</span></a>)}</nav>

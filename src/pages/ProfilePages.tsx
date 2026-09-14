@@ -1,3 +1,4 @@
+import '../styles/public-pages.css';
 import { PublicTeamDetail } from '../components/profile/PublicTeamDetail';
 import { DirectoryTeamCard } from '../components/profile/DirectoryTeamCard';
 import { featuredTournamentArtwork } from '../assets/tournaments';

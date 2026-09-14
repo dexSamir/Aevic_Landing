@@ -1,3 +1,4 @@
+import '../styles/public-pages.css';
 import {
   ArrowRight,
   BarChart3,

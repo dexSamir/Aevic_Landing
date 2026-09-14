@@ -43,6 +43,17 @@ export function invalidateQuery(prefix: string) {
   listeners.forEach((listener) => listener());
 }
 
+/** Apply an acknowledged service response without refetching the same snapshot. */
+export function updateCachedQuery<T>(key: string, update: (value: T) => T, scope: Scope = 'private') {
+  const cacheKey = `${scope}:${key}`;
+  const entry = cache.get(cacheKey) as CacheEntry<T> | undefined;
+  if (!entry) return;
+  inFlight.get(cacheKey)?.controller.abort(); inFlight.delete(cacheKey);
+  cache.set(cacheKey, { data: update(entry.data), updatedAt: Date.now() });
+  keyVersions.set(cacheKey, (keyVersions.get(cacheKey) ?? 0) + 1);
+  listeners.forEach(listener => listener());
+}
+
 export function usePlatformQuery<T>(options: {
   key: string; query: (signal: AbortSignal) => Promise<T>;
   scope?: Scope; staleTime?: number; enabled?: boolean; retry?: number; refetchOnFocus?: boolean;
@@ -102,6 +113,7 @@ export function usePlatformQuery<T>(options: {
   }, [attempt, enabled, cacheKey, epoch, scope, stateKey, retry, staleTime]);
 
   // Key/identity changes hide the old value during render, before effects run.
-  const current = state.key === stateKey && enabled ? state : { loading: enabled, data: undefined, error: undefined };
+  const refreshed = enabled ? cache.get(cacheKey) as CacheEntry<T> | undefined : undefined;
+  const current = state.key === stateKey && enabled ? state : refreshed ? { data: refreshed.data, loading: false, error: undefined } : { loading: enabled, data: undefined, error: undefined };
   return { data: current.data, loading: current.loading, error: current.error, refetch, retryAfterSeconds: Math.max(0, Math.ceil((retryAt - retryClock) / 1000)) };
 }

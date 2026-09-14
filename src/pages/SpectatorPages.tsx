@@ -1,3 +1,4 @@
+import '../styles/public-pages.css';
 import { ArrowRight, Map as MapIcon, RotateCcw, Search, Users } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';

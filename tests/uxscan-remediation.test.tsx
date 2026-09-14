@@ -31,15 +31,16 @@ describe('UXScan remediation contracts', () => {
     expect(team).not.toContain('dangerouslySetInnerHTML');
   });
 
-  it('installs route styles statically in a deterministic order before navigation', () => {
+  it('owns route styles through static imports in lazy route modules', () => {
     const router = readFileSync('src/app/router.tsx', 'utf8');
-    const routeStyles = readFileSync('src/app/routeStyles.ts', 'utf8');
     expect(router).not.toContain('loadRouteStyles');
-    expect(routeStyles).not.toContain('await import(');
-    expect(routeStyles).toContain("import './workspaceStyles';");
-    const workspaceStyles = readFileSync('src/app/workspaceStyles.ts', 'utf8');
-    expect(workspaceStyles).toMatch(/import '\.\.\/styles\/workspace\.css';\s+import '\.\.\/styles\/team-workspace\.css';\s+import '\.\.\/styles\/lifecycle\.css';/);
-    expect(routeStyles.indexOf("import '../styles/public-pages.css'")).toBeLessThan(routeStyles.indexOf("import './workspaceStyles'"));
+    expect(router).toContain("lazy: () => import('./TeamRoute')");
+    const teamRoute = readFileSync('src/app/TeamRoute.tsx', 'utf8');
+    expect(teamRoute).toContain("import './workspaceStyles';");
+    expect(teamRoute).toContain("import '../styles/team-workspace.css';");
+    expect(readFileSync('src/pages/AuthPages.tsx', 'utf8')).toContain("import '../styles/auth.css';");
+    expect(readFileSync('src/pages/ProfilePages.tsx', 'utf8')).toContain("import '../styles/public-pages.css';");
+    expect(readFileSync('src/main.tsx', 'utf8')).not.toContain('routeStyles');
   });
 
   it('retains checked-in image fallbacks when a selected transform fails', () => {

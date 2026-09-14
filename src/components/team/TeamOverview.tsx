@@ -23,14 +23,12 @@ function NextActionCommand({ vm }: { vm: TeamOverviewViewModel }) {
 function OperationalRail({ vm }: { vm: TeamOverviewViewModel }) {
   const context = vm.context;
   if (!context || !vm.tournamentHref) return null;
-  const checkIn = context.checkIn;
-  const checkInStatus = checkIn?.status === 'checked-in' ? 'Təsdiqlənib' : checkIn?.status === 'open' ? 'Açıqdır · check-in tələb olunur' : checkIn?.status === 'missed' ? 'Pəncərə bağlanıb' : checkIn ? 'Gözlənilir' : 'Məlumat yoxdur';
-  const rosterReady = vm.activeRosterCount >= 4;
+  const update = vm.updates[0];
   const items = [
-    { key: 'match', label: 'NÖVBƏTİ MATÇ', value: context.nextMatch ? bakuTime(context.nextMatch.startsAt) : '—', detail: context.nextMatch ? `${context.nextMatch.map} · R${context.nextMatch.round}` : 'Matç planlanmayıb', href: vm.tournamentHref, icon: Clock3, ready: false },
-    { key: 'check-in', label: 'CHECK-IN', value: checkIn ? bakuTime(checkIn.status === 'open' ? checkIn.closesAt : checkIn.opensAt) : '—', detail: checkInStatus, href: vm.tournamentHref, icon: CheckCircle2, ready: checkIn?.status === 'checked-in' },
-    { key: 'room', label: 'OTAQ', value: context.room ? bakuTime(context.room.releaseAt) : '—', detail: context.room?.status === 'released' ? 'Otaq hazırdır' : context.room ? 'Bağlıdır' : 'Buraxılış vaxtı yoxdur', href: `${vm.tournamentHref}#room`, icon: KeyRound, ready: context.room?.status === 'released' },
-    { key: 'roster', label: 'ƏSAS HEYƏT', value: `${vm.activeRosterCount}/4`, detail: rosterReady ? `${vm.team.roster.length} oyunçu · əsas heyət tamamdır` : `${4 - vm.activeRosterCount} əsas oyunçu çatışmır`, href: '/team/roster', icon: Users, ready: rosterReady },
+    { key: 'room', label: 'OTAQ STATUSU', value: context.room?.status === 'released' ? 'Hazırdır' : context.room ? 'Bağlıdır' : 'Gözlənilir', detail: context.room ? `${bakuTime(context.room.releaseAt)} · uyğun komandalara açılır` : 'Buraxılış vaxtı yoxdur', href: `${vm.tournamentHref}#room`, icon: KeyRound, ready: context.room?.status === 'released' },
+    { key: 'match', label: 'NÖVBƏTİ MATÇ', value: context.nextMatch ? bakuTime(context.nextMatch.startsAt) : '—', detail: context.nextMatch ? `${overviewDate(context.nextMatch.startsAt)} · Raund ${context.nextMatch.round}` : 'Matç planlanmayıb', href: vm.tournamentHref, icon: Clock3, ready: false },
+    { key: 'update', label: 'SON VACİB YENİLİK', value: update?.title ?? 'Yeni hadisə yoxdur', detail: update ? `${overviewDate(update.occurredAt)} · ${bakuTime(update.occurredAt)}` : 'Əməliyyat xətti yenidir', href: update?.actionTarget ?? '/team/notifications', icon: CheckCircle2, ready: false },
+    { key: 'map', label: 'NÖVBƏTİ XƏRİTƏ', value: context.nextMatch?.map ?? '—', detail: context.nextMatch?.lobby ?? 'Lobbi paylaşılmayıb', href: vm.tournamentHref, icon: Users, ready: false },
   ];
   return <section className="overview-status-grid" aria-label="Əməliyyat vəziyyəti">{items.map(({ key, label, value, detail, href, icon: Icon, ready }) => (
     <Link key={key} className={`overview-status overview-status--${key}`} to={href}>
@@ -42,7 +40,7 @@ function OperationsCanvas({ vm }: { vm: TeamOverviewViewModel }) {
   if (!vm.context || !vm.tournamentHref) return null;
   return <section className="overview-operations" aria-label="Raund proqramı və cari sıra">
     <section className="overview-rounds">
-      <header><h2>ROUND PROQRAMI</h2><span>Bakı vaxtı</span></header>
+      <header><h2>CARİ TURNİR · RAUND PROQRAMI</h2><span>Bakı vaxtı</span></header><div className="overview-competition-ready"><span>CHECK-IN</span><strong>{vm.context.checkIn?.status === 'checked-in' ? 'Təsdiqlənib' : vm.context.checkIn?.status === 'open' ? 'Açıqdır · iştirakınızı təsdiqləyin' : vm.context.checkIn?.status === 'missed' ? 'Müddət bitib' : 'Gözlənilir'}</strong></div>
       {vm.rounds.length ? <ol>{vm.rounds.map(round => <li key={round.id} className={round.id === vm.context?.nextMatch?.id ? 'is-current' : undefined}>
         <span>R{String(round.round).padStart(2, '0')}</span><div><strong>{round.map}</strong><small>{round.lobby} · {round.stage === 'final' ? 'Final' : 'Qrup mərhələsi'}</small></div><time dateTime={round.startsAt}>{bakuTime(round.startsAt)}</time>
       </li>)}</ol> : <p className="overview-empty">Raund proqramı hələ dərc edilməyib.</p>}
@@ -61,7 +59,7 @@ function OperationsCanvas({ vm }: { vm: TeamOverviewViewModel }) {
 function RecentForm({ vm }: { vm: TeamOverviewViewModel }) {
   return <section className="overview-recent" aria-labelledby="overview-recent-title">
     <header><h2 id="overview-recent-title">{vm.recentMatches.length ? `SON ${vm.recentMatches.length} MATÇ` : 'SON MATÇLAR'}</h2><p>YENİ → KÖHNƏ</p></header>
-    {vm.recentMatches.length ? <ol aria-label="Son matçların nəticələri">{vm.recentMatches.map(match => <li key={match.id} aria-label={match.placement === 1 ? 'WWCD, birinci yer' : `${match.placement}-ci yer`} className={match.placement === 1 ? 'is-highlighted' : undefined}>{match.placement === 1 ? <span className="overview-placement-wwcd">WW<br />CD</span> : match.placement}</li>)}</ol> : <p className="overview-empty">Dərc edilmiş matç tarixçəsi yoxdur.</p>}
+    {vm.recentMatches.length ? <ol aria-label="Son matçların nəticələri">{vm.recentMatches.map(match => <li key={match.id} aria-label={match.wwcd ? 'WWCD, birinci yer' : `${match.placement}-ci yer`} className={match.wwcd ? 'is-highlighted' : undefined}>{match.wwcd ? <span className="overview-placement-wwcd">WW<br />CD</span> : match.placement}</li>)}</ol> : <p className="overview-empty">Dərc edilmiş matç tarixçəsi yoxdur.</p>}
     <Link className="overview-section-link" to="/team/history">Nəticə tarixçəsi <ArrowRight size={16} aria-hidden="true" /></Link>
   </section>;
 }
@@ -76,13 +74,14 @@ export function TeamOverview() {
   const contextLine = context ? [context.tournament.name, context.participation.groupLabel, context.participation.slotNumber ? `Slot #${context.participation.slotNumber}` : undefined].filter(Boolean).join(' · ') : 'Aktiv yarış iştirakı yoxdur.';
   return <div className="team-overview">
     <header className="overview-identity">
-      <div><span className="overview-eyebrow">KAPİTAN XƏTTİ</span><h1 aria-label={vm.team.name}>{vm.team.name}{verified && <ShieldCheck aria-label="Təsdiqlənmiş komanda" />}</h1><p>{contextLine}</p></div>
-      <nav aria-label="Komanda kontekst keçidləri"><Link to={`/teams/${encodeURIComponent(vm.team.slug ?? vm.team.id)}`}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link>{context && vm.tournamentHref && <Link to={vm.tournamentHref}>{context.tournament.shortName || context.tournament.name}<ArrowRight size={14} aria-hidden="true" /></Link>}</nav>
+      <div><span className="overview-eyebrow">// KAPİTAN XƏTTİ</span><h1 aria-label={vm.team.name}>{vm.team.name}{verified && <ShieldCheck aria-label="Təsdiqlənmiş komanda" />}</h1><p>{contextLine}</p></div>
+      <nav aria-label="Komanda kontekst keçidləri"><Link to={`/teams/${encodeURIComponent(vm.team.slug ?? vm.team.id)}`}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link>{context && vm.tournamentHref && <Link className="overview-current-tournament" to={vm.tournamentHref}><span>AKTİV TURNİR</span>{context.tournament.shortName || context.tournament.name}<ArrowRight size={14} aria-hidden="true" /></Link>}</nav>
     </header>
     <NextActionCommand vm={vm} />
     <OperationalRail vm={vm} />
-    <OperationsCanvas vm={vm} />
+    <dl className="team-stat-ledger" aria-label="Rəsmi komanda statistikası">{([['matches', 'Matç'], ['wwcd', 'WWCD'], ['championships', 'Çempionluq'], ['podiums', 'Podium']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{data.careerSummary.metrics.find(metric => metric.key === key)?.value ?? '—'}</dd></div>)}<div><dt>Heyət hazırlığı</dt><dd><Link className="overview-status--roster" to="/team/roster">{vm.activeRosterCount}/4 <Users size={17} /></Link></dd></div></dl>
     <RecentForm vm={vm} />
+    <OperationsCanvas vm={vm} />
     <section className="overview-updates">
       <SectionTitle action={<Link to="/team/notifications">Hamısını göstər <ArrowRight size={16} aria-hidden="true" /></Link>}>SON YENİLİKLƏR</SectionTitle>
       {vm.updates.length ? <ol>{vm.updates.map(event => <li key={event.id} data-priority={event.priority}>

@@ -1,6 +1,4 @@
-import recoveryBackground from '../assets/official/auth-recovery-lock.png';
-import loginBackground from '../assets/official/login-background.png';
-import registerBackground from '../assets/official/register-background.png';
+import { responsiveArtwork } from '../assets/official/responsive';
 import { SidebarNav } from './WorkspaceNav';
 import '../styles/public-shell.css';
 import {
@@ -46,21 +44,22 @@ import { formatEventDate } from '../utils/calendar';
 import { productRouteMetadata, type ProductArea } from '../utils/routeMetadata';
 
 const teamLinks = [
-  { to: '/team', label: 'İcmal', icon: LayoutDashboard, end: true, group: 'Əsas' },
-  { to: '/team/tournaments', label: 'Turnirlərim', icon: Trophy, group: 'Əsas' },
-  { to: '/team/roster', label: 'Heyət', icon: Users, group: 'Heyət' },
-  { to: '/team/roster-requests', label: 'Heyət sorğuları', icon: ListChecks, group: 'Heyət' },
-  { to: '/team/invitations', label: 'Dəvətlər', icon: UserRoundCog, group: 'Heyət' },
-  { to: '/team/settings/managers', label: 'Menecerlər', icon: Users, group: 'Heyət' },
-  { to: '/team/history', label: 'Tarixçə', icon: History, group: 'Karyera' },
+  { to: '/team', label: 'İcmal', icon: LayoutDashboard, group: 'İcmal' },
+  { to: '/team/tournaments', label: 'Turnirlərim', icon: Trophy, group: 'Yarış' },
+  { to: '/team/disputes', label: 'Nəticə etirazları', icon: FileText, group: 'Yarış' },
+  { to: '/team/roster', label: 'Heyət', icon: Users, group: 'Komanda' },
+  { to: '/team/roster-requests', label: 'Heyət sorğuları', icon: ListChecks, group: 'Komanda' },
+  { to: '/team/invitations', label: 'Dəvətlər', icon: UserRoundCog, group: 'Komanda' },
+  { to: '/team/career', label: 'Karyera', icon: Trophy, group: 'Karyera' },
+  { to: '/team/history', label: 'Matç tarixçəsi', icon: History, group: 'Karyera' },
   { to: '/team/comparison', label: 'Müqayisə', icon: GitCompareArrows, group: 'Karyera' },
   { to: '/team/sharecards', label: 'Paylaşım studiyası', icon: Sparkles, group: 'Karyera' },
-  { to: '/team/badges', label: 'Nişan kabineti', icon: Trophy, group: 'Karyera' },
   { to: '/team/notifications', label: 'Bildirişlər', icon: Bell, group: 'Əlaqə' },
   { to: '/team/messages', label: 'Mesajlar', icon: MessageSquare, group: 'Əlaqə' },
-  { to: '/team/disputes', label: 'Etirazlar', icon: FileText, group: 'Əlaqə' },
+  { to: '/team/profile', label: 'Public profil', icon: CircleUserRound, group: 'İdarəetmə' },
+  { to: '/team/settings/managers', label: 'Menecerlər', icon: Users, group: 'İdarəetmə' },
   { to: '/team/verification', label: 'Təsdiq', icon: ShieldAlert, group: 'İdarəetmə' },
-  { to: '/team/settings', label: 'Komanda ayarları', icon: Settings, group: 'İdarəetmə' },
+  { to: '/team/settings', label: 'Ayarlar', icon: Settings, group: 'İdarəetmə' },
 ];
 
 const adminLinks = [
@@ -236,7 +235,7 @@ export function AuthLayout() {
   return <div className={`auth-shell ${isRecovery ? 'auth-shell--recovery' : isRegister ? 'auth-shell--register auth-identity' : location.pathname === '/login' ? 'auth-shell--login auth-identity' : ''}`}>
     <RouteSeo /><OfflineNotice /><a className="skip-link" href="#main-content">Əsas məzmuna keç</a><PublicHeader />
     <main id="main-content" tabIndex={-1}>
-      {isRecovery ? <MediaBackdrop src={recoveryBackground} className="auth-shell__media" priority width={1672} height={941} focalDesktop="54% center" focalMobile="62% center" /> : isRegister || location.pathname === "/login" ? <MediaBackdrop src={isRegister ? registerBackground : loginBackground} className="auth-shell__media" priority width={1672} height={941} focalDesktop={isRegister ? "58% center" : "60% center"} focalMobile={isRegister ? "72% center" : "74% center"} /> : <MediaBackdrop src={officialAssets.authBackdrop} srcSet={officialAssets.authBackdropSrcSet} sources={officialAssets.authBackdropSources} sizes="100vw" className="auth-shell__media" priority width={1586} height={992} focalDesktop="49% 48%" focalMobile="44% 45%" />}
+      {isRecovery ? <MediaBackdrop {...responsiveArtwork['auth-recovery-lock']} sizes="100vw" className="auth-shell__media" priority width={1672} height={941} focalDesktop="54% center" focalMobile="62% center" /> : isRegister || location.pathname === "/login" ? <MediaBackdrop {...(isRegister ? responsiveArtwork['register-background'] : responsiveArtwork['login-background'])} sizes="100vw" className="auth-shell__media" priority width={1672} height={941} focalDesktop={isRegister ? "58% center" : "60% center"} focalMobile={isRegister ? "72% center" : "74% center"} /> : <MediaBackdrop src={officialAssets.authBackdrop} srcSet={officialAssets.authBackdropSrcSet} sources={officialAssets.authBackdropSources} sizes="100vw" className="auth-shell__media" priority width={1586} height={992} focalDesktop="49% 48%" focalMobile="44% 45%" />}
       <div className="auth-shell__content"><RouteTransitionOutlet family="auth" /></div>
     </main>
     <PublicFooter showCta={false} />
@@ -245,12 +244,12 @@ export function AuthLayout() {
 
 
 function ProductTopbar({ metadata, admin = false, onMenu }: { metadata?: ReturnType<typeof productRouteMetadata>; team?: Team; admin?: boolean; onMenu: () => void }) {
-  return <header className="product-topbar"><div className="product-topbar__mobile-identity"><IconButton className="product-topbar__menu" label="Naviqasiyanı aç" onClick={onMenu}><PanelLeft size={20} /></IconButton><BrandMark variant="compact" /></div><div className="product-topbar__route"><span>{metadata?.parentLabel ?? (admin ? 'Admin' : 'Komanda iş sahəsi')}</span><strong>{metadata?.title ?? (admin ? 'Admin əməliyyatları' : 'Komanda iş sahəsi')}</strong>{demoMode && !admin && <small className="demo-mode-indicator">NÜMUNƏ</small>}</div><div className="product-topbar__actions">{!admin && <Link className="icon-button" aria-label="Bildirişlər" to="/team/notifications"><Bell size={19} /></Link>}<Link className="icon-button" aria-label={admin ? 'Admin hesabı' : 'Hesab ayarları'} title={admin ? 'Admin hesabı' : 'Hesab ayarları'} to={admin ? '/admin/users' : '/account/profile'}><CircleUserRound size={20} /></Link></div></header>;
+  return <header className="product-topbar"><div className="product-topbar__mobile-identity"><BrandMark variant="compact" /></div><div className="product-topbar__route"><span>{metadata?.parentLabel ?? (admin ? 'Admin' : 'Komanda iş sahəsi')}</span><strong>{metadata?.title ?? (admin ? 'Admin əməliyyatları' : 'Komanda iş sahəsi')}</strong>{demoMode && !admin && <small className="demo-mode-indicator">NÜMUNƏ</small>}</div><div className="product-topbar__actions">{!admin && <Link className="icon-button" aria-label="Bildirişlər" to="/team/notifications"><Bell size={19} /></Link>}<Link className="icon-button" aria-label={admin ? 'Admin hesabı' : 'Hesab ayarları'} title={admin ? 'Admin hesabı' : 'Hesab ayarları'} to={admin ? '/admin/users' : '/account/profile'}><CircleUserRound size={20} /></Link><IconButton className="product-topbar__menu" label="Naviqasiyanı aç" onClick={onMenu}><PanelLeft size={20} /></IconButton></div></header>;
 }
 
 function TeamIdentityBlock({ team, compact = false, onNavigate }: { team: Team; compact?: boolean; onNavigate?: () => void }) {
   const profilePath = `/teams/${encodeURIComponent(team.slug ?? team.id)}`;
-  return <div className={compact ? 'team-identity team-identity--drawer drawer-identity' : 'team-identity'}><TeamLogo name={team.name} src={team.logoUrl} /><div className="team-identity__body"><strong title={team.name}>{team.name}</strong>{!compact && <StatusBadge status="approved" />}<Link to={profilePath} onClick={onNavigate}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link></div></div>;
+  return <div className={compact ? 'team-identity team-identity--drawer drawer-identity' : 'team-identity'}><TeamLogo name={team.name} src={team.logoUrl} /><div className="team-identity__body"><strong title={team.name}>{team.name}</strong>{!compact && <StatusBadge status={team.approvalStatus} />}<Link to={profilePath} onClick={onNavigate}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link></div></div>;
 }
 
 export function TeamLayout() {

@@ -1,3 +1,4 @@
+import '../styles/auth.css';
 import { AuthRecoveryShell } from '../components/auth/AuthRecoveryShell';
 import { ArrowLeft, ArrowRight, AlertTriangle, CheckCircle2, Clock3, LockKeyhole, MailCheck, ShieldAlert } from 'lucide-react';
 import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react';

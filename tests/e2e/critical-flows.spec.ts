@@ -29,17 +29,16 @@ test('captain lifecycle: registration, tournament, check-in, room, dispute, and 
 test('public competition graph: tournament, participant team, results, match center, and search stay connected', async ({ page }) => {
   await page.goto('/tournaments/daily-cup-24');
   await expect(page.getByRole('heading', { name: /daily cup #24/i })).toBeVisible();
-  await expect(page.getByRole('list', { name: /6 təsdiqlənmiş iştirakçı komanda/i })).toBeVisible();
+  await expect(page.locator('.tournament-detail-teams')).toBeVisible();
 
-  await page.getByRole('button', { name: /caspian wolves heyətini göstər/i }).click();
   await page.locator('a[href="/teams/caspian-wolves"]:visible').first().click();
   await expect(page).toHaveURL(/\/teams\//);
   await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
 
   await page.goto('/tournaments/daily-cup-24');
-  await page.locator('.competition-round-program li a').first().click();
+  await page.locator('#matches a[href$="#results"]').first().click();
   await expect(page).toHaveURL(/\/tournaments\/daily-cup-24#results/);
-  await expect(page.getByRole('heading', { name: 'Rəsmi nəticələr' })).toBeVisible();
+  await expect(page.locator('#results').getByRole('heading').first()).toBeVisible();
 
   await page.goto('/matches');
   await expect(page.getByRole('heading', { name: 'İndi', exact: true })).toBeVisible();

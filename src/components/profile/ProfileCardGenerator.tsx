@@ -1,3 +1,4 @@
+import '../../styles/share-studio.css';
 import { Check, Copy, Download, Share2 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { useEffect, useRef, useState } from 'react';

@@ -1,3 +1,4 @@
+import '../../styles/team-profile-components.css';
 import {
   BadgeCheck,
   Crown,

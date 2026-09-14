@@ -1,3 +1,4 @@
+import '../../styles/share-studio.css';
 import { Download, Share2 } from 'lucide-react';
 import { type ReactNode, useRef, useState } from 'react';
 import { toPng } from 'html-to-image';

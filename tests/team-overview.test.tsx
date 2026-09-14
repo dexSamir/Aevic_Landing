@@ -32,6 +32,6 @@ describe('captain overview domain projection', () => {
     const vm = buildTeamOverview({ ...source, leaderboard, currentTeam: { ...source.currentTeam, profileComplete: false } }, context);
     expect(vm.standings.map(row => row.placement)).toEqual([3, 4, 5, 6, 7]);
     expect(vm.currentStanding).toMatchObject({ placement: 5, points: 96, current: true });
-    expect(vm.nextAction).toMatchObject({ kind: 'blocking', href: '/team/settings' });
+    expect(vm.nextAction).toMatchObject({ kind: 'blocking', href: '/team/profile' });
   });
 });

@@ -45,7 +45,7 @@ describe('Home first-paint rendering contract', () => {
     expect(startup).toContain("root.dataset.prerender === 'home'");
     expect(startup).toContain('hydrateRoot(root, application)');
     expect(startup).toContain('createRoot(root).render(application)');
-    expect(readFileSync('src/main.tsx', 'utf8')).toContain("import './app/routeStyles';");
+    expect(readFileSync('src/main.tsx', 'utf8')).not.toContain("import './app/routeStyles';");
     expect(startup).not.toContain('loadRouteStyles');
   });
 });

@@ -7,11 +7,11 @@ test('public team features are responsive and export the displayed card', async 
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('/teams/caspian-wolves');
     await expect(page.locator('.public-team-wrapped')).toBeVisible();
+    await page.locator('.public-team-official').scrollIntoViewIfNeeded();
     await expect(page.getByRole('button', { name: 'PNG-ni yüklə', exact: true })).toBeEnabled();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
     await page.locator('.public-team-wrapped').scrollIntoViewIfNeeded();
     await expect.poll(() => page.locator('.public-team-wrapped img').evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
-    await page.screenshot({ path: `/tmp/aevic-team-${width}.png`, fullPage: true });
     const card = await page.locator('.public-team-card-preview').boundingBox();
     expect(card!.width / card!.height).toBeCloseTo(1200 / 660, 1);
   }

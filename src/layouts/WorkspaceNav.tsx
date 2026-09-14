@@ -20,7 +20,7 @@ export function SidebarNav({ links, onNavigate, unread = 0, label = 'Məhsul nav
   return <nav className="side-nav" aria-label={label}>
     {groups.map((section, sectionIndex) => {
       const key = section.name ?? `group-${sectionIndex}`;
-      const defaultOpen = sectionIndex === 0 || section.name === activeGroup;
+      const defaultOpen = label !== 'Admin naviqasiyası' || sectionIndex === 0 || section.name === activeGroup;
       const isOpen = openOverride[key] ?? defaultOpen;
       return <div className="side-nav__section" key={key}>
         {section.name && <button type="button" className="side-nav__group" aria-expanded={isOpen} onClick={() => setOpenOverride((current) => ({ ...current, [key]: !isOpen }))}>

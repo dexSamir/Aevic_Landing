@@ -1,3 +1,4 @@
+import '../../styles/team-profile-components.css';
 import { ArrowRight, CalendarClock, Check, ChevronRight, KeyRound, Megaphone, Swords, TrendingUp, Trophy, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';

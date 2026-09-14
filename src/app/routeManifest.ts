@@ -9,6 +9,9 @@ export interface RouteDefinition {
 }
 
 export const routeManifest = [
+  { id: 'team_profile', path: '/team/profile', family: 'TEAM', title: 'Public profil', description: 'Komandanın ictimai kimliyi və media önbaxışı.', section: 'management', navigation: '/team/profile', capability: 'teamWorkspace', indexable: false },
+  { id: 'team_career', path: '/team/career', family: 'TEAM', title: 'Karyera', description: 'Rəsmi karyera, xəritə statistikası və Wrapped.', section: 'career', navigation: '/team/career', capability: 'teamWorkspace', indexable: false },
+
   {
     "id": "home",
     "path": "/",

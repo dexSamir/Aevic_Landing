@@ -1,3 +1,4 @@
+import '../app/workspaceStyles';
 import { Bell, Database, KeyRound, Laptop, LockKeyhole, LogOut, ShieldCheck, Trash2, UserRound } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';

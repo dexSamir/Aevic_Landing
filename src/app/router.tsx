@@ -1,12 +1,10 @@
-import { AdminLayout, AuthLayout, ProtectedRoute, PublicLayout, RouteError, TeamLayout } from '../layouts/layouts';
+import { AuthLayout, ProtectedRoute, PublicLayout, RouteError } from '../layouts/layouts';
 import { HomePage } from '../pages/HomePage';
-import { AdminPlatformProvider, PublicPlatformProvider, TeamPlatformProvider } from '../services/PlatformDataContext';
 import { AevicHydrationFallback } from '../components/common/AevicHydrationFallback';
 import { routePath } from './routeManifest';
 import { applyRouteCapabilities } from './capabilityRoutes';
 
 async function loadLifecyclePages() {
-
   return import('../pages/AuthLifecyclePages');
 }
 
@@ -74,12 +72,11 @@ export const routes = applyRouteCapabilities([
   },
   {
     path: routePath('team'),
-    lazy: async () => {
-
-      return { Component: () => <ProtectedRoute area="team"><TeamPlatformProvider><TeamLayout /></TeamPlatformProvider></ProtectedRoute> };
-    },
+    lazy: () => import('./TeamRoute'),
     children: [
-      { index: true, lazy: async () => ({ Component: (await import('../pages/TeamPages')).TeamDashboardPage }) },
+      { path: routePath('team_profile', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamProfilePage')).TeamProfilePage }) },
+      { path: routePath('team_career', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamCareerPage')).TeamCareerPage }) },
+      { index: true, lazy: async () => ({ Component: (await import('../components/team/TeamOverview')).TeamOverview }) },
       { path: routePath('team_tournaments', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamPages')).TeamTournamentsPage }) },
       { path: routePath('team_tournaments_tournamentId', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamPages')).TeamTournamentDetailPage }) },
       { path: routePath('team_history', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamPages')).TeamHistoryPage }) },
@@ -90,24 +87,21 @@ export const routes = applyRouteCapabilities([
       { path: routePath('team_roster_requests', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamOperationsPages')).RosterRequestsPage }) },
       { path: routePath('team_roster_requests_requestId', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamOperationsPages')).RosterRequestDetailPage }) },
       { path: routePath('team_disputes', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamOperationsPages')).DisputesPage }) },
-      { path: routePath('team_disputes_new', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamOperationsPages')).NewDisputePage }) },
+      { path: routePath('team_disputes_new', '/team'), lazy: async () => ({ Component: (await import('../pages/NewDisputePage')).NewDisputePage }) },
       { path: routePath('team_disputes_disputeId', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamOperationsPages')).DisputeDetailPage }) },
       { path: routePath('team_sharecards', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamPages')).TeamSharecardsPage }) },
       { path: routePath('team_badges', '/team'), lazy: async () => ({ Component: (await import('../pages/ProfilePages')).TeamBadgeCabinetPage }) },
       { path: routePath('team_badges_badgeId', '/team'), lazy: async () => ({ Component: (await import('../pages/CompletionPages')).BadgeDetailPage }) },
       { path: routePath('team_invitations', '/team'), lazy: async () => ({ Component: (await import('../pages/CompletionPages')).TeamInvitationsPage }) },
-      { path: routePath('team_settings_managers', '/team'), lazy: async () => ({ Component: (await import('../pages/CompletionPages')).TeamGovernancePage }) },
+      { path: routePath('team_settings_managers', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamManagementPage')).TeamGovernancePage }) },
       { path: routePath('team_verification', '/team'), lazy: async () => ({ Component: (await import('../pages/CompletionPages')).VerificationApplicationPage }) },
       { path: routePath('team_organization_organizationSlug', '/team'), lazy: async () => ({ Component: (await import('../pages/CompletionPages')).OrganizationWorkspacePage }) },
-      { path: routePath('team_settings', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamPages')).TeamSettingsPage }) },
+      { path: routePath('team_settings', '/team'), lazy: async () => ({ Component: (await import('../pages/TeamSettingsPage')).TeamSettingsPage }) },
     ],
   },
   {
     path: routePath('admin'),
-    lazy: async () => {
-
-      return { Component: () => <ProtectedRoute area="admin"><AdminPlatformProvider><AdminLayout /></AdminPlatformProvider></ProtectedRoute> };
-    },
+    lazy: () => import('./AdminRoute'),
     children: [
       { index: true, lazy: async () => ({ Component: (await import('../pages/AdminPages')).AdminDashboardPage }) },
       { path: routePath('admin_tournaments', '/admin'), lazy: async () => ({ Component: (await import('../pages/AdminPages')).AdminTournamentsPage }) },

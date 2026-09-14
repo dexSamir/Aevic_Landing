@@ -1,3 +1,4 @@
+import '../styles/public-pages.css';
 import { ArrowRight, CalendarDays, Clock3, Layers3, Search, Timer, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';

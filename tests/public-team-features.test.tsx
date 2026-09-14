@@ -21,7 +21,7 @@ it('uses seasonal facts, supplied phone, current identity and clipboard fallback
  expect(within(wrapped).getByText('17')).toBeInTheDocument();
  expect(within(wrapped).getByText('4')).toBeInTheDocument();
  expect(within(wrapped).getByRole('link', { name: 'İcmala bax' })).toHaveAttribute('href', expect.stringMatching(/\/teams\/caspian-wolves\/wrapped\/\d{4}$/));
- expect(view.container.querySelector('.public-team-wrapped img')).toHaveAttribute('src', expect.stringContaining('team-wrapped-phone.png'));
+ expect(view.container.querySelector('.public-team-wrapped img')).toHaveAttribute('src', expect.stringContaining('team-wrapped-phone-1024.webp'));
  await waitFor(() => expect(drawPublicTeamIdentityCard).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ teamName: currentTeam.name, teamTag: currentTeam.tag }), expect.anything()));
  fireEvent.click(screen.getByRole('button', { name: 'Paylaş', exact: true }));
  expect(await screen.findByRole('status')).toHaveTextContent('Profil keçidi kopyalandı');
