@@ -24,14 +24,14 @@ AEVIC is not a campaign site with a dashboard attached. Public competition story
 - Captains register a five-player team and wait for an explicit approval decision.
 - Approved teams join tournaments, check in, receive time-gated room credentials, review messages, manage eligible roster changes, and withdraw deliberately.
 - Administrators configure tournaments, approve teams, manage slots/check-in, publish per-round results, send announcements, and enforce bans.
-- The current implementation is a frontend demonstration backed by clearly isolated fictional mock data.
+- Production uses the Hono API and Supabase for supported workflows. Explicit mock development retains isolated fictional fixtures; failed production requests never fall back to them. Live staging verification is required before launch.
 
 ## Capabilities and Constraints
 
 - React, TypeScript, Vite, React Router, local font packages, DOM-to-image export, and a dependency-free service worker form the client platform.
-- Authentication, authorization, push/email delivery, uploads, secure room release, audit logs, and persistence require backend implementation; frontend route guards are not security boundaries.
+- Auth, RLS authorization, uploads, timed room release, audit and core persistence are implemented in the Hono/Supabase backend. Push/email notification delivery remains unavailable. Frontend route guards are not security boundaries.
 - Sensitive room credentials are available only through a protected service contract and are excluded from service-worker caching.
-- PUBG Mobile maps and point formulas are configurable domain data, not closed enums.
+- Competition supports Erangel, Miramar and Rondo. Point formulas are configured per tournament; adding maps requires an explicit domain change.
 - Required routes cover public, team, and admin areas described in the build brief.
 
 ## Brand Commitments
@@ -48,7 +48,7 @@ AEVIC is not a campaign site with a dashboard attached. Public competition story
 
 - Supplied brand board: `src/assets/brand/aevic-brand-board-source.png`.
 - Supplied source logo: `src/assets/brand/aevic-phoenix-source.png`.
-- No real tournament database, sponsor list, champion archive, prize ledger, delivery provider, or production authentication backend was supplied. Demonstration names and values are fictional and labeled in the interface.
+- Schema and core competition services now exist. A live staging project, production mail delivery, sponsor/prize source and credential rotation remain external setup steps. Explicit mock mode uses labeled fictional data.
 - Prize configuration is an internal admin concern. Public visitors and teams compete for reputation, ranking, performance, and championship legacy; money-related tournament data is never exposed on their surfaces or generated posters.
 
 ## Product Principles
@@ -72,7 +72,7 @@ AEVIC is not a campaign site with a dashboard attached. Public competition story
 
 - A `Team` is a game-specific competitive roster. An `Organization` is the optional parent esports identity and owns only cross-game identity, social, media, staff-ready metadata, and team links.
 - PUBG Mobile remains the only active game integration. `OrganizationTeam.gameKey` permits later Mobile Legends, Valorant, CS2, or other adapters without adding those games to the current roster model or presenting them as active.
-- Teams remain valid when independent. Relationship states are independent, organization-owned, invitation pending, and archived; invitations and ownership transfer are mock/model states only until backend permissions exist.
+- Teams remain valid when independent. Relationship states are independent, organization-owned, invitation pending, and archived; invitations and ownership transfer use authorized transactional backend operations in API mode.
 - Public discovery supports organization name and verification filtering. Public organization and team profiles show only configured social links and distinguish AEVIC verification crests from earned achievement insignias.
 - Team and organization banners accept PNG, JPG, or WebP preview files up to 6 MB. A 16:5 composition is recommended, the central 60% is the mobile-safe crop, and a product gradient remains the fallback when no usable image exists.
 
@@ -81,7 +81,7 @@ AEVIC is not a campaign site with a dashboard attached. Public competition story
 - Achievements use competition, combat, participation, consistency, seasonal, legacy, and special categories with bronze, silver, gold, phoenix, and legacy tier materials.
 - Public team profiles feature exactly three unlocked badges in a deliberate order. “View all badges” opens the earned collection; locked badges stay out of the spectator-first wall.
 - Captains can select only unlocked badges, preview the public cabinet, reorder with pointer drag-and-drop, or use explicit keyboard-operable move buttons. Save feedback includes loading, success, error, and disabled states.
-- Featured badge selection is limited to three in both UI and `AchievementService`; backend persistence must enforce the same rule.
+- Featured badge selection is limited to three in both UI and `AchievementService`; the transactional backend enforces the same rule and requires officially earned badges.
 
 ## Backend Requirements for Identity Features
 

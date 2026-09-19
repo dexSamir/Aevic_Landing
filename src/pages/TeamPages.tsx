@@ -79,7 +79,7 @@ export function TeamTournamentDetailPage() {
   const [roomLoading, setRoomLoading] = useState(false);
   const [roomError, setRoomError] = useState('');
   const [revealed, setRevealed] = useState(false);
-  useEffect(() => { setRoom(undefined); setRevealed(false); setRoomError(''); setWithdrawn(false); setCheckedIn(false); setCheckInOpen(false); }, [tournamentId]);
+  useEffect(() => { setRoom(undefined); setRevealed(false); setRoomError(''); setWithdrawn(false); setCheckedIn(false); setCheckInOpen(false); }, [tournamentId, context?.room?.roundId]);
   useEffect(() => {
     if (window.location.hash !== '#room') return;
     const frame = window.requestAnimationFrame(() => {
@@ -89,7 +89,7 @@ export function TeamTournamentDetailPage() {
     });
     return () => window.cancelAnimationFrame(frame);
   }, [tournamentId]);
-  const loadRoom = async () => { if (!context?.room?.roundId && !context?.firstMatch?.id) { setRoomError('Otaq raundu haqqında məlumat yoxdur.'); return; } setRoomLoading(true); setRoomError(''); try { setRoom(await services.rooms.getForEligibleTeam(context.tournament.id, context.room?.roundId ?? context.nextMatch!.id)); } catch { setRoomError('Otaq məlumatı açılmadı. Uyğunluğu və açılma vaxtını yoxlayın.'); } finally { setRoomLoading(false); } };
+  const loadRoom = async () => { const roundId=context?.room?.roundId ?? context?.nextMatch?.id; if (!roundId || !context) { setRoomError('Otaq raundu haqqında məlumat yoxdur.'); return; } setRoomLoading(true); setRoomError(''); try { setRoom(await services.rooms.getForEligibleTeam(context.tournament.id, roundId)); } catch { setRoomError('Otaq məlumatı açılmadı. Uyğunluğu və açılma vaxtını yoxlayın.'); } finally { setRoomLoading(false); } };
   if (!context) return <><PageHeader eyebrow="Turnir əməliyyatları" title="Turnir tapılmadı" /><EmptyState title="Etibarsız turnir seçimi" body="Komandanın bu turnirdə iştirak qeydi yoxdur." action={<Link className="button button--secondary" to="/team/tournaments"><span>Turnirlərimə qayıt</span></Link>} /></>;
   const { tournament: activeTournament, participation, matches: tournamentMatches } = context;
   const roomAvailability = withdrawn || context.participation.status === 'withdrawn' ? undefined : room ?? context.room;

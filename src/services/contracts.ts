@@ -114,6 +114,11 @@ export interface RegistrationService {
 }
 
 export interface TournamentService {
+  create(input:import('../types/domain').TournamentCreation,idempotencyKey:string):Promise<Tournament>;
+  entries(id:string):Promise<Array<{id:string;teamId:string;status:string;slotNumber?:number}>>;
+  reviewEntry(tournamentId:string,teamId:string,status:'confirmed'|'rejected'):Promise<void>;
+  publishMatch(matchId:string):Promise<void>;
+  saveRoom(matchId:string,roomId:string,password:string):Promise<void>;
   list(): Promise<Tournament[]>;
   get(id: string): Promise<Tournament | undefined>;
   join(tournamentId: string, teamId: string): Promise<TournamentJoinResult>;
@@ -128,6 +133,7 @@ export interface TournamentService {
 
 export interface TeamService {
   current(): Promise<Team>;
+  updateProfile(teamId: string, profile: Pick<Team, 'name' | 'tag' | 'description' | 'country' | 'foundedAt' | 'bannerAlt'>): Promise<Team>;
   list(): Promise<Team[]>;
   setApproval(teamId: string, status: Team['approvalStatus'], reason?: string): Promise<Team>;
   checkIn(tournamentId: string): Promise<CheckIn>;
@@ -225,7 +231,10 @@ export interface RecordsService {
 
 export interface MediaService {
   validateBrandAsset(request: BrandUploadRequest): Promise<BrandAssetValidationResult>;
-  uploadBrandAsset(request: BrandUploadRequest): Promise<BrandUploadResult>;
+  uploadBrandAsset(request: BrandUploadRequest, file?: File): Promise<BrandUploadResult>;
+  deleteBrandAsset(teamId: string, kind: 'logo' | 'banner'): Promise<void>;
+  uploadEvidence(teamId: string, file: File): Promise<{ id: string; fileName: string }>;
+  evidenceAccess(id: string): Promise<{ url: string }>;
 }
 
 export interface RoomService {
@@ -233,6 +242,7 @@ export interface RoomService {
 }
 
 export interface ResultService {
+  roundEntries(roundId:string):Promise<RoundResult[]>;
   leaderboard(tournamentId: string): Promise<TeamTournamentResult[]>;
   snapshots(tournamentId: string): Promise<LeaderboardSnapshot[]>;
   movement(tournamentId: string): Promise<RankMovementData[]>;

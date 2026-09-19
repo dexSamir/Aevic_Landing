@@ -107,11 +107,10 @@ describe('API routing boundary', () => {
 
   it('orders API rewrites before the SPA fallback', () => {
     const config = readFileSync(resolve(process.cwd(), 'netlify.toml'), 'utf8');
-    const publicContextRule = config.indexOf('from = "/api/public/context"');
+    const functionRule = config.indexOf('to = "/.netlify/functions/api/:splat"');
     const apiFallbackRule = config.indexOf('from = "/api/*"');
     const spaRule = config.indexOf('from = "/*"');
-    expect(publicContextRule).toBeGreaterThan(-1);
-    expect(publicContextRule).toBeLessThan(apiFallbackRule);
+    expect(functionRule).toBeGreaterThan(apiFallbackRule);
     expect(apiFallbackRule).toBeLessThan(spaRule);
     expect(config).toContain('to = "/404.html"');
   });

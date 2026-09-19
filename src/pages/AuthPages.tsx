@@ -49,6 +49,7 @@ export function LoginPage({ admin = false }: { admin?: boolean }) {
     catch (nextError) {
       if (nextError instanceof ApiError && nextError.code === 'ACCOUNT_LOCKED') setError('Hesab müvəqqəti kilidlənib. Dəstək xidməti ilə əlaqə saxlayın.');
       else if (nextError instanceof ApiError && nextError.kind === 'rate-limit') setError('Çox sayda giriş cəhdi edildi. Bir az sonra yenidən cəhd edin.');
+      else if (nextError instanceof ApiError && ['network', 'server', 'timeout'].includes(nextError.kind)) setError('Giriş xidməti hazırda əlçatan deyil. Məlumatlarınız saxlanıldı; bir az sonra yenidən cəhd edin.');
       else setError('Daxil olmaq mümkün olmadı. Email və şifrəni yoxlayın.');
     }
     finally { setLoading(false); }

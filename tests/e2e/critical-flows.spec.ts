@@ -106,8 +106,11 @@ test('admin lifecycle: team, roster, disputes, verification, results, support, a
   await expect(page.getByRole('heading', { name: /daily cup #24/i })).toBeVisible();
   await page.getByRole('link', { name: /turnir əməliyyatlarına qayıt/i }).click();
   await page.goto('/admin/results');
-  await expect(page.getByRole('heading', { name: /nəticə nəşri hələ əlçatan deyil/i })).toBeVisible();
-  await expect(page.getByRole('link', { name: /turnir əməliyyatlarına bax/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Nəticə girişi' })).toBeVisible();
+  await page.getByRole('combobox', { name: 'Turnir', exact: true }).selectOption('daily-cup-24');
+  await page.getByRole('combobox', { name: 'Raund', exact: true }).selectOption('dc24-r1');
+  await expect(page.getByRole('spinbutton', { name: 'Kill sayı' })).toBeEditable();
+  await expect(page.getByRole('button', { name: 'Bütün raund nəticələrini dərc et' })).toBeDisabled();
   await page.goto('/admin/support');
   await expect(page.getByRole('heading', { name: /dəstək sorğuları/i })).toBeVisible();
   await page.goto('/admin/audit');

@@ -28,29 +28,37 @@ export function AdminTeamDetailPage() {
 }
 
 export function AdminRosterRequestsPage() {
+  const [loadError,setLoadError]=useState(false);
   const [items, setItems] = useState<RosterChangeRequest[]>(); const [filter, setFilter] = useState('all');
-  useEffect(() => { services.rosterRequests.list().then(setItems); }, []);
+  useEffect(() => { services.rosterRequests.list().then(setItems).catch(()=>setLoadError(true)); }, []);
   const visible = useMemo(() => items?.filter((item) => filter === 'all' || item.status === filter) ?? [], [filter, items]);
+  if(loadError)return <EmptyState title="Məlumat yüklənmədi" body="Xidmət hazırda cavab vermir." action={<Button onClick={()=>window.location.reload()}>Yenidən yoxla</Button>}/>;
   return <><PageHeader eyebrow="Diqqət tələb edir" title="Heyət sorğuları" description="Gələn və gedən oyunçu, son tarix, səbəb və qərar bir yoxlama axınında." /><Tabs active={filter} onChange={setFilter} items={[{ id: 'all', label: 'Hamısı', count: items?.length ?? 0 }, { id: 'pending', label: "Gözləyir" }, { id: 'under-review', label: "Yoxla" }, { id: 'approved', label: "Təsdiqlənib" }, { id: 'rejected', label: "Rədd edilib" }]} />{!items ? <LoadingSkeleton rows={5} /> : visible.length ? <div className="request-ledger">{visible.map((item) => <Link to={`/admin/roster-requests/${item.id}`} key={item.id}><span><FileClock size={19} />{item.id}</span><div><strong>{item.teamName}</strong><small>{item.outgoing.ign} → {item.incoming.ign}</small></div><StatusBadge status={item.status === 'approved' ? 'approved' : item.status === 'rejected' ? 'rejected' : 'warning'}>{productTerm(item.status)}</StatusBadge><ArrowRight size={17} /></Link>)}</div> : <EmptyState title="Bu filtrdə sorğu yoxdur" body="Başqa status seçin və ya növbəni yeniləyin." />}</>;
 }
 
 export function AdminDisputesPage() {
+  const [loadError,setLoadError]=useState(false);
   const [items, setItems] = useState<ResultDispute[]>(); const [filter, setFilter] = useState('all');
-  useEffect(() => { services.disputes.list().then(setItems); }, []);
+  useEffect(() => { services.disputes.list().then(setItems).catch(()=>setLoadError(true)); }, []);
   const visible = items?.filter((item) => filter === 'all' || item.status === filter) ?? [];
+  if(loadError)return <EmptyState title="Məlumat yüklənmədi" body="Xidmət hazırda cavab vermir." action={<Button onClick={()=>window.location.reload()}>Yenidən yoxla</Button>}/>;
   return <><PageHeader eyebrow="Diqqət tələb edir" title="Nəticə etirazları" description="Sübut, matç, son tarix və qərar qeydi ilə nəticə etirazları." /><Tabs active={filter} onChange={setFilter} items={[{ id: 'all', label: 'Hamısı', count: items?.length ?? 0 }, { id: 'pending', label: "Gözləyir" }, { id: 'under-review', label: "Yoxla" }, { id: 'resolved', label: "Həll edilib" }, { id: 'rejected', label: "Rədd edilib" }]} />{!items ? <LoadingSkeleton rows={5} /> : visible.length ? <div className="request-ledger">{visible.map((item) => <Link to={`/admin/disputes/${item.id}`} key={item.id}><span><ClipboardList size={19} />{item.id}</span><div><strong>{item.teamName} · {item.tournamentName}</strong><small>{item.roundLabel} · {item.issueType}</small></div><StatusBadge status={item.status === 'resolved' ? 'approved' : item.status === 'rejected' ? 'rejected' : 'warning'}>{productTerm(item.status)}</StatusBadge><ArrowRight size={17} /></Link>)}</div> : <EmptyState title="Bu filtrdə etiraz yoxdur" body="Başqa status seçin və ya növbəni yeniləyin." />}</>;
 }
 
 export function AdminAuditPage() {
+  const [loadError,setLoadError]=useState(false);
   const [events, setEvents] = useState<AdminAuditEvent[]>(); const [query, setQuery] = useState(''); const [action, setAction] = useState('all');
-  useEffect(() => { services.operations.audit().then(setEvents); }, []);
+  useEffect(() => { services.operations.audit().then(setEvents).catch(()=>setLoadError(true)); }, []);
   const visible = useMemo(() => events?.filter((event) => (action === 'all' || event.action === action) && (!query || `${event.actorName} ${event.entityType} ${event.entityId}`.toLowerCase().includes(query.toLowerCase()))) ?? [], [action, events, query]);
   const actions = [...new Set(events?.map((event) => event.action) ?? [])];
+  if(loadError)return <EmptyState title="Məlumat yüklənmədi" body="Xidmət hazırda cavab vermir." action={<Button onClick={()=>window.location.reload()}>Yenidən yoxla</Button>}/>;
   return <><PageHeader eyebrow="Dəyişdirilməyən sistem tarixçəsi" title="Audit jurnalı" description="Qərar, rol və həssas məlumat girişləri dəyişdirilə bilməyən hadisə kimi saxlanmalıdır." /><div className="admin-toolbar"><div className="search-field"><Search size={17} /><input aria-label="Audit axtar" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Admin, obyekt və ya ID" /></div><Select label="Əməliyyat" value={action} onChange={(event) => setAction(event.target.value)}><option value="all">Bütün action-lar</option>{actions.map((value) => <option key={value}>{value}</option>)}</Select></div>{!events ? <LoadingSkeleton rows={6} /> : visible.length ? <div className="audit-ledger">{visible.map((event) => <article key={event.id}><span><ShieldCheck size={18} />{event.action}</span><div><strong>{event.actorName}</strong><small>{event.actorRole} · {event.entityType}:{event.entityId}</small></div><time>{new Date(event.createdAt).toLocaleString('az-AZ')}</time><code>{Object.entries(event.metadata).map(([key, value]) => `${key}=${String(value)}`).join(' · ')}</code></article>)}</div> : <EmptyState title="Audit hadisəsi tapılmadı" body="Axtarış və filtr dəyərlərini dəyişin." />}</>;
 }
 
 export function AdminUsersPage() {
+  const [loadError,setLoadError]=useState(false);
   const [users, setUsers] = useState<AdminUser[]>();
-  useEffect(() => { services.operations.adminUsers().then(setUsers); }, []);
+  useEffect(() => { services.operations.adminUsers().then(setUsers).catch(()=>setLoadError(true)); }, []);
+  if(loadError)return <EmptyState title="Məlumat yüklənmədi" body="Xidmət hazırda cavab vermir." action={<Button onClick={()=>window.location.reload()}>Yenidən yoxla</Button>}/>;
   return <><PageHeader eyebrow="Rollar və icazələr" title="Admin istifadəçiləri" description="Rolun interfeysdə göstərilməsi icazə vermir; bütün icazələri server yoxlamalıdır." actions={<Button disabled>Admin dəvət et</Button>} />{!users ? <LoadingSkeleton rows={5} /> : <div className="admin-user-list">{users.map((user) => <article key={user.id}><span><UserCog size={21} /></span><div><strong>{user.name}</strong><small>{user.email}</small></div><StatusBadge status={user.status === 'active' ? 'approved' : 'pending'}>{productTerm(user.status)}</StatusBadge><div><b>{user.role}</b><small>{user.twoFactorEnabled ? '2FA aktivdir' : '2FA tələb olunur'}</small></div><Button variant="ghost" disabled><KeyRound size={17} />İcazələr</Button></article>)}</div>}<section className="rbac-note"><Users size={21} /><div><strong>Rol cədvəli server icazələrini müəyyən edir</strong><p>Super Admin, Tournament Manager, Result Operator və Support Moderator rollarının hər xidmət üçün ayrıca icazələri olmalıdır.</p></div></section></>;
 }

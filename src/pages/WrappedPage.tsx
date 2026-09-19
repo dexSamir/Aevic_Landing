@@ -118,9 +118,9 @@ export function WrappedPage() {
   useEffect(() => { if (!showNavigationHint) return; const timer = window.setTimeout(() => setShowNavigationHint(false), 4500); return () => window.clearTimeout(timer); }, [showNavigationHint]);
 
   if (query.loading) return <main className="wrapped-shell"><div className="wrapped-loading"><LoadingSkeleton rows={6} /></div></main>;
-  if (query.error) return <main className="wrapped-shell"><EmptyState title="Wrapped yüklənmədi" body="Public nəticə servisi hazırda cavab vermir." action={<Button onClick={query.refetch}>Yenidən cəhd et</Button>} /></main>;
-  if (!summary) return <main className="wrapped-shell"><EmptyState title="Komanda tapılmadı" body="Bu public komanda üçün Wrapped mövcud deyil." /></main>;
-  if (!summary.available) return <main className="wrapped-shell"><Seo title={`${summary.entity.name} — AEVIC Wrapped ${summary.period.label}`} /><EmptyState icon={<Swords size={28} />} title="Bu dövr üçün kifayət qədər rəsmi nəticə yoxdur" body={`Wrapped üçün ən azı ${summary.minimumMatches} dərc edilmiş matç tələb olunur. Hazırda ${summary.matches} matç mövcuddur.`} action={<Link className="button button--secondary" to={`/teams/${teamSlug}`}><span>Komanda profilinə qayıt</span></Link>} /></main>;
+  if (query.error) return <main className="wrapped-shell"><EmptyState heading="h1" title="Wrapped yüklənmədi" body="Public nəticə servisi hazırda cavab vermir." action={<Button onClick={query.refetch}>Yenidən cəhd et</Button>} /></main>;
+  if (!summary) return <main className="wrapped-shell"><EmptyState heading="h1" title="Komanda tapılmadı" body="Bu public komanda üçün Wrapped mövcud deyil." /></main>;
+  if (!summary.available) return <main className="wrapped-shell"><Seo title={`${summary.entity.name} — AEVIC Wrapped ${summary.period.label}`} /><EmptyState heading="h1" icon={<Swords size={28} />} title="Bu dövr üçün kifayət qədər rəsmi nəticə yoxdur" body={`Wrapped üçün ən azı ${summary.minimumMatches} dərc edilmiş matç tələb olunur. Hazırda ${summary.matches} matç mövcuddur.`} action={<Link className="button button--secondary" to={`/teams/${teamSlug}`}><span>Komanda profilinə qayıt</span></Link>} /></main>;
   const story = stories[index];
   const pointerUp = (event: ReactPointerEvent<HTMLElement>) => {
     setHolding(false);

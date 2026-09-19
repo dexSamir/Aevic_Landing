@@ -18,7 +18,7 @@ describe('UXScan remediation contracts', () => {
     const capabilities = createServiceCapabilities('api');
     const homePage = readFileSync('src/pages/HomePage.tsx', 'utf8');
     const layouts = readFileSync('src/layouts/layouts.tsx', 'utf8');
-    expect(capabilities).toMatchObject({ publicSession: false, publicPlayers: false, publicRecords: false, login: false, register: false, teamWorkspace: false, adminWorkspace: false });
+    expect(capabilities).toMatchObject({ publicSession: true, publicPlayers: false, publicRecords: true, login: true, register: true, teamWorkspace: true, adminWorkspace: true });
     expect(layouts).toContain('if (!serviceCapabilities.publicSession)');
     expect(homePage).not.toContain('services.players.list(');
     expect(homePage).toContain('if (!serviceCapabilities.publicRecords)');

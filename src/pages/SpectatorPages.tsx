@@ -64,7 +64,7 @@ export function MatchCenterPage() {
   const [history, setHistory] = useState<MatchHistoryEntry[]>([]);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [details, setDetails] = useState<Record<string, PublicMatchDetail>>({});
-  const [loading, setLoading] = useState(serviceCapabilities.publicMatches);
+  const [loading, setLoading] = useState<boolean>(serviceCapabilities.publicMatches);
   const [failed, setFailed] = useState(false);
   const [detailsFailed, setDetailsFailed] = useState(false);
   const [guest, setGuest] = useState(!serviceCapabilities.publicSession);

@@ -957,6 +957,7 @@ export interface ResultDispute {
   issueType: 'placement' | 'kills' | 'penalty' | 'missing-result' | 'other';
   description: string;
   evidenceNames: string[];
+  evidenceIds?: string[];
   status: DisputeStatus;
   submittedAt: ISODate;
   deadlineAt: ISODate;
@@ -1130,4 +1131,8 @@ export interface AccountExportJob {
 export interface NotificationPreferences {
   channels: Record<NotificationChannel, boolean>;
   events: Record<string, boolean>;
+}
+
+export interface TournamentCreation {
+ name:string;shortName:string;description:string;startsAt:ISODate;endsAt:ISODate;registrationOpensAt:ISODate;registrationDeadline:ISODate;checkInOpensAt:ISODate;checkInClosesAt:ISODate;maxSlots:number;rules:string[];rounds:Array<{map:'Erangel'|'Miramar'|'Rondo';startsAt:ISODate}>;
 }

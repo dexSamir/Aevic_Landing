@@ -150,7 +150,7 @@ test('Team mobile navigation and the overview confirmation dialog are keyboard s
   await expect(page).toHaveURL(/\/team\/tournaments$/);
 
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/team?scenario=check-in-open');
+  await page.goto('/team/tournaments/daily-cup-24?scenario=check-in-open');
   const checkIn = page.getByRole('button', { name: 'Check-in et' });
   await checkIn.focus();
   await checkIn.press('Enter');
@@ -160,7 +160,7 @@ test('Team mobile navigation and the overview confirmation dialog are keyboard s
   await expect(dialog).toBeHidden();
 });
 
-test('Home map is informational and team disclosure works with focus, hover, and one-at-a-time taps', async ({ page }, testInfo) => {
+test('Home map is informational and public team cards support keyboard and touch navigation', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chrome', 'The interaction matrix runs once with explicit viewport sizes.');
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
@@ -168,33 +168,24 @@ test('Home map is informational and team disclosure works with focus, hover, and
   await program.scrollIntoViewIfNeeded();
   await expect(program.locator(':scope > ol > li')).toHaveCount(4);
   await expect(program.locator('a, button')).toHaveCount(0);
-  expect(await program.evaluate((element) => getComputedStyle(element).cursor)).toBe('default');
-
-  const teams = page.locator('.home-team-stage');
-  await teams.scrollIntoViewIfNeeded();
-  const teamButtons = teams.getByRole('button');
-  await expect(teamButtons).toHaveCount(5);
-  await expect(teamButtons.first()).toHaveAttribute('aria-describedby', /home-team-roster-/);
-  await expect(teamButtons.first()).not.toHaveAttribute('aria-expanded');
-  await teamButtons.first().focus();
-  await expect(teams.locator('.team-roster-reveal--names').first()).toHaveCSS('opacity', '1');
-  await expect(teams.locator('.team-roster-reveal--names').first()).toContainText('Vega');
-  const publicCopy = await teams.locator('.team-roster-reveal--names').first().innerText();
-  expect(publicCopy).not.toMatch(/email|telefon|ölkə|country/i);
-  await teamButtons.nth(1).hover();
-  await expect(teams.locator('.team-roster-reveal--names').nth(1)).toHaveCSS('opacity', '1');
-
+  expect(await program.evaluate(element => getComputedStyle(element).cursor)).toBe('default');
+  const cards = page.locator('.home-team-stage').getByRole('link');
+  await expect(cards).toHaveCount(6);
+  const href = await cards.first().getAttribute('href');
+  expect(href).toMatch(/^\/teams\/[^/]+$/);
+  await cards.first().focus();
+  await expect(cards.first()).toBeFocused();
+  await cards.first().press('Enter');
+  await expect(page).toHaveURL(new RegExp(href + '$'));
+  await expect(page.locator('h1')).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  const mobileButtons = page.locator('.home-team-stage').getByRole('button');
-  await mobileButtons.nth(1).click();
-  await expect(mobileButtons.nth(1)).toHaveAttribute('aria-pressed', 'true');
-  await mobileButtons.first().click();
-  await expect(mobileButtons.first()).toHaveAttribute('aria-pressed', 'true');
-  await expect(mobileButtons.nth(1)).toHaveAttribute('aria-pressed', 'false');
+  await page.getByRole('button', { name: 'Növbəti komandalar' }).click();
+  await cards.nth(1).click();
+  await expect(page).toHaveURL(/\/teams\/[^/]+$/);
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
-  await expect(mobileButtons.first()).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  await expect(page.locator('h1')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
 });
 
 test('public reveals are observer-driven and become static under reduced motion', async ({ page }, testInfo) => {
@@ -203,7 +194,7 @@ test('public reveals are observer-driven and become static under reduced motion'
   await page.goto('/');
   await expect(page.locator('.motion-page--editorial')).toHaveClass(/public-reveal-ready/);
   await page.locator('.home-rotation').scrollIntoViewIfNeeded();
-  await expect(page.locator('.home-rotation')).toHaveClass(/is-revealed/);
+  await expect(page.locator('.home-rotation [data-reveal]').first()).toHaveClass(/is-revealed/);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.reload();
   const states = await page.locator('[data-reveal]').evaluateAll((items) => items.map((item) => {
@@ -219,15 +210,15 @@ test('captain overview answers now, next, changed, and readiness without legacy 
   for (const viewport of teamPanelViewports) {
     await page.setViewportSize(viewport);
     await page.goto('/team');
-    await expect(page.locator('.team-now')).toBeVisible();
-    await expect(page.locator('.team-now__quickline')).toContainText('SONRA');
-    await expect(page.locator('.team-now__quickline')).toContainText('DƏYİŞƏN');
-    await expect(page.locator('.team-competition-anchor')).toBeVisible();
-    await expect(page.locator('.team-readiness-ledger')).toBeVisible();
+    await expect(page.locator('.overview-next-action')).toBeVisible();
+    await expect(page.locator('.overview-status--match')).toContainText('NÖVBƏTİ MATÇ');
+    await expect(page.locator('.overview-status--update')).toContainText('SON VACİB YENİLİK');
+    await expect(page.locator('.overview-current-tournament')).toBeVisible();
+    await expect(page.locator('.overview-competition-ready')).toBeVisible();
     await expect(page.locator('.team-command-center, .team-dashboard-readiness')).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), `${viewport.width}×${viewport.height}`).toBeLessThanOrEqual(1);
     if (viewport.width <= 430) {
-      const quickline = await page.locator('.team-now__quickline').boundingBox();
+      const quickline = await page.locator('.overview-next-action').boundingBox();
       expect(quickline?.y).toBeLessThan(viewport.height);
     }
   }
@@ -373,15 +364,15 @@ test('public navbar groups navigation beside the logo and keeps utilities separa
     expect(geometry.capsuleHeight).toBe(56);
     expect(geometry.headerHeight).toBeGreaterThanOrEqual(geometry.logoWidth);
     expect(['flex', 'inline-flex']).toContain(geometry.capsuleDisplay);
-    expect(geometry.capsuleGap).toBe(7);
-    expect(geometry.capsulePadding).toEqual([6, 8]);
+    expect(geometry.capsuleGap).toBe(4);
+    expect(geometry.capsulePadding).toEqual([6, 6]);
     expect(geometry.capsuleRadius).toBeLessThanOrEqual(20);
-    expect(geometry.capsuleBorder).toBe(0);
-    expect(geometry.linkPadding[0]).toBeGreaterThanOrEqual(12);
+    expect(geometry.capsuleBorder).toBe(1);
+    expect(geometry.linkPadding[0]).toBeCloseTo(11.2);
     expect(geometry.linkPadding[1]).toBeGreaterThanOrEqual(10);
-    expect(geometry.linkFontSize).toBe(15);
+    expect(geometry.linkFontSize).toBe(14);
     expect(geometry.logoWidth).toBe(72);
-    expect(geometry.linkRadius).toBe(15);
+    expect(geometry.linkRadius).toBe(8);
     expect(geometry.linkBorder).toBe(0);
     expect(geometry.activeBorder).toBe(0);
     expect(geometry.headerBackground).toBe('rgba(0, 0, 0, 0)');
@@ -493,16 +484,16 @@ test('register reflows at 200% and calendar day targets stay at least 44px at 10
   await expect(activeStep).toContainText('Komanda');
 
   await page.goto('/team');
-  await expect(page.locator('.team-now')).toBeVisible();
-  await expect(page.locator('.team-change-ledger')).toBeVisible();
-  await expect(page.locator('.team-readiness-ledger')).toBeVisible();
+  await expect(page.locator('.overview-next-action')).toBeVisible();
+  await expect(page.locator('.overview-updates')).toBeVisible();
+  await expect(page.locator('.overview-competition-ready')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
 
   await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.goto('/tournaments');
-  await expect(page.locator('.tournament-calendar__strip button').first()).toBeVisible();
-  const dayTargets = await page.locator('.tournament-calendar__strip button').evaluateAll((items) => items.map((item) => item.getBoundingClientRect().height));
+  await expect(page.locator('.tournament-calendar button[data-calendar-date]:visible').first()).toBeVisible();
+  const dayTargets = await page.locator('.tournament-calendar button[data-calendar-date]:visible').evaluateAll((items) => items.map((item) => item.getBoundingClientRect().height));
   expect(dayTargets.length).toBeGreaterThan(0);
   expect(Math.min(...dayTargets)).toBeGreaterThanOrEqual(44);
 });

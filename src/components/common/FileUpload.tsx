@@ -13,9 +13,10 @@ export interface FileUploadProps {
   preview?: 'filename' | 'image' | 'none';
   errorMessage?: (error: string) => string;
   onFile?: (file: File) => void;
+  disabled?: boolean;
 }
 
-export function FileUpload({ label, hint, description, accept = IMAGE_UPLOAD_TYPES, maxBytes = 4 * 1024 * 1024, validators = [], preview = 'filename', errorMessage, onFile }: FileUploadProps) {
+export function FileUpload({ label, hint, description, accept = IMAGE_UPLOAD_TYPES, maxBytes = 4 * 1024 * 1024, validators = [], preview = 'filename', errorMessage, onFile, disabled = false }: FileUploadProps) {
   const id = useId();
   const revision = useRef(0);
   const [fileName, setFileName] = useState('');
@@ -25,7 +26,7 @@ export function FileUpload({ label, hint, description, accept = IMAGE_UPLOAD_TYP
   useEffect(() => () => { revision.current += 1; }, []);
   useEffect(() => () => { if (image) URL.revokeObjectURL(image); }, [image]);
   return <div><label className="file-upload" htmlFor={id}>
-    <input id={id} type="file" accept={accept.join(',')} aria-label={label} aria-describedby={id + '-description'} aria-invalid={Boolean(error)} aria-busy={pending} onChange={async (event) => {
+    <input id={id} type="file" disabled={disabled || pending} accept={accept.join(',')} aria-label={label} aria-describedby={id + '-description'} aria-invalid={Boolean(error)} aria-busy={pending} onChange={async (event) => {
       const files = Array.from(event.currentTarget.files ?? []);
       event.currentTarget.value = '';
       if (!files.length) return;

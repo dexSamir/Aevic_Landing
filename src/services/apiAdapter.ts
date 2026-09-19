@@ -8,7 +8,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
   const root = baseUrl.replace(/\/$/, '');
   const request = async <T,>(path: string, options: RequestOptions = {}): Promise<T> => {
     const { nullStatuses = [], body, ...fetchOptions } = options;
-    const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+    const csrfToken = typeof document === 'undefined' ? undefined : document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
     return requestJson<T>(`${root}${path}`, {
       ...fetchOptions, credentials: 'include',
       headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}), ...(csrfToken && fetchOptions.method && fetchOptions.method !== 'GET' ? { 'X-CSRF-Token': csrfToken } : {}), ...options.headers },
@@ -33,9 +33,9 @@ export function createApiServices(baseUrl: string): PlatformServices {
       login: (email, password, remember = false) => request('/auth/login', { method: 'POST', body: { email, password, remember } }),
       logout: () => request('/auth/logout', { method: 'POST' }),
       requestPasswordReset: (email) => request('/auth/password-reset', { method: 'POST', body: { email } }),
-      inspectPasswordReset: (token) => request(`/auth/password-reset/inspect${query({ token })}`),
+      inspectPasswordReset: (token) => request('/auth/password-reset/inspect', { method: 'POST', body: { token } }),
       resetPassword: (token, password) => request('/auth/password-reset/confirm', { method: 'POST', body: { token, password } }),
-      inspectEmailVerification: (token) => request(`/auth/email-verification/inspect${query({ token })}`),
+      inspectEmailVerification: (token) => request('/auth/email-verification/inspect', { method: 'POST', body: { token } }),
       verifyEmail: (token) => request('/auth/email-verification/confirm', { method: 'POST', body: { token } }),
       resendVerification: (email) => request('/auth/email-verification/resend', { method: 'POST', body: { email } }),
     },
@@ -62,6 +62,11 @@ export function createApiServices(baseUrl: string): PlatformServices {
       submit: (body) => request('/registrations', { method: 'POST', headers: { 'Idempotency-Key': body.idempotencyKey }, body }),
     },
     tournaments: {
+      create: (body,idempotencyKey) => request('/admin/tournaments',{method:'POST',body,headers:{'Idempotency-Key':idempotencyKey}}),
+      entries: id => request(`/admin/tournaments/${encodeURIComponent(id)}/entries`),
+      reviewEntry: (tournamentId,teamId,status) => request(`/admin/tournaments/${encodeURIComponent(tournamentId)}/entries/${encodeURIComponent(teamId)}`,{method:'PATCH',body:{status}}),
+      publishMatch: id => request(`/admin/matches/${encodeURIComponent(id)}/publication`,{method:'POST'}),
+      saveRoom: (id,roomId,password) => request(`/admin/matches/${encodeURIComponent(id)}/room`,{method:'PUT',body:{roomId,password}}),
       list: () => request('/tournaments'),
       get: (id) => request(`/tournaments/${encodeURIComponent(id)}`, { nullStatuses: [404] }),
       join: (tournamentId, teamId) => request(`/tournaments/${encodeURIComponent(tournamentId)}/entries`, { method: 'POST', body: { teamId } }),
@@ -75,6 +80,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
     },
     teams: {
       current: () => request('/me/team'),
+      updateProfile: (teamId, body) => request(`/teams/${encodeURIComponent(teamId)}`, { method: 'PATCH', body }),
       list: () => request('/teams'),
       setApproval: (teamId, status, reason) => request(`/admin/teams/${encodeURIComponent(teamId)}/approval`, { method: 'PATCH', body: { status, reason } }),
       checkIn: (tournamentId) => request(`/tournaments/${encodeURIComponent(tournamentId)}/check-in`, { method: 'POST' }),
@@ -151,10 +157,21 @@ export function createApiServices(baseUrl: string): PlatformServices {
     },
     media: {
       validateBrandAsset: (body) => request('/media/validate', { method: 'POST', body }),
-      uploadBrandAsset: (body) => request('/media/uploads', { method: 'POST', body }),
+      uploadBrandAsset: async (metadata, file) => {
+        if (!file) throw new Error('An image file is required.');
+        const form = new FormData(); form.set('file', file); form.set('ownerId', metadata.ownerId); form.set('assetType', metadata.assetType);
+        return requestJson(`${root}/media/uploads`, { method: 'POST', credentials: 'include', body: form }, [], 30_000);
+      },
+      deleteBrandAsset: (teamId, kind) => request(`/media/teams/${encodeURIComponent(teamId)}/${kind}`, { method: 'DELETE' }),
+      uploadEvidence: async (teamId, file) => {
+        const form = new FormData(); form.set('file', file); form.set('ownerId', teamId); form.set('assetType', 'evidence');
+        return requestJson(`${root}/media/uploads`, { method: 'POST', credentials: 'include', body: form }, [], 30_000);
+      },
+      evidenceAccess: (id) => request(`/media/${encodeURIComponent(id)}/access`),
     },
     rooms: { getForEligibleTeam: (tournamentId, roundId) => request(`/team/tournaments/${encodeURIComponent(tournamentId)}/rounds/${encodeURIComponent(roundId)}/room`) },
     results: {
+      roundEntries: (roundId) => request(`/admin/results?roundId=${encodeURIComponent(roundId)}`),
       leaderboard: (tournamentId) => request(`/leaderboards/${encodeURIComponent(tournamentId)}`),
       snapshots: (tournamentId) => request(`/leaderboards/${encodeURIComponent(tournamentId)}/snapshots`),
       movement: (tournamentId) => request(`/leaderboards/${encodeURIComponent(tournamentId)}/movement`),
@@ -169,7 +186,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       updatePreferences: (body) => request('/me/notification-preferences', { method: 'PUT', body }),
       markRead: (id) => request(`/me/notifications/${encodeURIComponent(id)}/read`, { method: 'PUT' }),
       markAllRead: () => request('/me/notifications/read-all', { method: 'PUT' }),
-      page: (cursor) => request(`/me/notifications${query({ cursor })}`),
+      page: (cursor) => request(`/me/notifications${query({ cursor, page: 'true' })}`),
     },
     rosterRequests: {
       list: (teamId) => request(`/roster-requests${query({ teamId })}`),
@@ -187,7 +204,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       listTickets: () => request('/me/support/tickets'),
       getTicket: (id) => request(`/me/support/tickets/${encodeURIComponent(id)}`, { nullStatuses: [404] }),
       createTicket: (body) => request('/me/support/tickets', { method: 'POST', body }),
-      page: (cursor, status) => request(`/me/support/tickets${query({ cursor, status })}`),
+      page: (cursor, status) => request(`/me/support/tickets${query({ cursor, status, page: 'true' })}`),
       reply: (ticketId, body) => request(`/me/support/tickets/${encodeURIComponent(ticketId)}/messages`, { method: 'POST', body }),
       changeStatus: (ticketId, status, reason) => request(`/admin/support/tickets/${encodeURIComponent(ticketId)}/status`, { method: 'PATCH', body: { status, reason } }),
       adminPage: (cursor, status) => request(`/admin/support/tickets${query({ cursor, status })}`),

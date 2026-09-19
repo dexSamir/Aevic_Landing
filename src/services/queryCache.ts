@@ -36,7 +36,7 @@ export function synchronizeSessionCache(identity: string | null) {
 export function invalidateQuery(prefix: string) {
   for (const key of new Set([...cache.keys(), ...inFlight.keys()])) {
     if (!key.slice(key.indexOf(':') + 1).startsWith(prefix)) continue;
-    cache.delete(key);
+    const stale = cache.get(key); if (stale) cache.set(key, { ...stale, updatedAt: 0 });
     inFlight.get(key)?.controller.abort(); inFlight.delete(key);
     keyVersions.set(key, (keyVersions.get(key) ?? 0) + 1);
   }
@@ -81,7 +81,8 @@ export function usePlatformQuery<T>(options: {
     if (!enabled || !refetchOnFocus) return;
     const onFocus = () => { const entry = cache.get(cacheKey); if (!entry || Date.now() - entry.updatedAt >= staleTime) refetch(); };
     window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
+    window.addEventListener('online', onFocus);
+    return () => { window.removeEventListener('focus', onFocus); window.removeEventListener('online', onFocus); };
   }, [enabled, cacheKey, refetch, refetchOnFocus, staleTime]);
 
   useEffect(() => {
@@ -89,7 +90,7 @@ export function usePlatformQuery<T>(options: {
     const entry = cache.get(cacheKey) as CacheEntry<T> | undefined;
     if (entry && Date.now() - entry.updatedAt < staleTime) { setState({ key: stateKey, data: entry.data, loading: false }); return; }
     let active = true;
-    setState({ key: stateKey, loading: true });
+    setState({ key: stateKey, data: entry?.data, loading: true });
     let pending = inFlight.get(cacheKey) as InFlightEntry<T> | undefined;
     if (!pending || pending.controller.signal.aborted) {
       const controller = new AbortController();
@@ -105,7 +106,7 @@ export function usePlatformQuery<T>(options: {
       if (!isCurrent()) return;
       cache.set(cacheKey, { data, updatedAt: Date.now() });
       setState({ key: stateKey, data, loading: false });
-    }).catch((error) => { if (isCurrent()) setState({ key: stateKey, error: safeQueryError(error), loading: false }); });
+    }).catch((error) => { if (isCurrent()) setState({ key: stateKey, data: entry?.data, error: safeQueryError(error), loading: false }); });
     return () => {
       active = false; owned.observers -= 1;
       if (owned.observers <= 0 && inFlight.get(cacheKey) === owned) { owned.controller.abort(); inFlight.delete(cacheKey); }

@@ -30,7 +30,7 @@ test('identity preview is local, social saving uses the service, and settings pe
   await page.goto('/team/profile');
   await page.getByLabel('Komanda adı', { exact: true }).fill('Preview Wolves');
   await expect(page.getByRole('heading', { name: 'Preview Wolves' })).toBeVisible();
-  await expect(page.getByText('Kimlik dəyişiklikləri dərc edilməyib')).toBeVisible();
+  await expect(page.getByText('Saxlanılmamış önbaxış')).toBeVisible();
   await page.getByRole('textbox', { name: /Instagram/ }).fill('https://instagram.com/aevic');
   await page.getByRole('button', { name: 'Sosial linkləri saxla' }).click();
   await expect(page.getByText('Sosial linklər nümunə sessiyasında saxlanıldı.')).toBeVisible();

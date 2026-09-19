@@ -69,7 +69,7 @@ export const mockServices: PlatformServices = {
   snapshots: {
     async public() { await wait(40); return clone({ tournaments, teams: publicTeamSummaries(), organizations, leaderboard, leaderboardTeams, playerPerformances, teamComparisonRecords, teamAchievements }); },
     async team() { await wait(40); return clone(teamSnapshotScenario()); },
-    async admin() { await wait(40); return clone({ currentTeam, tournaments, teams, slots, adminMessages, blacklist, organizations, teamAchievements }); },
+    async admin() { await wait(40); return clone({ currentTeam, tournaments, teams, matchSchedule, slots, adminMessages, blacklist, organizations, teamAchievements }); },
   },
   auth: {
     async getSession() {
@@ -134,6 +134,11 @@ export const mockServices: PlatformServices = {
     },
   },
   tournaments: {
+    create: async () => {throw new Error('Tournament creation requires API mode');},
+    entries: async () => [],
+    reviewEntry: async () => {throw new Error('Registration review requires API mode');},
+    publishMatch: async () => {throw new Error('Result publishing requires API mode');},
+    saveRoom: async () => {throw new Error('Room management requires API mode');},
     async list() { await wait(60); return clone(tournaments); },
     async get(id) { await wait(60); return clone(tournaments.find((item) => item.id === id)); },
     async join(tournamentId, teamId) {
@@ -179,6 +184,10 @@ export const mockServices: PlatformServices = {
     async missedCheckIns() { await wait(40); return { items: [], hasMore: false, total: 0 }; },
   },
   teams: {
+    updateProfile: async (teamId, profile) => {
+      const team = teams.find(team => team.id === teamId) ?? (currentTeam.id === teamId ? currentTeam : undefined);
+      if (!team) throw new Error('Team not found'); Object.assign(team, profile); return clone(team);
+    },
     async current() { await wait(50); return clone(currentTeam); },
     async list() { await wait(80); return clone(teams); },
     async setApproval(teamId, status, reason) {
@@ -398,6 +407,9 @@ export const mockServices: PlatformServices = {
     async history() { await wait(50); return []; },
   },
   media: {
+    deleteBrandAsset: async () => undefined,
+    uploadEvidence: async (_teamId, file) => ({ id: `mock-evidence-${Date.now()}`, fileName: file.name }),
+    evidenceAccess: async () => { throw new Error('Evidence download requires API mode.'); },
     async validateBrandAsset(request) {
       await wait(40);
       return validateBrandAssetRequest(request);
@@ -412,6 +424,7 @@ export const mockServices: PlatformServices = {
     async getForEligibleTeam() { await wait(80); return clone(new URLSearchParams(window.location.search).get('scenario') === 'room-ready' ? releasedSyntheticRoom : syntheticRoom); },
   },
   results: {
+    async roundEntries() { return []; },
     async leaderboard(tournamentId) { await wait(70); return clone(leaderboard.filter((result) => result.tournamentId === tournamentId)); },
     async snapshots() { await wait(40); return []; },
     async movement() { await wait(40); return []; },

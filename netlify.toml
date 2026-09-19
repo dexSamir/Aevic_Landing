@@ -3,21 +3,16 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
 
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-
-[[redirects]]
-  from = "/api/public/context"
-  to = "/.netlify/functions/public-context"
-  status = 200
-  force = true
+external_node_modules = ["sharp"]
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api-not-found"
+  to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
@@ -40,3 +35,9 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+[dev]
+  command = "npm run dev"
+  targetPort = 5173
+  port = 8888
+  framework = "vite"

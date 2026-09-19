@@ -1,4 +1,4 @@
-# AEVIC Frontend Architecture
+# AEVIC Platform Architecture
 
 ## Layers
 
@@ -14,11 +14,11 @@
 
 ## Service Boundary
 
-`PlatformServices` groups auth, registration, tournaments, teams, achievements, organizations, public profiles, public matches, media, rooms, results, notifications, and admin contracts. The app currently selects `mockServices`; a production adapter can replace it without rewriting pages. Mock data is fictional and never contains real credentials.
+`PlatformServices` groups auth, registration, tournaments, teams, achievements, organizations, public profiles, public matches, media, rooms, results, notifications, and admin contracts. Production selects `apiAdapter`, which calls Hono on Netlify Functions. Explicit local mock mode selects `mockServices`; production errors never substitute fixtures. Mock data is fictional and never contains real credentials.
 
-`RegistrationService` defines the frontend boundary for team-name availability, active-tournament PUBG ID eligibility, known-player lookup, and idempotent team submission. A production adapter should map this to authoritative endpoints such as `GET /team-name-availability`, `GET /tournaments/:id/player-eligibility/:pubgId`, `GET /players/by-pubg-id/:pubgId`, and `POST /team-registrations`. Submission must accept an idempotency key, hash the password server-side, revalidate every name/player invariant, enforce rate limits, and return a durable registration status. The browser autosave intentionally excludes passwords.
+`RegistrationService` covers team-name availability, roster validation and signup. The adapter sends registration through Supabase Auth via the function; Auth owns password hashing and email confirmation. The signup database trigger atomically provisions the profile, pending team, owner membership and five-player roster. Database uniqueness and roster constraints remain authoritative. Public lookup responses do not disclose private PUBG identities. Browser draft autosave excludes passwords.
 
-`OrganizationService` owns organization discovery, team linking, unlinking, and organization social updates. `PublicProfileService` resolves team profiles without exposing protected team-panel state. `MediaService` validates and uploads team/organization identity media. `AchievementService` enforces the three-item featured badge limit and rejects locked badges.
+`OrganizationService` owns organization discovery, team linking, unlinking, and organization social updates. `PublicProfileService` resolves team profiles without exposing protected team-panel state. `MediaService` validates and uploads supported team identity media; organization binary uploads are unavailable. `AchievementService` enforces the three-item featured badge limit and rejects locked badges.
 
 ### Public discovery API contract
 
@@ -28,14 +28,14 @@
 - `GET /teams/:id/seasons` → `TeamSeasonSummary[]`; `GET /teams/:id/map-performance` → `TeamMapPerformance[]`. The mock returns empty arrays until authoritative data exists.
 - `GET /tournaments/:id/participants` → confirmed `TournamentParticipant[]` only: a public team summary, public IGN/role roster projection, and `registrationStatus: confirmed`. The UI never substitutes the public team directory when this endpoint is empty or unavailable.
 - `GET /matches?status=upcoming|live|completed` maps to `PublicMatchService.schedule/history`. Live delivery should use an authenticated publishing pipeline plus SSE/WebSocket invalidation, not client-generated state.
-- `GET /teams/:id/follow`, `POST /teams/:id/follow`, and `DELETE /teams/:id/follow` map to optional generic `FollowService`. Because the current adapter has no account-backed persistence, the public control is visibly disabled instead of storing a false preference in local storage.
+- `GET /teams/:id/follow`, `POST /teams/:id/follow`, and `DELETE /teams/:id/follow` map to optional generic `FollowService`. Follow preferences use authenticated database persistence; no local storage fallback claims a successful account write.
 
 ### Competition intelligence and archive contracts
 
 - `GET /teams/:id/form` returns up to the ten newest published official matches in descending chronological order. The UI derives WWCD and placement bands without inventing win/loss semantics.
 - `GET /teams/:id/map-specialization` returns per-map sample counts and averages. Until an official composite score exists, `Best Map` means the eligible map with the highest average published points; the deterministic minimum is three matches.
 - `GET /leaderboards/:id/snapshots` and `GET /leaderboards/:id/movement` must compare the current table only with the immediately previous published snapshot. The mock returns no movement, so movement is hidden.
-- `GET /records`, `GET /records/:id`, and `GET /records/:id/history` return `RecordEntry` provenance including match, map, achieved date, and historical roster snapshot status. Current demo records are limited to the two single-match categories proven by published match history. Missing historical rosters are never substituted with the current roster.
+- `GET /records`, `GET /records/:id`, and `GET /records/:id/history` return `RecordEntry` provenance including match, map, achieved date, and historical roster snapshot status. Production records support the two single-match categories proven by official published results; explicit mock mode uses its separate published fixtures. Missing historical rosters are never substituted with the current roster.
 - `GET /tournaments/:id/recap` returns deterministic `TournamentRecapData` only for completed tournaments. Champion, final standings, MVP, and top-player awards remain absent unless authoritative results or official award calculations exist.
 - `GET /tournaments/:id/calendar` and `GET /matches/:id/calendar` return timezone-aware public `CalendarEventData`. Calendar exports exclude room credentials and private participant data.
 - `POST /follows`, `DELETE /follows/:entityType/:entityId`, and `GET /me/follows` use generic `TEAM | PLAYER` entities. `PlatformServices.follows` is optional; no localStorage fallback presents itself as account persistence.
@@ -50,7 +50,7 @@ Client route guards improve navigation but do not authorize access. Production s
 
 ## State Strategy
 
-Route data is read from service adapters. Local component state owns transient UI such as form steps, selections, dialogs, tabs, draft values, and mock success feedback. Durable server state must move to a query/cache layer when a real backend is connected.
+Route data is read from service adapters. Local component state owns transient UI such as form steps, selections, dialogs, tabs, draft values, and mock success feedback. The query/cache layer deduplicates reads, invalidates affected resources after acknowledged writes and clears private state when session identity changes.
 
 ## PWA
 
@@ -58,7 +58,7 @@ Route data is read from service adapters. Local component state owns transient U
 
 ## Sharecards
 
-`SharecardGenerator` renders isolated DOM templates and exports PNG via `html-to-image`. Two factual template families exist: tournament result and leaderboard standings. Both are deterministic functions of supplied, published demo results; speculative performance and MVP templates remain unavailable until those datasets have authoritative fields. Generated images contain no room credentials, prize data, or other sensitive state.
+`SharecardGenerator` renders isolated DOM templates and exports PNG via `html-to-image`. Two factual template families exist: tournament result and leaderboard standings. Both are deterministic functions of published official results (or explicit development fixtures in mock mode); speculative performance and MVP templates remain unavailable until those datasets have authoritative fields. Generated images contain no room credentials, prize data, or other sensitive state.
 
 `TeamAchievementSharecardData` is a domain-only payload for a possible future achievement sharecard. It does not create a fifth poster family or alter the supplied poster artwork.
 
@@ -66,7 +66,7 @@ Route data is read from service adapters. Local component state owns transient U
 
 `DailyTournamentCard` composes `TournamentCountdown`, `SlotProgress`, and `MapRotationPreview`. Public and team routes reuse it while passing a surface and participation state, keeping availability and actions consistent without coupling UI to page-specific copy.
 
-`AchievementMedal`, `AchievementProgress`, `AchievementGrid`, and `TeamLegacyProfile` render the team record. Achievement art is intentionally represented by faceted `ART PENDING` placeholders; those shapes are scaffolding, not final badge artwork. `FeaturedBadgeCabinet` always limits spectator display to three unlocked items. `BadgeCabinetEditor` uses `BadgeReorderList` for native pointer drag-and-drop plus explicit up/down controls that remain keyboard accessible. `BadgeCollectionDrawer` presents earned badges in a focus-managed dialog. Achievement persistence is isolated behind `AchievementService`; current values come from the fictional mock adapter.
+`AchievementMedal`, `AchievementProgress`, `AchievementGrid`, and `TeamLegacyProfile` render the team record. Achievement art is intentionally represented by faceted `ART PENDING` placeholders; those shapes are scaffolding, not final badge artwork. `FeaturedBadgeCabinet` always limits spectator display to three unlocked items. `BadgeCabinetEditor` uses `BadgeReorderList` for native pointer drag-and-drop plus explicit up/down controls that remain keyboard accessible. `BadgeCollectionDrawer` presents earned badges in a focus-managed dialog. Achievement persistence is isolated behind `AchievementService`; earned values derive from official results; featured selections persist in the backend.
 
 ## Organization and Team Identity
 
@@ -84,7 +84,7 @@ Team specialization is computed from published match history, not stored as disp
 
 Team social links are updated through `TeamService`; organization social links remain in `OrganizationService`. Neither set is inherited automatically. URLs are centralized by platform metadata, filtered to HTTP(S), rendered only when configured, and opened with `noopener noreferrer`.
 
-Banner validation accepts PNG/JPEG/WebP up to 6 MB and returns a mock preview state. Production must add object storage, signed uploads, crop coordinates, minimum-resolution enforcement, content moderation, ownership authorization, and audit logs. Frontend validation and preview are usability features, not a security boundary.
+Brand image inputs accept PNG/JPEG/WebP sources up to 6 MB. The browser preserves the logo crop workflow and processes brand images before transport, with a 4 MB file ceiling. The API independently validates bytes, dimensions and MIME, re-encodes WebP and writes to Supabase Storage under authorized random keys. Explicit deletion removes stored identity assets. Frontend validation and preview are usability features, not a security boundary.
 
 ## Official Visual Assets
 
@@ -94,56 +94,32 @@ Banner validation accepts PNG/JPEG/WebP up to 6 MB and returns a mock preview st
 
 Adapter selection is explicit: `VITE_DATA_SOURCE=mock|api`. `src/services/index.ts` is the only selection point; route components consume `PlatformServices` and do not branch on the adapter. `VITE_API_BASE_URL` configures the production root and `VITE_DEMO_MODE` controls fictional-data notices. A clean production build defaults to the API adapter; an explicit production `VITE_DATA_SOURCE=mock` fails the build. Production deployments should still set `VITE_DATA_SOURCE=api` and `VITE_DEMO_MODE=false` for unambiguous configuration.
 
-`ApiAdapter` implements every current contract with same-origin credentials and sanitized status-only errors. The newly defined production capabilities are public search, player profile, match detail, season archive, and period-bound team Wrapped. Endpoint paths in the adapter are the frontend contract proposed where no backend route existed; backend owners may map them differently behind the adapter without changing pages.
+`ApiAdapter` implements every current contract with same-origin credentials and sanitized status-only errors. Production capabilities include public search, match detail, season archive, official team records and period-bound team Wrapped. Public individual-player statistics remain gated because official per-player scoring is absent. Implemented route modules and availability gates are documented below; unsupported operations fail explicitly.
 
-`queryCache.ts` is a dependency-free first cache layer with explicit public-directory, public-competition, historical, and account stale times, request deduplication, shared cancellation, bounded retry, manual invalidation, and optional focus refetch. It is used on new server-driven routes. TanStack Query was evaluated but deferred: adding a broad migration before a production backend exists would create two server-state conventions. Replace this small cache as one unit when SSR hydration or live event orchestration is required.
+`queryCache.ts` is a dependency-free first cache layer with explicit public-directory, public-competition, historical, and account stale times, request deduplication, shared cancellation, bounded retry, manual invalidation, and optional focus refetch. It serves production data routes and receives scoped invalidation from authenticated Realtime subscriptions and read polling. Keep one cache convention if migrating to a library for future SSR needs.
 
-Public routes added by this phase are `/players/:playerSlug`, `/matches/:matchId`, `/archive`, and `/teams/:teamSlug/wrapped/:year`. Player profiles never expose PUBG IDs or contact data. Match detail never includes lobby credentials. Historical roster models require captured snapshots and must not substitute the current team. Archive is an index over canonical tournament and recap pages.
+Public routes include `/matches/:matchId`, `/archive`, and `/teams/:teamSlug/wrapped/:year`. Individual-player profile routes remain unavailable; PUBG IDs and contact data are private. Match detail never includes lobby credentials. Historical roster models require captured snapshots and must not substitute the current team. Archive is an index over canonical tournament and recap pages.
 
-AEVIC Wrapped derives from the same published `MatchHistoryEntry` source used by Career and profile surfaces. `deriveWrappedSummary` is period-bound, requires at least three matches, gates best-map claims behind three matches on the same map, and omits unsupported championships, MVP, percentiles, streaks, and records. Dedicated Canvas templates generate 1080×1080, 1080×1350, and 1080×1920 PNGs from public fields only. Production may replace client derivation with `GET /teams/:slug/wrapped?year=` while preserving `WrappedSummary`.
+AEVIC Wrapped derives from the same published `MatchHistoryEntry` source used by Career and profile surfaces. `deriveWrappedSummary` is period-bound, requires at least three matches, gates best-map claims behind three matches on the same map, and omits unsupported championships, MVP, percentiles, streaks, and records. Dedicated Canvas templates generate 1080×1080, 1080×1350, and 1080×1920 PNGs from public fields only. Production serves `GET /teams/:slug/wrapped?year=` using those official result rows and the same `WrappedSummary` contract.
 
 The service worker no longer fetches Vite's internal manifest during install. Optional shell entries are cached independently with `Promise.allSettled`, hashed assets are cached after successful public requests, navigation is network-first, and protected/API paths are excluded. A failed optional icon can no longer abort installation.
 
 Client-side route metadata updates title, description, canonical, OpenGraph, and Twitter fields. `scripts/prerender-public.mjs` creates crawler-visible HTML shells for ten stable public indexes after the Vite build. Production builds identified by Netlify `CONTEXT=production` or `REQUIRE_PUBLIC_SITE_URL=true` fail without `PUBLIC_SITE_URL`; configured builds emit absolute canonical, OG, sitemap, and robots URLs. Dynamic team, player, tournament, recap, record, and Wrapped metadata still requires API-aware SSR or edge rendering and is not claimed as complete.
 
-## Phase II backend contract
+## Implemented backend boundary
 
-The repository now contains one deliberately narrow production backend boundary: the Netlify Function behind `GET /api/public/context`. It reads the legacy Supabase `teams` table with a publishable key, exposes only approved public team fields, and returns contract-compatible empty collections for domains that do not yet have authoritative production storage. It does not use mock fixtures or a service-role credential.
+`apiAdapter` calls the same-origin `/api` Hono application exported by `netlify/functions/api.ts`. Route modules separate Auth, public competition, workspace operations, identity governance and media. Validation uses Zod; structured errors contain a request ID and no raw database/Auth stack. The `aevic` schema is isolated from legacy `public` data. Five reproducible migrations define normalized tables, indexed access paths, RLS, authorized transactional RPCs, Storage policies and Realtime publication. The old public-context function is not the routed production API or a fallback.
 
-All other endpoints below remain typed client contracts in `ApiAdapter`; they must not be described as deployed backend behavior. The repository still has no database migrations, storage policies, mail worker, or implemented authenticated API surface. Every future state-changing request must use the authenticated cookie/CSRF boundary, and critical create/transfer/correction requests must carry an `Idempotency-Key`.
+Supabase Auth validates server-managed HttpOnly cookies. Ordinary database reads and commands carry the caller's access token and remain subject to RLS. Privileged clients are created only for Auth administration, validated media operations and rate limiting. No service credential reaches the frontend. Origin validation protects state-changing cookie requests. Result publication is atomic across all approved participants, and corrections append immutable version rows with expected-version checks. Statistical views derive from the official result source.
 
-| Method | Route | Authentication / authorization | Request and expected response | Required errors / integrity |
-| --- | --- | --- | --- | --- |
-| POST | `/me/2fa/setup` | Account owner | none → expiring setup ID, otpauth URI, QR SVG | 401, 409; secret never logged |
-| POST | `/me/2fa/setup/verification` | Account owner | setup ID + 6-digit OTP → one-time recovery codes | 400, 410, 429; atomic enable |
-| POST | `/me/data-export` | Account owner | none → async export job | 401, 409, 429; excludes secrets and other users |
-| POST | `/teams/:id/invitations` | `team.invite` | recipient + role → durable invitation | 403, 409, 422; idempotent |
-| POST | `/team-invitations/:id/response` | Invite recipient | ACCEPTED/REJECTED → invitation | 403, 409, 410; single acceptance transaction |
-| POST | `/teams/:id/ownership` | Current owner | eligible member + confirmation → authority list | 403, 409, 422; atomic, never ownerless |
-| POST | `/teams/:id/archive` | Owner + `team.archive` | reason + confirmation → archived team | 403, 409; preserve historical snapshots |
-| POST | `/organizations/:id/member-invitations` | Organization owner/manager | recipient + role → invitation | 403, 409, 422; idempotent |
-| POST | `/organizations/:id/team-invitations` | Organization owner/manager | team ID → invitation | 403, 409, 422; team must accept |
-| POST | `/organizations/:id/ownership` | Current organization owner | eligible member + confirmation → member list | 403, 409, 422; atomic |
-| POST | `/players/:id/claims` | Verified account | method + evidence references → claim | 403, 409, 422; typed PUBG ID alone is insufficient |
-| POST | `/admin/tournaments/:id/cancellation` | `tournament.cancel` | reason → cancelled tournament | 403, 409, 422; transaction + notifications + audit |
-| POST | `/admin/tournaments/:id/archive` | `tournament.archive` | none → archived tournament | 403, 409; only completed/cancelled states |
-| POST | `/admin/results/:id/corrections` | `result.correct` | result snapshot + reason + expected version → immutable version | 403, 409, 422; scoring validation + transaction |
-| POST | `/verifications` | Entity representative | entity, socials, private evidence refs → pending request | 403, 409, 422; idempotent |
-| PATCH | `/admin/verifications/:id` | `verification.review` | target status + reason + expected status → request | 403, 409, 422; audit + authoritative public badge |
-| POST | `/me/support/tickets/:id/messages` | Ticket owner | body → updated ticket | 403, 404, 422; attachment scan if present |
-| PATCH | `/admin/support/tickets/:id/status` | `support.reply`/`support.manage` | status + reason → updated ticket | 403, 409, 422; audit sensitive changes |
+Team Realtime subscriptions are lazy, cleaned up and backed by safe read polling. Query invalidation retains stale content during refresh so drafts survive transient failures, while session identity changes and logout clear private cache immediately. Endpoint/list adapters preserve their existing typed shapes; list cursors are currently validated numeric offsets with deterministic ordering.
 
-List contracts for players, invitations, notifications, support tickets, verification, missed check-ins, and future admin queues return `CursorPage<T>` with stable ordering and opaque cursors. API responses should include a request ID, and sanitized UI errors may expose that ID without stack traces.
-
-### Required database entities (design only; no migrations exist)
-
-Production persistence needs sessions, two-factor setups/recovery-code hashes, account export/deletion jobs, team authority memberships, team invitations, player claims, membership history, organization members, organization invitations, verification requests/evidence ACLs, notification events/preferences, support tickets/messages, roster requests, disputes, result versions, room-access events, badge unlock history, record/roster snapshots, and append-only audit events. Ownership transfer, invitation acceptance, tournament cancellation, result correction, roster replacement, and verification decisions require database transactions, unique constraints, expected-version checks, and durable audit correlation IDs.
-
+See [backend setup](docs/BACKEND_SETUP.md) for the full local workflow, availability boundaries and mandatory staging gates. Auth/Storage/Realtime are wired but have not been exercised against a live Supabase project in this task. Detailed device inventory, MFA setup/challenge UX, async exports, push/mail notification workers and individual-player scoring remain unavailable rather than simulated.
 
 ## Team workspace ownership (September 2026)
 
 `TeamRoute` loads static workspace CSS before rendering its protected layout. Public pages, auth forms, registration fields, Team operations, profile components, Share Studio and Wrapped each own their relevant stylesheet; no runtime CSS injection is used. Heavy generators and media previews are imported only by their consuming route or interaction. The public team canvas starts when its section approaches the viewport.
 
-`/team/profile` reuses `PublicTeamIdentity` for a local preview. Only social links have a current Team write contract; name, tag, country, founded date, description and media are explicitly unpublished previews. `BrandUploadRequest` has metadata but no file payload, so the UI does not claim to upload bytes. Public captain identity comes from the roster IGN, never account contact details. Official career and competition metrics remain read-only. Acknowledged social, preference, check-in and withdrawal responses update the existing query snapshot without duplicate reads.
+`/team/profile` reuses `PublicTeamIdentity` for a local preview. Identity fields and social links have acknowledged writes, and the crop editor uploads its processed binary File through the media service. Unsaved previews are labeled; server failures retain the draft. Public captain identity comes from the roster IGN, never account contact details. Official career and competition metrics remain read-only. Acknowledged social, preference, check-in and withdrawal responses update the existing query snapshot without duplicate reads.
 
 `/team/career` groups official metrics, Erangel/Miramar/Rondo statistics and year-filtered Wrapped. Existing history, comparison, badges and PNG generators remain available. `/team/settings` stores notification preferences through `NotificationService`. The management route uses authority membership and existing capability gates; destructive flows require an explicit review and confirmation, and remain unavailable in the mock adapter.

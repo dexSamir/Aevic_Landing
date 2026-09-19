@@ -17,9 +17,13 @@ Review provider audit logs after rotation. Do not copy old values into tickets o
 
 - `VITE_*` and `NEXT_PUBLIC_*` values are client-visible configuration, never admin authorization.
 - Admin access must come from an authenticated server session plus server-evaluated roles and permissions.
-- The API adapter can forward a backend-issued CSRF token from `<meta name="csrf-token">` on state-changing requests. The backend remains responsible for SameSite/secure cookie policy, Origin validation, token issuance and verification.
-- Frontend file checks improve feedback only. The backend must validate MIME type, magic bytes, size, decoded image content, re-encode safely, randomize storage names, authorize ownership, and retain an audit trail.
+- The Hono backend enforces exact same-origin Origin checks on mutations, HttpOnly SameSite=Lax cookies and Secure `__Host-` cookies outside localhost. Optional historical CSRF headers are not treated as authorization.
+- Frontend file checks improve feedback only. The backend validates MIME/decoded format, size and dimensions, re-encodes images, randomizes keys and authorizes team ownership. Evidence remains private behind authorized short-lived download links.
 
 ## Safe release archives
 
-Run `npm run package:check` before creating a handoff archive, then `npm run package:release`. The release script packages tracked product files from the working tree and excludes local environment files, dependencies, caches, build output, internal design references, and source brand-board assets.
+Run `npm run package:check` before creating a handoff archive, then `npm run package:release`. The release script packages tracked and untracked eligible product files from the working tree and excludes local environment files, dependencies, caches, build output, internal design references, and source brand-board assets.
+
+## Verification boundary
+
+RLS and transactional rules are tested on disposable local PostgreSQL; Hono tests use explicit Supabase transport fixtures. Live Supabase Auth, Storage, Realtime, SMTP and the deployed Linux function must pass staging verification before launch. MFA login/setup and per-device inventory are not yet supported. See `docs/BACKEND_SETUP.md`. No migration or deployment runs automatically during a build.

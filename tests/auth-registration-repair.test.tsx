@@ -7,7 +7,7 @@ import { serviceCapabilities, services } from '../src/services';
 import { createServiceCapabilities } from '../src/services/capabilities';
 
 const players = Array.from({ length: 5 }, (_, index) => ({ ign: `Player ${index + 1}`, uid: `512345678${index}`, role: index === 0 ? 'captain' as const : index === 4 ? 'substitute' as const : 'starter' as const }));
-beforeEach(() => { sessionStorage.clear(); Object.assign(serviceCapabilities, createServiceCapabilities('api')); });
+beforeEach(() => { sessionStorage.clear(); Object.assign(serviceCapabilities, createServiceCapabilities('api'), {register:false}); });
 afterEach(() => { Object.assign(serviceCapabilities, createServiceCapabilities('mock')); vi.restoreAllMocks(); });
 
 describe('registration repair', () => {

@@ -133,7 +133,7 @@ export const routes = applyRouteCapabilities([
     path: routePath('account'),
     lazy: async () => {
       const { AccountLayout } = await import('../pages/AccountPages');
-      return { Component: () => <ProtectedRoute area="team"><AccountLayout /></ProtectedRoute> };
+      return { Component: () => <ProtectedRoute area="account"><AccountLayout /></ProtectedRoute> };
     },
     children: [
       { index: true, lazy: async () => ({ Component: (await import('../pages/AccountPages')).AccountProfilePage }) },

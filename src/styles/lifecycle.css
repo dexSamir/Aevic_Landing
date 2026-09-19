@@ -56,7 +56,7 @@
 .detail-ledger dt { color: var(--color-text-muted); }
 .detail-ledger dd { margin: 0; overflow-wrap: anywhere; }
 .decision-actions { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
-.operation-form { max-width: 48rem; display: grid; gap: var(--space-md); padding: var(--space-lg); background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.operation-form { min-width: 0; max-width: 48rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-md); padding: var(--space-lg); background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 .operation-form > .button { justify-self: start; }
 .evidence-list, .deadline-note, .inline-status, .rbac-note { display: flex; align-items: center; gap: var(--space-xs); padding: var(--space-sm); color: var(--color-text-muted); background: var(--color-bg-elevated); border-radius: var(--radius-sm); overflow-wrap: anywhere; }
 .deadline-note { color: var(--color-warning); }

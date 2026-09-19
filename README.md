@@ -1,12 +1,12 @@
 # AEVIC Esports — Competitive Legacy
 
-Frontend implementation of AEVIC's PUBG Mobile tournament and team-operations platform.
+AEVIC's PUBG Mobile tournament and team-operations platform: React frontend, Hono on Netlify Functions, and Supabase PostgreSQL/Auth/Storage/Realtime.
 
 ## Commands
 
 ```bash
-npm install
-npm run dev
+npm ci
+VITE_DATA_SOURCE=mock npm run dev
 npm run build
 npm test
 npm run test:e2e
@@ -19,10 +19,12 @@ Set `PUBLIC_SITE_URL` to the canonical production origin during builds to emit a
 
 - Public tournament discovery, detail, leaderboard, regulations and authentication
 - Team approval, tournament entry, check-in, room-release state, roster, history, messages, sharecards and settings
-- Admin tournament configuration, approvals, slots/check-in, round results, announcements, blacklist and policy settings
+- Admin tournament configuration, approvals, slots/check-in, round results, announcements and moderation review; bulk approvals, timed sanctions and platform policy editing remain unavailable
 
 ## Current data and security state
 
-The app uses a clearly isolated fictional mock adapter. Client route guards demonstrate navigation architecture but do not replace backend authorization. Authentication, role enforcement, team ownership, secure room credentials, persistence, uploads, audit logs, email and push delivery require production services. The service worker excludes API, auth, room, credential, message and admin requests from caching.
+Production uses the API adapter and fails closed on backend errors. Explicit mock mode remains for local UI development. Five migrations define the isolated `aevic` schema, RLS and transactional competition operations. Server-managed Auth, team data, registrations, check-in, timed room access, official results, disputes, media and notifications are implemented.
+
+Read [backend setup and release gates](docs/BACKEND_SETUP.md) for local Supabase, environment names, migrations, email templates, tests and remaining limitations. No remote database migration or deployment has been performed; live staging validation and credential rotation are still required.
 
 See [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md), and [ARCHITECTURE.md](ARCHITECTURE.md) for the implemented product contract.

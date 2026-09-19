@@ -131,6 +131,8 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
   const [session, setSession] = useState<Awaited<ReturnType<typeof services.auth.getSession>> | undefined>();
   const [team, setTeam] = useState<Team>();
   const [open, setOpen] = useState(false);
+  const [logoutError, setLogoutError] = useState('');
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -168,10 +170,13 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
     if (restoreFocus) window.requestAnimationFrame(() => buttonRef.current?.focus());
   };
   const logout = async () => {
-    await services.auth.logout();
-    setSession(null);
-    close();
-    navigate('/');
+    if (loggingOut) return;
+    setLoggingOut(true); setLogoutError('');
+    try {
+      await services.auth.logout();
+      setSession(null); close(); navigate('/');
+    } catch { setLogoutError('Çıxış tamamlanmadı. Bağlantını yoxlayıb yenidən cəhd edin.'); }
+    finally { setLoggingOut(false); }
   };
   const handleMenuKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') { event.preventDefault(); close(true); return; }
@@ -195,8 +200,9 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
       {isAdmin && <Link role="menuitem" tabIndex={-1} to="/admin" onClick={() => close()}>Admin paneli <ChevronRight size={16} /></Link>}
       {hasTeamArea && <Link role="menuitem" tabIndex={-1} to="/team" onClick={() => close()}>Komanda paneli <ChevronRight size={16} /></Link>}
       <Link role="menuitem" tabIndex={-1} to="/account/profile" onClick={() => close()}>Hesab <ChevronRight size={16} /></Link>
-      <Link role="menuitem" tabIndex={-1} to={isAdmin ? '/admin/settings' : '/team/settings'} onClick={() => close()}>Ayarlar <ChevronRight size={16} /></Link>
-      <button role="menuitem" tabIndex={-1} type="button" onClick={() => void logout()}><LogOut size={16} /> Çıxış</button>
+      <Link role="menuitem" tabIndex={-1} to={isAdmin ? '/admin/settings' : hasTeamArea ? '/team/settings' : '/account/security'} onClick={() => close()}>Ayarlar <ChevronRight size={16} /></Link>
+      <button role="menuitem" tabIndex={-1} type="button" disabled={loggingOut} onClick={() => void logout()}><LogOut size={16} /> {loggingOut ? 'Çıxış edilir…' : 'Çıxış'}</button>
+      {logoutError && <p role="alert">{logoutError}</p>}
     </div>}
   </div>;
 }
@@ -277,11 +283,14 @@ export function RouteError() {
   return <main className="route-error"><BrandMark variant="signature" /><span>{status}</span><h1>{forbidden ? 'Bu səhifə üçün icazəniz yoxdur.' : status === 404 ? 'Bu səhifə yarış cədvəlində yoxdur.' : 'Platforma sorğunu tamamlaya bilmədi.'}</h1><p>{forbidden ? 'Hesab rolunuzu yoxlayın və ya dəstək xidməti ilə əlaqə saxlayın.' : status === 404 ? 'Ünvan dəyişdirilmiş və ya silinmiş ola bilər.' : 'Bir az sonra yenidən cəhd edin və ya ana səhifəyə qayıdın.'}</p><Link className="button button--primary" to={forbidden ? '/login' : '/'}><span>{forbidden ? 'Girişə keç' : 'Ana səhifəyə qayıt'}</span></Link></main>;
 }
 
-export function ProtectedRoute({ area, children }: { area: 'team' | 'admin'; children: ReactNode }) {
+export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'account'; children: ReactNode }) {
   const [checking, setChecking] = useState(!serviceCapabilities.mockPreview && serviceCapabilities.publicSession);
   const [allowed, setAllowed] = useState(serviceCapabilities.mockPreview);
   const [deniedPath, setDeniedPath] = useState(!serviceCapabilities.mockPreview && !serviceCapabilities.publicSession ? (area === 'admin' ? '/admin/login' : '/login') : '');
+  const [unavailable, setUnavailable] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    let active = true;
     if (serviceCapabilities.mockPreview) return;
     if (!serviceCapabilities.publicSession) {
       setAllowed(false);
@@ -289,13 +298,17 @@ export function ProtectedRoute({ area, children }: { area: 'team' | 'admin'; chi
       setChecking(false);
       return;
     }
+    setChecking(true); setUnavailable(false);
     services.auth.getSession().then((session) => {
-      const accepted = area === 'admin' ? session?.role === 'admin' : Boolean(session && ['captain', 'team', 'admin'].includes(session.role));
+      if (!active) return;
+      const accepted = area === 'admin' ? session?.role === 'admin' : area === 'account' ? Boolean(session) : Boolean(session && ['captain', 'team', 'admin'].includes(session.role));
       setAllowed(accepted);
       if (!accepted) setDeniedPath(session ? '/forbidden' : area === 'admin' ? '/admin/login' : '/login');
-    }).catch(() => { setAllowed(false); setDeniedPath('/session-expired'); }).finally(() => setChecking(false));
-  }, [area]);
+    }).catch(() => { if(active) { setAllowed(false); setUnavailable(true); } }).finally(() => { if(active)setChecking(false); });
+    return () => { active = false; };
+  }, [area, attempt]);
   if (checking) return <main className="route-loading"><div className="route-loading__identity"><BrandEmblem decorative={false} /><span>AEVIC secure access</span></div><LoadingSkeleton rows={3} /></main>;
+  if (unavailable) return <main className="route-loading"><h1>Bağlantını yoxlayın</h1><p role="status">Hesab sessiyasını yoxlamaq mümkün olmadı. Bir az sonra yenidən cəhd edin.</p><Button onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</Button></main>;
   if (!allowed) return <Navigate to={deniedPath || (area === 'admin' ? '/admin/login' : '/login')} replace />;
   return <div data-protected-area={area} data-demo-access={serviceCapabilities.mockPreview}>{children}</div>;
 }

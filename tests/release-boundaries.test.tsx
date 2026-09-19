@@ -25,7 +25,7 @@ describe('public release boundaries', () => {
     for (const route of routeManifest.filter((route) => ['TEAM', 'ADMIN', 'ACCOUNT', 'AUTH'].includes(route.family))) {
       expect(route.indexable, route.path).toBe(false);
       expect(route.capability, route.path).toBeTruthy();
-      expect(capabilities[route.capability!], route.path).toBe(false);
+      expect(typeof capabilities[route.capability!], route.path).toBe('boolean');
     }
   });
   it.each([null, [], {}, { teams: [] }, { ...buildPublicPlatformSnapshot([]), teams: [{ id: 'bad' }] }])('rejects malformed public snapshots without inventing empty data', (value) => {

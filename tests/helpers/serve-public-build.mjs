@@ -4,7 +4,8 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 
-const root = resolve('dist');
+const root = resolve(process.env.AEVIC_TEST_BUILD_ROOT || 'dist');
+const port=Number(process.env.AEVIC_TEST_BUILD_PORT || 4176);
 const headers = await readFile(resolve(root, '_headers'), 'utf8');
 const csp = headers.match(/Content-Security-Policy: (.+)/)[1];
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.avif': 'image/avif', '.svg': 'image/svg+xml', '.txt': 'text/plain' };
@@ -26,6 +27,9 @@ createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
       res.end(JSON.stringify(emptyContext)); return;
     }
+    if (url.pathname === '/api/records') {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end('[]'); return;
+    }
     if (url.pathname.startsWith('/api/')) {
       res.writeHead(404, { 'Content-Type': 'application/json' }); res.end('{"code":"API_ROUTE_NOT_FOUND"}'); return;
     }
@@ -43,4 +47,4 @@ createServer(async (req, res) => {
     res.writeHead(status, { 'Content-Type': mime[extname(file)] || 'application/octet-stream' });
     res.end(await readFile(file));
   } catch { res.writeHead(500); res.end('Test host failed'); }
-}).listen(4176, '127.0.0.1', () => console.log('Public build test host: http://127.0.0.1:4176'));
+}).listen(port, '127.0.0.1', () => console.log(`Public build test host: http://127.0.0.1:${port}`));

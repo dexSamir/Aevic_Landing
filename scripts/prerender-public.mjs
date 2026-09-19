@@ -15,14 +15,14 @@ const homeMarkup = await prerenderHome();
 for (const route of [...routes, routeManifest.find((item) => item.path === '*')]) {
   const title = route.title.includes('AEVIC') ? route.title : route.title + ' | AEVIC Esports';
   const canonical = canonicalOrigin && route.indexable ? new URL(route.path, canonicalOrigin).href : '';
-  const description = route.capability ? 'Bu funksiya hazırkı ictimai buraxılışda hələ əlçatan deyil.' : route.description;
+  const description = route.description;
   let html = template
     .replace(/<title>[^<]*<\/title>/, '<title>' + escapeHtml(title) + '</title>')
     .replace(/<meta name="description" content="[^"]*"\s*\/?>/, '<meta name="description" content="' + escapeHtml(description) + '" />')
     .replace(/<meta property="og:title" content="[^"]*"\s*\/?>/, '<meta property="og:title" content="' + escapeHtml(title) + '" />')
     .replace(/<meta property="og:description" content="[^"]*"\s*\/?>/, '<meta property="og:description" content="' + escapeHtml(description) + '" />')
     .replace(/<meta property="og:image" content="[^"]*"\s*\/?>/, '<meta property="og:image" content="' + escapeHtml(image) + '" />')
-    .replace('<div id="root"></div>', '<div id="root"><main class="prerender-shell"><p>AEVIC ESPORTS</p><h1>' + escapeHtml(route.capability ? 'Bu xidmət hələ açılmayıb' : title) + '</h1><p>' + escapeHtml(description) + '</p><nav aria-label="AEVIC səhifələri"><a href="/tournaments">Turnirlər</a> <a href="/teams">Komandalar</a> <a href="/regulations">Yarış bələdçisi</a></nav></main></div>');
+    .replace('<div id="root"></div>', '<div id="root"><main class="prerender-shell"><p>AEVIC ESPORTS</p><h1>' + escapeHtml(title) + '</h1><p>' + escapeHtml(description) + '</p><nav aria-label="AEVIC səhifələri"><a href="/tournaments">Turnirlər</a> <a href="/teams">Komandalar</a> <a href="/regulations">Yarış bələdçisi</a></nav></main></div>');
   const metadata = '<meta name="robots" content="' + (canonicalOrigin && route.indexable ? 'index,follow' : 'noindex,follow') + '"><meta name="twitter:title" content="' + escapeHtml(title) + '"><meta name="twitter:description" content="' + escapeHtml(description) + '"><meta name="twitter:image" content="' + escapeHtml(image) + '">' + (canonical ? '<link rel="canonical" href="' + escapeHtml(canonical) + '"><meta property="og:url" content="' + escapeHtml(canonical) + '">' : '');
   if (route.path === '/') html = html.replace(/<div id="root">[\s\S]*?<\/main><\/div>/, '<div id="root" data-prerender="home">' + homeMarkup + '</div>');
   html = html.replace('</head>', metadata + '</head>');
@@ -34,9 +34,7 @@ writeFileSync(resolve(dist, 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8
 writeFileSync(resolve(dist, 'robots.txt'), 'User-agent: *\n' + (canonicalOrigin ? 'Allow: /\n' : 'Disallow: /\n') + ['/team','/admin','/account','/api','/login','/register','/reset-password','/verify-email'].map((path) => 'Disallow: ' + path).join('\n') + (canonicalOrigin ? '\nSitemap: ' + new URL('/sitemap.xml', canonicalOrigin).href : '') + '\n');
 // _redirects is evaluated before netlify.toml. Keep the API exceptions first.
 const redirects = [
-  '/api/public/context /.netlify/functions/public-context 200!',
-  '/api /.netlify/functions/api-not-found 200!',
-  '/api/* /.netlify/functions/api-not-found 200!',
+  '/api/* /.netlify/functions/api/:splat 200!',
   ...routeManifest.filter((route) => route.path !== '*').sort((a,b) => a.path.includes(':') - b.path.includes(':')).map((route) => route.path + ' /index.html 200'),
   '/* /404.html 404',
 ];

@@ -4,45 +4,55 @@
   "version": "0.1.0",
   "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "prebuild": "node scripts/generate-sitemap.mjs",
     "postbuild": "node scripts/prerender-public.mjs",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && tsc -p tsconfig.server.json && vite build",
     "preview": "vite preview",
-    "lint": "tsc -b --pretty false",
-    "test": "npm run test:domain && npm run test:component",
+    "lint": "tsc -b --pretty false && tsc -p tsconfig.server.json --pretty false",
+    "test": "npm run test:domain && npm run test:component && npm run test:server",
     "test:domain": "tsc src/utils/wrapped.ts src/utils/competitionAnalytics.ts src/utils/registration.ts src/utils/calendar.ts src/utils/routeMetadata.ts src/utils/routes.ts src/utils/resultBreakdown.ts src/utils/tournamentJoin.ts src/utils/lifecycle.ts src/types/domain.ts --outDir .test-build --module ES2022 --moduleResolution Bundler --target ES2022 --skipLibCheck && node --experimental-specifier-resolution=node --test tests/*.test.mjs",
     "test:component": "vitest run",
     "test:e2e": "playwright test",
     "package:check": "node scripts/package-release.mjs --check",
-    "package:release": "node scripts/package-release.mjs"
+    "package:release": "node scripts/package-release.mjs",
+    "test:server": "vitest run --config vitest.server.config.ts",
+    "test:db": "node scripts/test-database.mjs"
   },
   "dependencies": {
     "@fontsource/orbitron": "^5.3.0",
     "@fontsource/oswald": "^5.3.0",
     "@fontsource/raleway": "^5.3.0",
+    "@supabase/supabase-js": "2.116.0",
     "@types/qrcode": "^1.5.6",
+    "hono": "4.13.7",
     "html-to-image": "^1.11.13",
     "lucide-react": "^1.28.0",
     "qrcode": "^1.5.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.18.2"
+    "react-router-dom": "^7.18.2",
+    "sharp": "0.35.4",
+    "zod": "4.6.5"
   },
   "devDependencies": {
+    "@hono/node-server": "2.1.1",
     "@playwright/test": "^1.61.1",
+    "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.4",
+    "@types/node": "26.5.1",
     "@types/react": "^19.1.3",
     "@types/react-dom": "^19.1.4",
     "@vitejs/plugin-react": "^4.4.1",
     "jsdom": "^26.1.0",
+    "supabase": "2.117.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
-    "vitest": "^3.2.7"
+    "vitest": "4.1.11"
   }
 }

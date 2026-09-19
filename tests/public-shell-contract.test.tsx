@@ -31,10 +31,10 @@ describe('public IA is independent of backend availability', () => {
       expect(routeIsAccessible(matchRoute(link.to)!, createServiceCapabilities('api'))).toBe(true);
     }
     for (const path of ['/login', '/register', '/matches']) {
-      expect(routeIsAvailable(matchRoute(path)!, createServiceCapabilities('api'))).toBe(false);
+      expect(routeIsAvailable(matchRoute(path)!, createServiceCapabilities('api'))).toBe(true);
     }
     for (const path of ['/admin', '/team', '/account', '/matches/a']) {
-      expect(routeIsAccessible(matchRoute(path)!, createServiceCapabilities('api'))).toBe(false);
+      expect(routeIsAccessible(matchRoute(path)!, createServiceCapabilities('api'))).toBe(true);
     }
   });
 
@@ -51,8 +51,7 @@ describe('public IA is independent of backend availability', () => {
     const drawer = await screen.findByRole('dialog');
     expect(within(drawer).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([...primary, '/regulations', '/login', '/register']);
     expect(within(screen.getByRole('contentinfo')).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual(['/', ...primary, '/contact', '/privacy', '/terms']);
-    if (mode === 'api') expect(getSession).not.toHaveBeenCalled();
-    else await waitFor(() => expect(getSession).toHaveBeenCalled());
+    await waitFor(() => expect(getSession).toHaveBeenCalled());
   });
 
   it('preserves authenticated mock identity without changing discovery destinations', async () => {
@@ -67,7 +66,7 @@ describe('public IA is independent of backend availability', () => {
 
 describe('unavailable public pages never invoke missing APIs', () => {
   it('keeps login and registration editable while blocking unavailable server calls', async () => {
-    Object.assign(serviceCapabilities, createServiceCapabilities('api'));
+    Object.assign(serviceCapabilities, createServiceCapabilities('api'), {login:false,register:false});
     const login = vi.spyOn(services.auth, 'login');
     const name = vi.spyOn(services.registration, 'checkTeamName');
     const submit = vi.spyOn(services.registration, 'submit');
@@ -106,7 +105,7 @@ describe('unavailable public pages never invoke missing APIs', () => {
   });
 
   it('renders the existing Match Center empty state without fetching data', () => {
-    Object.assign(serviceCapabilities, createServiceCapabilities('api'));
+    Object.assign(serviceCapabilities, createServiceCapabilities('api'), {publicMatches:false});
     const schedule = vi.spyOn(services.publicMatches, 'schedule');
     const history = vi.spyOn(services.publicMatches, 'history');
     const tournaments = vi.spyOn(services.tournaments, 'list');

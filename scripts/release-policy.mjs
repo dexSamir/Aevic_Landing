@@ -2,8 +2,8 @@ import { lstatSync, readFileSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 
 // Fail closed: release inputs are product/build/docs/tests, never local audits.
-const roots = new Set(['src', 'public', 'netlify', 'scripts', 'tests', 'docs']);
-const rootFiles = /^(?:[A-Z][A-Z_\-]*\.md|README\.md|LICENSE(?:\.md)?|package(?:-lock)?\.json|index\.html|netlify\.toml|(?:vite|vitest|playwright)\.config\.ts|tsconfig(?:\.[\w-]+)?\.json|\.gitignore|\.gitattributes|\.npmrc|\.nvmrc)$/;
+const roots = new Set(['src', 'public', 'netlify', 'scripts', 'tests', 'docs', 'server', 'supabase']);
+const rootFiles = /^(?:[A-Z][A-Z_\-]*\.md|README\.md|LICENSE(?:\.md)?|package(?:-lock)?\.json|index\.html|netlify\.toml|(?:vite|vitest|playwright)(?:\.[\w-]+)?\.config\.ts|tsconfig(?:\.[\w-]+)?\.json|\.gitignore|\.gitattributes|\.npmrc|\.nvmrc)$/;
 const forbiddenPart = /^(?:\.env(?:\..*)?|\.git|node_modules|dist|build|coverage|work|reports|screenshots|test-results|playwright-report|\.artifacts|\.cache|\.vite|\.netlify|\.test-build|\.playwright.*|browser-profiles?|secrets?|credentials?)$/i;
 const forbiddenFile = /(?:\.(?:pem|key|p12|pfx|log|zip|tar|gz|map)$|(?:^|[._-])(?:credentials?|secrets?|service[-_]?role[-_]?key|admin[-_]?key|storage[-_]?state|auth[-_]?state)(?:[._-]|$))/i;
 

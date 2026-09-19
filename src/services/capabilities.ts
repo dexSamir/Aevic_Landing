@@ -5,12 +5,12 @@ export function createServiceCapabilities(source: 'api' | 'mock') {
   // the route manifest separately opts safe pages into unavailable-state rendering.
   const mock = source === 'mock';
   return {
-    publicSession: mock, login: mock, register: mock, passwordRecovery: mock,
-    teamWorkspace: mock, adminWorkspace: mock, publicPlayers: mock,
-    publicMatches: mock, publicRecords: mock, publicSearch: mock,
-    publicOrganizations: mock, publicArchive: mock, publicTeamHistory: mock, resultPublishing: false,
-    tournamentCreation: false, platformSettings: false, bulkApproval: false,
-    ownershipTransfer: false, tournamentLifecycleWrites: false,
+    publicSession: true, login: true, register: true, passwordRecovery: true,
+    teamWorkspace: true, adminWorkspace: true, publicPlayers: mock,
+    publicMatches: true, publicRecords: true, publicSearch: true,
+    publicOrganizations: true, publicArchive: true, publicTeamHistory: true, resultPublishing: !mock,
+    tournamentCreation: !mock, platformSettings: false, bulkApproval: false,
+    ownershipTransfer: !mock, tournamentLifecycleWrites: !mock,
     mockPreview: mock,
   } as const;
 }

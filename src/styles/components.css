@@ -56,12 +56,14 @@
 .icon-button:disabled { opacity: 0.42; cursor: not-allowed; }
 
 .field {
+  min-width: 0;
   display: grid;
   gap: 0.45rem;
 }
 
 .field__label {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-sm);
@@ -73,6 +75,7 @@
 .field__label span { color: var(--color-text-soft); font-size: var(--text-xs); font-weight: 500; }
 .field input, .field select, .field textarea, .search-field, .result-entry input {
   width: 100%;
+  min-width: 0;
   min-height: 46px;
   padding: 0.72rem 0.82rem;
   border: 1px solid var(--color-border-strong);
@@ -532,7 +535,7 @@
 .form-section-title > span { color: var(--color-brand-primary); font-family: var(--font-heading); font-size: var(--text-md); }
 .form-section-title h2 { font-family: var(--font-heading); font-size: var(--text-lg); }
 .form-section-title p { color: var(--color-text-muted); }
-.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md); }
+.form-grid { min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--space-md); }
 .team-step-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.72fr); gap: var(--space-lg); align-items: start; }
 .team-step-fields { display: grid; gap: var(--space-md); }
 .preview-skeleton { width: 58%; height: 0.75rem; display: block; background: var(--color-surface-muted); border-radius: var(--radius-pill); }

@@ -1,10 +1,11 @@
+import { formatEventDate } from './calendar';
 import type { NextAction, TeamPlatformSnapshot } from '../types/domain';
 import type { TeamCompetitionContext } from './teamCompetitionContext';
 import { buildCompetitionAwareness } from '../components/team/CompetitionAwareness';
 import { deriveNextAction } from '../components/team/NextActionCard';
 
 export const bakuTime = (date: string) => new Date(date).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baku' });
-export const overviewDate = (date: string) => new Date(date).toLocaleDateString('az-AZ', { day: 'numeric', month: 'short', timeZone: 'Asia/Baku' });
+export const overviewDate = (date: string) => formatEventDate(date, { includeYear: false });
 
 /** Overview is a projection of published domain data, never a second demo dataset. */
 export function buildTeamOverview(data: TeamPlatformSnapshot, context?: TeamCompetitionContext) {

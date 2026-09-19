@@ -59,7 +59,7 @@ function OperationsCanvas({ vm }: { vm: TeamOverviewViewModel }) {
 function RecentForm({ vm }: { vm: TeamOverviewViewModel }) {
   return <section className="overview-recent" aria-labelledby="overview-recent-title">
     <header><h2 id="overview-recent-title">{vm.recentMatches.length ? `SON ${vm.recentMatches.length} MATÇ` : 'SON MATÇLAR'}</h2><p>YENİ → KÖHNƏ</p></header>
-    {vm.recentMatches.length ? <ol aria-label="Son matçların nəticələri">{vm.recentMatches.map(match => <li key={match.id} aria-label={match.wwcd ? 'WWCD, birinci yer' : `${match.placement}-ci yer`} className={match.wwcd ? 'is-highlighted' : undefined}>{match.wwcd ? <span className="overview-placement-wwcd">WW<br />CD</span> : match.placement}</li>)}</ol> : <p className="overview-empty">Dərc edilmiş matç tarixçəsi yoxdur.</p>}
+    {vm.recentMatches.length ? <ol aria-label="Son matçların nəticələri">{vm.recentMatches.map(match => <li key={match.id} aria-label={match.wwcd ? 'WWCD, birinci yer' : `${match.placement}-ci yer`} className={match.wwcd ? 'is-highlighted' : undefined}>{match.wwcd ? <span className="overview-placement-wwcd">WWCD</span> : match.placement}</li>)}</ol> : <p className="overview-empty">Dərc edilmiş matç tarixçəsi yoxdur.</p>}
     <Link className="overview-section-link" to="/team/history">Nəticə tarixçəsi <ArrowRight size={16} aria-hidden="true" /></Link>
   </section>;
 }
