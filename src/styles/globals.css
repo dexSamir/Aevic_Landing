@@ -143,7 +143,7 @@ ol {
   font-variant-numeric: tabular-nums;
 }
 
-.demo-label {
+.event-label {
   color: var(--color-text-soft);
   font-size: var(--text-xs);
 }
@@ -160,8 +160,6 @@ ol {
   border: 0;
 }
 
-html[data-demo-mode='false'] .demo-label,
-html[data-demo-mode='false'] .mock-banner { display: none !important; }
 
 .spin {
   animation: spin 800ms linear infinite;

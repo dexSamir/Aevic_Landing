@@ -1,19 +1,20 @@
+import { usePlatformQuery } from '../services/queryCache';
 import '../styles/public-pages.css';
 import { PublicTeamDetail } from '../components/profile/PublicTeamDetail';
 import { DirectoryTeamCard } from '../components/profile/DirectoryTeamCard';
 import { featuredTournamentArtwork } from '../assets/tournaments';
 import { sanitizeOutboundUrl } from '../utils/outboundUrl';
-import { ArrowRight, GitCompareArrows, X, CalendarDays, Flag, Gamepad2, Globe2, Image, Link2, Search, Swords } from 'lucide-react';
+import { ArrowRight, GitCompareArrows, X, CalendarDays, Flag, Gamepad2, Globe2, Search, Swords } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BadgeCabinetEditor, BadgeCollectionDrawer, FeaturedBadgeCabinet } from '../components/team/BadgeCabinet';
-import { OrganizationBanner, OrganizationBannerUploader, OrganizationIdentity, SocialLinkList, VerificationCrest } from '../components/profile/ProfileElements';
-import { Button, EmptyState, Input, LoadingSkeleton, PageHeader, SectionHeading, Select, StatusBadge, TeamLogo, Toast } from '../components/common/primitives';
+import { OrganizationBanner, OrganizationIdentity, SocialLinkList, VerificationCrest } from '../components/profile/ProfileElements';
+import { Button, EmptyState, LoadingSkeleton, PageHeader, SectionHeading, Select, StatusBadge, TeamLogo } from '../components/common/primitives';
 import { TeamComparison } from '../components/team/TeamExperience';
 import { MediaBackdrop } from '../components/common/MediaBackdrop';
 import { competitionNow, serviceCapabilities, services } from '../services';
 import { useAdminPlatformData, usePublicPlatformData, useTeamPlatformData } from '../services/PlatformDataContext';
-import type { Organization, PublicTeamProfile } from '../types/domain';
+import type { PublicTeamProfile } from '../types/domain';
 import { resolveTournamentTemporalPhase } from '../utils/tournamentTime';
 import { organizationTeamPath } from '../utils/routes';
 
@@ -69,15 +70,16 @@ export function TeamsDirectoryPage() {
 export function OrganizationsDirectoryPage() {
   const { organizations } = usePublicPlatformData();
   const [query, setQuery] = useState(''); const [verification, setVerification] = useState('all');
-  const results = useMemo(() => organizations.filter((organization) => organization.name.toLowerCase().includes(query.toLowerCase()) && (verification === 'all' || organization.verificationLevel === verification)), [query, verification]);
+  const results = useMemo(() => organizations.filter((organization) => organization.name.toLowerCase().includes(query.toLowerCase()) && (verification === 'all' || organization.verificationLevel === verification)), [organizations, query, verification]);
   const sourceEmpty = organizations.length === 0;
   return <section className="page-section organization-directory"><div className="container"><PageHeader title="Komandalar və təşkilatlar" description="AEVIC daxilində təsdiqlənmiş rəqabət kimliklərini, oyun heyətlərini və qazanılmış irsi kəşf edin." />{!sourceEmpty && <div className="discovery-toolbar"><label className="search-field"><Search size={18} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Ad ilə axtar" aria-label="Təşkilat adı ilə axtar" /></label><Select label="Oyun" defaultValue="pubg-mobile"><option value="pubg-mobile">PUBG Mobile</option></Select><Select label="Təsdiq" value={verification} onChange={(event) => setVerification(event.target.value)}><option value="all">Bütün səviyyələr</option><option value="registered">Qeydiyyatdan keçib</option><option value="approved">Təsdiqlənib</option><option value="verified">Təsdiqlənib</option><option value="legacy">Yarış irsi</option></Select></div>}{sourceEmpty ? <EmptyState title="Komandadan təşkilata" body="Hazırda ictimai təşkilat profili yoxdur. Komandalar təşkilata bağlı olmadan da müstəqil yarış kimliyi yarada bilər." action={<Link className="button button--secondary" to="/teams"><span>Komandalara bax</span><ArrowRight size={17} /></Link>} /> : results.length === 0 ? <EmptyState title="Filtrə uyğun təşkilat tapılmadı" body="Axtarış mətnini və ya təsdiq filtrini dəyişin." /> : <div className="organization-directory__results">{results.map((organization) => <Link key={organization.id} to={`/organizations/${organization.slug}`} className="organization-directory__row"><TeamLogo name={organization.name} src={organization.logoUrl} size="lg" /><div><span>{organization.shortName} · {organization.country}</span><h2>{organization.name} <VerificationCrest level={organization.verificationLevel} /></h2><p>{organization.description}</p></div><div><span><Gamepad2 size={17} />PUBG Mobile</span><strong>{organization.ownedTeams.length} aktiv komanda</strong></div><ArrowRight size={20} /></Link>)}</div>}</div></section>;
 }
 
 export function OrganizationProfilePage() {
   const { teamAchievements } = usePublicPlatformData();
-  const { organizationSlug = '' } = useParams(); const [organization, setOrganization] = useState<Organization>(); const [loading, setLoading] = useState(true); const [cabinetOpen, setCabinetOpen] = useState(false);
-  useEffect(() => { services.organizations.getBySlug(organizationSlug).then(setOrganization).finally(() => setLoading(false)); }, [organizationSlug]);
+  const { organizationSlug = '' } = useParams(); const [cabinetOpen, setCabinetOpen] = useState(false);
+  const {data:organization,loading,error,refetch}=usePlatformQuery({key:`organization:${organizationSlug}`,scope:'public',query:()=>services.organizations.getBySlug(organizationSlug)});
+  if(error)return <EmptyState title="Təşkilat yüklənmədi" body="Xidmət hazırda cavab vermir." action={<Button onClick={refetch}>Yenidən yoxla</Button>}/>;
   if (loading) return <section className="page-section"><div className="container"><LoadingSkeleton rows={5} /></div></section>;
   if (!organization) return <section className="page-section"><div className="container"><EmptyState title="Təşkilat tapılmadı" body="Bu public profil mövcud deyil və ya görünürlükdən çıxarılıb." action={<Link className="button button--secondary" to="/organizations"><span>Directory-yə qayıt</span></Link>} /></div></section>;
   const featured = teamAchievements.filter((item) => organization.featuredAchievements.includes(item.id)).map((item, index) => ({ ...item, displayOrder: index + 1 }));
@@ -89,7 +91,7 @@ export function OrganizationProfilePage() {
         </OrganizationBanner>
         <nav className="profile-anchor-nav" aria-label="Təşkilat profili bölmələri"><a href="#overview">İcmal</a><a href="#teams">Komandalar</a><a href="#achievements">Nailiyyətlər</a></nav>
         <section id="overview" className="organization-overview">
-          <div><h2>Rəsmi təşkilat profili</h2><p>{organization.description}</p><dl><div><dt>Ölkə</dt><dd><Flag size={16} />{organization.country}</dd></div><div><dt>Qurulub</dt><dd><CalendarDays size={16} />{new Date(organization.foundedAt).toLocaleDateString('az-AZ', { month: 'long', year: 'numeric' })}</dd></div>{sanitizeOutboundUrl(organization.website) && <div><dt>Website</dt><dd><Globe2 size={16} /><a href={sanitizeOutboundUrl(organization.website)} target="_blank" rel="noopener noreferrer">Sayta keç</a></dd></div>}</dl></div>
+          <div><h2>Rəsmi təşkilat profili</h2><p>{organization.description}</p><dl><div><dt>Ölkə</dt><dd><Flag size={16} />{organization.country}</dd></div><div><dt>Qurulub</dt><dd><CalendarDays size={16} />{organization.foundedAt ? new Date(organization.foundedAt).toLocaleDateString('az-AZ', { month: 'long', year: 'numeric' }) : 'Dərc edilməyib'}</dd></div>{sanitizeOutboundUrl(organization.website) && <div><dt>Website</dt><dd><Globe2 size={16} /><a href={sanitizeOutboundUrl(organization.website)} target="_blank" rel="noopener noreferrer">Sayta keç</a></dd></div>}</dl></div>
           <aside><strong>İctimai profil statusu</strong><VerificationCrest level={organization.verificationLevel} showLabel /><p>Təsdiq səviyyəsi təşkilat kimliyinə aiddir; nişan və nailiyyətlərdən ayrıdır.</p></aside>
         </section>
         <section id="teams" className="organization-teams">
@@ -116,18 +118,8 @@ function PublicTeamSummaryPage() {
 
 export function TeamProfilePage() {
   const { teamSlug = '' } = useParams();
-  const [profile, setProfile] = useState<PublicTeamProfile>();
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    setLoading(true);
-    setFailed(false);
-    services.profiles.teamBySlug(teamSlug).then(value => { if (active) setProfile(value); }).catch(() => { if (active) setFailed(true); }).finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [teamSlug]);
-
+  const {data:profile,loading,error}=usePlatformQuery({key:`profile:${teamSlug}`,scope:'public',query:()=>services.profiles.teamBySlug(teamSlug)});
+  const failed=Boolean(error);
 
   useEffect(() => {
     if (!profile) return;
@@ -159,7 +151,7 @@ export function PublicTeamComparisonPage() {
   const leftTeam = requestedLeft ? teams.find((team) => team.slug === requestedLeft) : undefined;
   const rightTeam = requestedRight ? teams.find((team) => team.slug === requestedRight) : undefined;
   const invalidSelection = Boolean((requestedLeft && !leftTeam) || (requestedRight && !rightTeam));
-  return <section className="page-section"><div className="container"><PageHeader eyebrow="Public comparison" title="Komandaları müqayisə et" description="Dərc edilmiş demo nəticələri yan-yana oxuyun. Məlumat olmayan göstəricilər açıq şəkildə boş saxlanır." /><TeamComparison key={`${requestedLeft}-${requestedRight}`} records={teamComparisonRecords} initialLeftId={requestedLeft ? leftTeam?.id ?? '' : undefined} initialRightId={requestedRight ? rightTeam?.id ?? '' : undefined} invalidSelection={invalidSelection} /></div></section>;
+  return <section className="page-section"><div className="container"><PageHeader eyebrow="Public comparison" title="Komandaları müqayisə et" description="Dərc edilmiş rəsmi nəticələri yan-yana oxuyun. Məlumat olmayan göstəricilər açıq şəkildə boş saxlanır." /><TeamComparison key={`${requestedLeft}-${requestedRight}`} records={teamComparisonRecords} initialLeftId={requestedLeft ? leftTeam?.id ?? '' : undefined} initialRightId={requestedRight ? rightTeam?.id ?? '' : undefined} invalidSelection={invalidSelection} /></div></section>;
 }
 
 export function TeamBadgeCabinetPage() {
@@ -168,7 +160,8 @@ export function TeamBadgeCabinetPage() {
 }
 
 export function AdminOrganizationsPage() {
-  const { currentTeam, organizations } = useAdminPlatformData(); const [notice, setNotice] = useState(false); const activeOrganization = organizations[0];
-  if (!activeOrganization) return <><PageHeader title="Təşkilatlar" description="Təşkilat kimliyi və komanda əlaqələri." /><EmptyState title="Təşkilat yoxdur" body="Təşkilat qeydi yaradıldıqda yoxlama səthi burada görünəcək." /></>;
-  return <><PageHeader title="Təşkilatlar" description="Public identity, komanda əlaqəsi, media metadata və featured badge konfiqurasiyası üçün restrained review surface." />{notice && <Toast title="Demo link state updated" body="Production əməliyyatı ownership permission və audit log tələb edir." onClose={() => setNotice(false)} />}<section className="admin-organization-review"><header><TeamLogo name={activeOrganization.name} size="lg" /><div><span>{activeOrganization.shortName} · {activeOrganization.country}</span><h2>{activeOrganization.name} <VerificationCrest level={activeOrganization.verificationLevel} /></h2></div><StatusBadge status="approved">Public</StatusBadge></header><dl><div><dt>Aktiv teams</dt><dd>{activeOrganization.ownedTeams.length}</dd></div><div><dt>Social links</dt><dd>{Object.keys(activeOrganization.socialLinks).length}</dd></div><div><dt>Featured badges</dt><dd>{activeOrganization.featuredAchievements.length} / 3</dd></div><div><dt>Media review</dt><dd>Banner + fallback ready</dd></div></dl><div className="admin-organization-review__team"><TeamLogo name={currentTeam.name} /><div><strong>{currentTeam.name}</strong><span>PUBG Mobile · organization-owned</span></div><Button variant="ghost" onClick={() => setNotice(true)} icon={<Link2 size={17} />}>Linki review et</Button></div><OrganizationBannerUploader organization={activeOrganization} /><aside><Image size={19} /><p>Logo/banner moderation, ownership transfer, invitation acceptance and audit history require backend roles and persistent review records.</p></aside></section></>;
+  const { organizations } = useAdminPlatformData();
+  return <><PageHeader title="Təşkilatlar" description="Serverdə qeydiyyatdan keçmiş təşkilatlar və onların komanda əlaqələri." actions={<Link to="/admin/verifications" className="button button--secondary">Doğrulama sorğuları</Link>} />
+    {!organizations.length ? <EmptyState title="Təşkilat yoxdur" body="Təşkilat yaradıldıqda burada görünəcək." /> : organizations.map(organization => <section key={organization.id} className="admin-organization-review"><header><TeamLogo name={organization.name} size="lg" /><div><span>{organization.shortName} · {organization.country}</span><h2><Link to={`/organizations/${organization.slug}`}>{organization.name}</Link> <VerificationCrest level={organization.verificationLevel} /></h2></div></header><dl><div><dt>Aktiv komandalar</dt><dd>{organization.ownedTeams.length}</dd></div><div><dt>Sosial linklər</dt><dd>{Object.keys(organization.socialLinks).length}</dd></div></dl>{organization.ownedTeams.map(team => <div key={team.id} className="admin-organization-review__team"><TeamLogo name={team.displayName} /><Link to={`/admin/teams/${team.teamId}`}>{team.displayName}</Link></div>)}</section>)}
+  </>;
 }

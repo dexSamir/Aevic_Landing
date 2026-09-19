@@ -124,7 +124,7 @@ export function TeamHistoryPage() {
 
 export function TeamComparisonPage() {
   const { teamComparisonRecords } = useTeamPlatformData();
-  return <><PageHeader eyebrow="Karyera müqayisəsi" title="Komandaları müqayisə et" description="Eyni dərc edilmiş nümunə məlumatlardakı göstəriciləri yan-yana yoxlayın. Məlumat olmayan sahələr “—” ilə işarələnir." /><CareerNav /><TeamComparison records={teamComparisonRecords} /></>;
+  return <><PageHeader eyebrow="Karyera müqayisəsi" title="Komandaları müqayisə et" description="Eyni dərc edilmiş rəsmi nəticələrdəki göstəriciləri yan-yana yoxlayın. Məlumat olmayan sahələr “—” ilə işarələnir." /><CareerNav /><TeamComparison records={teamComparisonRecords} /></>;
 }
 
 export function TeamRosterPage() {

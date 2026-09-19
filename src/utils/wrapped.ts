@@ -24,6 +24,7 @@ export function deriveWrappedSummary(input: {
   team: Team;
   period: WrappedPeriod;
   matches: MatchHistoryEntry[];
+  championships?: number;
   achievements?: TeamAchievement[];
   records?: RecordEntry[];
 }): WrappedSummary {
@@ -53,6 +54,7 @@ export function deriveWrappedSummary(input: {
       logoUrl: input.team.logoUrl,
     },
     period: input.period,
+    championships: input.championships,
     matches: matches.length,
     kills: matches.reduce((sum, match) => sum + match.finishes, 0),
     wwcd: matches.filter((match) => match.wwcd).length,

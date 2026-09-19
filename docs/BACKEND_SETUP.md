@@ -1,17 +1,17 @@
 # Backend setup and release gates
 
-The supported competition flow is implemented in `server/` and five ordered SQL migrations under `supabase/migrations/`. It uses the `aevic` schema, leaving legacy `public` tables untouched. Nothing applies migrations during a frontend build or deployment. A clean database has no tournaments or accounts until deliberately created.
+The supported competition flow is implemented in `server/` and six ordered SQL migrations under `supabase/migrations/`. It uses the `aevic` schema, leaving legacy `public` tables untouched. Nothing applies migrations during a frontend build or deployment. A clean database has no tournaments or accounts until deliberately created.
 
 ## Runtime and local development
 
-Use Node 22 or newer (`.nvmrc`), then `npm ci`. For UI development, select mock explicitly with `VITE_DATA_SOURCE=mock npm run dev`. Fixtures remain available to tests and design work. Production rejects mock mode and never substitutes fixtures after an API failure.
+Use Node 22 or newer (`.nvmrc`), then `npm ci`. Run `npm run dev` to start Vite and the existing Hono API on http://localhost:8888. Without explicit server environment configuration, `/api` returns `503 SERVER_NOT_CONFIGURED`. No fictional data is inserted or displayed. Test-only fixtures remain in `tests/fixtures`.
 
 For the real stack:
 
 1. Install and start Docker, then run `npx supabase start`.
-2. Run `npx supabase db reset --local` to rebuild **only the disposable local database** from migrations. Seeding is disabled by default. An optional development tournament is in `supabase/seed.sql`; execute it deliberately against the local database only.
+2. Run `npx supabase db reset --local` to rebuild **only the disposable local database** from migrations. Seeding is disabled by default. The optional SQL fixture is confined to `tests/fixtures/local-database.sql`; it is never loaded by application startup, migrations or database reset.
 3. Configure the environment names below from the local Supabase instance. Use the same browser origin for `PUBLIC_SITE_URL` and Netlify Dev. Do not put a service key in a browser variable.
-4. Run `VITE_DATA_SOURCE=api npx netlify-cli dev`. Open the Netlify Dev port, not Vite directly, so `/api` reaches the function and cookies use the same origin.
+4. For an explicitly isolated project, create an ignored `.env.staging` using `.env.example`, then run `node --env-file=.env.staging node_modules/vite/bin/vite.js`. This explicitly loads server values; plain Vite does not load private credentials from the existing `.env`. Use `PUBLIC_SITE_URL=http://localhost:8888` locally. Netlify Dev remains an alternative that mounts the same function.
 5. Register a new five-player team. Confirm the email through local Supabase mail. The Auth insert trigger creates the profile, pending team, owner membership, roster and private PUBG identities in the same transaction.
 6. Create an administrator deliberately through the Supabase Auth dashboard and grant its UUID a role in `aevic.admin_roles` using a trusted database operator. There is no default admin, shared admin password, client role override, or role derived from user-editable metadata.
 
@@ -26,10 +26,8 @@ If Docker is unavailable, `npm run test:db` can use an isolated PostgreSQL 15+ i
 | `SUPABASE_ANON_KEY` | Legacy alternative to the publishable key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Function only; narrowly used for Auth administration, validated Storage operations and rate limiting |
 | `PUBLIC_SITE_URL` | Exact canonical origin; build metadata, Auth links, cookie and Origin checks |
-| `VITE_DATA_SOURCE` | Explicit `api` or development-only `mock` |
 | `VITE_API_BASE_URL` | Same-origin API prefix; normally `/api` |
 | `VITE_PUBLIC_MEDIA_ORIGIN` | Exact Supabase HTTPS origin; image and Realtime CSP allowlist |
-| `VITE_DEMO_MODE` | Fictional-data disclosure for explicit mock development |
 | `PG_BIN` | Optional local PostgreSQL binary directory for SQL tests |
 | `AEVIC_TEST_PG_HOST`, `AEVIC_TEST_PG_PORT` | Isolated local PostgreSQL test connection |
 
@@ -68,7 +66,7 @@ npx playwright test --config playwright.hardening.config.ts tests/e2e/team-works
 npx playwright test --config playwright.api-hardening.config.ts
 ```
 
-The SQL suite covers anonymity, unrelated users, owner/player roles, registration duplicate/closure, check-in windows, room release, official scoring, disputes and write grants. Server tests exercise Hono using controlled Supabase transport fixtures. Browser tests using mock mode validate interface behavior, not live persistence. `scripts/audit-responsive.mjs` covers all 17 requested widths and representative 200% text cases. `scripts/audit-performance.mjs` compares locally served empty-data builds; it is not field Core Web Vitals.
+The SQL suite covers anonymity, unrelated users, owner/player roles, registration duplicate/closure, check-in windows, room release, official scoring, disputes and write grants. Server tests exercise Hono using controlled Supabase transport fixtures. Browser HTTP fixtures validate interface behavior, not live persistence. `scripts/audit-responsive.mjs` covers all 17 requested widths and representative 200% text cases. `scripts/audit-performance.mjs` compares locally served empty-data builds; it is not field Core Web Vitals.
 
 ## Manual staging and production actions
 
@@ -77,3 +75,18 @@ Before any launch: rotate and revoke all previously exposed credentials; review 
 Also verify Netlify's Linux Sharp bundle and payload limits, redirect order, function timeout, SMTP delivery, rate limits and refresh/logout behavior across two browsers. No remote migration, commit, push or deployment was performed during this task. **Do not label the release production-ready until those staging gates pass.**
 
 Public individual-player statistics and MVP remain unavailable because there is no official per-player scoring source. Team match kill and point records, their progression and captured historical rosters derive from published results. Other record categories are not fabricated. Push/email notification delivery, scheduled sanctions, platform policy editing and bulk approvals are unavailable; their controls must not claim success. Historic leaderboard snapshots are not fabricated. Manual player claims/verification/deletion reviews require actual operators.
+
+
+## Required isolated staging verification (not yet performed)
+
+1. Identify a new or existing **non-production** Supabase project and staging Netlify site, with explicit authorization for test account/data creation. Existing repository environment key names do not establish that a project is safe staging.
+2. Rotate previously exposed credentials through the owner’s account controls. Do not reuse production keys. Put the four server variables from `.env.example` only in the staging function/server environment; configure `VITE_PUBLIC_MEDIA_ORIGIN` to the exact staging Supabase origin for production CSP.
+3. Review all six ordered SQL migrations. Remote application requires separate explicit approval; no remote migration was run in this task. Expose only `aevic` through the Data API, never `aevic_private`; keep the service key server-side.
+4. Configure staging Auth Site URL and redirect allowlist for `/verify-email` and `/reset-password`. Enable email confirmation, use the repository TokenHash templates, and configure a tested SMTP sender. A successful API call is not proof of email delivery.
+5. Create two ordinary team accounts and separate admin role accounts through the established authorized setup. Use private inboxes under the test owner’s control. Do not insert fictional product records automatically on startup or migration.
+6. Execute journeys A–G from the request: confirmed registration/refresh/relogin; entry/review/check-in/timed room access; tournament create/edit/result publish; dispute/review/correction; Team A/B direct Data API isolation; career/Wrapped/share consistency; outages and expired cookies. Record real response codes and database effects without secrets.
+7. Verify real Storage replacement/deletion, unrelated-user evidence denial, Realtime disconnect/reconnect/cleanup, signed evidence URL expiry, and status propagation in separate browser sessions. Clean up only explicitly created staging test records, after checking dependencies; never reset production.
+
+Remaining unsupported capabilities are unavailable, not simulated: device inventory and per-device revocation, MFA setup/challenge/recovery, async exports, email/push notification workers, timed sanctions, bulk approvals, platform settings, manual slot/check-in overrides, player performance/MVP and detailed player admin, organization binary media and organization award configuration. Account deletion creates a review request only. Organization governance RPCs exist but the UI does not expose every create/invite operation.
+
+Browser tests importing `tests/helpers/api-fixture-test.ts` intercept HTTP with isolated fixtures for UI regression only. `playwright.api-hardening.config.ts` tests the production build with explicit empty/error HTTP responses. Hono tests stub Supabase responses; SQL tests use disposable localhost PostgreSQL plus Supabase-system stubs. None of these categories substitutes for staging.

@@ -119,7 +119,7 @@ export interface TeamNameAvailabilityResult {
   available: boolean;
   normalizedName: string;
   scope: 'platform' | 'tournament';
-  source: 'backend' | 'mock';
+  source: 'backend';
   reason?: string;
 }
 
@@ -127,7 +127,7 @@ export interface PlayerEligibilityResult {
   eligible: boolean;
   pubgId: string;
   tournamentId?: ID;
-  source: 'backend' | 'mock';
+  source: 'backend';
   reason?: 'registered-to-another-team' | 'invalid-format';
 }
 
@@ -137,7 +137,7 @@ export interface KnownPlayerLookup {
   ign: string;
   previousAppearances: number;
   avatarUrl?: string;
-  source: 'backend' | 'mock';
+  source: 'backend';
 }
 
 export interface TeamRegistrationSubmission {
@@ -150,7 +150,7 @@ export interface TeamRegistrationReceipt {
   registrationId: ID;
   status: Extract<TeamRegistrationState, 'submitted' | 'under-review'>;
   duplicate: boolean;
-  source: 'backend' | 'mock';
+  source: 'backend';
 }
 
 export interface Team {
@@ -173,6 +173,7 @@ export interface Team {
   approvalStatus: TeamApprovalStatus;
   rejectionReason?: string;
   registeredAt: ISODate;
+  archivedAt?: ISODate;
   foundedAt?: ISODate;
   profileComplete: boolean;
 }
@@ -216,7 +217,7 @@ export interface Organization {
   bannerUrl?: string;
   bannerAlt?: string;
   description: string;
-  foundedAt: ISODate;
+  foundedAt?: ISODate;
   country: string;
   website?: string;
   socialLinks: OrganizationSocialLinks;
@@ -398,7 +399,7 @@ export interface AdminPlatformSnapshot {
   checkIns?: CheckIn[];
   publishedRoundIds?: Record<ID, ID[]>;
   matchSchedule?: MatchScheduleItem[];
-  currentTeam: Team;
+  currentTeam: Team | null;
   tournaments: Tournament[];
   teams: Team[];
   slots: TournamentSlot[];
@@ -441,7 +442,7 @@ export interface BrandAssetValidationResult {
 
 export interface BrandUploadResult {
   previewUrl: string;
-  status: 'mock-preview' | 'uploaded';
+  status: 'uploaded';
 }
 
 export interface TeamLegacyStats {
@@ -661,7 +662,7 @@ export interface RecordEntry {
   achievedAt: ISODate;
   rosterSnapshot: RecordRosterSnapshot[];
   rosterSnapshotStatus: 'available' | 'unavailable';
-  source: 'backend' | 'published-demo';
+  source: 'backend';
 }
 
 export interface TournamentRecapData {
@@ -724,6 +725,7 @@ export interface TeamAnnouncement {
 }
 
 export interface Tournament {
+  updatedAt?: ISODate;
   id: ID;
   disputeDurationMinutes?: number;
   resultsPublishedAt?: ISODate;
@@ -1135,4 +1137,8 @@ export interface NotificationPreferences {
 
 export interface TournamentCreation {
  name:string;shortName:string;description:string;startsAt:ISODate;endsAt:ISODate;registrationOpensAt:ISODate;registrationDeadline:ISODate;checkInOpensAt:ISODate;checkInClosesAt:ISODate;maxSlots:number;rules:string[];rounds:Array<{map:'Erangel'|'Miramar'|'Rondo';startsAt:ISODate}>;
+}
+
+export interface TournamentUpdate extends Omit<TournamentCreation, 'rounds'> {
+ status: TournamentStatus; expectedUpdatedAt: ISODate; rounds: Array<{id: ID; map: 'Erangel' | 'Miramar' | 'Rondo'; startsAt: ISODate}>;
 }

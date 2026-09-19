@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../helpers/api-fixture-test';
 
 const evidence = 'work/master-remediation-2026-08-30/e2e-product-evidence';
 const viewports = [

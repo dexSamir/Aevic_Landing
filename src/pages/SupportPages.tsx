@@ -1,22 +1,23 @@
+import { usePlatformQuery, invalidateQuery } from '../services/queryCache';
 import '../app/workspaceStyles';
 import './support-pages.css';
 import { EVIDENCE_UPLOAD_TYPES } from '../utils/fileValidation';
 import { ArrowLeft, ArrowRight, CircleHelp, LifeBuoy, MessageCircleQuestion, Search } from 'lucide-react';
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button, EmptyState, FileUpload, Input, LoadingSkeleton, PageHeader, SectionHeading, Select, StatusBadge, Textarea, Toast } from '../components/common/primitives';
 import { serviceCapabilities, services } from '../services';
 import type { SupportTicket } from '../types/domain';
 
 const faqs = [
-  ['account', 'Şifrəmi necə bərpa edə bilərəm?', 'İctimai buraxılışda giriş və şifrə bərpası xidməti hələ əlçatan deyil. Bu saytdan bərpa məktubu göndərilmir.'],
-  ['registration', 'Komanda qeydiyyatı nə vaxt təsdiqlənir?', 'İctimai komanda qeydiyyatı hələ açılmayıb. Komanda siyahısı yalnız dərc üçün təsdiqlənmiş məlumatları göstərir.'],
+  ['account', 'Şifrəmi necə bərpa edə bilərəm?', 'Giriş səhifəsində “Şifrəni unutmusunuz?” keçidini seçin və hesabınızın e-poçt ünvanını daxil edin.'],
+  ['registration', 'Komanda qeydiyyatı nə vaxt təsdiqlənir?', 'Qeydiyyatdan sonra e-poçtu təsdiqləyin. Komanda məlumatları administrator tərəfindən yoxlanılır.'],
   ['pubg', 'PUBG ID ictimai görünür?', 'İctimai məlumat xidmətinə PUBG ID və şəxsi əlaqə məlumatları daxil edilmir.'],
-  ['roster', 'Heyət dəyişiklikləri necə edilir?', 'Hesab əsaslı heyət dəyişiklikləri ictimai buraxılışda hələ əlçatan deyil.'],
-  ['check-in', 'Check-in vaxtını harada tapa bilərəm?', 'Turnir dərc edildikdə mövcud check-in vaxtı onun məlumatlarında göstərilir. İctimai buraxılışda check-in əməliyyatı açıq deyil.'],
-  ['room', 'Room — otaq kodunu harada görəcəyəm?', 'Otaq kodları və şifrələri ictimai saytda göstərilmir. Qorunan otaq xidməti hələ açılmayıb.'],
-  ['results', 'Nəticəyə necə etiraz edə bilərəm?', 'Etiraz göndərmə xidməti hələ əlçatan deyil. İctimai səhifə yalnız dərc edilmiş nəticələri göstərə bilər.'],
-  ['badges', 'Nişanlar necə verilir?', 'Nişanların hesablanması və verilməsi bu ictimai buraxılışda aktiv deyil.'],
+  ['roster', 'Heyət dəyişiklikləri necə edilir?', 'Komanda iş sahəsində heyət dəyişikliyi sorğusu göndərin. Roster kilidi və administrator təsdiqi tətbiq olunur.'],
+  ['check-in', 'Check-in vaxtını harada tapa bilərəm?', 'Turnir dərc edildikdə mövcud check-in vaxtı onun məlumatlarında göstərilir. Uyğun komanda göstərilən vaxtda iş sahəsindən check-in edə bilər.'],
+  ['room', 'Room — otaq kodunu harada görəcəyəm?', 'Otaq kodları və şifrələri ictimai saytda göstərilmir. Otaq məlumatı yalnız check-in etmiş uyğun komandalara, açılış vaxtından sonra iş sahəsində görünür.'],
+  ['results', 'Nəticəyə necə etiraz edə bilərəm?', 'Komanda iş sahəsində nəticəyə etiraz göndərin. Müddət və sübut şərtləri serverdə yoxlanılır.'],
+  ['badges', 'Nişanlar necə verilir?', 'Nişanlar dərc edilmiş rəsmi nəticələrdən hesablanır; komanda sahibləri rəsmi nailiyyətləri dəyişə bilməz.'],
 ] as const;
 
 export function SupportCenterPage() {
@@ -36,9 +37,13 @@ export function NewSupportTicketPage() {
 }
 
 export function SupportTicketDetailPage() {
-  const { ticketId = '' } = useParams(); const [item, setItem] = useState<SupportTicket>(); const [loading, setLoading] = useState(true);
-  useEffect(() => { services.support.getTicket(ticketId).then(setItem).finally(() => setLoading(false)); }, [ticketId]);
-  if (loading) return <LoadingSkeleton rows={6} />;
-  if (!item) return <EmptyState heading="h1" title="Ticket tapılmadı" body="Bu ticket mövcud deyil və ya başqa hesaba aiddir." />;
-  return <><Link className="text-link" to="/account/support/tickets"><ArrowLeft size={16} />Ticket-lər</Link><PageHeader eyebrow={item.id} title={item.subject} description={`${item.category} · ${new Date(item.createdAt).toLocaleString('az-AZ')}`} actions={<StatusBadge status={item.status === 'resolved' ? 'approved' : 'warning'}>{item.status}</StatusBadge>} /><div className="ticket-thread"><article><strong>Siz</strong><p>{item.description}</p><time>{new Date(item.createdAt).toLocaleString('az-AZ')}</time></article>{item.messages.map((message) => <article className={message.author === 'support' ? 'is-support' : ''} key={message.id}><strong>{message.author === 'support' ? 'AEVIC Support' : 'Siz'}</strong><p>{message.body}</p><time>{new Date(message.createdAt).toLocaleString('az-AZ')}</time></article>)}</div></>;
+ const {ticketId=''}=useParams();const[params]=useSearchParams();const admin=params.get('view')==='admin';
+ const query=usePlatformQuery({key:`support:${admin?'admin':'own'}:${ticketId}`,query:()=>admin?services.support.adminTicket(ticketId):services.support.getTicket(ticketId)});
+ const [reply,setReply]=useState(''),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
+ const send=async(e:FormEvent)=>{e.preventDefault();if(busy||!reply.trim())return;setBusy(true);setNotice('');try{await (admin?services.support.adminReply(ticketId,{body:reply}):services.support.reply(ticketId,{body:reply}));setReply('');setNotice('Cavab saxlanıldı.');}catch{setNotice('Cavab saxlanılmadı. Mətniniz formadadır.');}finally{setBusy(false);}};
+ const change=async(status:SupportTicket['status'])=>{if(busy)return;setBusy(true);try{await services.support.changeStatus(ticketId,status);setNotice('Status yeniləndi.');}catch{setNotice('Status yenilənmədi.');}finally{setBusy(false);}};
+ if(query.loading&&!query.data)return <LoadingSkeleton rows={5}/>;
+ if(query.error)return <EmptyState title="Sorğu yüklənmədi" body="İcazəni və bağlantını yoxlayın." action={<Button onClick={query.refetch}>Yenidən yoxla</Button>}/>;
+ const item=query.data;if(!item)return <EmptyState title="Sorğu tapılmadı" body="Bu sorğu mövcud deyil və ya onu görmək üçün icazəniz yoxdur."/>;
+ return <><Link to={admin?'/admin/support':'/account/support/tickets'}>← Sorğulara qayıt</Link><PageHeader eyebrow={item.id} title={item.subject} description={`${item.category} · ${item.status}`}/>{notice&&<p role="status">{notice}</p>}<div className="ticket-thread"><article><strong>Müraciət</strong><p>{item.description}</p><time>{new Date(item.createdAt).toLocaleString('az-AZ')}</time></article>{item.messages.map(message=><article key={message.id} className={message.author==='support'?'is-support':''}><strong>{message.author==='support'?'AEVIC Support':'İstifadəçi'}</strong><p>{message.body}</p><time>{new Date(message.createdAt).toLocaleString('az-AZ')}</time></article>)}</div><form className="operation-form" onSubmit={send}><Textarea label="Cavabınız" value={reply} onChange={e=>setReply(e.target.value)} minLength={1} maxLength={6000} required/><Button type="submit" loading={busy}>Cavab göndər</Button></form>{admin&&<Select label="Sorğu statusu" value={item.status} disabled={busy} onChange={e=>void change(e.target.value as SupportTicket['status'])}>{['open','waiting-for-user','under-review','resolved','closed'].map(status=><option key={status}>{status}</option>)}</Select>}</>;
 }

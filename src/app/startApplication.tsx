@@ -4,10 +4,8 @@ import { createBrowserRouter } from 'react-router-dom';
 import App from '../App';
 import { routes } from './router';
 import { registerPwa } from './registerPwa';
-import { demoMode } from '../services';
 
 export async function startApplication() {
-  document.documentElement.dataset.demoMode = String(demoMode);
   const root = document.getElementById('root')!;
   const application = <StrictMode><App router={createBrowserRouter(routes)} /></StrictMode>;
   // Only Home contains the real component tree. Other route shells keep client rendering.

@@ -1,3 +1,4 @@
+// Isolated component-test fixtures. Never import from application code.
 export const MOCK_COMPETITION_NOW_ISO = '2026-08-04T12:00:00+04:00';
 export function mockCompetitionNow() {
   const scenario = typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('scenario');

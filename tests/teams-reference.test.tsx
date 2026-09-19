@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TeamsDirectoryPage } from '../src/pages/ProfilePages';
 import { PublicFooter } from '../src/layouts/PublicFooter';
 import { services } from '../src/services';
-import { currentTeam, teams, tournaments, teamComparisonRecords } from '../src/mocks/data';
+import { currentTeam, teams, tournaments, teamComparisonRecords } from './fixtures/platform-data';
 
 vi.mock('../src/services/PlatformDataContext', () => ({ usePublicPlatformData: () => ({ teams: teams.filter(team => team.approvalStatus === 'approved' && team.slug).map(team => ({ ...team, slug: team.slug!, rosterSize: team.roster.length })), tournaments, teamComparisonRecords }) }));
 vi.mock('../src/services', async importOriginal => { const actual = await importOriginal<typeof import('../src/services')>(); return { ...actual, competitionNow: () => new Date('2026-08-04T12:00:00+04:00'), services: { ...actual.services, follows: { list: vi.fn(), status: vi.fn(), mutate: vi.fn() } } }; });

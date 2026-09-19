@@ -5,7 +5,7 @@ import { Button, Input, PageHeader, Textarea, Toast } from '../components/common
 import { PublicTeamIdentity } from '../components/profile/PublicTeamIdentity';
 import { isSafeSocialUrl } from '../components/social/SocialLinks';
 import { useTeamPlatformData } from '../services/PlatformDataContext';
-import { demoMode, services } from '../services';
+import { services } from '../services';
 import { invalidateQuery, updateCachedQuery } from '../services/queryCache';
 import type { SocialLinks, TeamPlatformSnapshot } from '../types/domain';
 
@@ -28,7 +28,7 @@ export function TeamProfilePage() {
     event.preventDefault(); if (saving) return;
     if (Object.values(social).some(url => url && !isSafeSocialUrl(url))) { setError('Yalnız təhlükəsiz https:// keçidləri daxil edin.'); return; }
     setSaving(true); setError(''); setNotice('');
-    try { const updated = await services.teams.updateSocialLinks(currentTeam.id, social); setSocial(updated.socialLinks ?? {}); updateCachedQuery<TeamPlatformSnapshot>('snapshot:team', value => ({ ...value, currentTeam: { ...value.currentTeam, socialLinks: updated.socialLinks } })); setSocialDirty(false); setNotice(demoMode ? 'Sosial linklər nümunə sessiyasında saxlanıldı.' : 'Sosial linklər saxlanıldı.'); invalidateQuery('snapshot:public'); invalidateQuery('profile:'); }
+    try { const updated = await services.teams.updateSocialLinks(currentTeam.id, social); setSocial(updated.socialLinks ?? {}); updateCachedQuery<TeamPlatformSnapshot>('snapshot:team', value => ({ ...value, currentTeam: { ...value.currentTeam, socialLinks: updated.socialLinks } })); setSocialDirty(false); setNotice('Sosial linklər saxlanıldı.'); invalidateQuery('snapshot:public'); invalidateQuery('profile:'); }
     catch { setError('Sosial linklər saxlanılmadı. Dəyişiklikləriniz formadadır.'); }
     finally { setSaving(false); }
   };
@@ -37,7 +37,7 @@ export function TeamProfilePage() {
     try {
       const {name,tag,description,country,foundedAt,bannerAlt}=draft;
       const team=await services.teams.updateProfile(currentTeam.id,{name,tag,description:description??'',country,foundedAt:foundedAt?.slice(0,10),bannerAlt});
-      setDraft(team);setIdentityDirty(false);updateCachedQuery<TeamPlatformSnapshot>('snapshot:team',v=>({...v,currentTeam:team}));invalidateQuery('profile:');invalidateQuery('snapshot:public');setIdentityNotice(demoMode?'Kimlik nümunə sessiyasında saxlanıldı.':'Komanda profili saxlanıldı.');
+      setDraft(team);setIdentityDirty(false);updateCachedQuery<TeamPlatformSnapshot>('snapshot:team',v=>({...v,currentTeam:team}));invalidateQuery('profile:');invalidateQuery('snapshot:public');setIdentityNotice('Komanda profili saxlanıldı.');
     }catch{setIdentityError('Profil saxlanılmadı. Dəyişiklikləriniz formadadır.');}finally{setIdentitySaving(false);}
   };
   return <><PageHeader eyebrow="// KOMANDANIN İCTİMAİ ÜZÜ" title="Public profil" description="Tamaşaçıların gördüyü kimlik, heyət və sosial keçidlər." actions={<Link className="button button--secondary" to={profilePath}>Public profili aç <ExternalLink size={17} /></Link>} />

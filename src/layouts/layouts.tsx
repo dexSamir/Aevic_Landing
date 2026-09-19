@@ -31,7 +31,7 @@ import { officialAssets } from '../assets/official';
 import { BrandEmblem, BrandMark } from '../components/brand/BrandMark';
 import { MediaBackdrop } from '../components/common/MediaBackdrop';
 import { Button, Drawer, IconButton, LoadingSkeleton, StatusBadge, TeamLogo } from '../components/common/primitives';
-import { competitionNow, demoMode, serviceCapabilities, services } from '../services';
+import { competitionNow, serviceCapabilities, services } from '../services';
 import { publicNavigation } from '../app/publicNavigation';
 import { PublicFooter } from './PublicFooter';
 import { InstallAevic, OfflineNotice } from '../components/pwa/PwaExperience';
@@ -250,7 +250,7 @@ export function AuthLayout() {
 
 
 function ProductTopbar({ metadata, admin = false, onMenu }: { metadata?: ReturnType<typeof productRouteMetadata>; team?: Team; admin?: boolean; onMenu: () => void }) {
-  return <header className="product-topbar"><div className="product-topbar__mobile-identity"><BrandMark variant="compact" /></div><div className="product-topbar__route"><span>{metadata?.parentLabel ?? (admin ? 'Admin' : 'Komanda iş sahəsi')}</span><strong>{metadata?.title ?? (admin ? 'Admin əməliyyatları' : 'Komanda iş sahəsi')}</strong>{demoMode && !admin && <small className="demo-mode-indicator">NÜMUNƏ</small>}</div><div className="product-topbar__actions">{!admin && <Link className="icon-button" aria-label="Bildirişlər" to="/team/notifications"><Bell size={19} /></Link>}<Link className="icon-button" aria-label={admin ? 'Admin hesabı' : 'Hesab ayarları'} title={admin ? 'Admin hesabı' : 'Hesab ayarları'} to={admin ? '/admin/users' : '/account/profile'}><CircleUserRound size={20} /></Link><IconButton className="product-topbar__menu" label="Naviqasiyanı aç" onClick={onMenu}><PanelLeft size={20} /></IconButton></div></header>;
+  return <header className="product-topbar"><div className="product-topbar__mobile-identity"><BrandMark variant="compact" /></div><div className="product-topbar__route"><span>{metadata?.parentLabel ?? (admin ? 'Admin' : 'Komanda iş sahəsi')}</span><strong>{metadata?.title ?? (admin ? 'Admin əməliyyatları' : 'Komanda iş sahəsi')}</strong></div><div className="product-topbar__actions">{!admin && <Link className="icon-button" aria-label="Bildirişlər" to="/team/notifications"><Bell size={19} /></Link>}<Link className="icon-button" aria-label={admin ? 'Admin hesabı' : 'Hesab ayarları'} title={admin ? 'Admin hesabı' : 'Hesab ayarları'} to={admin ? '/admin/users' : '/account/profile'}><CircleUserRound size={20} /></Link><IconButton className="product-topbar__menu" label="Naviqasiyanı aç" onClick={onMenu}><PanelLeft size={20} /></IconButton></div></header>;
 }
 
 function TeamIdentityBlock({ team, compact = false, onNavigate }: { team: Team; compact?: boolean; onNavigate?: () => void }) {
@@ -273,7 +273,7 @@ export function TeamLayout() {
 export function AdminLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
-  return <div className="product-shell product-shell--admin"><RouteSeo /><aside className="product-sidebar"><BrandMark /><div className="admin-identity"><UserRoundCog size={20} /><div><strong>Yarış əməliyyatları</strong><span>Admin iş sahəsi</span></div></div><SidebarNav links={adminLinks} label="Admin naviqasiyası" />{demoMode && <div className="sidebar-note sidebar-note--warning"><ShieldAlert size={17} /><span>Nümunə adapter<strong>Backend girişi tələb olunur</strong></span></div>}</aside><div className="product-main"><ProductTopbar metadata={productRouteMetadata(pathname, 'admin')} admin onMenu={() => setMenuOpen(true)} /><main id="main-content" className="product-page" tabIndex={-1}>{demoMode && <div className="mock-banner"><LogIn size={17} /><span>Nümunə admin sessiyası · yarış vaxtı {formatEventDate(competitionNow(), { withTime: true })} AZT · brauzer qoruması avtorizasiya deyil</span></div>}<RouteTransitionOutlet family="admin" /></main></div><Drawer open={menuOpen} title="Admin naviqasiyası" onClose={() => setMenuOpen(false)}><SidebarNav links={adminLinks} label="Admin naviqasiyası" onNavigate={() => setMenuOpen(false)} /></Drawer></div>;
+  return <div className="product-shell product-shell--admin"><RouteSeo /><aside className="product-sidebar"><BrandMark /><div className="admin-identity"><UserRoundCog size={20} /><div><strong>Yarış əməliyyatları</strong><span>Admin iş sahəsi</span></div></div><SidebarNav links={adminLinks} label="Admin naviqasiyası" /></aside><div className="product-main"><ProductTopbar metadata={productRouteMetadata(pathname, 'admin')} admin onMenu={() => setMenuOpen(true)} /><main id="main-content" className="product-page" tabIndex={-1}><RouteTransitionOutlet family="admin" /></main></div><Drawer open={menuOpen} title="Admin naviqasiyası" onClose={() => setMenuOpen(false)}><SidebarNav links={adminLinks} label="Admin naviqasiyası" onNavigate={() => setMenuOpen(false)} /></Drawer></div>;
 }
 
 export function RouteError() {
@@ -284,25 +284,26 @@ export function RouteError() {
 }
 
 export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'account'; children: ReactNode }) {
-  const [checking, setChecking] = useState(!serviceCapabilities.mockPreview && serviceCapabilities.publicSession);
-  const [allowed, setAllowed] = useState(serviceCapabilities.mockPreview);
-  const [deniedPath, setDeniedPath] = useState(!serviceCapabilities.mockPreview && !serviceCapabilities.publicSession ? (area === 'admin' ? '/admin/login' : '/login') : '');
+  const [checking, setChecking] = useState<boolean>(true);
+  const [allowed, setAllowed] = useState(false);
+  const [deniedPath, setDeniedPath] = useState(!serviceCapabilities.publicSession ? (area === 'admin' ? '/admin/login' : '/login') : '');
   const [unavailable, setUnavailable] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const [identity,setIdentity] = useState('');
+  useEffect(()=>{const refresh=()=>setAttempt(n=>n+1);window.addEventListener('focus',refresh);window.addEventListener('aevic:session-change',refresh);return()=>{window.removeEventListener('focus',refresh);window.removeEventListener('aevic:session-change',refresh);};},[]);
   useEffect(() => {
     let active = true;
-    if (serviceCapabilities.mockPreview) return;
     if (!serviceCapabilities.publicSession) {
       setAllowed(false);
       setDeniedPath(area === 'admin' ? '/admin/login' : '/login');
       setChecking(false);
       return;
     }
-    setChecking(true); setUnavailable(false);
+    setUnavailable(false);
     services.auth.getSession().then((session) => {
       if (!active) return;
       const accepted = area === 'admin' ? session?.role === 'admin' : area === 'account' ? Boolean(session) : Boolean(session && ['captain', 'team', 'admin'].includes(session.role));
-      setAllowed(accepted);
+      setIdentity(session?.user.id??'');setAllowed(accepted);
       if (!accepted) setDeniedPath(session ? '/forbidden' : area === 'admin' ? '/admin/login' : '/login');
     }).catch(() => { if(active) { setAllowed(false); setUnavailable(true); } }).finally(() => { if(active)setChecking(false); });
     return () => { active = false; };
@@ -310,5 +311,5 @@ export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'a
   if (checking) return <main className="route-loading"><div className="route-loading__identity"><BrandEmblem decorative={false} /><span>AEVIC secure access</span></div><LoadingSkeleton rows={3} /></main>;
   if (unavailable) return <main className="route-loading"><h1>Bağlantını yoxlayın</h1><p role="status">Hesab sessiyasını yoxlamaq mümkün olmadı. Bir az sonra yenidən cəhd edin.</p><Button onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</Button></main>;
   if (!allowed) return <Navigate to={deniedPath || (area === 'admin' ? '/admin/login' : '/login')} replace />;
-  return <div data-protected-area={area} data-demo-access={serviceCapabilities.mockPreview}>{children}</div>;
+  return <div key={identity} data-protected-area={area}>{children}</div>;
 }

@@ -8,9 +8,10 @@ export async function loadRouteManifest() {
   const output = transpileModule(source, { compilerOptions: { module: ModuleKind.ES2022, target: ScriptTarget.ES2020 } }).outputText;
   return import('data:text/javascript;base64,' + Buffer.from(output).toString('base64'));
 }
-export function buildConfiguration(mode = 'production') {
+export function buildConfiguration(mode = 'production', development = false) {
   const env = { ...loadEnv(mode, process.cwd(), ''), ...process.env };
-  const canonicalValue = env.PUBLIC_SITE_URL || env.VITE_PUBLIC_SITE_URL;
+  const localServerOrigin = development && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(env.PUBLIC_SITE_URL || '');
+  const canonicalValue = localServerOrigin ? env.VITE_PUBLIC_SITE_URL : env.PUBLIC_SITE_URL || env.VITE_PUBLIC_SITE_URL;
   const origin = (value, label) => {
     if (!value) return undefined;
     const url = new URL(value);
@@ -18,7 +19,7 @@ export function buildConfiguration(mode = 'production') {
     return url.origin;
   };
   const canonicalOrigin = origin(canonicalValue, 'PUBLIC_SITE_URL');
-  if (env.PUBLIC_SITE_URL && env.VITE_PUBLIC_SITE_URL && origin(env.VITE_PUBLIC_SITE_URL, 'VITE_PUBLIC_SITE_URL') !== canonicalOrigin) throw new Error('Public canonical origins disagree.');
+  if (!localServerOrigin && env.PUBLIC_SITE_URL && env.VITE_PUBLIC_SITE_URL && origin(env.VITE_PUBLIC_SITE_URL, 'VITE_PUBLIC_SITE_URL') !== canonicalOrigin) throw new Error('Public canonical origins disagree.');
   if ((env.CONTEXT === 'production' || env.REQUIRE_PUBLIC_SITE_URL === 'true') && !canonicalOrigin) throw new Error('PUBLIC_SITE_URL is required for a production deployment.');
   const mediaOrigin = origin(env.VITE_PUBLIC_MEDIA_ORIGIN || env.VITE_SUPABASE_URL, 'Public media origin');
   return { canonicalOrigin, mediaOrigin };

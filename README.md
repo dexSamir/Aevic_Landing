@@ -6,7 +6,7 @@ AEVIC's PUBG Mobile tournament and team-operations platform: React frontend, Hon
 
 ```bash
 npm ci
-VITE_DATA_SOURCE=mock npm run dev
+npm run dev
 npm run build
 npm test
 npm run test:e2e
@@ -23,8 +23,10 @@ Set `PUBLIC_SITE_URL` to the canonical production origin during builds to emit a
 
 ## Current data and security state
 
-Production uses the API adapter and fails closed on backend errors. Explicit mock mode remains for local UI development. Five migrations define the isolated `aevic` schema, RLS and transactional competition operations. Server-managed Auth, team data, registrations, check-in, timed room access, official results, disputes, media and notifications are implemented.
+Development and production use the same API adapter and Hono backend. There is no selectable mock mode or fallback. With no explicit server configuration, local API requests return SERVER_NOT_CONFIGURED (503). Six migrations define the isolated `aevic` schema, RLS and transactional competition operations. Server-managed Auth, team data, registrations, check-in, timed room access, official results, disputes, media and notifications are implemented.
 
 Read [backend setup and release gates](docs/BACKEND_SETUP.md) for local Supabase, environment names, migrations, email templates, tests and remaining limitations. No remote database migration or deployment has been performed; live staging validation and credential rotation are still required.
 
 See [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md), and [ARCHITECTURE.md](ARCHITECTURE.md) for the implemented product contract.
+
+See [feature integration inventory](docs/FEATURE_INTEGRATION_INVENTORY.md) and [implementation and verification report](docs/INTEGRATION_REPORT.md). Component and browser HTTP fixtures are test-only, not evidence of a live backend.

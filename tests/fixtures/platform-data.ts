@@ -1,3 +1,4 @@
+// Isolated component-test fixtures. Never import from application code.
 import type {
   AdminMessage,
   BlacklistEntry,
@@ -16,9 +17,9 @@ import type {
   TeamTournamentResult,
   Tournament,
   TournamentSlot,
-} from '../types/domain';
-import teamBanner from '../assets/official/map-erangel-round-1.jpg';
-import organizationBanner from '../assets/official/map-rondo.jpg';
+} from '../../src/types/domain';
+const teamBanner = '/src/assets/official/map-erangel-round-1.jpg';
+const organizationBanner = '/src/assets/official/map-rondo.jpg';
 
 const captain = {
   id: 'usr-captain-01',

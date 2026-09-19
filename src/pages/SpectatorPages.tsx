@@ -4,16 +4,16 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BrandJoinCta } from '../components/common/BrandJoinCta';
 import { Button, EmptyState, LoadingSkeleton } from '../components/common/primitives';
-import { officialAssets, officialRotation } from '../assets/official';
-import { competitionNow, demoMode, serviceCapabilities, services } from '../services';
+import { officialAssets } from '../assets/official';
+import { competitionNow, serviceCapabilities, services } from '../services';
 import type { MatchHistoryEntry, MatchScheduleItem, PublicMatchDetail, Tournament } from '../types/domain';
 import { formatEventDate } from '../utils/calendar';
 
 const matchTime = (value: string) => new Date(value).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baku' });
 const allowedMaps = ['Erangel', 'Miramar', 'Rondo'];
-// Only demo presentation is normalized. Unsupported real records are excluded.
-export function matchCenterMaps<T extends { map: string }>(matches: T[], demo: boolean): T[] {
-  return demo ? matches.map((match, index) => ({ ...match, map: allowedMaps.includes(match.map) ? match.map : officialRotation[index % officialRotation.length] })) : matches.filter((match) => allowedMaps.includes(match.map));
+// Display only scheduled official maps; never substitute a fictional rotation.
+export function matchCenterMaps<T extends { map: string }>(matches: T[]): T[] {
+  return matches.filter(match => allowedMaps.includes(match.map));
 }
 function startsIn(value: string, now: number) {
   const minutes = Math.ceil((Date.parse(value) - now) / 60000);
@@ -84,8 +84,8 @@ export function MatchCenterPage() {
     setLoading(true); setFailed(false); setDetailsFailed(false);
     Promise.all([services.publicMatches.schedule(), services.publicMatches.history(), services.tournaments.list()])
       .then(async ([nextSchedule, nextHistory, nextTournaments]) => {
-        const visibleSchedule = matchCenterMaps(nextSchedule, demoMode);
-        const visibleHistory = matchCenterMaps(nextHistory, demoMode);
+        const visibleSchedule = matchCenterMaps(nextSchedule);
+        const visibleHistory = matchCenterMaps(nextHistory);
         setSchedule(visibleSchedule); setHistory(visibleHistory); setTournaments(nextTournaments);
         const ids = [...new Set([...visibleSchedule, ...visibleHistory].map((match) => match.id))];
         const results = await Promise.allSettled(ids.map((id) => services.publicMatches.get(id)));

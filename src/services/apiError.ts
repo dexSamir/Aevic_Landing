@@ -39,7 +39,7 @@ export function apiErrorKind(status: number): ApiErrorKind {
 
 export class ApiError extends Error implements ApiErrorDetails {
   readonly timestamp = new Date().toISOString();
-  get retryable() { return this.retryAllowed !== false && (this.status === 0 || this.status === 408 || this.status === 429 || this.status >= 500) && ['network', 'server', 'timeout', 'rate-limit'].includes(this.kind); }
+  get retryable() { return this.status !== 501 && this.retryAllowed !== false && (this.status === 0 || this.status === 408 || this.status === 429 || this.status >= 500) && ['network', 'server', 'timeout', 'rate-limit'].includes(this.kind); }
   status: number;
   code: string;
   fieldErrors?: Record<string, string>;
@@ -86,7 +86,7 @@ export async function apiErrorFromResponse(response: Response) {
   return new ApiError({
     status: response.status,
     kind,
-    code: typeof payload.code === 'string' && ['ACCOUNT_LOCKED', 'ALREADY_REGISTERED', 'FULL', 'REGISTRATION_CLOSED', 'INELIGIBLE', 'ROSTER_INCOMPLETE', 'PLAYER_CONFLICT', 'UNAUTHORIZED'].includes(payload.code) ? payload.code : undefined,
+    code: typeof payload.code === 'string' && ['SERVER_NOT_CONFIGURED','TOURNAMENT_VERSION_CONFLICT','CAPABILITY_UNAVAILABLE','PLAYER_ADMIN_UNAVAILABLE','ACCOUNT_LOCKED', 'ALREADY_REGISTERED', 'FULL', 'REGISTRATION_CLOSED', 'INELIGIBLE', 'ROSTER_INCOMPLETE', 'PLAYER_CONFLICT', 'UNAUTHORIZED'].includes(payload.code) ? payload.code : undefined,
     // Never display untrusted server messages, stacks, SQL or field values.
     requestId: safeRequestId(payload.requestId) ?? safeRequestId(response.headers.get('x-request-id')),
     retryAllowed: response.headers.get('x-retryable') === 'false' ? false : undefined,

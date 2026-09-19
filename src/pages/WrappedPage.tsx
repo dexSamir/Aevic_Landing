@@ -85,7 +85,7 @@ export function WrappedPage() {
   const { teamSlug = '', year = '' } = useParams();
   const parsedYear = Number(year);
   const period = useMemo(() => yearPeriod(Number.isInteger(parsedYear) && parsedYear > 2000 ? parsedYear : new Date().getFullYear()), [parsedYear]);
-  const query = usePlatformQuery({ key: `wrapped:${teamSlug}:${period.label}`, query: () => services.wrapped.forTeam(teamSlug, period), staleTime: queryPolicy.historical, retry: 0 });
+  const query = usePlatformQuery({ scope:'public', key: `wrapped:${teamSlug}:${period.label}`, query: () => services.wrapped.forTeam(teamSlug, period), staleTime: queryPolicy.historical, retry: 0 });
   const [index, setIndex] = useState(0);
   const [manualPaused, setManualPaused] = useState(false);
   const [holding, setHolding] = useState(false);

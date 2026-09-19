@@ -573,9 +573,6 @@
 .approval-explainer svg { flex: 0 0 auto; color: var(--color-warning); }
 .approval-explainer p { color: var(--color-text-muted); font-size: var(--text-sm); }
 .drawer-tournament-context { min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); margin-top: var(--space-md); padding: var(--space-sm); color: var(--color-brand-primary); border-top: 1px solid var(--color-border); font-size: var(--text-sm); font-weight: 700; }
-.demo-mode-indicator { grid-column: 2; grid-row: 1 / 3; align-self: center; padding: .22rem .38rem; color: var(--color-text-soft); border: 1px solid var(--color-border); border-radius: var(--radius-xs); font-size: .58rem; letter-spacing: .08em; }
-.mock-banner { min-height: 38px; display: flex; align-items: center; gap: var(--space-xs); padding-inline: var(--space-sm); margin-bottom: var(--space-lg); color: var(--color-text-soft); background: var(--color-bg-deep); border-radius: var(--radius-sm); font-size: var(--text-xs); }
-.mock-banner svg { color: var(--color-warning); }
 .drawer-identity { display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-lg); }
 .competition-awareness { --awareness-accent: var(--color-info); position: relative; display: grid; margin-bottom: var(--space-lg); overflow: hidden; color: var(--color-text-primary); background: color-mix(in srgb, var(--color-bg-deep) 92%, var(--awareness-accent)); border-block: 1px solid var(--color-border-strong); }
 .competition-awareness--critical { --awareness-accent: var(--color-danger); }
@@ -1090,7 +1087,6 @@
 
 
  border: 0; border-top: var(--module-divider); background: transparent; border-radius: 0; padding: var(--space-xl) 0;  grid-template-columns: minmax(0,1fr); }
-.demo-account-fill { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; margin-top: var(--space-sm); padding-inline: var(--space-sm); color: var(--gold-primary); background: transparent; border: 0; font-weight: 700; cursor: pointer; }
 @keyframes roster-fields-enter { from { opacity: 0; transform: translate3d(0, -6px, 0); } to { opacity: 1; transform: none; } }
 .performance-summary, .system-readiness {
   min-width: 0;
@@ -1410,7 +1406,6 @@
   .regulations-layout article > section { grid-template-columns: 2rem 1fr; gap: var(--space-sm); }
   .form-inline { align-items: flex-start; }
   .form-grid { grid-template-columns: 1fr; }
-  .mock-banner { align-items: flex-start; padding-block: var(--space-xs); line-height: 1.35; }
   .team-tournament-list > article { padding: var(--space-lg); }
   .entry-facts { grid-template-columns: repeat(2, 1fr); }
   .history-summary { grid-template-columns: repeat(2, 1fr); }

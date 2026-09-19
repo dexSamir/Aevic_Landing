@@ -1,13 +1,15 @@
-import { adminMessages, blacklist, careerSummary, currentTeam, leaderboard, leaderboardTeams, matchHistory, matchSchedule, notifications, organizations, playerPerformances, slots, teamAchievements, teamAnnouncements, teamComparisonRecords, teamLegacyStats, teams, teamTournamentParticipations, tournamentParticipantTeamIds, tournaments } from '../mocks/data';
-import type { AccountSession, AdminAuditEvent, AdminUser, NotificationPreferences, ResultDispute, RosterChangeRequest, RoundResult, SupportTicket, Team, UserRole } from '../types/domain';
-import type { PlatformServices } from './contracts';
-import { validateBrandAssetRequest } from './brandAssetValidation';
-import { buildPublishedDemoRecords, buildTournamentRecap, deriveTeamForm, summarizeMapPerformance } from '../utils/competitionAnalytics';
-import { deriveWrappedSummary } from '../utils/wrapped';
-import { MOCK_COMPETITION_NOW_ISO, mockCompetitionNow } from '../mocks/clock';
-import { tournamentAcceptsRegistration } from '../utils/tournamentTime';
+import { buildFixtureRecords } from './records';
+// Isolated component-test fixtures. Never import from application code.
+import { adminMessages, blacklist, careerSummary, currentTeam, leaderboard, leaderboardTeams, matchHistory, matchSchedule, notifications, organizations, playerPerformances, slots, teamAchievements, teamAnnouncements, teamComparisonRecords, teamLegacyStats, teams, teamTournamentParticipations, tournamentParticipantTeamIds, tournaments } from './platform-data';
+import type { AccountSession, AdminAuditEvent, AdminUser, NotificationPreferences, ResultDispute, RosterChangeRequest, RoundResult, SupportTicket, Team, UserRole } from '../../src/types/domain';
+import type { PlatformServices } from '../../src/services/contracts';
+import { validateBrandAssetRequest } from '../../src/services/brandAssetValidation';
+import { buildTournamentRecap, deriveTeamForm, summarizeMapPerformance } from '../../src/utils/competitionAnalytics';
+import { deriveWrappedSummary } from '../../src/utils/wrapped';
+import { MOCK_COMPETITION_NOW_ISO, mockCompetitionNow } from './clock';
+import { tournamentAcceptsRegistration } from '../../src/utils/tournamentTime';
 
-const wait = (ms = 180) => new Promise((resolve) => window.setTimeout(resolve, ms));
+const wait = (ms = 180) => new Promise((resolve) => setTimeout(resolve, ms));
 const clone = <T,>(value: T): T => structuredClone(value);
 const isAchievement = (value: typeof teamAchievements[number] | undefined): value is typeof teamAchievements[number] => Boolean(value);
 const backendRequired = async (): Promise<never> => {
@@ -37,7 +39,7 @@ const mockAdminUsers: AdminUser[] = [
   { id: 'admin-1', name: 'Samir H.', email: 'admin@example.test', role: 'super-admin', twoFactorEnabled: true, status: 'active', lastActiveAt: '2026-08-14T13:10:00+04:00' },
   { id: 'admin-2', name: 'Result Operator', email: 'results@example.test', role: 'result-operator', twoFactorEnabled: false, status: 'invited' },
 ];
-const registrationReceipts = new Map<string, { registrationId: string; status: 'under-review'; duplicate: boolean; source: 'mock' }>();
+const registrationReceipts = new Map<string, { registrationId: string; status: 'under-review'; duplicate: boolean; source: 'backend' }>();
 const knownRegistrationPlayers = [
   { playerId: playerPerformances[0].playerId, pubgId: '51234567890', ign: playerPerformances[0].ign, previousAppearances: 3, registeredTeamId: 'team-02', tournamentId: tournaments[0].id },
 ] as const;
@@ -63,9 +65,9 @@ function teamSnapshotScenario() {
 
 const publicTeamSummaries = () => teams.filter((team) => team.approvalStatus === 'approved' && team.slug).map((team) => ({ id: team.id, slug: team.slug!, name: team.name, tag: team.tag, logoUrl: team.logoUrl, country: team.country, verificationLevel: team.verificationLevel, rosterSize: team.roster.length, gameKey: team.gameKey }));
 const publicPlayerRecords = () => teams.filter((team) => team.approvalStatus === 'approved' && team.slug).flatMap((team) => team.roster.map((member) => ({ team, member })));
-const publishedRecords = () => buildPublishedDemoRecords(currentTeam, matchHistory);
+const publishedRecords = () => buildFixtureRecords(currentTeam, matchHistory);
 
-export const mockServices: PlatformServices = {
+export const fixtureServices: PlatformServices = {
   snapshots: {
     async public() { await wait(40); return clone({ tournaments, teams: publicTeamSummaries(), organizations, leaderboard, leaderboardTeams, playerPerformances, teamComparisonRecords, teamAchievements }); },
     async team() { await wait(40); return clone(teamSnapshotScenario()); },
@@ -111,29 +113,30 @@ export const mockServices: PlatformServices = {
       await wait(260);
       const normalizedName = name.trim().replace(/\s+/g, ' ');
       const taken = teams.some((team) => team.name.localeCompare(normalizedName, 'az', { sensitivity: 'base' }) === 0);
-      return { available: !taken, normalizedName, scope: tournamentId ? 'tournament' : 'platform', source: 'mock', reason: taken ? 'Bu komanda adı artıq istifadə olunur.' : undefined };
+      return { available: !taken, normalizedName, scope: tournamentId ? 'tournament' : 'platform', source: 'backend', reason: taken ? 'Bu komanda adı artıq istifadə olunur.' : undefined };
     },
     async validatePlayer(pubgId, tournamentId) {
       await wait(220);
-      if (!/^\d{8,15}$/.test(pubgId)) return { eligible: false, pubgId, tournamentId, source: 'mock', reason: 'invalid-format' };
+      if (!/^\d{8,15}$/.test(pubgId)) return { eligible: false, pubgId, tournamentId, source: 'backend', reason: 'invalid-format' };
       const conflict = knownRegistrationPlayers.find((player) => player.pubgId === pubgId && (!tournamentId || player.tournamentId === tournamentId));
-      return { eligible: !conflict, pubgId, tournamentId, source: 'mock', reason: conflict ? 'registered-to-another-team' : undefined };
+      return { eligible: !conflict, pubgId, tournamentId, source: 'backend', reason: conflict ? 'registered-to-another-team' : undefined };
     },
     async lookupPlayer(pubgId) {
       await wait(180);
       const player = knownRegistrationPlayers.find((item) => item.pubgId === pubgId);
-      return player ? { playerId: player.playerId, pubgId: player.pubgId, ign: player.ign, previousAppearances: player.previousAppearances, source: 'mock' } : null;
+      return player ? { playerId: player.playerId, pubgId: player.pubgId, ign: player.ign, previousAppearances: player.previousAppearances, source: 'backend' } : null;
     },
     async submit(request) {
       await wait(420);
       const previous = registrationReceipts.get(request.idempotencyKey);
       if (previous) return clone({ ...previous, duplicate: true });
-      const receipt = { registrationId: `mock-registration-${registrationReceipts.size + 1}`, status: 'under-review' as const, duplicate: false, source: 'mock' as const };
+      const receipt = { registrationId: `mock-registration-${registrationReceipts.size + 1}`, status: 'under-review' as const, duplicate: false, source: 'backend' as const };
       registrationReceipts.set(request.idempotencyKey, receipt);
       return clone(receipt);
     },
   },
   tournaments: {
+    update: backendRequired,
     create: async () => {throw new Error('Tournament creation requires API mode');},
     entries: async () => [],
     reviewEntry: async () => {throw new Error('Registration review requires API mode');},
@@ -417,7 +420,7 @@ export const mockServices: PlatformServices = {
     async uploadBrandAsset(request) {
       const validation = await this.validateBrandAsset(request);
       if (!validation.ok) throw new Error(validation.reason);
-      return { previewUrl: '', status: 'mock-preview' };
+      return { previewUrl: '', status: 'uploaded' };
     },
   },
   rooms: {
@@ -454,6 +457,7 @@ export const mockServices: PlatformServices = {
     async review(id, status, note) { await wait(); const item = mockDisputes.find((dispute) => dispute.id === id); if (!item) throw new Error('Dispute was not found.'); Object.assign(item, { status, adminNote: note, resolvedAt: mockCompetitionNow().toISOString() }); return clone(item); },
   },
   support: {
+    adminTicket: backendRequired, adminReply: backendRequired,
     async listTickets() { await wait(50); return clone(mockTickets); },
     async getTicket(id) { await wait(40); return clone(mockTickets.find((ticket) => ticket.id === id)); },
     async createTicket(request) { await wait(); const now = mockCompetitionNow().toISOString(); const item: SupportTicket = { ...request, id: `SUP-${1043 + mockTickets.length}`, status: 'open', createdAt: now, updatedAt: now, messages: [] }; mockTickets.unshift(item); return clone(item); },

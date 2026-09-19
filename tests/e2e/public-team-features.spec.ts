@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../helpers/api-fixture-test';
 
 test('public team features are responsive and export the displayed card', async ({ page }) => {
   const errors: string[] = [];

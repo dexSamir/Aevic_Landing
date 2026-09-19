@@ -1,18 +1,18 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { Env,ApiContext } from '../types';
-import { Repository,summary } from '../services/data';
+import { Repository,summary,countChampionships } from '../services/data';
 import { ServiceError,dbError } from '../errors';
 import { paramId,text } from '../validation/input';
 import { deriveWrappedSummary,yearPeriod } from '../../src/utils/wrapped';
 import { buildTournamentRecap } from '../../src/utils/competitionAnalytics';
 import { client } from '../db';
-import { organizations } from '../services/identity';
+import { organizations,achievements } from '../services/identity';
 import { officialRecords } from '../services/records';
 import { rateLimit } from './auth';
 const app=new Hono<Env>();
 const repo=(c:ApiContext)=>new Repository(c.get('db'));
-app.get('/public/context',async c=>{const r=repo(c);const [tournaments,teams,leaderboard]=await Promise.all([r.tournaments(),r.teams(),r.standings()]);return c.json({tournaments,teams:teams.map(summary),organizations:await organizations(r),leaderboard,leaderboardTeams:teams.map(t=>t.name),playerPerformances:[],teamComparisonRecords:[],teamAchievements:[]});});
+app.get('/public/context',async c=>{const r=repo(c);const [tournaments,teams,leaderboard]=await Promise.all([r.tournaments(),r.teams(),r.standings()]);return c.json({tournaments,teams:teams.map(summary),organizations:await organizations(r),leaderboard,leaderboardTeams:leaderboard.map(row=>teams.find(t=>t.id===row.teamId)?.name??''),playerPerformances:[],teamComparisonRecords:await r.comparisons(),teamAchievements:[]});});
 app.get('/tournaments',async c=>c.json(await repo(c).tournaments()));
 app.get('/tournaments/:id',async c=>c.json(await repo(c).tournament(paramId(c))));
 app.get('/tournaments/:id/participants',async c=>{
@@ -30,13 +30,13 @@ app.get('/public/teams/:id/form',async c=>c.json((await repo(c).profile(paramId(
 app.get('/public/teams/:id/map-specialization',async c=>c.json((await repo(c).profile(paramId(c))).mapSpecialization));
 app.get('/public/teams/:id/map-performance',async c=>{const p=await repo(c).profile(paramId(c));return c.json(p.mapSpecialization.metrics.map(m=>({teamId:p.team.id,map:m.map,matches:m.matches,averagePlacement:m.averagePlacement,averageFinishes:m.averageFinishes,winRate:m.wwcd/m.matches})));});
 app.get('/public/teams/:id/seasons',async c=>{const id=paramId(c),r=repo(c);await r.team(id);const history=await r.history(id);return c.json([...new Set(history.map(m=>new Date(m.playedAt).getUTCFullYear()))].map(year=>{const matches=history.filter(m=>new Date(m.playedAt).getUTCFullYear()===year);return{teamId:id,seasonId:String(year),seasonName:String(year),matches:matches.length,finishes:matches.reduce((s,m)=>s+m.finishes,0),wwcd:matches.filter(m=>m.wwcd).length,points:matches.reduce((s,m)=>s+m.points,0)};}));});
-app.get('/teams/:slug/wrapped',async c=>{const r=repo(c),t=await r.team(text(1,110).parse(c.req.param('slug')));const year=z.coerce.number().int().min(2000).max(2100).parse(c.req.query('year')??c.req.query('seasonId'));return c.json(deriveWrappedSummary({team:t,period:yearPeriod(year),matches:await r.history(t.id)}));});
+app.get('/teams/:slug/wrapped',async c=>{const r=repo(c),t=await r.team(text(1,110).parse(c.req.param('slug')));const year=z.coerce.number().int().min(2000).max(2100).parse(c.req.query('year')??c.req.query('seasonId'));return c.json(deriveWrappedSummary({team:t,period:yearPeriod(year),matches:await r.history(t.id),championships:countChampionships(t.id,await r.standings(),(await r.tournaments()).filter(t=>new Date(t.endsAt).getUTCFullYear()===year)),achievements:await achievements(r,t.id),records:(await officialRecords(r)).current.filter(record=>record.teamId===t.id)}));});
 app.get('/matches',async c=>{const status=z.enum(['scheduled','completed','live','upcoming']).parse(c.req.query('status')??'scheduled');const r=repo(c);if(status==='completed'){const history=await r.history();const winners=new Map<string,(typeof history)[number]>();for(const row of history){const prior=winners.get(row.id);if(!prior||row.placement<prior.placement)winners.set(row.id,row);}return c.json([...winners.values()]);}return c.json((await r.schedule()).filter(m=>status==='scheduled'?m.status!=='completed':m.status===status));});
 app.get('/matches/:id',async c=>{const id=paramId(c),r=repo(c),match=(await r.schedule()).find(m=>m.id===id);if(!match)throw new ServiceError(404,'MATCH_NOT_FOUND');const [t,results,teams]=await Promise.all([r.tournament(match.tournamentId),r.results(),r.teams()]);return c.json({match,tournament:{id:t.id,name:t.name,shortName:t.shortName},published:results.some(x=>x.roundId===id),teamResults:results.filter(x=>x.roundId===id).map(x=>({teamId:x.teamId,teamName:teams.find(t=>t.id===x.teamId)?.name??'',teamSlug:teams.find(t=>t.id===x.teamId)?.slug,placement:x.placement,finishes:x.finishes,placementPoints:x.placementPoints,totalPoints:x.totalPoints,wwcd:x.placement===1}))});});
 app.get('/matches/:id/calendar',async c=>{const id=paramId(c),r=repo(c),m=(await r.schedule()).find(m=>m.id===id);if(!m)throw new ServiceError(404,'MATCH_NOT_FOUND');return c.json({id,title:`${(await r.tournament(m.tournamentId)).name} · ${m.map}`,description:`${m.round}. raund`,startsAt:m.startsAt,timezone:'Asia/Baku',publicUrl:`${c.get('config').siteUrl}/matches/${id}`});});
 app.get('/leaderboards/:id',async c=>{const id=paramId(c),r=repo(c);await r.tournament(id);return c.json(await r.standings(id));});
-app.get('/leaderboards/:id/snapshots',async c=>{await repo(c).tournament(paramId(c));return c.json([]);});
-app.get('/leaderboards/:id/movement',async c=>{await repo(c).tournament(paramId(c));return c.json([]);});
+app.get('/leaderboards/:id/snapshots',async c=>c.json(await repo(c).standingSnapshots(paramId(c))));
+app.get('/leaderboards/:id/movement',async c=>{const snapshots=await repo(c).standingSnapshots(paramId(c));const current=snapshots.at(-1),previous=snapshots.at(-2);return c.json(current?.standings.map(row=>{const before=previous?.standings.find(r=>r.teamId===row.teamId);const delta=before?before.rank-row.rank:undefined;return {teamId:row.teamId,currentRank:row.rank,previousRank:before?.rank,delta:delta===undefined?undefined:Math.abs(delta),kind:delta===undefined?'new':delta===0?'unchanged':delta>0?'up':'down',previousSnapshotId:previous?.id};})??[]);});
 app.get('/search',async c=>{const q=text(0,100).parse(c.req.query('q')??''),r=repo(c),[teams,tournaments]=await Promise.all([r.teams(),r.tournaments()]);const includes=(v:string)=>v.toLocaleLowerCase('az-AZ').includes(q.toLocaleLowerCase('az-AZ'));return c.json({query:q,groups:{team:teams.filter(t=>includes(t.name)).slice(0,30).map(t=>({id:t.id,type:'team',title:t.name,href:`/teams/${t.slug}`})),tournament:tournaments.filter(t=>includes(t.name)).slice(0,30).map(t=>({id:t.id,type:'tournament',title:t.name,href:`/tournaments/${t.id}`}))}});});
 app.get('/archive',async c=>{const ts=(await repo(c).tournaments()).filter(t=>t.status==='completed');return c.json([...new Set(ts.map(t=>new Date(t.endsAt).getUTCFullYear()))].map(year=>({id:String(year),year,label:String(year),tournaments:ts.filter(t=>new Date(t.endsAt).getUTCFullYear()===year)})));});
 app.get('/registrations/team-name',async c=>{await rateLimit(c,'name-read',30);const name=text(2,60).parse(c.req.query('name'));const {data,error}=await client(c.get('config'),undefined,true).from('teams').select('id').ilike('name',name.replace(/[%_\\]/g,'\\$&')).limit(1);dbError(error);return c.json({available:!data?.length,normalizedName:name,scope:'platform',source:'backend'});});

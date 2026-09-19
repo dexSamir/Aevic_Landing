@@ -17,7 +17,7 @@ const versionFor = (scope: Scope, key: string) => `${scope === 'private' ? priva
 
 export const queryPolicy = {
   publicDirectory: 5 * 60_000, publicCompetition: 60_000,
-  historical: 30 * 60_000, account: 30_000,
+  historical: 60_000, account: 30_000,
 } as const;
 
 export function clearQueryCache(scope: Scope | 'all' = 'private') {
@@ -58,7 +58,7 @@ export function usePlatformQuery<T>(options: {
   key: string; query: (signal: AbortSignal) => Promise<T>;
   scope?: Scope; staleTime?: number; enabled?: boolean; retry?: number; refetchOnFocus?: boolean;
 }) {
-  const { key, query, scope = 'private', staleTime = queryPolicy.publicCompetition, enabled = true, retry = 1, refetchOnFocus = false } = options;
+  const { key, query, scope = 'private', staleTime = queryPolicy.publicCompetition, enabled = true, retry = 1, refetchOnFocus = true } = options;
   const cacheKey = scope + ':' + key;
   const epoch = useSyncExternalStore(subscribe, () => versionFor(scope, cacheKey), () => '0/0');
   const stateKey = cacheKey + ':' + epoch;

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../helpers/api-fixture-test';
 
 test.describe('cold component style ownership', () => {
   test('public Support owns its layout and 44px search input on cold entry', async ({page}) => {

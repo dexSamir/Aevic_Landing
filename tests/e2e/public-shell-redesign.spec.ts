@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../helpers/api-fixture-test';
 
 const evidence = '.artifacts/public-shell-redesign-2026-08-30';
 

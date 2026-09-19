@@ -2,7 +2,7 @@ import { ArrowRight, Bell, ShieldCheck, Users } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, LoadingSkeleton, PageHeader, Switch, Toast } from '../components/common/primitives';
-import { demoMode, services } from '../services';
+import { services } from '../services';
 import { usePlatformQuery, updateCachedQuery } from '../services/queryCache';
 import type { NotificationPreferences } from '../types/domain';
 
@@ -17,7 +17,7 @@ export function TeamSettingsPage() {
   const save = async (event: FormEvent) => {
     event.preventDefault(); if (!preferences || saving) return;
     setSaving(true); setError(''); setNotice('');
-    try { const saved = await services.notifications.updatePreferences(preferences); setPreferences(saved); updateCachedQuery<NotificationPreferences>('notification-preferences', () => saved); setDirty(false); setNotice(demoMode ? 'Bildiriş seçimləri nümunə sessiyasında saxlanıldı.' : 'Bildiriş seçimləri saxlanıldı.'); }
+    try { const saved = await services.notifications.updatePreferences(preferences); setPreferences(saved); updateCachedQuery<NotificationPreferences>('notification-preferences', () => saved); setDirty(false); setNotice('Bildiriş seçimləri saxlanıldı.'); }
     catch { setError('Seçimlər saxlanılmadı. Yenidən cəhd edin.'); }
     finally { setSaving(false); }
   };

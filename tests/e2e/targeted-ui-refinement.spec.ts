@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../helpers/api-fixture-test';
 
 const viewports = [
   { width: 1440, height: 900 },

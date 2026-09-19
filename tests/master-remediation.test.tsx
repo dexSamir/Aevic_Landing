@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook, waitFor, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import { tournaments, currentTeam, matchHistory } from '../src/mocks/data';
+import { tournaments, currentTeam, matchHistory } from './fixtures/platform-data';
 import { selectActiveTournament, selectNextTournament, selectPrimaryCompetition, selectDisputeDeadline, selectCurrentRound } from '../src/utils/competitionSelectors';
 import { IMAGE_UPLOAD_TYPES, EVIDENCE_UPLOAD_TYPES, validateUpload } from '../src/utils/fileValidation';
 import { REGISTER_DRAFT_TTL, registrationDraftPayload, parseRegistrationDraft } from '../src/utils/registrationDraft';

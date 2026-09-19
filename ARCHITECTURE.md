@@ -5,7 +5,7 @@
 - `src/app`: router, protected-route boundaries, and PWA registration.
 - `src/types`: reusable tournament, team, organization, achievement, public-profile, media, result, notification, ban, and sharecard domain models.
 - `src/services`: backend-facing contracts and adapter selection.
-- `src/mocks`: centralized fictional data and safe mock adapter behavior.
+- `tests/fixtures`: isolated deterministic component/browser fixtures; never imported by application code.
 - `src/components`: common primitives plus brand, tournament, team, admin, form, and feedback components.
 - `src/features`: feature-specific interaction modules such as check-in, sharecards, results, and authentication.
 - `src/layouts`: public, auth, team, and admin application shells.
@@ -14,7 +14,7 @@
 
 ## Service Boundary
 
-`PlatformServices` groups auth, registration, tournaments, teams, achievements, organizations, public profiles, public matches, media, rooms, results, notifications, and admin contracts. Production selects `apiAdapter`, which calls Hono on Netlify Functions. Explicit local mock mode selects `mockServices`; production errors never substitute fixtures. Mock data is fictional and never contains real credentials.
+`PlatformServices` groups auth, registration, tournaments, teams, achievements, organizations, public profiles, public matches, media, rooms, results, notifications, and admin contracts. The application always uses `apiAdapter`, which calls the same Hono routes through Vite locally and Netlify Functions in deployment. Backend errors never substitute fixtures.
 
 `RegistrationService` covers team-name availability, roster validation and signup. The adapter sends registration through Supabase Auth via the function; Auth owns password hashing and email confirmation. The signup database trigger atomically provisions the profile, pending team, owner membership and five-player roster. Database uniqueness and roster constraints remain authoritative. Public lookup responses do not disclose private PUBG identities. Browser draft autosave excludes passwords.
 
@@ -25,7 +25,7 @@
 - `GET /teams?query=` → approved `PublicTeamSummary[]`; never return private player UID/contact fields.
 - `GET /teams/:slug` → `PublicTeamProfile`; return `404` for hidden, rejected, or unknown teams.
 - `GET /teams/:id/matches` and `GET /teams/:id/upcoming-match` → published round history and the next public schedule item.
-- `GET /teams/:id/seasons` → `TeamSeasonSummary[]`; `GET /teams/:id/map-performance` → `TeamMapPerformance[]`. The mock returns empty arrays until authoritative data exists.
+- `GET /teams/:id/seasons` → `TeamSeasonSummary[]`; `GET /teams/:id/map-performance` → `TeamMapPerformance[]`. Empty official history returns empty arrays.
 - `GET /tournaments/:id/participants` → confirmed `TournamentParticipant[]` only: a public team summary, public IGN/role roster projection, and `registrationStatus: confirmed`. The UI never substitutes the public team directory when this endpoint is empty or unavailable.
 - `GET /matches?status=upcoming|live|completed` maps to `PublicMatchService.schedule/history`. Live delivery should use an authenticated publishing pipeline plus SSE/WebSocket invalidation, not client-generated state.
 - `GET /teams/:id/follow`, `POST /teams/:id/follow`, and `DELETE /teams/:id/follow` map to optional generic `FollowService`. Follow preferences use authenticated database persistence; no local storage fallback claims a successful account write.
@@ -34,8 +34,8 @@
 
 - `GET /teams/:id/form` returns up to the ten newest published official matches in descending chronological order. The UI derives WWCD and placement bands without inventing win/loss semantics.
 - `GET /teams/:id/map-specialization` returns per-map sample counts and averages. Until an official composite score exists, `Best Map` means the eligible map with the highest average published points; the deterministic minimum is three matches.
-- `GET /leaderboards/:id/snapshots` and `GET /leaderboards/:id/movement` must compare the current table only with the immediately previous published snapshot. The mock returns no movement, so movement is hidden.
-- `GET /records`, `GET /records/:id`, and `GET /records/:id/history` return `RecordEntry` provenance including match, map, achieved date, and historical roster snapshot status. Production records support the two single-match categories proven by official published results; explicit mock mode uses its separate published fixtures. Missing historical rosters are never substituted with the current roster.
+- `GET /leaderboards/:id/snapshots` and `GET /leaderboards/:id/movement` must compare the current table only with the immediately previous published snapshot. The repository reconstructs cumulative published standings from current corrected official rows; movement compares the final two snapshots.
+- `GET /records`, `GET /records/:id`, and `GET /records/:id/history` return `RecordEntry` provenance including match, map, achieved date, and historical roster snapshot status. Production records support the two single-match categories proven by official published results. Missing historical rosters are never substituted with the current roster.
 - `GET /tournaments/:id/recap` returns deterministic `TournamentRecapData` only for completed tournaments. Champion, final standings, MVP, and top-player awards remain absent unless authoritative results or official award calculations exist.
 - `GET /tournaments/:id/calendar` and `GET /matches/:id/calendar` return timezone-aware public `CalendarEventData`. Calendar exports exclude room credentials and private participant data.
 - `POST /follows`, `DELETE /follows/:entityType/:entityId`, and `GET /me/follows` use generic `TEAM | PLAYER` entities. `PlatformServices.follows` is optional; no localStorage fallback presents itself as account persistence.
@@ -50,7 +50,7 @@ Client route guards improve navigation but do not authorize access. Production s
 
 ## State Strategy
 
-Route data is read from service adapters. Local component state owns transient UI such as form steps, selections, dialogs, tabs, draft values, and mock success feedback. The query/cache layer deduplicates reads, invalidates affected resources after acknowledged writes and clears private state when session identity changes.
+Route data is read from service adapters. Local component state owns transient UI such as form steps, selections, dialogs, tabs, draft values and pending submission state. The query/cache layer deduplicates reads, invalidates affected resources after acknowledged writes and clears private state when session identity changes.
 
 ## PWA
 
@@ -58,7 +58,7 @@ Route data is read from service adapters. Local component state owns transient U
 
 ## Sharecards
 
-`SharecardGenerator` renders isolated DOM templates and exports PNG via `html-to-image`. Two factual template families exist: tournament result and leaderboard standings. Both are deterministic functions of published official results (or explicit development fixtures in mock mode); speculative performance and MVP templates remain unavailable until those datasets have authoritative fields. Generated images contain no room credentials, prize data, or other sensitive state.
+`SharecardGenerator` renders isolated DOM templates and exports PNG via `html-to-image`. Two factual template families exist: tournament result and leaderboard standings. Both are deterministic functions of published official results; speculative performance and MVP templates remain unavailable until those datasets have authoritative fields. Generated images contain no room credentials, prize data, or other sensitive state.
 
 `TeamAchievementSharecardData` is a domain-only payload for a possible future achievement sharecard. It does not create a fifth poster family or alter the supplied poster artwork.
 
@@ -92,7 +92,7 @@ Brand image inputs accept PNG/JPEG/WebP sources up to 6 MB. The browser preserve
 
 ## 2026 Platform Quality Boundary
 
-Adapter selection is explicit: `VITE_DATA_SOURCE=mock|api`. `src/services/index.ts` is the only selection point; route components consume `PlatformServices` and do not branch on the adapter. `VITE_API_BASE_URL` configures the production root and `VITE_DEMO_MODE` controls fictional-data notices. A clean production build defaults to the API adapter; an explicit production `VITE_DATA_SOURCE=mock` fails the build. Production deployments should still set `VITE_DATA_SOURCE=api` and `VITE_DEMO_MODE=false` for unambiguous configuration.
+The application always constructs `createApiServices` in `src/services/index.ts`. Both development and production call the same Hono routes using same-origin cookies. Vite mounts that Hono app at `/api` for local development; Netlify mounts it in the existing function for deployment. Server environment variables must be explicitly supplied, and missing configuration returns a structured 503. There is no data-source selector or application fixture adapter.
 
 `ApiAdapter` implements every current contract with same-origin credentials and sanitized status-only errors. Production capabilities include public search, match detail, season archive, official team records and period-bound team Wrapped. Public individual-player statistics remain gated because official per-player scoring is absent. Implemented route modules and availability gates are documented below; unsupported operations fail explicitly.
 
@@ -100,7 +100,7 @@ Adapter selection is explicit: `VITE_DATA_SOURCE=mock|api`. `src/services/index.
 
 Public routes include `/matches/:matchId`, `/archive`, and `/teams/:teamSlug/wrapped/:year`. Individual-player profile routes remain unavailable; PUBG IDs and contact data are private. Match detail never includes lobby credentials. Historical roster models require captured snapshots and must not substitute the current team. Archive is an index over canonical tournament and recap pages.
 
-AEVIC Wrapped derives from the same published `MatchHistoryEntry` source used by Career and profile surfaces. `deriveWrappedSummary` is period-bound, requires at least three matches, gates best-map claims behind three matches on the same map, and omits unsupported championships, MVP, percentiles, streaks, and records. Dedicated Canvas templates generate 1080×1080, 1080×1350, and 1080×1920 PNGs from public fields only. Production serves `GET /teams/:slug/wrapped?year=` using those official result rows and the same `WrappedSummary` contract.
+AEVIC Wrapped derives from the same published `MatchHistoryEntry` source used by Career and profile surfaces. `deriveWrappedSummary` is period-bound, requires at least three matches, gates best-map claims behind three matches on the same map, includes server-derived period championships, earned badges and official records when available, and omits unsupported MVP, percentiles and streaks. Dedicated Canvas templates generate 1080×1080, 1080×1350, and 1080×1920 PNGs from public fields only. Production serves `GET /teams/:slug/wrapped?year=` using those official result rows and the same `WrappedSummary` contract.
 
 The service worker no longer fetches Vite's internal manifest during install. Optional shell entries are cached independently with `Promise.allSettled`, hashed assets are cached after successful public requests, navigation is network-first, and protected/API paths are excluded. A failed optional icon can no longer abort installation.
 
@@ -108,7 +108,7 @@ Client-side route metadata updates title, description, canonical, OpenGraph, and
 
 ## Implemented backend boundary
 
-`apiAdapter` calls the same-origin `/api` Hono application exported by `netlify/functions/api.ts`. Route modules separate Auth, public competition, workspace operations, identity governance and media. Validation uses Zod; structured errors contain a request ID and no raw database/Auth stack. The `aevic` schema is isolated from legacy `public` data. Five reproducible migrations define normalized tables, indexed access paths, RLS, authorized transactional RPCs, Storage policies and Realtime publication. The old public-context function is not the routed production API or a fallback.
+`apiAdapter` calls the same-origin `/api` Hono application exported by `netlify/functions/api.ts`. Route modules separate Auth, public competition, workspace operations, identity governance and media. Validation uses Zod; structured errors contain a request ID and no raw database/Auth stack. The `aevic` schema is isolated from legacy `public` data. Six reproducible migrations define normalized tables, indexed access paths, RLS, authorized transactional RPCs, Storage policies and Realtime publication. The old public-context function is not the routed production API or a fallback.
 
 Supabase Auth validates server-managed HttpOnly cookies. Ordinary database reads and commands carry the caller's access token and remain subject to RLS. Privileged clients are created only for Auth administration, validated media operations and rate limiting. No service credential reaches the frontend. Origin validation protects state-changing cookie requests. Result publication is atomic across all approved participants, and corrections append immutable version rows with expected-version checks. Statistical views derive from the official result source.
 
@@ -122,4 +122,8 @@ See [backend setup](docs/BACKEND_SETUP.md) for the full local workflow, availabi
 
 `/team/profile` reuses `PublicTeamIdentity` for a local preview. Identity fields and social links have acknowledged writes, and the crop editor uploads its processed binary File through the media service. Unsaved previews are labeled; server failures retain the draft. Public captain identity comes from the roster IGN, never account contact details. Official career and competition metrics remain read-only. Acknowledged social, preference, check-in and withdrawal responses update the existing query snapshot without duplicate reads.
 
-`/team/career` groups official metrics, Erangel/Miramar/Rondo statistics and year-filtered Wrapped. Existing history, comparison, badges and PNG generators remain available. `/team/settings` stores notification preferences through `NotificationService`. The management route uses authority membership and existing capability gates; destructive flows require an explicit review and confirmation, and remain unavailable in the mock adapter.
+`/team/career` groups official metrics, Erangel/Miramar/Rondo statistics and year-filtered Wrapped. Existing history, comparison, badges and PNG generators remain available. `/team/settings` stores notification preferences through `NotificationService`. The management route uses authority membership and existing capability gates; destructive flows require an explicit review and confirmation; supported operations persist through authorized RPCs.
+
+## Integration follow-up
+
+The sixth migration adds role-scoped contact projection, versioned tournament edits and unique published placement enforcement. It explicitly revokes PostgreSQL PUBLIC EXECUTE defaults while retaining named-role grants. Successful API mutations invalidate cached dependencies; account changes invalidate private state and signal other tabs without sharing tokens. Current and cumulative leaderboard projections use the same ranking function. Cumulative snapshots are reconstructed from currently corrected official rows; they are not immutable past-version snapshots.

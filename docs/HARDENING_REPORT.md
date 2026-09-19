@@ -1,3 +1,5 @@
+> Historical baseline report. The API-only continuation supersedes its mock-development instructions and five-migration/test counts; see [INTEGRATION_REPORT.md](INTEGRATION_REPORT.md).
+
 # Production hardening verification — 19 September 2026
 
 ## Delivery status

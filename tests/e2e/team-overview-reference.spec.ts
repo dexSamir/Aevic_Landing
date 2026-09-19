@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../helpers/api-fixture-test';
 
 test('captain console puts the real next action first and preserves operation routes', async ({ page }) => {
   const errors: string[] = [];

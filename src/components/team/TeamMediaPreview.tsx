@@ -1,14 +1,12 @@
-import { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Button, FileUpload } from '../common/primitives';
-import { demoMode, services } from '../../services';
+import { services } from '../../services';
 import { invalidateQuery, updateCachedQuery } from '../../services/queryCache';
 import type { TeamPlatformSnapshot } from '../../types/domain';
 import { prepareBrandImage } from '../../utils/prepareBrandImage';
 const LogoEditor = lazy(() => import('../auth/TeamLogoEditor').then(module => ({ default: module.TeamLogoEditor })));
 export default function TeamMediaPreview({ teamId, onPreview }: { teamId: string; onPreview: (type: 'logo' | 'banner', url: string) => void }) {
-  const urls = useRef<Partial<Record<'logo' | 'banner', string>>>({});
   const [logoFile,setLogoFile]=useState<File>(); const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [notice,setNotice]=useState('');
-  useEffect(() => () => { Object.values(urls.current).forEach(url => URL.revokeObjectURL(url)); }, []);
   const publish = async (type:'logo'|'banner',file:File) => {
     if(busy)return;setBusy(true);setError('');setNotice('');
     let bitmap:ImageBitmap|undefined;
@@ -16,11 +14,10 @@ export default function TeamMediaPreview({ teamId, onPreview }: { teamId: string
       file=await prepareBrandImage(file,type);
       bitmap=await createImageBitmap(file);
       const result=await services.media.uploadBrandAsset({ownerType:'team',ownerId:teamId,assetType:type,fileName:file.name,mimeType:file.type,sizeBytes:file.size,width:bitmap.width,height:bitmap.height},file);
-      const url=demoMode?URL.createObjectURL(file):result.previewUrl;
-      if(urls.current[type])URL.revokeObjectURL(urls.current[type]!);if(demoMode)urls.current[type]=url;
+      const url=result.previewUrl;
       onPreview(type,url);setLogoFile(undefined);
-      if(!demoMode){updateCachedQuery<TeamPlatformSnapshot>('snapshot:team',v=>({...v,currentTeam:{...v.currentTeam,[type==='logo'?'logoUrl':'bannerUrl']:url}}));invalidateQuery('profile:');invalidateQuery('snapshot:public');}
-      setNotice(demoMode?'Şəkil lokal önbaxışda göstərilir.':'Şəkil yükləndi və profilə əlavə edildi.');
+      {updateCachedQuery<TeamPlatformSnapshot>('snapshot:team',v=>({...v,currentTeam:{...v.currentTeam,[type==='logo'?'logoUrl':'bannerUrl']:url}}));invalidateQuery('profile:');invalidateQuery('snapshot:public');}
+      setNotice('Şəkil yükləndi və profilə əlavə edildi.');
     }catch{setError('Şəkil yüklənmədi. Formatı, ölçünü və bağlantını yoxlayın.');setLogoFile(undefined);}
     finally{bitmap?.close();setBusy(false);}
   };

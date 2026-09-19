@@ -1,5 +1,6 @@
 import type { PlatformServices } from './contracts';
 import { requestJson } from './requestJson';
+import { invalidateQuery } from './queryCache';
 import { validatePublicSnapshot } from './snapshotValidation';
 
 type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; nullStatuses?: number[] };
@@ -9,11 +10,13 @@ export function createApiServices(baseUrl: string): PlatformServices {
   const request = async <T,>(path: string, options: RequestOptions = {}): Promise<T> => {
     const { nullStatuses = [], body, ...fetchOptions } = options;
     const csrfToken = typeof document === 'undefined' ? undefined : document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-    return requestJson<T>(`${root}${path}`, {
+    const result = await requestJson<T>(`${root}${path}`, {
       ...fetchOptions, credentials: 'include',
       headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}), ...(csrfToken && fetchOptions.method && fetchOptions.method !== 'GET' ? { 'X-CSRF-Token': csrfToken } : {}), ...options.headers },
       body: body ? JSON.stringify(body) : undefined,
     }, nullStatuses);
+    if (fetchOptions.method && !['GET','HEAD'].includes(fetchOptions.method)) invalidateQuery('');
+    return result;
   };
   const query = (values: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
@@ -62,6 +65,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       submit: (body) => request('/registrations', { method: 'POST', headers: { 'Idempotency-Key': body.idempotencyKey }, body }),
     },
     tournaments: {
+      update: (id,body) => request(`/admin/tournaments/${encodeURIComponent(id)}`,{method:'PATCH',body}),
       create: (body,idempotencyKey) => request('/admin/tournaments',{method:'POST',body,headers:{'Idempotency-Key':idempotencyKey}}),
       entries: id => request(`/admin/tournaments/${encodeURIComponent(id)}/entries`),
       reviewEntry: (tournamentId,teamId,status) => request(`/admin/tournaments/${encodeURIComponent(tournamentId)}/entries/${encodeURIComponent(teamId)}`,{method:'PATCH',body:{status}}),
@@ -201,6 +205,8 @@ export function createApiServices(baseUrl: string): PlatformServices {
       review: (id, status, note) => request(`/admin/disputes/${encodeURIComponent(id)}`, { method: 'PATCH', body: { status, note } }),
     },
     support: {
+      adminTicket: id => request(`/admin/support/tickets/${encodeURIComponent(id)}`,{nullStatuses:[404]}),
+      adminReply: (id,body) => request(`/admin/support/tickets/${encodeURIComponent(id)}/messages`,{method:'POST',body}),
       listTickets: () => request('/me/support/tickets'),
       getTicket: (id) => request(`/me/support/tickets/${encodeURIComponent(id)}`, { nullStatuses: [404] }),
       createTicket: (body) => request('/me/support/tickets', { method: 'POST', body }),

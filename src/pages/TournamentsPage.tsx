@@ -7,7 +7,7 @@ import { BrandJoinCta } from '../components/common/BrandJoinCta';
 import { MediaBackdrop } from '../components/common/MediaBackdrop';
 import { TournamentCalendar } from '../components/competition/TournamentCalendar';
 import { TournamentJoinAction } from '../components/competition/TournamentJoinAction';
-import { competitionNow, demoMode, serviceCapabilities, services } from '../services';
+import { competitionNow, serviceCapabilities, services } from '../services';
 import { usePublicPlatformData } from '../services/PlatformDataContext';
 import { eventDateKey, formatEventDate, formatEventTime } from '../utils/calendar';
 import { selectPrimaryCompetition } from '../utils/competitionSelectors';
@@ -44,7 +44,7 @@ export function TournamentsPage() {
   useEffect(() => {
     const started = Date.now();
     const reference = competitionNow().getTime();
-    const tick = () => setNow(new Date(demoMode ? reference + Date.now() - started : competitionNow().getTime()));
+    const tick = () => setNow(new Date(reference + Date.now() - started));
     let timer: number | undefined;
     const resume = () => { window.clearInterval(timer); if (!document.hidden) { tick(); timer = window.setInterval(tick, 1000); } };
     resume(); document.addEventListener('visibilitychange', resume);
@@ -83,7 +83,7 @@ export function TournamentsPage() {
             <Link className="planning-event__arrow" to={`/tournaments/${tournament.id}`} aria-label={`${tournament.name} detallarını aç`}><ArrowRight size={20} /></Link>
           </article>;
         })}{!visible.length && <div className="planning-empty"><h3>Axtarışa uyğun turnir yoxdur.</h3><p>Başqa ad və ya status seçin.</p><button type="button" onClick={() => { setSearch(''); setFilter('all'); }}>Filtrləri təmizlə</button></div>}</div>
-        {demoMode && <small className="planning-demo">Nümunə turnir məlumatları</small>}
+
       </section></div> : <div className="planning-empty"><h2>Hazırda dərc edilmiş turnir yoxdur.</h2><Link to="/regulations">Yarış qaydaları <ArrowRight size={18} /></Link></div>}
     </div></section>
     {showCta && <BrandJoinCta />}

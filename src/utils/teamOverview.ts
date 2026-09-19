@@ -7,7 +7,7 @@ import { deriveNextAction } from '../components/team/NextActionCard';
 export const bakuTime = (date: string) => new Date(date).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baku' });
 export const overviewDate = (date: string) => formatEventDate(date, { includeYear: false });
 
-/** Overview is a projection of published domain data, never a second demo dataset. */
+/** Overview is a projection of published domain data. */
 export function buildTeamOverview(data: TeamPlatformSnapshot, context?: TeamCompetitionContext) {
   const team = data.currentTeam;
   const tournamentHref = context ? `/team/tournaments/${context.tournament.id}` : undefined;

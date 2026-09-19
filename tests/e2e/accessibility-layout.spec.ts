@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../helpers/api-fixture-test';
 
 test('critical workspaces reflow at 320px and 200% text', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chrome', 'Explicit text-size matrix runs once.');

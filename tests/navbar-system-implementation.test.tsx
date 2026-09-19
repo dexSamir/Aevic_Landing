@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { deduplicateCompetitionEvents, type CompetitionAwarenessEvent } from '../src/components/team/CompetitionAwareness';
-import { mockServices } from '../src/services/mockAdapter';
+import { fixtureServices } from './fixtures/component-services';
 import { deriveTeamCompetitionContexts } from '../src/utils/teamCompetitionContext';
 
 const awarenessBase: CompetitionAwarenessEvent = {
@@ -20,7 +20,7 @@ describe('approved navbar-system implementation contracts', () => {
   });
 
   it('selects the current competition deterministically when fixture arrays are reordered', async () => {
-    const snapshot = await mockServices.snapshots.team();
+    const snapshot = await fixtureServices.snapshots.team();
     const first = deriveTeamCompetitionContexts(snapshot, new Date('2026-08-04T17:00:00Z')).current?.tournament.id;
     const reordered = { ...snapshot, tournaments: [...snapshot.tournaments].reverse(), participations: [...snapshot.participations].reverse(), matchSchedule: [...snapshot.matchSchedule].reverse(), matchHistory: [...snapshot.matchHistory].reverse() };
     expect(deriveTeamCompetitionContexts(reordered, new Date('2026-08-04T17:00:00Z')).current?.tournament.id).toBe(first);

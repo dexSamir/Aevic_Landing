@@ -38,7 +38,7 @@ export function OrganizationBanner({ organization, children }: { organization: O
 export function OrganizationIdentity({ organization }: { organization: Organization }) {
   return <div className="organization-identity">
     <TeamLogo name={organization.name} src={organization.logoUrl} size="lg" />
-    <div><span>{organization.shortName} · Esports organization</span><h1>{organization.name} <VerificationCrest level={organization.verificationLevel} /></h1><p>{organization.country} · {new Date(organization.foundedAt).getFullYear()} tarixində qurulub</p></div>
+    <div><span>{organization.shortName} · Esports organization</span><h1>{organization.name} <VerificationCrest level={organization.verificationLevel} /></h1><p>{organization.country}{organization.foundedAt && ` · ${new Date(organization.foundedAt).getFullYear()} tarixində qurulub`}</p></div>
   </div>;
 }
 

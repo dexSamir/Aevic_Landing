@@ -9,7 +9,7 @@ import { Tabs } from '../src/components/common/primitives';
 import { AdminLayout, PublicHeader, TeamLayout, productRouteTitle } from '../src/layouts/layouts';
 import { WrappedPage } from '../src/pages/WrappedPage';
 import { AdminPlatformProvider, TeamPlatformProvider } from '../src/services/PlatformDataContext';
-import { mockServices } from '../src/services/mockAdapter';
+import { fixtureServices } from './fixtures/component-services';
 import type { Tournament, TournamentResultBreakdown, TournamentSlot } from '../src/types/domain';
 import { publicNavigationFamily } from '../src/utils/routeMetadata';
 import { capacityIsCoherent, deriveTournamentCapacity } from '../src/utils/tournamentCapacity';
@@ -96,14 +96,14 @@ describe('audit resolution navigation integrity', () => {
   });
 
   it('renders role-first Admin identity in the public header', async () => {
-    await mockServices.auth.login('admin@example.test', 'password');
+    await fixtureServices.auth.login('admin@example.test', 'password');
     const view = render(<MemoryRouter><PublicHeader /></MemoryRouter>);
     const trigger = await within(view.container).findByRole('button', { name: /hesab menyusu/i });
     expect(trigger).not.toHaveTextContent('Caspian Wolves');
     expect(trigger.querySelector('.team-logo')).not.toBeInTheDocument();
     fireEvent.click(trigger);
     expect(await within(view.container).findByText('ADMIN ACCESS')).toBeInTheDocument();
-    await mockServices.auth.login('team@example.test', 'password');
+    await fixtureServices.auth.login('team@example.test', 'password');
   });
 });
 

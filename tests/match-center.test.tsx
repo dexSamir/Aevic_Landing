@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MatchCenterPage, matchCenterMaps } from '../src/pages/SpectatorPages';
 import { PublicFooter } from '../src/layouts/PublicFooter';
 import { services } from '../src/services';
-import { currentTeam, matchHistory, matchSchedule, tournaments } from '../src/mocks/data';
+import { currentTeam, matchHistory, matchSchedule, tournaments } from './fixtures/platform-data';
 import type { PublicMatchDetail } from '../src/types/domain';
 
 const schedule = [{ ...matchSchedule[0], status: 'live' as const }, ...matchSchedule.slice(1)];
@@ -20,8 +20,8 @@ afterEach(() => vi.restoreAllMocks());
 describe('reference Match Center', () => {
   it('restricts real maps and normalizes unsupported demo presentation without mutating records', () => {
     const source = ['Erangel', 'Sanhok', 'Vikendi', 'Miramar', 'Rondo', 'Livik'].map((map) => ({ map }));
-    expect(matchCenterMaps(source, false).map((m) => m.map)).toEqual(['Erangel', 'Miramar', 'Rondo']);
-    expect(matchCenterMaps(source, true).every((m) => ['Erangel', 'Miramar', 'Rondo'].includes(m.map))).toBe(true);
+    expect(matchCenterMaps(source).map((m) => m.map)).toEqual(['Erangel', 'Miramar', 'Rondo']);
+    expect(matchCenterMaps(source).every((m) => ['Erangel', 'Miramar', 'Rondo'].includes(m.map))).toBe(true);
     expect(source[1].map).toBe('Sanhok');
   });
   it('renders derived live state and working tabs, tournament/team filters and reset', async () => {

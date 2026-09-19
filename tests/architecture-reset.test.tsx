@@ -6,7 +6,7 @@ import { SharecardGenerator } from '../src/components/competition/SharecardGener
 import { buildCompetitionAwareness, CompetitionAwareness } from '../src/components/team/CompetitionAwareness';
 import { deriveNextAction } from '../src/components/team/NextActionCard';
 import { productRouteTitle } from '../src/layouts/layouts';
-import { adminMessages, currentTeam, matchHistory, matchSchedule, notifications, teamAnnouncements, tournaments } from '../src/mocks/data';
+import { adminMessages, currentTeam, matchHistory, matchSchedule, notifications, teamAnnouncements, tournaments } from './fixtures/platform-data';
 import { RecordDetailPage } from '../src/pages/PublicArchivePages';
 import { TeamDashboardPage, TeamSharecardsPage } from '../src/pages/TeamPages';
 import { TeamPlatformProvider } from '../src/services/PlatformDataContext';

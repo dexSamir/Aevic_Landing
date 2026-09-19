@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../helpers/api-fixture-test';
 
 test('workspace routes fit all operating viewports and keep the menu on the right', async ({ page }) => {
   test.setTimeout(120_000);
@@ -33,13 +33,13 @@ test('identity preview is local, social saving uses the service, and settings pe
   await expect(page.getByText('Saxlanılmamış önbaxış')).toBeVisible();
   await page.getByRole('textbox', { name: /Instagram/ }).fill('https://instagram.com/aevic');
   await page.getByRole('button', { name: 'Sosial linkləri saxla' }).click();
-  await expect(page.getByText('Sosial linklər nümunə sessiyasında saxlanıldı.')).toBeVisible();
+  await expect(page.getByText('Sosial linklər saxlanıldı.')).toBeVisible();
   await page.goto('/team/settings');
   const first = page.getByRole('switch').first();
   await expect(first).toBeVisible();
   await first.click();
   await page.getByRole('button', { name: 'Seçimləri saxla' }).click();
-  await expect(page.getByText('Bildiriş seçimləri nümunə sessiyasında saxlanıldı.')).toBeVisible();
+  await expect(page.getByText('Bildiriş seçimləri saxlanıldı.')).toBeVisible();
   await expect(page.getByLabel('Komanda adı', { exact: true })).toHaveCount(0);
 });
 

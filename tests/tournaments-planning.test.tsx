@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { TournamentsPage, registrationCountdown } from '../src/pages/TournamentsPage';
 import { PublicFooter } from '../src/layouts/PublicFooter';
 import { services } from '../src/services';
-import { currentTeam, tournaments } from '../src/mocks/data';
+import { currentTeam, tournaments } from './fixtures/platform-data';
 
 vi.mock('../src/services/PlatformDataContext', () => ({ usePublicPlatformData: () => ({ tournaments }) }));
 vi.mock('../src/services', async importOriginal => ({ ...await importOriginal<typeof import('../src/services')>(), competitionNow: () => new Date('2026-08-04T12:00:00+04:00') }));

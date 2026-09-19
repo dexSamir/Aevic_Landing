@@ -124,7 +124,7 @@ export function DailyTournamentCard({ tournament, participationState = 'availabl
   const ctaLabel = participationState === 'registered' ? 'Turnir əməliyyatlarını aç' : 'Turnirə qoşul';
   return <article className={`daily-tournament-card ${showRotation ? '' : 'daily-tournament-card--focused'}`}>
     <div className="daily-tournament-card__summary">
-      <div><StatusBadge status={participation.badge}>{participation.label}</StatusBadge><span className="demo-label">Bugün · {startTime}</span></div>
+      <div><StatusBadge status={participation.badge}>{participation.label}</StatusBadge><span className="event-label">Bugün · {startTime}</span></div>
       <h3>{tournament.name}</h3>
       <p>Bu günün rəsmi PUBG Mobile ranking turniri.</p>
       <dl>

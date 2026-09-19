@@ -10,7 +10,7 @@ import { Tabs, EmptyState } from '../../src/components/common/primitives';
 import { FileUpload } from '../../src/components/common/FileUpload';
 import { PublicHeader } from '../../src/layouts/layouts';
 import { SidebarNav } from '../../src/layouts/WorkspaceNav';
-import { tournaments } from '../../src/mocks/data';
+import { tournaments } from './platform-data';
 
 function Gallery() {
   const [active,setActive]=useState('overview');

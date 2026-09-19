@@ -7,5 +7,5 @@ const port=process.env.AEVIC_TEST_PG_PORT||'55432';
 const name=`aevic_test_${process.pid}`;const connection=['-h',host,'-p',port];
 const run=(command,args)=>execFileSync(`${dir}/${command}`,args,{stdio:'inherit'});
 run('createdb',[...connection,name]);
-try{run('psql',[...connection,'-d',name,'-v','ON_ERROR_STOP=1','-f','supabase/tests/bootstrap.sql',...readdirSync('supabase/migrations').filter(f=>f.endsWith('.sql')).sort().flatMap(f=>['-f',`supabase/migrations/${f}`]),'-f','supabase/tests/policies.sql']);}
+try{run('psql',[...connection,'-d',name,'-v','ON_ERROR_STOP=1','-f','supabase/tests/bootstrap.sql',...readdirSync('supabase/migrations').filter(f=>f.endsWith('.sql')).sort().flatMap(f=>['-f',`supabase/migrations/${f}`]),'-f','supabase/tests/policies.sql','-f','supabase/tests/integration.sql']);}
 finally{run('dropdb',[...connection,name]);}

@@ -10,7 +10,7 @@ export async function prerenderHome() {
   const manifest = JSON.parse(readFileSync('dist/.vite/manifest.json', 'utf8'));
   const env = { ...loadEnv('production', process.cwd(), 'VITE_'), ...process.env };
   const config = buildConfiguration();
-  const publicEnv = { PROD: true, DEV: false, MODE: 'production', VITE_DATA_SOURCE: 'api', VITE_API_BASE_URL: env.VITE_API_BASE_URL || '/api', VITE_PUBLIC_SITE_URL: config.canonicalOrigin || '', VITE_PUBLIC_MEDIA_ORIGIN: config.mediaOrigin || '' };
+  const publicEnv = { PROD: true, DEV: false, MODE: 'production', VITE_API_BASE_URL: env.VITE_API_BASE_URL || '/api', VITE_PUBLIC_SITE_URL: config.canonicalOrigin || '', VITE_PUBLIC_MEDIA_ORIGIN: config.mediaOrigin || '' };
   for (const name of ['INSTAGRAM', 'TIKTOK', 'YOUTUBE', 'X', 'LINKEDIN', 'DISCORD', 'TWITCH', 'WEBSITE']) publicEnv[`VITE_AEVIC_${name}_URL`] = env[`VITE_AEVIC_${name}_URL`] || '';
   mkdirSync('node_modules/.cache', { recursive: true });
   const temporary = mkdtempSync(resolve('node_modules/.cache/aevic-home-'));
@@ -19,7 +19,6 @@ export async function prerenderHome() {
       entryPoints: ['src/app/prerenderHome.tsx'], bundle: true, platform: 'node', format: 'esm', packages: 'external', jsx: 'automatic', write: false,
       define: { 'import.meta.env': JSON.stringify(publicEnv), 'process.env.NODE_ENV': '"production"' },
       plugins: [{ name: 'client-asset-manifest', setup(plugin) {
-        plugin.onResolve({ filter: /^\.\/runtimeAdapter$/ }, () => ({ path: resolve('src/services/runtimeAdapter.production.ts') }));
         plugin.onLoad({ filter: /\.css$/ }, () => ({ contents: '', loader: 'js' }));
         plugin.onLoad({ filter: /\.(?:png|jpe?g|webp|avif|svg)$/ }, ({ path }) => {
           const source = relative(process.cwd(), path).replaceAll('\\', '/');

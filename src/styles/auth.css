@@ -545,7 +545,6 @@
 .auth-identity .auth-switch a { display: inline-flex; min-height: 44px; align-items: center; gap: 10px; }
 .auth-shell--login .auth-header > span::after { content: ''; display: inline-block; width: 16px; height: 2px; background: #7a2fff; margin: 0 0 4px 12px; }
 .auth-identity .auth-availability { color: #b9b9bf; }
-.auth-identity .demo-account-fill { margin-top: 8px; min-height: 36px; font-size: 13px; }
 .auth-shell--register.auth-identity .register-shell { width: 100%; }
 .auth-shell--register.auth-identity .auth-header h1 { max-width: 17ch; font-size: clamp(32px, 3.4vw, 48px); }
 .auth-identity .registration-stepper { margin: 4px 0 8px; }

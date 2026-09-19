@@ -75,7 +75,7 @@ export function buildCompetitionAwareness({ notifications, adminMessages, announ
     entityId: item.entityRef?.id,
     priority: item.kind === 'warning' ? 'critical' : item.kind === 'important' || item.kind === 'schedule' ? 'important' : 'informational',
     title: item.title,
-    body: item.body.replace(' Bu, fictional demo elanıdır.', ''),
+    body: item.body,
     occurredAt: item.createdAt,
     readState: 'unknown',
     actionTarget: item.actionHref,

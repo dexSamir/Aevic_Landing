@@ -13,7 +13,7 @@ const notFound=()=>{throw new ServiceError(404,'NOT_FOUND');};
 async function getOrg(c:ApiContext,key:string){return(await organizations(r(c))).find(o=>o.id===key||o.slug===key)??notFound();}
 app.get('/organizations',async c=>c.json(await organizations(r(c))));
 app.get('/organizations/:slug',async c=>c.json(await getOrg(c,text(1,110).parse(c.req.param('slug')))));
-app.post('/organizations',async c=>{const out=await run(c,'org.create',await body(c,z.object({name:text(2,100),shortName:text(1,20),country:text(0,80)})));return c.json(await getOrg(c,String(out.id)),201);});
+app.post('/organizations',async c=>{const out=await run(c,'org.create',await body(c,z.object({name:text(2,100),shortName:text(1,20),country:text(0,80),description:text(0,3000).default('')})));return c.json(await getOrg(c,String(out.id)),201);});
 app.put('/organizations/:id/social-links',async c=>{const organizationId=paramId(c);await run(c,'org.social',{organizationId,socialLinks:await body(c,socialLinks)});return c.json(await getOrg(c,organizationId));});
 app.post('/organizations/:id/teams',async c=>{const organizationId=paramId(c);await run(c,'org.link',{organizationId,...await body(c,z.object({teamId:id,gameKey:z.literal('pubg-mobile')}))});return c.json(await getOrg(c,organizationId));});
 app.delete('/organizations/:id/teams/:teamId',async c=>{const organizationId=paramId(c);await authenticate(c);const own=(await r(c).rows('organization_members')).some(m=>m.organization_id===organizationId&&m.user_id===c.get('user')!.id&&['OWNER','MANAGER'].includes(String(m.role)));await run(c,own?'org.remove-team':'org.unlink',{organizationId,teamId:paramId(c,'teamId')});return c.json(await getOrg(c,organizationId));});

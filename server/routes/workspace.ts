@@ -7,13 +7,14 @@ import { Repository,summary,roundResult } from '../services/data';
 import { body,paramId,id,text,profileInput,socialLinks,resultInput,memberRole,pagination } from '../validation/input';
 import { dbError,ServiceError } from '../errors';
 import { sessionView } from './auth';
+import { organizations } from '../services/identity';
 const app=new Hono<Env>();
 const repo=(c:ApiContext)=>new Repository(c.get('db'));
 const idem=(c:ApiContext)=>c.req.header('Idempotency-Key');
 async function run(c:ApiContext,action:string,payload:unknown){await authenticate(c);return command(c.get('db'),action,payload,idem(c));}
 const getItem=<T extends {id:string}>(items:T[],id:string)=>{const item=items.find(i=>i.id===id);if(!item)throw new ServiceError(404,'NOT_FOUND');return item;};
 function page<T>(c:ApiContext,items:T[]){const{offset,limit}=pagination(c);return{items:items.slice(offset,offset+limit),hasMore:items.length>offset+limit,nextCursor:items.length>offset+limit?String(offset+limit):undefined,total:items.length};}
-app.get('/me/context',async c=>{const tid=await requireTeam(c);const snapshot=await repo(c).teamSnapshot(tid);const member=(await repo(c).rows('team_members')).find(m=>m.team_id===tid&&m.role==='OWNER');if(member?.user_id===c.get('user')!.id)snapshot.currentTeam.captain=(await sessionView(c)).user as typeof snapshot.currentTeam.captain;return c.json(snapshot);});
+app.get('/me/context',async c=>{const tid=await requireTeam(c);const snapshot=await repo(c).teamSnapshot(tid,c.get('user')!.id);const member=(await repo(c).rows('team_members')).find(m=>m.team_id===tid&&m.role==='OWNER');if(member?.user_id===c.get('user')!.id)snapshot.currentTeam.captain=(await sessionView(c)).user as typeof snapshot.currentTeam.captain;return c.json(snapshot);});
 app.get('/me/team',async c=>c.json(await repoAfterTeam(c)));
 async function repoAfterTeam(c:ApiContext){const tid=await requireTeam(c);return repo(c).team(tid,true);}
 app.get('/teams',async c=>{await requireAdmin(c);return c.json(await repo(c).teams(true));});
@@ -23,8 +24,8 @@ app.post('/tournaments/:id/entries',async c=>{const tournamentId=paramId(c);cons
 app.post('/tournaments/:id/check-in',async c=>c.json(await run(c,'checkin',{tournamentId:paramId(c)})));
 app.post('/tournaments/:id/withdraw',async c=>{await run(c,'withdraw',{tournamentId:paramId(c),...await body(c,z.object({reason:text(0,1000).optional()}))});return c.body(null,204);});
 app.get('/team/tournaments/:tournamentId/rounds/:roundId/room',async c=>c.json(await run(c,'room',{tournamentId:paramId(c,'tournamentId'),id:paramId(c,'roundId')})));
-app.get('/me/notifications',async c=>{await authenticate(c);const items=await repo(c).notifications();return c.json(c.req.query('page')==='true'?page(c,items):items);});
-app.get('/me/messages',async c=>{await requireTeam(c);return c.json(await repo(c).messages());});
+app.get('/me/notifications',async c=>{await authenticate(c);const items=await repo(c).notifications(c.get('user')!.id);return c.json(c.req.query('page')==='true'?page(c,items):items);});
+app.get('/me/messages',async c=>{const tid=await requireTeam(c);return c.json(await repo(c).messages(tid));});
 app.put('/me/notifications/read-all',async c=>{await run(c,'notification.read-all',{});return c.body(null,204);});
 app.put('/me/notifications/:id/read',async c=>{await run(c,'notification.read',{id:paramId(c)});return c.body(null,204);});
 app.get('/me/notification-preferences',async c=>{await authenticate(c);const rows=await repo(c).rows('notification_preferences');const p=rows.find(r=>r.user_id===c.get('user')!.id);return c.json(p?{channels:p.channels,events:p.events}:{channels:{'in-app':true,email:false,push:false},events:{}});});
@@ -46,21 +47,22 @@ app.post('/team-invitations/:id/response',async c=>{const invitationId=paramId(c
 app.post('/teams/:id/ownership',async c=>{const teamId=paramId(c);await run(c,'team.transfer',{teamId,...await body(c,z.object({memberId:id,confirmation:text(2,60)}))});return c.json(await authority(c,teamId));});
 app.delete('/teams/:teamId/authority/:id',async c=>{await run(c,'team.member-remove',{teamId:paramId(c,'teamId'),id:paramId(c),...await body(c,z.object({reason:text(10,1000)}))});return c.body(null,204);});
 app.post('/teams/:id/leave',async c=>{await run(c,'team.leave',{teamId:paramId(c)});return c.body(null,204);});
-app.post('/teams/:id/archive',async c=>{const tid=paramId(c);await requireTeam(c,tid);const team=await repo(c).team(tid,true);await run(c,'team.archive',{teamId:tid,...await body(c,z.object({reason:text(10,1000),confirmation:text(2,60)}))});return c.json(team);});
-app.get('/me/follows',async c=>{await authenticate(c);return c.json((await repo(c).rows('follows')).map(r=>({entityType:'TEAM',entityId:r.team_id,following:true,source:'backend'})));});
-app.get('/me/follows/status',async c=>{await authenticate(c);const entityId=id.parse(c.req.query('entityId'));return c.json({entityType:'TEAM',entityId,following:(await repo(c).rows('follows')).some(r=>r.team_id===entityId),source:'backend'});});
+app.post('/teams/:id/archive',async c=>{const tid=paramId(c);await requireTeam(c,tid);await run(c,'team.archive',{teamId:tid,...await body(c,z.object({reason:text(10,1000),confirmation:text(2,60)}))});return c.body(null,204);});
+app.get('/me/follows',async c=>{await authenticate(c);return c.json((await repo(c).rows('follows')).filter(r=>r.user_id===c.get('user')!.id).map(r=>({entityType:'TEAM',entityId:r.team_id,following:true,source:'backend'})));});
+app.get('/me/follows/status',async c=>{await authenticate(c);const entityId=id.parse(c.req.query('entityId'));return c.json({entityType:'TEAM',entityId,following:(await repo(c).rows('follows')).some(r=>r.user_id===c.get('user')!.id&&r.team_id===entityId),source:'backend'});});
 app.put('/me/follows',async c=>{const input=await body(c,z.object({entityType:z.literal('TEAM'),entityId:id,following:z.boolean()}));await run(c,'follow',{...input,id:input.entityId});return c.json({...input,source:'backend'});});
-async function tickets(c:ApiContext){const r=repo(c),[rows,replies]=await Promise.all([r.rows('support_tickets'),r.rows('support_replies')]);return rows.map(t=>({id:String(t.id),category:t.category,subject:t.subject,description:t.description,status:t.status,createdAt:t.created_at,updatedAt:t.updated_at,messages:replies.filter(r=>r.ticket_id===t.id).sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at))).map(r=>({id:r.id,author:r.author,body:r.body,createdAt:r.created_at}))})).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));}
-app.get('/me/support/tickets',async c=>{await authenticate(c);const items=await tickets(c);return c.json(c.req.query('page')==='true'?page(c,items):items);});
-app.get('/me/support/tickets/:id',async c=>{await authenticate(c);return c.json(getItem(await tickets(c),paramId(c)));});
-app.post('/me/support/tickets',async c=>{const result=await run(c,'support.create',await body(c,z.object({category:z.enum(['account','registration','roster','tournament','results','technical','other']),subject:text(3,200),description:text(10,6000)})));return c.json(getItem(await tickets(c),String(result.id)),201);});
-app.post('/me/support/tickets/:id/messages',async c=>{const ticketId=paramId(c);await run(c,'support.reply',{id:ticketId,...await body(c,z.object({body:text(1,6000)}))});return c.json(getItem(await tickets(c),ticketId));});
+async function tickets(c:ApiContext,ownOnly=false){const r=repo(c),[rows,replies]=await Promise.all([r.rows('support_tickets'),r.rows('support_replies')]);return rows.filter(t=>!ownOnly||t.user_id===c.get('user')!.id).map(t=>({id:String(t.id),category:t.category,subject:t.subject,description:t.description,status:t.status,createdAt:t.created_at,updatedAt:t.updated_at,messages:replies.filter(r=>r.ticket_id===t.id).sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at))).map(r=>({id:r.id,author:r.author,body:r.body,createdAt:r.created_at}))})).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));}
+app.get('/me/support/tickets',async c=>{await authenticate(c);const items=(await tickets(c,true)).filter(t=>!c.req.query('status')||t.status===c.req.query('status'));return c.json(c.req.query('page')==='true'?page(c,items):items);});
+app.get('/me/support/tickets/:id',async c=>{await authenticate(c);return c.json(getItem(await tickets(c,true),paramId(c)));});
+app.post('/me/support/tickets',async c=>{const result=await run(c,'support.create',await body(c,z.object({category:z.enum(['account','registration','roster','tournament','results','technical','other']),subject:text(3,200),description:text(10,6000)})));return c.json(getItem(await tickets(c,true),String(result.id)),201);});
+app.post('/me/support/tickets/:id/messages',async c=>{await authenticate(c);const ticketId=paramId(c);getItem(await tickets(c,true),ticketId);await run(c,'support.reply',{id:ticketId,...await body(c,z.object({body:text(1,6000)}))});return c.json(getItem(await tickets(c,true),ticketId));});
 app.get('/admin/support/tickets',async c=>{await requireAdmin(c,['support-moderator']);const status=c.req.query('status');return c.json(page(c,(await tickets(c)).filter(t=>!status||t.status===status)));});
 app.patch('/admin/support/tickets/:id/status',async c=>{await requireAdmin(c,['support-moderator']);const ticketId=paramId(c);await run(c,'support.status',{id:ticketId,...await body(c,z.object({status:z.enum(['open','waiting-for-user','under-review','resolved','closed']),reason:text(0,1000).optional()}))});return c.json(getItem(await tickets(c),ticketId));});
 app.get('/admin/context',async c=>{
- await requireAdmin(c);const r=repo(c);const [teams,tournaments,entries,messages,schedule,checks]=await Promise.all([r.teams(true),r.tournaments(),r.rows('tournament_registrations'),r.messages(),r.schedule(),r.rows('check_ins')]);
- // The legacy admin contract carries currentTeam even though administrators need not own a team.
- return c.json({currentTeam:teams[0]??null,teams,tournaments,slots:entries.filter(e=>e.slot_number).map(e=>({number:e.slot_number,tournamentId:e.tournament_id,teamId:e.team_id,state:'occupied'})),adminMessages:messages,blacklist:[],organizations:[],teamAchievements:[],matchSchedule:schedule,checkIns:checks.map(e=>{const t=tournaments.find(t=>t.id===e.tournament_id);return{teamId:e.team_id,tournamentId:e.tournament_id,status:'checked-in',opensAt:t?.checkInOpensAt,closesAt:t?.checkInClosesAt,checkedInAt:e.checked_in_at};})});
+ await requireAdmin(c);const r=repo(c);const [teams,tournaments,entries,messages,schedule,checks,matches,orgs]=await Promise.all([r.teams(true),r.tournaments(),r.rows('tournament_registrations'),r.messages(),r.schedule(),r.rows('check_ins'),r.rows('matches'),organizations(r)]);
+ const slots=tournaments.flatMap(t=>Array.from({length:t.maxSlots},(_,i)=>{const entry=entries.find(e=>e.tournament_id===t.id&&e.status==='confirmed'&&e.slot_number===i+1);return {number:i+1,tournamentId:t.id,teamId:entry?.team_id,state:entry?'occupied':'available'};}));
+ const checkIns=entries.filter(e=>e.status==='confirmed').flatMap(e=>{const t=tournaments.find(t=>t.id===e.tournament_id);if(!t)return[];const check=checks.find(k=>k.team_id===e.team_id&&k.tournament_id===e.tournament_id);return [{teamId:e.team_id,tournamentId:e.tournament_id,status:check?'checked-in':Date.now()>=Date.parse(t.checkInClosesAt)?'missed':Date.now()>=Date.parse(t.checkInOpensAt)?'open':'pending',opensAt:t.checkInOpensAt,closesAt:t.checkInClosesAt,checkedInAt:check?.checked_in_at}];});
+ return c.json({currentTeam:null,teams,tournaments,slots,adminMessages:messages,blacklist:teams.filter(t=>t.approvalStatus==='banned').map(t=>({id:t.id,teamId:t.id,teamName:t.name,reason:t.rejectionReason??'Səbəb əlçatan deyil',active:true,permanent:true})),organizations:orgs,teamAchievements:[],matchSchedule:schedule,checkIns,publishedRoundIds:Object.fromEntries(tournaments.map(t=>[t.id,matches.filter(m=>m.tournament_id===t.id&&m.published_at).map(m=>m.id)]))});
 });
 app.patch('/admin/teams/:id/approval',async c=>{const teamId=paramId(c);await run(c,'team.approval',{teamId,...await body(c,z.object({status:z.enum(['pending','approved','rejected','banned']),reason:text(0,1000).optional()}))});return c.json(await repo(c).team(teamId,true));});
 app.patch('/admin/tournaments/:id/entries/:teamId',async c=>{await run(c,'registration.review',{tournamentId:paramId(c),teamId:paramId(c,'teamId'),...await body(c,z.object({status:z.enum(['confirmed','rejected']),reason:text(0,1000).optional()}))});return c.body(null,204);});
@@ -80,4 +82,16 @@ const tournamentInput=z.object({name:text(2,120),shortName:text(2,50),descriptio
 app.post('/admin/tournaments',async c=>{const input=await body(c,tournamentInput);const result=await run(c,'tournament.create',input);return c.json(await repo(c).tournament(String(result.id)),201);});
 app.post('/admin/matches/:id/publication',async c=>{await run(c,'match.publish',{id:paramId(c)});return c.body(null,204);});
 app.get('/admin/tournaments/:id/entries',async c=>{await requireAdmin(c,['tournament-manager','result-operator']);return c.json((await repo(c).rows('tournament_registrations')).filter(r=>r.tournament_id===paramId(c)).map(r=>({id:r.id,teamId:r.team_id,status:r.status,slotNumber:r.slot_number})));});
+app.patch('/admin/tournaments/:id',async c=>{
+ await requireAdmin(c,['tournament-manager']);const tournamentId=paramId(c);
+ const input=await body(c,tournamentInput.extend({expectedUpdatedAt:z.iso.datetime({offset:true}),status:z.enum(['draft','published','registration-open','ongoing','completed']),rounds:z.array(z.object({id,map:z.enum(['Erangel','Miramar','Rondo']),startsAt:z.iso.datetime()})).min(1).max(20)}));
+ const {error}=await c.get('db').rpc('edit_tournament',{tournament_id:tournamentId,payload:input});dbError(error);return c.json(await repo(c).tournament(tournamentId));
+});
+app.get('/admin/blacklist',async c=>{await requireAdmin(c,['tournament-manager']);return c.json((await repo(c).teams(true)).filter(t=>t.approvalStatus==='banned').map(t=>({id:t.id,teamId:t.id,teamName:t.name,reason:t.rejectionReason??'',active:true,permanent:true})));});
+app.post('/admin/blacklist',async c=>{const input=await body(c,z.object({teamId:id,reason:text(10,1000),expiresAt:z.string().optional()}));await requireAdmin(c,['tournament-manager']);if(input.expiresAt)throw new ServiceError(501,'TIMED_SANCTIONS_UNAVAILABLE');await run(c,'team.approval',{teamId:input.teamId,status:'banned',reason:input.reason});return c.body(null,204);});
+for(const path of ['/me/sessions','/me/sessions/:id','/me/data-export','/me/data-export/:id','/me/2fa/setup','/me/2fa/setup/verification','/me/2fa/recovery-codes','/me/player-invitations','/players/:id/membership-history'])app.all(path,async c=>{await authenticate(c);throw new ServiceError(501,'CAPABILITY_UNAVAILABLE');});
+app.delete('/me/2fa',async c=>{await authenticate(c);throw new ServiceError(501,'CAPABILITY_UNAVAILABLE');});
+app.get('/admin/players/:id',async c=>{await requireAdmin(c,['support-moderator']);throw new ServiceError(501,'PLAYER_ADMIN_UNAVAILABLE');});
+app.get('/admin/support/tickets/:id',async c=>{await requireAdmin(c,['support-moderator']);return c.json(getItem(await tickets(c),paramId(c)));});
+app.post('/admin/support/tickets/:id/messages',async c=>{await requireAdmin(c,['support-moderator']);const ticketId=paramId(c);await run(c,'support.reply',{id:ticketId,...await body(c,z.object({body:text(1,6000)}))});return c.json(getItem(await tickets(c),ticketId));});
 export default app;

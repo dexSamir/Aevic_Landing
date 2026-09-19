@@ -14,8 +14,7 @@ import { formatSharecardRoster, selectSharecardStats } from '../src/utils/teamId
 import { publicTeamUrl } from '../src/utils/publicUrl';
 import { activePublicRoute } from '../src/utils/routes';
 import { deriveWrappedSummary, yearPeriod } from '../src/utils/wrapped';
-import { currentTeam, matchHistory } from '../src/mocks/data';
-import { mockServices } from '../src/services/mockAdapter';
+import { currentTeam, matchHistory } from './fixtures/platform-data';
 import type { TournamentParticipant } from '../src/types/domain';
 
 const participantFixtures = (count: number): TournamentParticipant[] => Array.from({ length: count }, (_, index) => ({
@@ -140,23 +139,6 @@ describe('public experience refinements', () => {
     expect(artwork?.querySelector('img')).toHaveAttribute('src', '/marks/caspian-wolves.png');
     expect(fallback).toHaveTextContent('BS');
     expect(fallback?.querySelector('img')).not.toBeInTheDocument();
-  });
-
-  it('keeps tournament participation specific and public-only in the mock contract', async () => {
-    const confirmed = await mockServices.tournaments.publicParticipants('daily-cup-24');
-    const empty = await mockServices.tournaments.publicParticipants('rising-series-26');
-    expect(confirmed.map((participant) => participant.team.id)).toEqual(['team-01', 'team-03', 'team-06', 'team-07', 'team-08', 'team-09'].sort((left, right) => Number(left.split('-')[1]) - Number(right.split('-')[1])));
-    expect(empty).toEqual([]);
-    expect(confirmed.every((participant) => participant.registrationStatus === 'confirmed')).toBe(true);
-    expect(confirmed.flatMap((participant) => participant.roster).every((member) => !('uid' in member))).toBe(true);
-  });
-
-  it('publishes standings only for the tournament that owns the authoritative leaderboard', async () => {
-    const dailyCup = await mockServices.results.leaderboard('daily-cup-24');
-    const summerFinal = await mockServices.results.leaderboard('summer-final-25');
-    expect(summerFinal).toHaveLength(8);
-    expect(summerFinal.every((result) => result.tournamentId === 'summer-final-25')).toBe(true);
-    expect(dailyCup).toEqual([]);
   });
 
   it('builds the NOW → NEXT → RECENT model without a dead live state', () => {

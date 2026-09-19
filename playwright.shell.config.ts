@@ -9,8 +9,8 @@ export default defineConfig({
   reporter: 'list',
   use: { channel: 'chrome', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   projects: [
-    { name: 'mock-desktop', use: { baseURL: 'http://127.0.0.1:4173', viewport: { width: 1440, height: 900 } } },
-    { name: 'mock-mobile', use: { baseURL: 'http://127.0.0.1:4173', viewport: { width: 390, height: 844 } } },
+    { name: 'fixture-desktop', use: { baseURL: 'http://127.0.0.1:4173', viewport: { width: 1440, height: 900 } } },
+    { name: 'fixture-mobile', use: { baseURL: 'http://127.0.0.1:4173', viewport: { width: 390, height: 844 } } },
     { name: 'api-desktop', use: { baseURL: 'http://127.0.0.1:4176', viewport: { width: 1440, height: 900 } } },
     { name: 'api-mobile', use: { baseURL: 'http://127.0.0.1:4176', viewport: { width: 390, height: 844 } } },
   ],

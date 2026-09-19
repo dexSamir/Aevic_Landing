@@ -114,6 +114,7 @@ export interface RegistrationService {
 }
 
 export interface TournamentService {
+  update(id: string, input: import('../types/domain').TournamentUpdate): Promise<Tournament>;
   create(input:import('../types/domain').TournamentCreation,idempotencyKey:string):Promise<Tournament>;
   entries(id:string):Promise<Array<{id:string;teamId:string;status:string;slotNumber?:number}>>;
   reviewEntry(tournamentId:string,teamId:string,status:'confirmed'|'rejected'):Promise<void>;
@@ -147,7 +148,7 @@ export interface TeamService {
   removeAuthorityMember(teamId: string, memberId: string, reason: string): Promise<void>;
   transferOwnership(teamId: string, memberId: string, confirmation: string, idempotencyKey: string): Promise<TeamAuthorityMember[]>;
   leave(teamId: string, reason?: string): Promise<void>;
-  archive(teamId: string, reason: string, confirmation: string, idempotencyKey: string): Promise<Team>;
+  archive(teamId: string, reason: string, confirmation: string, idempotencyKey: string): Promise<void>;
 }
 
 export interface AchievementService {
@@ -276,6 +277,8 @@ export interface DisputeService {
 }
 
 export interface SupportService {
+  adminTicket(id: string): Promise<SupportTicket | undefined>;
+  adminReply(id: string, reply: SupportTicketReply): Promise<SupportTicket>;
   listTickets(): Promise<SupportTicket[]>;
   getTicket(id: string): Promise<SupportTicket | undefined>;
   createTicket(request: Pick<SupportTicket, 'category' | 'subject' | 'description'>): Promise<SupportTicket>;

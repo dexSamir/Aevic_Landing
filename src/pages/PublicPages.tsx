@@ -27,7 +27,7 @@ import {
   SectionHeading,
   TeamLogo,
 } from '../components/common/primitives';
-import { competitionNow, demoMode, services } from '../services';
+import { competitionNow, services } from '../services';
 import { usePublicPlatformData } from '../services/PlatformDataContext';
 import { queryPolicy, usePlatformQuery } from '../services/queryCache';
 import type { RankMovementData } from '../types/domain';
@@ -100,7 +100,7 @@ export function LeaderboardPage() {
   const leaderboard = sourceLeaderboard.filter((row) => row.tournamentId === featured?.id).sort((a, b) => a.placement - b.placement || a.teamId.localeCompare(b.teamId));
   const leaderboardTeams = leaderboard.map((row) => teams.find((team) => team.id === row.teamId)?.name ?? 'Komanda adı dərc edilməyib');
   const [movement, setMovement] = useState<RankMovementData[]>([]);
-  useEffect(() => { if (!featured) return; services.results.movement(featured.id).then(setMovement).catch(() => setMovement([])); }, [featured]);
+  useEffect(() => { let active=true;setMovement([]);if(featured)services.results.movement(featured.id).then(value=>{if(active)setMovement(value);}).catch(()=>{if(active)setMovement([]);});return()=>{active=false;}; }, [featured?.id]);
   if (!featured || !leaderboard.length || !leaderboardTeams.length) return <section className="page-section leaderboard-page"><div className="container"><PageHeader title="Liderlik cədvəli" description="Turnir nəticələri dərc edildikdə liderlik sırası burada görünəcək." /><EmptyState title="Sıralama nəticədən başlayır" body="Hazırda dərc edilmiş sıralama yoxdur. Yer, kill və cərimə xallarının yekuna necə təsir etdiyini öyrənin." action={<Link className="button button--secondary" to="/regulations#rule-5">Xal sisteminə bax</Link>} /></div></section>;
   const movementByTeam = new Map(movement.map((item) => [item.teamId, item])); const hasMovement = movement.length > 0;
   const teamDestination = (teamName: string) => teams.find((team) => team.name === teamName);
@@ -111,7 +111,7 @@ export function LeaderboardPage() {
     ...(hasMovement ? [<LeaderboardMovementCell movement={movementByTeam.get(result.teamId)} />] : []), result.matches, result.wwcd, result.placementPoints, result.finishPoints, result.penalties ? `−${result.penalties}` : '—', <strong>{result.totalPoints}</strong>,
   ]);
   const leaderName = leaderboardTeams[0]; const leaderTeam = teamDestination(leaderName);
-  return <section className="page-section leaderboard-page"><div className="container"><PageHeader eyebrow={`${featured.shortName} · ${demoMode ? 'Nümunə nəticə' : 'Dərc edilmiş nəticə'}`} title="Liderlik cədvəli" description="WWCD, yer və kill xalları ayrı göstərilir; real vaxt yenilənməsi backend tələb edir." actions={<Link className="button button--secondary" to={`/tournaments/${featured.id}`}><span>Turnir detalı</span></Link>} /><div className="leaderboard-visual"><div className="champion-row"><Crown size={28} /><div><span>Nümunə lider</span>{leaderTeam ? <Link to={`/teams/${leaderTeam.slug}`}><strong>{leaderName}</strong></Link> : <strong>{leaderName}</strong>}<p>{leaderboard[0].matches} matç · {leaderboard[0].wwcd} WWCD · nümunə</p></div><b>{leaderboard[0].totalPoints}<small>XAL</small></b></div></div><DataTable caption={`${featured.shortName} liderlik cədvəli`} headers={['Yer', 'Komanda', ...(hasMovement ? ['Dəyişmə'] : []), 'M', 'WWCD', 'Yer xalı', 'Kill xalı', 'Cərimə', 'Cəmi']} rows={rows} cutAfterRow={featured.qualification?.advancesThroughRank} cutLabel={featured.qualification?.label} /><MobileDataList items={leaderboard.map((result, index) => { const name = leaderboardTeams[index] ?? 'Komanda adı dərc edilməyib'; const team = teamDestination(name); return { title: <><span className="mobile-rank">#{result.placement}</span>{team ? <Link to={`/teams/${team.slug}`}>{name}</Link> : name}{hasMovement && <LeaderboardMovementCell movement={movementByTeam.get(result.teamId)} />}</>, meta: `${result.matches} matç · ${result.wwcd} WWCD`, value: `${result.totalPoints} xal`, details: <span>Yer {result.placementPoints} · Kill {result.finishPoints}{result.penalties ? ` · Cərimə −${result.penalties}` : ''}</span> }; })} /></div></section>;
+  return <section className="page-section leaderboard-page"><div className="container"><PageHeader eyebrow={`${featured.shortName} · ${'Dərc edilmiş nəticə'}`} title="Liderlik cədvəli" description="WWCD, yer və kill xalları ayrı göstərilir; yalnız dərc edilmiş rəsmi nəticələr göstərilir." actions={<Link className="button button--secondary" to={`/tournaments/${featured.id}`}><span>Turnir detalı</span></Link>} /><div className="leaderboard-visual"><div className="champion-row"><Crown size={28} /><div><span>Cari lider</span>{leaderTeam ? <Link to={`/teams/${leaderTeam.slug}`}><strong>{leaderName}</strong></Link> : <strong>{leaderName}</strong>}<p>{leaderboard[0].matches} matç · {leaderboard[0].wwcd} WWCD</p></div><b>{leaderboard[0].totalPoints}<small>XAL</small></b></div></div><DataTable caption={`${featured.shortName} liderlik cədvəli`} headers={['Yer', 'Komanda', ...(hasMovement ? ['Dəyişmə'] : []), 'M', 'WWCD', 'Yer xalı', 'Kill xalı', 'Cərimə', 'Cəmi']} rows={rows} cutAfterRow={featured.qualification?.advancesThroughRank} cutLabel={featured.qualification?.label} /><MobileDataList items={leaderboard.map((result, index) => { const name = leaderboardTeams[index] ?? 'Komanda adı dərc edilməyib'; const team = teamDestination(name); return { title: <><span className="mobile-rank">#{result.placement}</span>{team ? <Link to={`/teams/${team.slug}`}>{name}</Link> : name}{hasMovement && <LeaderboardMovementCell movement={movementByTeam.get(result.teamId)} />}</>, meta: `${result.matches} matç · ${result.wwcd} WWCD`, value: `${result.totalPoints} xal`, details: <span>Yer {result.placementPoints} · Kill {result.finishPoints}{result.penalties ? ` · Cərimə −${result.penalties}` : ''}</span> }; })} /></div></section>;
 }
 
 export function RegulationsPage() {
@@ -134,7 +134,7 @@ function InformationPage({ title, description, sections }: { title: string; desc
 export function PrivacyPage() {
   return <InformationPage title="Məxfilik məlumatı" description="İctimai buraxılışın texniki məlumat sərhədləri. Bu mətn yekun hüquqi məxfilik siyasəti deyil." sections={[
     ["İctimai məlumat", "Sayt təsdiqlənmiş komanda kimliklərini göstərmək üçün serverdən ictimai məlumat oxuyur. İctimai cavabda kapitan əlaqələri, oyunçu UID-ləri və hesab sirləri göstərilmir."],
-    ["Hesab xidmətləri", "Hesab girişi, qeydiyyat və şəxsi əməliyyatlar hazırkı ictimai buraxılışda əlçatan deyil. İstehsal mühiti nümunə məlumat adapterindən istifadə etmir."],
+    ["Hesab xidmətləri", "Hesab girişi və qeydiyyat Supabase Auth vasitəsilə işləyir. Şəxsi əməliyyatlar üçün təsdiqlənmiş hesab və uyğun səlahiyyət tələb olunur."],
     ["Brauzerdə saxlanma", "Brauzer ictimai statik faylları və interfeys seçimlərini lokal saxlaya bilər. Şəxsi səhifələr və API cavabları oflayn keşə yazılmır."],
     ["Hüquqi təsdiq", "Məlumat məsulu, saxlama müddətləri, istifadəçi hüquqları və rəsmi müraciət kanalı buraxılış sahibinin hüquqi təsdiqini tələb edir. Bu xarici təsdiq tamamlanmayıb."]
   ]} />;
@@ -142,7 +142,7 @@ export function PrivacyPage() {
 
 export function TermsPage() {
   return <InformationPage title="İstifadə şərtləri" description="Platformadan istifadə və yarış iştirakına aid yekun şərtlər hüquqi təsdiq gözləyir." sections={[
-    ["Hazırkı əhatə", "Bu buraxılış ictimai yarış bələdçisini və təsdiqlənmiş komanda kataloqunu təqdim edir. Hesab və yarışa qeydiyyat əməliyyatları açılmayıb."],
+    ["Hazırkı əhatə", "Bu buraxılış ictimai yarış bələdçisini və təsdiqlənmiş komanda kataloqunu təqdim edir. Hesab və yarışa qeydiyyat əməliyyatları server qaydalarına və turnir vaxtlarına tabedir."],
     ["Turnir qaydaları", "Hər turnirin iştirak, ədalətli oyun, heyət və xal şərtləri ayrıca təsdiqlənərək dərc olunmalıdır. İlkin bələdçi yekun turnir qərarını əvəz etmir."],
     ["Status", "Bu səhifə ilkin məlumat üçündür və yekun hüquqi sənəd hesab edilmir."]
   ]} />;
@@ -150,8 +150,8 @@ export function TermsPage() {
 
 export function ContactPage() {
   return <InformationPage title="Əlaqə" description="Hazırkı ictimai buraxılışın əlaqə və dəstək imkanları." sections={[
-    ["Yarış əməliyyatları", "Hesab əsaslı mesaj və dəstək sorğusu xidmətləri hələ açılmayıb. Bu səhifə sorğu göndərmir."],
-    ["Komanda dəstəyi", "Komanda təsdiqi, heyət və təşkilat əlaqəsi üzrə əməliyyatlar gələcək hesab xidmətinə aiddir."],
+    ["Yarış əməliyyatları", "Hesabınızdakı dəstək bölməsindən sorğu göndərə və cavabları izləyə bilərsiniz."],
+    ["Komanda dəstəyi", "Komanda təsdiqi və heyət sorğuları komanda iş sahəsindən izlənilir."],
     ["Rəsmi əlaqə", "Təsdiqlənmiş sosial kanallar konfiqurasiya edildikdə səhifənin aşağı hissəsində görünür. Heç bir keçid göstərilmirsə, əlaqə kanalı bu buraxılışda hələ dərc edilməyib."]
   ]} />;
 }

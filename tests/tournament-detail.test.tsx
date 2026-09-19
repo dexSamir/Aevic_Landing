@@ -3,15 +3,15 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { TournamentDetailPage } from '../src/pages/PublicPages';
 import * as platform from '../src/services';
-import { mockServices } from '../src/services/mockAdapter';
+import { fixtureServices } from './fixtures/component-services';
 import { clearQueryCache } from '../src/services/queryCache';
-import { currentTeam, tournaments, teams, matchSchedule } from '../src/mocks/data';
+import { currentTeam, tournaments, teams, matchSchedule } from './fixtures/platform-data';
 
 vi.mock('../src/services/PlatformDataContext', () => ({ usePublicPlatformData: () => ({ tournaments, teams, leaderboardTeams: [] }) }));
 const mount = () => render(<MemoryRouter initialEntries={['/tournaments/daily-cup-24']}><Routes><Route path="/tournaments/:tournamentId" element={<TournamentDetailPage />} /></Routes></MemoryRouter>);
 beforeEach(async () => {
  clearQueryCache('all');
- const participants = await mockServices.tournaments.publicParticipants('daily-cup-24');
+ const participants = await fixtureServices.tournaments.publicParticipants('daily-cup-24');
  vi.spyOn(platform, 'competitionNow').mockReturnValue(new Date('2026-08-04T12:00:00+04:00'));
  vi.spyOn(platform.services.tournaments, 'publicParticipants').mockResolvedValue(participants);
  vi.spyOn(platform.services.publicMatches, 'schedule').mockResolvedValue(matchSchedule);

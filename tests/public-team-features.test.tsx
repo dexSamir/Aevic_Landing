@@ -2,7 +2,7 @@ import { render, screen, within, fireEvent, waitFor } from '@testing-library/rea
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { PublicTeamFeatures } from '../src/components/profile/PublicTeamFeatures';
-import { currentTeam } from '../src/mocks/data';
+import { currentTeam } from './fixtures/platform-data';
 import { services } from '../src/services';
 import { clearQueryCache } from '../src/services/queryCache';
 import { deriveWrappedSummary, yearPeriod } from '../src/utils/wrapped';

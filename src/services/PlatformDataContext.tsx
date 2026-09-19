@@ -2,7 +2,7 @@ import { createContext, type ReactNode, useContext, useEffect } from 'react';
 import { Button, EmptyState, LoadingSkeleton } from '../components/common/primitives';
 import type { ApiError } from './apiError';
 import type { AdminPlatformSnapshot, PublicPlatformSnapshot, TeamPlatformSnapshot } from '../types/domain';
-import { competitionNow, services, demoMode } from '.';
+import { competitionNow, services } from '.';
 import { queryPolicy, usePlatformQuery, invalidateQuery } from './queryCache';
 import { deriveTeamCompetitionContexts } from '../utils/teamCompetitionContext';
 
@@ -12,11 +12,12 @@ const AdminContext = createContext<AdminPlatformSnapshot | null>(null);
 
 function QueryBoundary<T>({ query, children }: { query: { data?: T; loading: boolean; error?: ApiError; retryAfterSeconds: number; refetch: () => void }; children: (value: T) => ReactNode }) {
   if (query.loading && !query.data) return <div className="route-loading"><LoadingSkeleton rows={5} /></div>;
-  if (!query.data) return <div className="route-loading"><EmptyState heading="h1" title="Platform məlumatı yüklənmədi" body="Məlumat servisi hazırda cavab vermir." action={query.error?.retryable ? <Button disabled={query.retryAfterSeconds > 0} onClick={query.refetch}>{query.retryAfterSeconds > 0 ? `${query.retryAfterSeconds} san. sonra yoxla` : 'Yenidən yoxla'}</Button> : undefined} />{query.error?.requestId && <small>Sorğu kodu: {query.error.requestId}</small>}</div>;
+  if (!query.data) return <div className="route-loading"><EmptyState heading="h1" title="Platform məlumatı yüklənmədi" body={query.error?.code==='SERVER_NOT_CONFIGURED'?'Platform xidməti hələ konfiqurasiya edilməyib.':'Məlumat servisi hazırda cavab vermir.'} action={query.error?.retryable ? <Button disabled={query.retryAfterSeconds > 0} onClick={query.refetch}>{query.retryAfterSeconds > 0 ? `${query.retryAfterSeconds} san. sonra yoxla` : 'Yenidən yoxla'}</Button> : undefined} />{query.error?.requestId && <small>Sorğu kodu: {query.error.requestId}</small>}</div>;
   return <>{query.error && <p role="status" className="connectivity-status">Yenilənmə alınmadı. Son yüklənmiş məlumat göstərilir. <Button variant="ghost" onClick={query.refetch}>Yenidən yoxla</Button></p>}{children(query.data)}</>;
 }
 
 export function PublicPlatformProvider({ children }: { children: ReactNode }) {
+  useEffect(()=>{const timer=setInterval(()=>{if(navigator.onLine&&document.visibilityState==='visible')invalidateQuery('');},60_000);return()=>clearInterval(timer);},[]);
   const query = usePlatformQuery({ key: 'snapshot:public', scope: 'public', query: (signal) => services.snapshots.public(signal), staleTime: queryPolicy.publicCompetition, refetchOnFocus:true });
   return <QueryBoundary query={query}>{(value) => <PublicContext.Provider value={value}>{children}</PublicContext.Provider>}</QueryBoundary>;
 }
@@ -45,5 +46,5 @@ export function useAdminPlatformData() {
 }
 
 function TeamRealtime({teamId}:{teamId:string}) {
- useEffect(()=>{if(demoMode)return;const controller=new AbortController();const refresh=()=>{if(navigator.onLine&&document.visibilityState==='visible')invalidateQuery('snapshot:team');};const polling=setInterval(refresh,60_000);window.addEventListener('online',refresh);void import('./realtime').then(m=>m.subscribeTeam(teamId,controller.signal)).catch(()=>{ /* Reads still work if Realtime cannot connect. */ });return()=>{controller.abort();clearInterval(polling);window.removeEventListener('online',refresh);};},[teamId]);return null;
+ useEffect(()=>{const controller=new AbortController();const refresh=()=>{if(navigator.onLine&&document.visibilityState==='visible')invalidateQuery('snapshot:team');};const polling=setInterval(refresh,60_000);window.addEventListener('online',refresh);void import('./realtime').then(m=>m.subscribeTeam(teamId,controller.signal)).catch(()=>{ /* Reads still work if Realtime cannot connect. */ });return()=>{controller.abort();clearInterval(polling);window.removeEventListener('online',refresh);};},[teamId]);return null;
 }

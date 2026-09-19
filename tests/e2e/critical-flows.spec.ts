@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../helpers/api-fixture-test';
 
 test('auth lifecycle: login, recovery, verification, and security', async ({ page }) => {
   await page.goto('/login');

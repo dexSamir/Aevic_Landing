@@ -7,7 +7,7 @@ import { AccessStatePage } from '../src/pages/AuthLifecyclePages';
 import { AccountSecurityPage, AccountSessionsPage } from '../src/pages/AccountPages';
 import { services } from '../src/services';
 import { SupportCenterPage } from '../src/pages/SupportPages';
-import { tournaments } from '../src/mocks/data';
+import { tournaments } from './fixtures/platform-data';
 
 describe('auth and account lifecycle', () => {
   it('gives a rate-limited user a clear wait and recovery path', () => {

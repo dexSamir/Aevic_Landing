@@ -64,11 +64,11 @@ export const TeamIdentityPreview = RegistrationTeamPreview;
 export function TeamAvailabilityStatus({ state }: { state: 'idle' | 'checking' | 'available' | 'unavailable' | 'error' }) {
   if (state === 'idle') return null;
   const copy = state === 'checking' ? 'Ad yoxlanılır…' : state === 'available' ? 'Komanda adı mövcuddur.' : state === 'unavailable' ? 'Bu komanda adı artıq istifadə olunur.' : 'Yoxlama tamamlanmadı; göndərmə zamanı yenidən yoxlanacaq.';
-  return <p className={`team-availability team-availability--${state}`} role="status">{state === 'checking' ? <LoaderCircle className="spin" size={15} /> : state === 'available' ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}{copy}<small>Nümunə adapteri · real mühitdə server qərarı əsasdır</small></p>;
+  return <p className={`team-availability team-availability--${state}`} role="status">{state === 'checking' ? <LoaderCircle className="spin" size={15} /> : state === 'available' ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}{copy}<small>Uyğunluq serverdə yoxlanılır</small></p>;
 }
 
 export function PlayerLookupResult({ player, onUse, disabled = false }: { player: KnownPlayerLookup; onUse: () => void; disabled?: boolean }) {
-  return <div className="player-lookup-result"><UserCheck size={18} /><div><span>Oyunçu tapıldı</span><strong>{player.ign}</strong><small>{player.previousAppearances} əvvəlki AEVIC iştirakı · nümunə qeyd</small></div><Button type="button" variant="ghost" onClick={onUse} disabled={disabled}>{disabled ? 'İstifadə edilə bilməz' : 'Nick-i istifadə et'}</Button></div>;
+  return <div className="player-lookup-result"><UserCheck size={18} /><div><span>Oyunçu tapıldı</span><strong>{player.ign}</strong><small>{player.previousAppearances} əvvəlki AEVIC iştirakı</small></div><Button type="button" variant="ghost" onClick={onUse} disabled={disabled}>{disabled ? 'İstifadə edilə bilməz' : 'Nick-i istifadə et'}</Button></div>;
 }
 
 export interface SmartReviewCheck {
