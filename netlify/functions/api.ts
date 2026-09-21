@@ -6,4 +6,3 @@ export default (request:Request)=>{
  if(url.pathname.startsWith('/.netlify/functions/api/')) url.pathname='/api/'+url.pathname.slice('/.netlify/functions/api/'.length);
  return app.fetch(new Request(url,request));
 };
-export const config={path:'/api/*'};
