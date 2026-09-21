@@ -26,6 +26,17 @@ export function createApiServices(baseUrl: string): PlatformServices {
   };
 
   return {
+    legacyClaims: {
+      activate: (email,password) => request('/auth/legacy-activation',{method:'POST',body:{email,password}}),
+      list: () => request('/me/legacy-claims'),
+      request: sourceKey => request('/me/legacy-claims',{method:'POST',body:{sourceKey}}),
+      consume: (id,code) => request(`/me/legacy-claims/${encodeURIComponent(id)}/consume`,{method:'POST',body:{code}}),
+      roster: () => request('/me/legacy-roster'),
+      completeRoster: players => request('/me/legacy-roster',{method:'PUT',body:{players}}),
+      holdings: () => request('/admin/legacy-teams'),
+      queue: () => request('/admin/legacy-claims'),
+      review: (id,decision,evidenceRef,expectedVersion) => request(`/admin/legacy-claims/${encodeURIComponent(id)}/review`,{method:'POST',body:{decision,evidenceRef,expectedVersion}}),
+    },
     snapshots: {
       public: async (signal) => validatePublicSnapshot(await request('/public/context', { signal })),
       team: (signal) => request('/me/context', { signal }),

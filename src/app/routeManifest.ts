@@ -9,6 +9,9 @@ export interface RouteDefinition {
 }
 
 export const routeManifest = [
+  { id: 'legacy_activation', path: '/activate-legacy', family: 'AUTH', title: 'Əvvəlki komandanı bərpa et', description: 'Hesabın aktivləşdirilməsi və müstəqil sahiblik yoxlaması.', section: 'auth', navigation: '/activate-legacy', capability: 'register', indexable: false },
+  { id: 'account_legacy_claim', path: '/account/legacy-claim', family: 'ACCOUNT', title: 'Köhnə komanda sahibliyi', description: 'Əvvəlki komandanın hesabınıza təhlükəsiz bağlanması.', section: 'account', navigation: '/account/legacy-claim', capability: 'publicSession', indexable: false },
+  { id: 'admin_legacy_claims', path: '/admin/legacy-claims', family: 'ADMIN', title: 'Sahiblik yoxlaması', description: 'Əvvəlki komandaların müstəqil sahiblik yoxlaması.', section: 'admin', navigation: '/admin/legacy-claims', capability: 'adminWorkspace', indexable: false },
   { id: 'team_profile', path: '/team/profile', family: 'TEAM', title: 'Public profil', description: 'Komandanın ictimai kimliyi və media önbaxışı.', section: 'management', navigation: '/team/profile', capability: 'teamWorkspace', indexable: false },
   { id: 'team_career', path: '/team/career', family: 'TEAM', title: 'Karyera', description: 'Rəsmi karyera, xəritə statistikası və Wrapped.', section: 'career', navigation: '/team/career', capability: 'teamWorkspace', indexable: false },
 

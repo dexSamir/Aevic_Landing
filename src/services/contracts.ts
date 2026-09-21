@@ -1,3 +1,4 @@
+import type { LegacyClaimService } from '../types/legacyClaims';
 import type {
   AdminMessage,
   BlacklistEntry,
@@ -309,6 +310,7 @@ export interface AdminService {
 }
 
 export interface PlatformServices {
+  legacyClaims: LegacyClaimService;
   snapshots: PlatformSnapshotService;
   auth: AuthService;
   account: AccountService;

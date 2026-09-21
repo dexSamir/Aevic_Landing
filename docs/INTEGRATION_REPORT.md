@@ -1,6 +1,38 @@
 # AEVIC integration completion report
 
-2026-09-20. Existing React / TypeScript / Hono / Supabase architecture preserved. Changes are uncommitted. No push, deployment or remote migration was performed. **LIVE STAGING VERIFIED: none.** This report does not certify production readiness.
+2026-09-20. React / TypeScript / Hono / Supabase and the API-only architecture are preserved. The current legacy-claim changes are uncommitted. No production access/change, real Auth user creation, activation email, remote migration, push or deployment occurred. **LIVE STAGING VERIFIED: none.**
+
+## Current legacy-account implementation
+
+**IMPLEMENTED:** the existing planner required Auth owners even though the verified source has zero Auth users. V2 now preserves reviewed legacy teams in private pending holdings with stable IDs and no invented owners, PUBG IDs or history. Migration seven adds confirmed-account claiming, narrow moderator review, audit and persistent rate limits, versioned approvals, hashed 256-bit single-use codes with a 30-minute lifetime, and atomic concurrency protection. Original names, dates, mapped/raw status, tier, roster names, rejection reason and associated media references are preserved. Claiming does not lift a ban. Existing six migrations are unchanged.
+
+Activation, own request/redeem/roster completion and admin review UI use nine real API methods across three new routes. A browser test exposed empty 202 responses incompatible with the JSON adapter; both receipt endpoints now return neutral JSON and an adapter-to-Hono regression covers them. Capability metadata was added for the new private/Auth routes. Email confirmation now offers claiming to accounts without a team, retaining the team-workspace path for existing captains. The incomplete-history flag is explicitly selected and granted for read access; owners cannot clear it. Public profile, directory, comparison, workspace, Wrapped and complete-career cards distinguish new official results from unresolved older history. Tournament Share Studio remains based on actual published results.
+
+Main additions: `scripts/legacy-migration/unclaimed.mjs`, V2 import handling and pinned contract; `supabase/migrations/20260920082715_legacy_account_claiming.sql`; `server/routes/legacyClaims.ts`; `src/pages/LegacyClaimPages.tsx`; `src/types/legacyClaims.ts`; planner/SQL/server/component/browser tests. Coordinated changes: service contracts/adapter, router/manifest, login/account/admin entry links, repository projections and history display components. The route/contract inventories now cover **99 routes / 162 methods**.
+
+| Current verification category | Actual result |
+|---|---|
+| Planner unit tests | 18 PASS; synthetic V1/V2 inputs, source binding, exclusions, stable IDs, held states and private reports |
+| PostgreSQL migration/claim suite | 32 PASS including parent tests; zero-Auth seven-holding import, replay, private access, proof/confirmation/expiry, wrong account, revoke/stale review, parallel claimants, rate/audit, genuine roster completion, history-column access and preserved ban |
+| Existing SQL policy/integration suite | PASS against seven migrations in disposable local PostgreSQL; Supabase system bootstrap is test-only |
+| Domain / component suite | 20 / 236 PASS; includes six new legacy UI tests; no broad responsive matrix |
+| Hono / Supabase HTTP fixtures | 41 PASS; activation, confirmation cookie exchange, neutral recovery/receipts, errors/rates, roles, token hashing, adapter response contracts and public history projection |
+| Focused browser HTTP fixtures | 6 PASS; desktop/mobile activation failure/retry, neutral request and receipt reload, evidence review/code display/removal, DOM overflow checks |
+| TypeScript/lint, production build, release package policy, diff whitespace | PASS; build produces 75 route shells and 99 definitions; no release ZIP created |
+| Live Supabase/Netlify staging | NOT VERIFIED; no provider mail, real confirmation, Storage or actual-seven reconciliation performed |
+| Production cutover | NOT VERIFIED / NOT AUTHORIZED |
+
+The browser receipt reload test uses persisted state in an explicit test HTTP handler; it proves rendering across reload, **not database persistence**. Database persistence/atomicity are exercised separately in actual local PostgreSQL, and Hono/Auth calls use HTTP fixtures. No fixture category is described as live staging.
+
+**UNSUPPORTED / DEFERRED:** automatic claim-code delivery (authorized moderator manually uses the independently verified original channel); missing-contact recovery shortcuts; hosted CLI transport; source media binary transfer/attachment; external historical transformers and automatic legacy URL aliases. Unknown history keeps full-career exports unavailable. The legacy password algorithm could not be established from repository code or supplied column metadata; no real hash was viewed or reused.
+
+**MANUAL CONFIGURATION / BLOCKERS:** authorize a separate staging Supabase project and Netlify site, review/apply migrations separately, expose only `aevic`, enable required Auth email confirmation, configure staging TokenHash templates/redirects and SMTP with controlled inboxes, provision a least-privilege reviewer, and maintain a protected independent-evidence register/original-channel delivery process. Hosted import transport needs separate review. Independently reconcile all seven actual teams and ownership cases in staging before declaring migration complete. Production remains untouched.
+
+Detailed procedures: [source audit](LEGACY_DATABASE_AUDIT.md), [migration and staging rehearsal](DATA_MIGRATION_PLAN.md), [configuration](BACKEND_SETUP.md), [separately authorized cutover/rollback](PRODUCTION_CUTOVER_PLAN.md).
+
+## Earlier API-only hardening evidence
+
+The following sections retain the previous hardening results and limitations. Their six-migration test counts describe that earlier baseline; the current verification above supersedes them.
 
 ## Implemented defects and fixes
 
@@ -23,7 +55,7 @@ Dead mock styles/configuration were removed. The optional local SQL seed moved i
 
 ## Dynamic integration coverage
 
-The [route inventory](FEATURE_INTEGRATION_INVENTORY.md) covers all **96 manifest entries** and their public, team, admin, account, Auth or system family. The [contract inventory](SERVICE_CONTRACT_INVENTORY.csv) maps **153 service methods**, API requests, direct UI references and availability. These are code traces, not claims that every route was manually exercised.
+The [route inventory](FEATURE_INTEGRATION_INVENTORY.md) covers all **99 manifest entries** and their public, team, admin, account, Auth or system family. The [contract inventory](SERVICE_CONTRACT_INVENTORY.csv) maps **162 service methods**, API requests, direct UI references and availability. These are code traces, not claims that every route was manually exercised.
 
 - **PUBLIC — IMPLEMENTED / LOCALLY TESTED:** public context, tournament/calendar/participant/standings graph, teams/profiles/comparison, organizations, records, match directory, search, season archive and Wrapped use API-backed data. No API failure selects fictional records. Public requests use anonymous database access and official published results. `/matches/:matchId` retains the existing redirect into the canonical tournament view. Targeted tests cover empty/error states, published-result isolation, participant projection and ranking identity; other listed paths have code-trace evidence.
 - **TEAM — IMPLEMENTED:** existing registration, identity/socials/roster governance, tournament entry, check-in, timed rooms, messages/notifications, disputes, career, badges, Wrapped, Share Studio and settings remain connected to the real services. Archive/leave, profile refresh and cache identity behavior were corrected. Local evidence is component/domain tests, Hono transport tests and database rules, plus focused profile/preference/image browser checks. Refresh/relogin across actual Supabase users remains NOT VERIFIED.
@@ -62,8 +94,12 @@ Known retained limits: old branding objects are retained on replacement until ex
 
 ## Required manual configuration and blockers
 
-Follow [BACKEND_SETUP.md](BACKEND_SETUP.md#required-isolated-staging-verification-not-yet-performed): identify and authorize a separate Supabase staging project and Netlify site; review and separately approve the six remote migrations; expose `aevic` but not `aevic_private`; provide server-only environment values and the staging media origin; configure Auth redirects, repository TokenHash templates and SMTP; provision least-privilege administrators and two controlled test accounts. Follow the existing credential-rotation requirement in SECURITY.md.
+Follow [BACKEND_SETUP.md](BACKEND_SETUP.md#required-isolated-staging-verification-not-yet-performed): identify and authorize a separate Supabase staging project and Netlify site; review and separately approve the seven remote migrations; expose `aevic` but not `aevic_private`; provide server-only environment values and the staging media origin; configure Auth redirects, repository TokenHash templates and SMTP; provision least-privilege administrators and two controlled test accounts. Follow the existing credential-rotation requirement in SECURITY.md.
 
 Plain `npm run dev` safely returns a configuration error until server variables are supplied. For an explicitly isolated environment, use `node --env-file=.env.staging node_modules/vite/bin/vite.js` with `PUBLIC_SITE_URL=http://localhost:8888`. Never reuse unidentified production credentials for tests.
 
 The remaining release blocker is authorized staging configuration and completion of journeys A–G with actual persistence, private-data isolation and cross-session propagation. No remote action is authorized by this report.
+
+## Earlier V1 compatibility work
+
+The earlier local-only migration utility established target enrollment, pinned schema checks, stable mappings, profile backfill for existing Auth UUIDs and confidential reports. Its 12 planner / 17 database tests remain in the current suites. The owner subsequently supplied the completed read-only production findings (seven teams and zero Auth users); V2 pending holdings and secure claiming now handle that actual source. V1 is retained for separately reviewed existing-Auth sources, not as a workaround that invents owners for these teams.

@@ -10,6 +10,7 @@ import publicRoutes from './routes/public';
 import workspace from './routes/workspace';
 import media from './routes/media';
 import identity from './routes/identity';
+import legacyClaims from './routes/legacyClaims';
 
 export function createApp(config?:ServerConfig) {
  const app=new Hono<Env>().basePath('/api');
@@ -26,7 +27,7 @@ export function createApp(config?:ServerConfig) {
   await next();
  });
  app.use('*',bodyLimit({maxSize:4_100_000,onError:c=>c.json({code:'FILE_TOO_LARGE',requestId:c.get('requestId')},413)}));
- app.route('/',auth);app.route('/',publicRoutes);app.route('/',workspace);app.route('/',media);app.route('/',identity);
+ app.route('/',auth);app.route('/',legacyClaims);app.route('/',publicRoutes);app.route('/',workspace);app.route('/',media);app.route('/',identity);
  app.notFound(c=>c.json({code:'NOT_FOUND',message:'Məlumat tapılmadı.',requestId:c.get('requestId')},404));
  app.onError((error,c)=>{
   const e=error instanceof ZodError?new ServiceError(422,'VALIDATION_ERROR',Object.fromEntries(error.issues.map(i=>[i.path.join('.'),'Dəyəri yoxlayın.']))):error instanceof ServiceError?error:new ServiceError(503,'SERVICE_UNAVAILABLE');

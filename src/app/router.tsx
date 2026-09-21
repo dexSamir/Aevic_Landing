@@ -57,6 +57,7 @@ export const routes = applyRouteCapabilities([
   {
     element: <AuthLayout />,
     children: [
+      { path: routePath('legacy_activation'), lazy: async () => ({ Component: (await import('../pages/LegacyClaimPages')).LegacyActivationPage }) },
       { path: routePath('login'), lazy: async () => ({ Component: (await import('../pages/AuthPages')).LoginPage }) },
       { path: routePath('register'), lazy: async () => ({ Component: (await import('../pages/AuthPages')).RegisterPage }) },
       { path: routePath('forgot_password'), lazy: async () => ({ Component: (await import('../pages/AuthPages')).ForgotPasswordPage }) },
@@ -109,6 +110,7 @@ export const routes = applyRouteCapabilities([
       { path: routePath('admin_tournaments_tournamentId', '/admin'), lazy: async () => ({ Component: (await import('../pages/AdminPages')).AdminTournamentDetailPage }) },
       { path: routePath('admin_tournaments_tournamentId_lifecycle', '/admin'), lazy: async () => ({ Component: (await import('../pages/CompletionPages')).TournamentLifecycleAdminPage }) },
       { path: routePath('admin_check_ins_missed', '/admin'), lazy: async () => ({ Component: (await import('../pages/CompletionPages')).AdminMissedCheckInsPage }) },
+      { path: routePath('admin_legacy_claims', '/admin'), lazy: async () => ({ Component: (await import('../pages/LegacyClaimPages')).AdminLegacyClaimsPage }) },
       { path: routePath('admin_teams', '/admin'), lazy: async () => ({ Component: (await import('../pages/AdminPages')).AdminTeamsPage }) },
       { path: routePath('admin_teams_teamId', '/admin'), lazy: async () => ({ Component: (await import('../pages/AdminOperationsPages')).AdminTeamDetailPage }) },
       { path: routePath('admin_organizations', '/admin'), lazy: async () => ({ Component: (await import('../pages/ProfilePages')).AdminOrganizationsPage }) },
@@ -137,6 +139,7 @@ export const routes = applyRouteCapabilities([
     },
     children: [
       { index: true, lazy: async () => ({ Component: (await import('../pages/AccountPages')).AccountProfilePage }) },
+      { path: routePath('account_legacy_claim', '/account'), lazy: async () => ({ Component: (await import('../pages/LegacyClaimPages')).LegacyClaimPage }) },
       { path: routePath('account_profile', '/account'), lazy: async () => ({ Component: (await import('../pages/AccountPages')).AccountProfilePage }) },
       { path: routePath('account_security', '/account'), lazy: async () => ({ Component: (await import('../pages/AccountPages')).AccountSecurityPage }) },
       { path: routePath('account_notifications', '/account'), lazy: async () => ({ Component: (await import('../pages/AccountPages')).AccountNotificationsPage }) },

@@ -20,7 +20,9 @@
     "package:check": "node scripts/package-release.mjs --check",
     "package:release": "node scripts/package-release.mjs",
     "test:server": "vitest run --config vitest.server.config.ts",
-    "test:db": "node scripts/test-database.mjs"
+    "test:db": "node scripts/test-database.mjs",
+    "test:migration": "node --test tests/legacy-migration/planner.test.mjs tests/legacy-migration/unclaimed.test.mjs",
+    "test:migration:db": "node --test tests/legacy-migration/database.test.mjs tests/legacy-migration/claim-database.test.mjs"
   },
   "dependencies": {
     "@fontsource/orbitron": "^5.3.0",

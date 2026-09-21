@@ -48,7 +48,7 @@ export function PublicTeamDetail({ team, profile }: { team: Team | PublicTeamSum
     sections.forEach(({ id }) => { const section = document.getElementById(id); if (section) observer.observe(section); });
     return () => observer.disconnect();
   }, [team.id]);
-  return <><article className="public-team-detail">
+  return <><article className="public-team-detail">{team.legacyHistoryIncomplete&&<p role="status" className="public-team-note">Əvvəlki tarixçə tam uzlaşdırılmayıb. Buradakı rəqəmlər yalnız bu sistemdə dərc edilmiş nəticələrdir; əvvəlki fəaliyyətin yoxluğu demək deyil.</p>}
     <PublicTeamIdentity team={team} details={fullTeam} live={live} />
     <div className="public-team-width public-team-content">
       <div className="public-team-overview">

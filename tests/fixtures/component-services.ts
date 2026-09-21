@@ -67,7 +67,9 @@ const publicTeamSummaries = () => teams.filter((team) => team.approvalStatus ===
 const publicPlayerRecords = () => teams.filter((team) => team.approvalStatus === 'approved' && team.slug).flatMap((team) => team.roster.map((member) => ({ team, member })));
 const publishedRecords = () => buildFixtureRecords(currentTeam, matchHistory);
 
+const legacyUnavailable = async (): Promise<never> => { throw new Error('Legacy claim HTTP fixture must be explicitly configured'); };
 export const fixtureServices: PlatformServices = {
+  legacyClaims: {activate:legacyUnavailable,list:legacyUnavailable,request:legacyUnavailable,consume:legacyUnavailable,roster:legacyUnavailable,completeRoster:legacyUnavailable,holdings:legacyUnavailable,queue:legacyUnavailable,review:legacyUnavailable},
   snapshots: {
     async public() { await wait(40); return clone({ tournaments, teams: publicTeamSummaries(), organizations, leaderboard, leaderboardTeams, playerPerformances, teamComparisonRecords, teamAchievements }); },
     async team() { await wait(40); return clone(teamSnapshotScenario()); },

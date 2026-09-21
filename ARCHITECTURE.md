@@ -127,3 +127,7 @@ See [backend setup](docs/BACKEND_SETUP.md) for the full local workflow, availabi
 ## Integration follow-up
 
 The sixth migration adds role-scoped contact projection, versioned tournament edits and unique published placement enforcement. It explicitly revokes PostgreSQL PUBLIC EXECUTE defaults while retaining named-role grants. Successful API mutations invalidate cached dependencies; account changes invalidate private state and signal other tabs without sharing tokens. Current and cumulative leaderboard projections use the same ranking function. Cumulative snapshots are reconstructed from currently corrected official rows; they are not immutable past-version snapshots.
+
+## Legacy accounts without Auth identities
+
+Migration seven adds private pending holdings and a caller-JWT `legacy_claim` RPC alongside the existing services. The V2 planner preserves stable source/team UUIDs without inventing owners. Confirmed Auth account activation, independent moderator review and a bound 30-minute single-use challenge precede atomic team/OWNER creation. Real roster IDs are completed later; legacy credential material is excluded. Media references and incomplete external history remain explicit. See [migration and staging procedure](docs/DATA_MIGRATION_PLAN.md). No source import runs on build or startup.

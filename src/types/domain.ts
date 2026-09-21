@@ -154,6 +154,7 @@ export interface TeamRegistrationReceipt {
 }
 
 export interface Team {
+  legacyHistoryIncomplete?: boolean;
   id: ID;
   name: string;
   slug?: string;
@@ -245,6 +246,7 @@ export interface PublicTeamProfile {
 }
 
 export interface PublicTeamSummary {
+  legacyHistoryIncomplete?: boolean;
   id: ID;
   slug: string;
   name: string;
@@ -338,6 +340,7 @@ export interface WrappedMapStat {
 }
 
 export interface WrappedSummary {
+  historyIncomplete?: boolean;
   entity: { type: 'team'; id: ID; slug: string; name: string; logoUrl?: string };
   period: WrappedPeriod;
   matches: number;
@@ -609,6 +612,7 @@ export interface TeamMapPerformance {
 export interface TeamComparisonRecord {
   teamId: ID;
   teamName: string;
+  legacyHistoryIncomplete?: boolean;
   matches: number;
   finishes: number;
   wwcd: number;

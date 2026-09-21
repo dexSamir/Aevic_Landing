@@ -1,0 +1,12 @@
+{
+  "catalogHash": "2f3788c2d457c922cf6bf6f63585ccfc",
+  "migrations": {
+    "20260914094739_aevic_schema.sql": "b37a332a9e3d67d2384e5be6b88eaa849bd52343e35fe99b7e5a8969cb2f0418",
+    "20260914094740_aevic_operations.sql": "f2768551f0947616c7ba07ce032cda3dc28a1e499b83b1ce9f5ff653e4983320",
+    "20260914094741_aevic_storage_realtime.sql": "05433729bb31744b2b69dbf608994c11d47b6946974ffa603643a8fdc8fb40bf",
+    "20260914113049_aevic_identity_governance.sql": "78bd26f549d317136b6b9d5d668f69b587e667f07831b2ad9b36a0dc0fcbcd85",
+    "20260919133104_production_boundaries.sql": "d4f66b7a0ef7d19eb3697c5894eb4ab8007b383defaedb4ff948249bde1dfdf4",
+    "20260919185453_integration_integrity.sql": "f02d25271c7ed5a95dc29f3bcc73e60a2495a4345137fad677fb07d1560b0ec3",
+    "20260920082715_legacy_account_claiming.sql": "589ae6bc65b2a31f3b5c801a6347ac5b78ded50970b5642566bd0577ba5adf95"
+  }
+}

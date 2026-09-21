@@ -1,6 +1,6 @@
 # Backend setup and release gates
 
-The supported competition flow is implemented in `server/` and six ordered SQL migrations under `supabase/migrations/`. It uses the `aevic` schema, leaving legacy `public` tables untouched. Nothing applies migrations during a frontend build or deployment. A clean database has no tournaments or accounts until deliberately created.
+The supported competition flow is implemented in `server/` and seven ordered SQL migrations under `supabase/migrations/`. It uses the `aevic` schema, leaving legacy `public` tables untouched. Nothing applies migrations during a frontend build or deployment. A clean database has no tournaments or accounts until deliberately created.
 
 ## Runtime and local development
 
@@ -81,7 +81,7 @@ Public individual-player statistics and MVP remain unavailable because there is 
 
 1. Identify a new or existing **non-production** Supabase project and staging Netlify site, with explicit authorization for test account/data creation. Existing repository environment key names do not establish that a project is safe staging.
 2. Rotate previously exposed credentials through the owner’s account controls. Do not reuse production keys. Put the four server variables from `.env.example` only in the staging function/server environment; configure `VITE_PUBLIC_MEDIA_ORIGIN` to the exact staging Supabase origin for production CSP.
-3. Review all six ordered SQL migrations. Remote application requires separate explicit approval; no remote migration was run in this task. Expose only `aevic` through the Data API, never `aevic_private`; keep the service key server-side.
+3. Review all seven ordered SQL migrations. Remote application requires separate explicit approval; no remote migration was run in this task. Expose only `aevic` through the Data API, never `aevic_private`; keep the service key server-side.
 4. Configure staging Auth Site URL and redirect allowlist for `/verify-email` and `/reset-password`. Enable email confirmation, use the repository TokenHash templates, and configure a tested SMTP sender. A successful API call is not proof of email delivery.
 5. Create two ordinary team accounts and separate admin role accounts through the established authorized setup. Use private inboxes under the test owner’s control. Do not insert fictional product records automatically on startup or migration.
 6. Execute journeys A–G from the request: confirmed registration/refresh/relogin; entry/review/check-in/timed room access; tournament create/edit/result publish; dispute/review/correction; Team A/B direct Data API isolation; career/Wrapped/share consistency; outages and expired cookies. Record real response codes and database effects without secrets.
@@ -90,3 +90,15 @@ Public individual-player statistics and MVP remain unavailable because there is 
 Remaining unsupported capabilities are unavailable, not simulated: device inventory and per-device revocation, MFA setup/challenge/recovery, async exports, email/push notification workers, timed sanctions, bulk approvals, platform settings, manual slot/check-in overrides, player performance/MVP and detailed player admin, organization binary media and organization award configuration. Account deletion creates a review request only. Organization governance RPCs exist but the UI does not expose every create/invite operation.
 
 Browser tests importing `tests/helpers/api-fixture-test.ts` intercept HTTP with isolated fixtures for UI regression only. `playwright.api-hardening.config.ts` tests the production build with explicit empty/error HTTP responses. Hono tests stub Supabase responses; SQL tests use disposable localhost PostgreSQL plus Supabase-system stubs. None of these categories substitutes for staging.
+
+## Existing production data: migration prerequisite
+
+The completed read-only findings supplied by the owner identify production `nmjjibifcuzjlsvfcaaz` / `aevic-FE`: seven legacy teams, zero Auth users, empty team match_results arrays, and no new application schemas. Never use this project for staging. Exact legacy mappings, migration history, external history, Storage and ownership evidence still require protected review.
+
+Read [LEGACY_DATABASE_AUDIT.md](LEGACY_DATABASE_AUDIT.md), [DATA_MIGRATION_PLAN.md](DATA_MIGRATION_PLAN.md) and [PRODUCTION_CUTOVER_PLAN.md](PRODUCTION_CUTOVER_PLAN.md) before any remote operation. V2 rehearsal tooling imports private unclaimed holdings without Auth identities or invented player IDs. The seventh additive migration implements caller-JWT claims; the first six migrations remain unchanged. No source rows are imported automatically.
+
+Configure an isolated staging Supabase project and Netlify site only after separate authorization. Enable email signup and **require email confirmation**, configure exact staging redirect URLs and the existing TokenHash confirmation/recovery templates, and use working SMTP restricted to controlled test inboxes. `/activate-legacy` creates only an Auth account; `/account/legacy-claim` requires a confirmed account and independent ownership review. A neutral receipt is not evidence of delivery. Do not send staging mail to existing captains.
+
+Provision a support-moderator or super-admin through the separately authorized operator process. Reviewers need access to a protected external ownership-evidence case register and a verified original contact channel. `/admin/legacy-claims` requires the case UUID; approval reveals a 30-minute, single-use code once for manual delivery through that original channel. No automatic claim emails or recovery by matching email are implemented. Auth password recovery is for the new account, not legacy credentials.
+
+Run `npm run test:migration`, `npm run test:migration:db` and `npm run test:db` on the isolated local PostgreSQL harness. Its test-only Auth/Storage bootstrap must never be used on a real Supabase project. The CLI deliberately refuses remote targets; hosted staging import requires a separately reviewed operator transport. The detailed rehearsal checklist includes all-seven reconciliation, direct RLS, concurrency, provider email and persistence tests. No production data was copied or changed; actual staging reconciliation and cutover remain unverified.

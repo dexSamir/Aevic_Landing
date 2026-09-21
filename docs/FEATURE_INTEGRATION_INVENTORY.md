@@ -1,6 +1,6 @@
 # Feature integration inventory
 
-Source: the current 96-entry route manifest and router, PlatformServices, API adapter, Hono modules, repository and six ordered migrations. This is code-trace evidence; it does not certify live staging. Updated during implementation, not a repeat visual audit.
+Source: the current 99-entry route manifest and router, PlatformServices, API adapter, Hono modules, repository and seven ordered migrations. This is code-trace evidence; it does not certify live staging. Updated during implementation, not a repeat visual audit.
 
 ## Shared trace and state requirements
 
@@ -11,7 +11,7 @@ Source: the current 96-entry route manifest and router, PlatformServices, API ad
 - **AUTH**: Supabase Auth via HttpOnly cookies and same-origin BFF; confirmation/recovery token exchange. Real SMTP delivery and refresh journeys require staging.
 - **SYSTEM**: Static truthful status/error pages; no dynamic product fixtures or mutations.
 
-All dynamic paths use `src/services/apiAdapter.ts` → `server/routes/{public,workspace,auth,identity,media}.ts` → `Repository` / caller-JWT RPC → `aevic` RLS. Public data uses anonymous RLS even with login cookies. Auth/admin writes are not authorized by route guards alone. Query boundaries distinguish loading, empty results and failed requests; failures never select fixtures. Mutations invalidate dependent cached reads; user changes clear private caches. Test fixtures live only under tests.
+All dynamic paths use `src/services/apiAdapter.ts` → `server/routes/{public,workspace,auth,identity,media,legacyClaims}.ts` → `Repository` / caller-JWT RPC → `aevic` RLS. Public data uses anonymous RLS even with login cookies. Auth/admin writes are not authorized by route guards alone. Query boundaries distinguish loading, empty results and failed requests; failures never select fixtures. Mutations invalidate dependent cached reads; user changes clear private caches. Test fixtures live only under tests.
 
 | Data/workflow | Database / authority | Actions and persistence / dependencies | Local evidence / remaining limit |
 |---|---|---|---|
@@ -141,3 +141,13 @@ Each route below inherits the data trace, permissions, loading/error/empty behav
 - **E — static dynamic state corrected:** application fixture imports removed; comparison, organization and admin capacity/publication placeholders replaced by database projections. Editorial content and map configuration remain static.
 - **F — staging required:** journeys A–G, actual email/Storage/Realtime, two separate users and role-specific browser sessions. No safely identified staging credentials were used.
 - **G — unsupported:** see table above and BACKEND_SETUP.md.
+
+## Legacy claiming addition (2026-09-20)
+
+| Route | Data/actions | Backend and permission | States / dependencies |
+|---|---|---|---|
+| `/activate-legacy` | New Auth activation request; login/recovery links | legacyClaims.activate → Hono → Supabase Auth; origin/rate limits; no legacy lookup | Preserved failed input, neutral JSON receipt, no delivery/ownership assertion; existing verification flow |
+| `/account/legacy-claim` | Own receipts, legacy number, code redemption, preserved roster completion | list/request/consume/roster/completeRoster → caller-JWT legacy_claim RPC; confirmed user and OWNER checks | Loading/empty/error/retry; persistent requests; success invalidates team/public data; no invented IDs |
+| `/admin/legacy-claims` | Holdings, pending requests, verified contact, review/revoke/reissue | holdings/queue/review → RPC; support-moderator/super-admin; versioned evidence review | Loading/empty/error/retry; one-time code display; private tables and audit; claim updates normal admin/public/team projections |
+
+Local evidence: planner and PostgreSQL isolation/concurrency, Hono/API contracts, component and focused desktop/mobile HTTP-fixture tests. Live Auth, SMTP and all-seven reconciliation remain unverified. Whole-career exports are unavailable until external legacy history is reconciled; new published results remain authoritative.
