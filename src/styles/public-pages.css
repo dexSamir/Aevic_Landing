@@ -940,3 +940,6 @@
 @media (min-width: 1121px) { .tournament-detail-hero { --tournament-detail-hero-image: url('../assets/tournaments/tournament-detail-hero-1983.webp'); --tournament-detail-hero-image: image-set(url('../assets/tournaments/tournament-detail-hero-1983.avif') type('image/avif'), url('../assets/tournaments/tournament-detail-hero-1983.webp') type('image/webp')); } }
 
 .public-team-wrapped-visual > picture { display: contents; }
+
+.public-team-player-portrait > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.public-team-player-portrait > img[hidden] { display: none; }

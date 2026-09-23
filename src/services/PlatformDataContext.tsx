@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom';
 import { createContext, type ReactNode, useContext, useEffect } from 'react';
 import { Button, EmptyState, LoadingSkeleton } from '../components/common/primitives';
 import type { ApiError } from './apiError';
@@ -17,9 +18,10 @@ function QueryBoundary<T>({ query, children }: { query: { data?: T; loading: boo
 }
 
 export function PublicPlatformProvider({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
   useEffect(()=>{const timer=setInterval(()=>{if(navigator.onLine&&document.visibilityState==='visible')invalidateQuery('');},60_000);return()=>clearInterval(timer);},[]);
   const query = usePlatformQuery({ key: 'snapshot:public', scope: 'public', query: (signal) => services.snapshots.public(signal), staleTime: queryPolicy.publicCompetition, refetchOnFocus:true });
-  return <QueryBoundary query={query}>{(value) => <PublicContext.Provider value={value}>{children}</PublicContext.Provider>}</QueryBoundary>;
+  return <QueryBoundary query={query}>{(value) => <PublicContext.Provider value={value}>{value.unavailable && /^\/(tournaments|leaderboard|matches|archive|records|organizations)(\/|$)|^\/teams\/compare$/.test(pathname) ? <div className="page-section container"><EmptyState heading="h1" title="Yarış məlumatları hələ əlçatan deyil" body="Komanda profilləri əlçatandır. Turnir, matç və sıralama məlumatlarının bağlantısı hələ tamamlanmayıb." /></div> : <>{children}{value.unavailable && <p role="status" className="container public-team-note">Komanda məlumatları mövcud bazadan göstərilir. Yarış tarixçəsi və hesab əməliyyatları hələ əlçatan deyil.</p>}</>}</PublicContext.Provider>}</QueryBoundary>;
 }
 
 export function TeamPlatformProvider({ children }: { children: ReactNode }) {

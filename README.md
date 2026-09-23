@@ -1,3 +1,5 @@
+> Current backend: [original production integration](docs/ORIGINAL_PRODUCTION_INTEGRATION.md). The running application reads existing `public.teams`; earlier normalized-schema, migration, claiming and staging instructions below are historical and must not be executed for this integration.
+
 # AEVIC Esports — Competitive Legacy
 
 AEVIC's PUBG Mobile tournament and team-operations platform: React frontend, Hono on Netlify Functions, and Supabase PostgreSQL/Auth/Storage/Realtime.

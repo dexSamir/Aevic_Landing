@@ -21,7 +21,7 @@ export function buildConfiguration(mode = 'production', development = false) {
   const canonicalOrigin = origin(canonicalValue, 'PUBLIC_SITE_URL');
   if (!localServerOrigin && env.PUBLIC_SITE_URL && env.VITE_PUBLIC_SITE_URL && origin(env.VITE_PUBLIC_SITE_URL, 'VITE_PUBLIC_SITE_URL') !== canonicalOrigin) throw new Error('Public canonical origins disagree.');
   if ((env.CONTEXT === 'production' || env.REQUIRE_PUBLIC_SITE_URL === 'true') && !canonicalOrigin) throw new Error('PUBLIC_SITE_URL is required for a production deployment.');
-  const mediaOrigin = origin(env.VITE_PUBLIC_MEDIA_ORIGIN || env.VITE_SUPABASE_URL, 'Public media origin');
+  const mediaOrigin = origin(env.VITE_PUBLIC_MEDIA_ORIGIN || env.SUPABASE_URL || env.VITE_SUPABASE_URL, 'Public media origin');
   return { canonicalOrigin, mediaOrigin };
 }
 export { contentSecurityPolicy } from './security-policy.mjs';

@@ -15,7 +15,7 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
   const year = competitionNow().getFullYear();
   const slug = team.slug ?? team.id;
   const period = useMemo(() => yearPeriod(year), [year]);
-  const wrapped = usePlatformQuery({ key: `wrapped:${slug}:${period.label}`, query: () => services.wrapped.forTeam(slug, period), staleTime: queryPolicy.historical, retry: 0 });
+  const wrapped = usePlatformQuery({ key: `wrapped:${slug}:${period.label}`, query: () => services.wrapped.forTeam(slug, period), staleTime: queryPolicy.historical, retry: 0, enabled: !team.legacyHistoryIncomplete });
   const canvas = useRef<HTMLCanvasElement>(null);
   const region = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(() => typeof IntersectionObserver === 'undefined');
@@ -67,9 +67,9 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
   };
   return <div ref={region} className="public-team-features">
     <section className="public-team-wrapped" aria-labelledby="team-wrapped-title">
-      <div className="public-team-feature-copy"><span className="public-team-eyebrow">// SEZON XÜLASƏSİ</span><h2 id="team-wrapped-title">{year} mövsümü üçün hazırdır.</h2><p>Bu mövsümün hekayəsini yenidən yaşa.</p>
+      <div className="public-team-feature-copy"><span className="public-team-eyebrow">// SEZON XÜLASƏSİ</span><h2 id="team-wrapped-title">{team.legacyHistoryIncomplete ? 'Mövsüm icmalı hələ əlçatan deyil.' : `${year} mövsümü üçün hazırdır.`}</h2><p>{team.legacyHistoryIncomplete ? "İcmal üçün təsdiqlənmiş yarış tarixçəsi tələb olunur." : "Bu mövsümün hekayəsini yenidən yaşa."}</p>
         <dl className="public-team-wrapped-stats">{[['Matç', wrapped.data?.matches], ['WWCD', wrapped.data?.wwcd], ['Kill', wrapped.data?.kills]].map(([label, value]) => <div key={label}><dd>{value ?? '—'}</dd><dt>{label}</dt></div>)}</dl>
-        <Link className="button button--primary" to={`/teams/${slug}/wrapped/${year}`}>İcmala bax<ArrowRight size={19} /></Link>
+        {team.legacyHistoryIncomplete ? <Button disabled>İcmal əlçatan deyil</Button> : <Link className="button button--primary" to={`/teams/${slug}/wrapped/${year}`}>İcmala bax<ArrowRight size={19} /></Link>}
       </div>
       <div className="public-team-wrapped-visual" aria-hidden="true"><picture><source type="image/avif" srcSet={phone.sources[0].srcSet} sizes="(max-width: 768px) 80vw, 440px" /><img src={phone.src} srcSet={phone.srcSet} sizes="(max-width: 768px) 80vw, 440px" alt="" width={phone.width} height={phone.height} loading="lazy" decoding="async" /></picture><div className="public-team-phone-title"><strong>{team.name.split(/\s+/).slice(0, 2).map(part => part[0]).join('')}</strong><span>{team.name}</span><small>{year} SEZON XÜLASƏSİ</small></div></div>
       <p className="public-team-wrapped-tagline">SAYILAR<br />OYNAYIR<br />HEKAYƏNİ<br />DANIŞIR.</p>

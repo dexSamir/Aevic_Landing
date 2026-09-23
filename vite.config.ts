@@ -1,5 +1,5 @@
 import { buildConfiguration } from './scripts/build-config.mjs';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { getRequestListener } from '@hono/node-server';
 import { createApp } from './server/app';
@@ -11,7 +11,7 @@ export default defineConfig(({ command, mode }) => {
     plugins: [react(), {
       name: 'aevic-hono-development',
       configureServer(server) {
-        const listener = getRequestListener(createApp().fetch);
+        const listener = getRequestListener(createApp(undefined, { ...loadEnv(mode, process.cwd(), ''), ...process.env }).fetch);
         server.middlewares.use((req, res, next) => {
           if (req.url === '/api' || req.url?.startsWith('/api/')) void listener(req, res);
           else next();

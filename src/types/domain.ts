@@ -92,6 +92,7 @@ export interface TwoFactorRecoveryCodes {
 }
 
 export interface TeamMember {
+  photoUrl?: string;
   id: ID;
   ign: string;
   uid?: string;
@@ -154,6 +155,8 @@ export interface TeamRegistrationReceipt {
 }
 
 export interface Team {
+  tier?: string;
+  sourceStatus?: string;
   legacyHistoryIncomplete?: boolean;
   id: ID;
   name: string;
@@ -230,6 +233,8 @@ export interface Organization {
 }
 
 export interface PublicTeamProfile {
+  historyAvailable?: boolean;
+  historyScope?: string;
   team: Team;
   organization?: Organization;
   achievements: TeamAchievement[];
@@ -246,6 +251,8 @@ export interface PublicTeamProfile {
 }
 
 export interface PublicTeamSummary {
+  tier?: string;
+  sourceStatus?: string;
   legacyHistoryIncomplete?: boolean;
   id: ID;
   slug: string;
@@ -368,6 +375,8 @@ export interface NextAction {
 }
 
 export interface PublicPlatformSnapshot {
+  dataSource?: string;
+  unavailable?: Record<string, string>;
   tournaments: Tournament[];
   teams: PublicTeamSummary[];
   organizations: Organization[];

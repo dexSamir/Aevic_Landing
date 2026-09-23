@@ -21,7 +21,7 @@ export function PublicTeamIdentity({ team, details, live, preview = false }: { t
         <Heading>{team.name}</Heading>
         <div className="public-team-tagline">{team.tag && <strong>{team.tag}</strong>}{captain && <span>Kapitan ləqəbi: <b>{captain.ign}</b></span>}</div>
         {details?.description && <p className="public-team-bio">{details.description}</p>}
-        <div className="public-team-meta">{team.country && <span><Flag size={18} />{team.country}</span>}{founded && Number.isFinite(founded) && <span><CalendarDays size={18} />{founded}</span>}{team.verificationLevel && <VerificationCrest level={team.verificationLevel} showLabel />}</div>
+        <div className="public-team-meta">{team.tier && <span>{team.tier}</span>}{team.sourceStatus && <span>{team.sourceStatus}</span>}{team.country && <span><Flag size={18} />{team.country}</span>}{founded && Number.isFinite(founded) && <span><CalendarDays size={18} />{founded}</span>}{team.verificationLevel && <VerificationCrest level={team.verificationLevel} showLabel />}</div>
       </div>
       <div className="public-team-brand">{preview && team.logoUrl?.startsWith('blob:') ? <span className="team-logo"><img src={team.logoUrl} alt={`${team.name} lokal logo önbaxışı`} /></span> : <TeamLogo name={team.name} src={team.logoUrl} size="xl" />}<div className="public-team-social">{!preview && <ShareProfileAction teamName={team.name} />}<SocialLinkList links={details?.socialLinks} ownerName={team.name} compact /></div></div>
     </div>
