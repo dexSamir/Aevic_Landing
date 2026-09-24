@@ -41,3 +41,6 @@ external_node_modules = ["sharp"]
   targetPort = 5173
   port = 8888
   framework = "vite"
+
+[images]
+  remote_images = ['^https://nmjjibifcuzjlsvfcaaz\.supabase\.co/storage/v1/object/public/.*$']

@@ -1,0 +1,420 @@
+{
+  "before": {
+    "js": 1147875,
+    "css": 483989,
+    "images": 13194110
+  },
+  "after": {
+    "js": 1171611,
+    "css": 484815,
+    "images": 9887539
+  },
+  "routes": [
+    {
+      "route": "Home",
+      "before": {
+        "js": 479491,
+        "jsGzip": 143281,
+        "css": 186023,
+        "cssGzip": 31317,
+        "files": [
+          "assets/index-MKdulphJ.js",
+          "assets/index-WhpyQeO9.css",
+          "assets/startApplication-BY8_BxBv.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js"
+        ]
+      },
+      "after": {
+        "js": 483452,
+        "jsGzip": 145613,
+        "css": 180027,
+        "cssGzip": 30513,
+        "files": [
+          "assets/index-BVgRT9ML.js",
+          "assets/index-C8aLsHaJ.css",
+          "assets/startApplication-D2ukZ5Ct.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js"
+        ]
+      }
+    },
+    {
+      "route": "Teams",
+      "before": {
+        "js": 542810,
+        "jsGzip": 167466,
+        "css": 296413,
+        "cssGzip": 51424,
+        "files": [
+          "assets/index-MKdulphJ.js",
+          "assets/index-WhpyQeO9.css",
+          "assets/startApplication-BY8_BxBv.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/ProfilePages-DvdvDmb5.js",
+          "assets/public-pages-DSHlG_8q.css",
+          "assets/team-profile-components-CwZ__o5a.css",
+          "assets/index-ChucdLk6.js",
+          "assets/ProfileElements-CWh-eaES.js",
+          "assets/badge-check-DKiF2_Kn.js",
+          "assets/shield-check--1pMkJnZ.js",
+          "assets/bell-B4gftQmv.js",
+          "assets/PublicTeamIdentity-BgeBVjCq.js",
+          "assets/PublicTeamIdentity-BjheBOLN.css",
+          "assets/calendar-days-CmL4vf04.js",
+          "assets/responsive-Dpq56w1Z.js",
+          "assets/wrapped-6OuGMDSg.js",
+          "assets/rotate-ccw-clock-CquJgvWq.js",
+          "assets/trophy-CK1EL0mo.js",
+          "assets/WorkspaceProfilePages-PD1ayg8l.js",
+          "assets/arrow-up-d-YXKFVr.js",
+          "assets/TeamExperience-BWelDmQL.js",
+          "assets/search-BaX87v4a.js",
+          "assets/git-compare-arrows-mda13f-L.js"
+        ]
+      },
+      "after": {
+        "js": 500113,
+        "jsGzip": 153061,
+        "css": 268129,
+        "cssGzip": 47465,
+        "files": [
+          "assets/index-BVgRT9ML.js",
+          "assets/index-C8aLsHaJ.css",
+          "assets/startApplication-D2ukZ5Ct.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/TeamsDirectoryPage-CZM23TMe.js",
+          "assets/public-pages-Bvb2tC5z.css",
+          "assets/team-profile-components-CwZ__o5a.css",
+          "assets/public-team-identity-_fI0WALl.css",
+          "assets/index-CgO6LHQh.js",
+          "assets/ProfileElements-DPVxTF0S.js",
+          "assets/badge-check-DSDNiqMF.js",
+          "assets/shield-check-CsnuOm6r.js",
+          "assets/bell-D0XO8hUt.js",
+          "assets/search-CoZM7ReX.js",
+          "assets/git-compare-arrows-B4xN2q3M.js"
+        ]
+      }
+    },
+    {
+      "route": "Search",
+      "before": {
+        "js": 483134,
+        "jsGzip": 145097,
+        "css": 233283,
+        "cssGzip": 38944,
+        "files": [
+          "assets/index-MKdulphJ.js",
+          "assets/index-WhpyQeO9.css",
+          "assets/startApplication-BY8_BxBv.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/PublicDiscoveryPages-haK2sWCr.js",
+          "assets/workspace-DoRTyDN-.css",
+          "assets/lifecycle-DuQoNXe9.css",
+          "assets/shield-check--1pMkJnZ.js"
+        ]
+      },
+      "after": {
+        "js": 485332,
+        "jsGzip": 146716,
+        "css": 181431,
+        "cssGzip": 30999,
+        "files": [
+          "assets/index-BVgRT9ML.js",
+          "assets/index-C8aLsHaJ.css",
+          "assets/startApplication-D2ukZ5Ct.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/SearchResultsPage-Bhh63lvO.js",
+          "assets/public-discovery-CTEl0Jzy.css"
+        ]
+      }
+    },
+    {
+      "route": "Captain home",
+      "before": {
+        "js": 547751,
+        "jsGzip": 168888,
+        "css": 298617,
+        "cssGzip": 51626,
+        "files": [
+          "assets/index-MKdulphJ.js",
+          "assets/index-WhpyQeO9.css",
+          "assets/startApplication-BY8_BxBv.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/TeamRoute-CCS6cWfO.js",
+          "assets/TeamRoute-Bi9MRNqC.css",
+          "assets/workspace-DoRTyDN-.css",
+          "assets/lifecycle-DuQoNXe9.css",
+          "assets/WorkspaceLayouts-BF0Vl9En.js",
+          "assets/WorkspaceLayouts-BiYa99fx.css",
+          "assets/calendar-days-CmL4vf04.js",
+          "assets/trophy-CK1EL0mo.js",
+          "assets/message-square-CKL6gwIi.js",
+          "assets/rotate-ccw-clock-CquJgvWq.js",
+          "assets/git-compare-arrows-mda13f-L.js",
+          "assets/bell-B4gftQmv.js",
+          "assets/external-link-BeyX983T.js",
+          "assets/TeamPages-D4HE_Wqp.js",
+          "assets/team-profile-components-CwZ__o5a.css",
+          "assets/TeamCareerNav-D2KMityW.js",
+          "assets/wrapped-6OuGMDSg.js",
+          "assets/TeamExperience-BWelDmQL.js",
+          "assets/TeamOverview-CxCjRxwn.js",
+          "assets/TeamOverview-Cwbfz9Nu.css",
+          "assets/shield-check--1pMkJnZ.js",
+          "assets/key-round-DZPjFTrT.js",
+          "assets/FileUpload-Dmvb0SKl.js"
+        ]
+      },
+      "after": {
+        "js": 517465,
+        "jsGzip": 158688,
+        "css": 276383,
+        "cssGzip": 47823,
+        "files": [
+          "assets/index-BVgRT9ML.js",
+          "assets/index-C8aLsHaJ.css",
+          "assets/startApplication-D2ukZ5Ct.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/TeamRoute-BqJY6ebl.js",
+          "assets/TeamRoute-Bi9MRNqC.css",
+          "assets/public-discovery-CTEl0Jzy.css",
+          "assets/workspace-DoRTyDN-.css",
+          "assets/lifecycle-wzpjNMjf.css",
+          "assets/WorkspaceLayouts-TqscKnSj.js",
+          "assets/WorkspaceLayouts-BiYa99fx.css",
+          "assets/calendar-days-lT1VJzyn.js",
+          "assets/trophy-1_EJfJMG.js",
+          "assets/message-square-Bezxosln.js",
+          "assets/rotate-ccw-clock-D8SrCCJ2.js",
+          "assets/git-compare-arrows-B4xN2q3M.js",
+          "assets/bell-D0XO8hUt.js",
+          "assets/external-link-BH1usJHU.js",
+          "assets/TeamOverview-DHRGAW1I.js",
+          "assets/TeamOverview-DvVzCFlN.css",
+          "assets/shield-check-CsnuOm6r.js",
+          "assets/key-round-BNI0sRs-.js"
+        ]
+      }
+    },
+    {
+      "route": "Admin settings (if enabled)",
+      "before": {
+        "js": 526326,
+        "jsGzip": 159755,
+        "css": 236734,
+        "cssGzip": 40303,
+        "files": [
+          "assets/index-MKdulphJ.js",
+          "assets/index-WhpyQeO9.css",
+          "assets/startApplication-BY8_BxBv.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/AdminRoute-CXt9jOw-.js",
+          "assets/workspace-DoRTyDN-.css",
+          "assets/lifecycle-DuQoNXe9.css",
+          "assets/WorkspaceLayouts-BF0Vl9En.js",
+          "assets/WorkspaceLayouts-BiYa99fx.css",
+          "assets/calendar-days-CmL4vf04.js",
+          "assets/trophy-CK1EL0mo.js",
+          "assets/message-square-CKL6gwIi.js",
+          "assets/rotate-ccw-clock-CquJgvWq.js",
+          "assets/git-compare-arrows-mda13f-L.js",
+          "assets/bell-B4gftQmv.js",
+          "assets/external-link-BeyX983T.js",
+          "assets/AdminPages-u8ZWICs_.js",
+          "assets/AdminPages-BpVrVYpe.css",
+          "assets/user-check-JqPWLaHC.js",
+          "assets/chart-column-CI21iAxH.js",
+          "assets/search-BaX87v4a.js"
+        ]
+      },
+      "after": {
+        "js": 500115,
+        "jsGzip": 152704,
+        "css": 229727,
+        "cssGzip": 39234,
+        "files": [
+          "assets/index-BVgRT9ML.js",
+          "assets/index-C8aLsHaJ.css",
+          "assets/startApplication-D2ukZ5Ct.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/AdminRoute-BwXrpxN9.js",
+          "assets/public-discovery-CTEl0Jzy.css",
+          "assets/workspace-DoRTyDN-.css",
+          "assets/lifecycle-wzpjNMjf.css",
+          "assets/WorkspaceLayouts-TqscKnSj.js",
+          "assets/WorkspaceLayouts-BiYa99fx.css",
+          "assets/calendar-days-lT1VJzyn.js",
+          "assets/trophy-1_EJfJMG.js",
+          "assets/message-square-Bezxosln.js",
+          "assets/rotate-ccw-clock-D8SrCCJ2.js",
+          "assets/git-compare-arrows-B4xN2q3M.js",
+          "assets/bell-D0XO8hUt.js",
+          "assets/external-link-BH1usJHU.js",
+          "assets/AdminSettingsPage-Br2Kkyuk.js"
+        ]
+      }
+    },
+    {
+      "route": "Account sessions",
+      "before": {
+        "js": 494893,
+        "jsGzip": 149373,
+        "css": 233283,
+        "cssGzip": 38944,
+        "files": [
+          "assets/index-MKdulphJ.js",
+          "assets/index-WhpyQeO9.css",
+          "assets/startApplication-BY8_BxBv.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/AccountPages-DY315OJQ.js",
+          "assets/workspace-DoRTyDN-.css",
+          "assets/lifecycle-DuQoNXe9.css",
+          "assets/key-round-DZPjFTrT.js",
+          "assets/shield-check--1pMkJnZ.js",
+          "assets/bell-B4gftQmv.js"
+        ]
+      },
+      "after": {
+        "js": 488644,
+        "jsGzip": 148562,
+        "css": 227794,
+        "cssGzip": 38503,
+        "files": [
+          "assets/index-BVgRT9ML.js",
+          "assets/index-C8aLsHaJ.css",
+          "assets/startApplication-D2ukZ5Ct.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/AccountLayout-D5am1Lfi.js",
+          "assets/public-discovery-CTEl0Jzy.css",
+          "assets/workspace-DoRTyDN-.css",
+          "assets/lifecycle-wzpjNMjf.css",
+          "assets/AccountPagesShared-rhwKaS2C.js",
+          "assets/bell-D0XO8hUt.js",
+          "assets/laptop-BQgMLFZF.js",
+          "assets/AccountSessionsPage-BBz05O6q.js"
+        ]
+      }
+    },
+    {
+      "route": "Login",
+      "before": {
+        "js": 517186,
+        "jsGzip": 157047,
+        "css": 249874,
+        "cssGzip": 42244,
+        "files": [
+          "assets/index-MKdulphJ.js",
+          "assets/index-WhpyQeO9.css",
+          "assets/startApplication-BY8_BxBv.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/AuthLayout-CcmNUcCz.js",
+          "assets/responsive-Dpq56w1Z.js",
+          "assets/AuthPages-BBFxfx7y.js",
+          "assets/AuthPages-A9_jG96w.css",
+          "assets/AuthRecoveryShell-D_az3mXw.js",
+          "assets/AuthRecoveryShell-DT0LmsD1.css",
+          "assets/user-check-JqPWLaHC.js",
+          "assets/shield-check--1pMkJnZ.js",
+          "assets/FileUpload-Dmvb0SKl.js",
+          "assets/arrow-left-hc4uNArK.js"
+        ]
+      },
+      "after": {
+        "js": 496070,
+        "jsGzip": 150954,
+        "css": 243878,
+        "cssGzip": 41440,
+        "files": [
+          "assets/index-BVgRT9ML.js",
+          "assets/index-C8aLsHaJ.css",
+          "assets/startApplication-D2ukZ5Ct.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/AuthLayout-DQ_8wAnk.js",
+          "assets/responsive-VLwCzJoj.js",
+          "assets/LoginPage-Cyaab-QC.js",
+          "assets/auth-DT0LmsD1.css",
+          "assets/registration-fields-A9_jG96w.css",
+          "assets/AuthPagesShared-BcBy_-zm.js",
+          "assets/shield-check-CsnuOm6r.js",
+          "assets/mail-bvxQUi9r.js"
+        ]
+      }
+    },
+    {
+      "route": "Tournament detail",
+      "before": {
+        "js": 520780,
+        "jsGzip": 158787,
+        "css": 268393,
+        "cssGzip": 45498,
+        "files": [
+          "assets/index-MKdulphJ.js",
+          "assets/index-WhpyQeO9.css",
+          "assets/startApplication-BY8_BxBv.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/PublicPages-D02TrHMO.js",
+          "assets/public-pages-DSHlG_8q.css",
+          "assets/TournamentsPage-ENKP-E8n.js",
+          "assets/index-ChucdLk6.js",
+          "assets/calendar-days-CmL4vf04.js",
+          "assets/search-BaX87v4a.js",
+          "assets/arrow-up-d-YXKFVr.js",
+          "assets/trophy-CK1EL0mo.js",
+          "assets/chart-column-CI21iAxH.js",
+          "assets/InformationPages-BZJru5kd.js"
+        ]
+      },
+      "after": {
+        "js": 501871,
+        "jsGzip": 152717,
+        "css": 249225,
+        "cssGzip": 43695,
+        "files": [
+          "assets/index-BVgRT9ML.js",
+          "assets/index-C8aLsHaJ.css",
+          "assets/startApplication-D2ukZ5Ct.js",
+          "assets/startApplication-CcMjX53q.css",
+          "assets/react-BMuvxZrZ.js",
+          "assets/router-_iKCUWmR.js",
+          "assets/TournamentDetailPage-BbXtDJfM.js",
+          "assets/TournamentDetailPage-CaYW2R_L.css",
+          "assets/public-pages-Bvb2tC5z.css",
+          "assets/trophy-1_EJfJMG.js",
+          "assets/chart-column-DDUV4vSO.js",
+          "assets/useTournamentClock-D55CPD_w.js",
+          "assets/calendar-days-lT1VJzyn.js"
+        ]
+      }
+    }
+  ]
+}

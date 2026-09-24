@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { publicImageUrl } from '../../utils/mediaUrl';
+import { publicImageUrl, publicImageSrcSet, restoreOriginalUpload } from '../../utils/mediaUrl';
 import { services } from '../../services';
 import type { Organization, Team, VerificationLevel } from '../../types/domain';
 import { FileUpload, TeamLogo, Toast, Tooltip } from '../common/primitives';
@@ -29,7 +29,7 @@ export function VerificationCrest({ level = 'registered', showLabel = false }: {
 export function OrganizationBanner({ organization, children }: { organization: Organization; children?: React.ReactNode }) {
   const banner = publicImageUrl(organization.bannerUrl);
   return <section className={`profile-banner ${banner ? 'profile-banner--image' : 'profile-banner--fallback'}`}>
-    {banner && <img src={banner} alt={organization.bannerAlt ?? `${organization.name} banneri`} />}
+    {banner && <img src={banner} srcSet={publicImageSrcSet(banner, [480, 768, 1280, 1920])} sizes="100vw" width={1600} height={500} decoding="async" onError={event => { restoreOriginalUpload(event.currentTarget); }} alt={organization.bannerAlt ?? `${organization.name} banneri`} />}
     <div className="profile-banner__shade" aria-hidden="true" />
     {children}
   </section>;

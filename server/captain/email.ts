@@ -1,6 +1,6 @@
 import type {ResetMailer} from './service';
 import {ServiceError} from '../errors';
-import nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 import type {ServerConfig} from '../config';
 import {passwordResetEmail} from './reset-email';
 
@@ -8,17 +8,18 @@ export function resetMailer(config:ServerConfig):ResetMailer {
  return config.smtp?new SmtpResetMailer(config.smtp,config.emailFrom??''):new ResendResetMailer(config.resendKey??'',config.emailFrom??'');
 }
 export class SmtpResetMailer implements ResetMailer {
- private transport;
- constructor(smtp:NonNullable<ServerConfig['smtp']>,private from:string) {
-  this.transport=nodemailer.createTransport({host:smtp.host,port:smtp.port,
+ private transport?: Transporter;
+ constructor(private smtp:NonNullable<ServerConfig['smtp']>,private from:string) {}
+ async send(to:string,link:string) {
+  if(!this.from)throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
+  try {
+  const {default:nodemailer}=await import('nodemailer');
+  const smtp=this.smtp;
+  this.transport??=nodemailer.createTransport({host:smtp.host,port:smtp.port,
    secure:smtp.port===465,requireTLS:true,tls:{rejectUnauthorized:true},
    auth:{user:smtp.user,pass:smtp.pass},connectionTimeout:8000,greetingTimeout:8000,
    socketTimeout:10000,dnsTimeout:8000,logger:false,debug:false,
    disableFileAccess:true,disableUrlAccess:true});
- }
- async send(to:string,link:string) {
-  if(!this.from)throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
-  try {
    await this.transport.sendMail({from:this.from,to:[to],...passwordResetEmail(link)});
   }catch{throw new ServiceError(503,'EMAIL_DELIVERY_FAILED');}
  }

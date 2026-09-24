@@ -67,7 +67,14 @@ export function TeamOverview() {
   const data = useTeamPlatformData();
   // Refresh temporal selectors while the captain leaves the console open.
   const [, setTick] = useState(0);
-  useEffect(() => { const timer = window.setInterval(() => setTick(value => value + 1), 30_000); return () => clearInterval(timer); }, []);
+  useEffect(() => {
+    // Original-team snapshots have no temporal competition state to refresh.
+    if (data.dataSource === 'public.teams') return;
+    const tick = () => { if (!document.hidden) setTick(value => value + 1); };
+    const timer = window.setInterval(tick, 30_000);
+    document.addEventListener('visibilitychange', tick);
+    return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', tick); };
+  }, [data.dataSource]);
   const context = useTeamCompetitionContexts().current;
   const vm = buildTeamOverview(data, context);
   const verified = vm.team.approvalStatus === 'approved';

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../server/app';
 import { readConfig } from '../../server/config';
 import { client } from '../../server/db';
-import { mapProductionTeam, originalTeamId, PUBLIC_TEAM_COLUMNS } from '../../server/services/productionTeams';
+import { mapProductionTeam, originalTeamId, PUBLIC_TEAM_COLUMNS, PUBLIC_DIRECTORY_COLUMNS } from '../../server/services/productionTeams';
 import { validatePublicSnapshot } from '../../src/services/snapshotValidation';
 
 // Isolated transport fixtures only. These tests never contact or mutate production.
@@ -34,7 +34,7 @@ describe('original production contract', () => {
   const data=validatePublicSnapshot(await response.json());expect(data.teams[0]).toMatchObject({id:row.id,slug:row.id,rosterSize:5});expect(data.dataSource).toBe('public.teams');
   expect(fetch).toHaveBeenCalledTimes(1);
   const [input,init]=fetch.mock.calls[0] as unknown as [string,RequestInit];
-  const url=new URL(input);expect(url.pathname).toBe('/rest/v1/teams');expect(url.searchParams.get('select')).toBe(PUBLIC_TEAM_COLUMNS);
+  const url=new URL(input);expect(url.pathname).toBe('/rest/v1/teams');expect(url.searchParams.get('select')).toBe(PUBLIC_DIRECTORY_COLUMNS);
   expect(new Headers(init.headers).get('accept-profile')).toBe('public');expect(new Headers(init.headers).get('apikey')).toBe(config.publishableKey);
   expect(PUBLIC_TEAM_COLUMNS).not.toMatch(/\*|password|email|captain|reset_token|room|rejection_reason/);
  });
@@ -48,6 +48,23 @@ describe('original production contract', () => {
   transport();const search=await(await app.request('/api/search?q=contract')).json();expect(search.groups.team[0].href).toBe(`/teams/${row.id}`);
   const detail=await(await app.request(`/api/public/teams/${row.id}`)).json();expect(detail.team.id).toBe(row.id);expect(detail.historyAvailable).toBe(true);
   const history=await app.request(`/api/public/teams/${row.id}/matches`);expect(await history.json()).toEqual([]);expect(history.headers.get('x-history-scope')).toBe('public.teams.match_results');
+ });
+ it('reads a single team once by bigint ID instead of downloading the directory', async () => {
+  const fetch = transport();
+  const response = await app.request(`/api/public/teams/${row.id}`);
+  expect(response.status).toBe(200); expect(fetch).toHaveBeenCalledTimes(1);
+  const url = new URL((fetch.mock.calls[0] as unknown as [string])[0]);
+  expect(url.searchParams.get('id')).toBe(`eq.${row.id}`);
+  expect(url.searchParams.get('limit')).toBe('1');
+  expect(url.searchParams.get('select')).toBe(PUBLIC_TEAM_COLUMNS);
+ });
+ it('provides directory form state without exposing raw match results or photos', async () => {
+  transport();
+  const response = await app.request('/api/public/context');
+  const data = await response.json();
+  expect(data.teams[0]).toMatchObject({ form: [], historyAvailable: true });
+  expect(data.teams[0]).not.toHaveProperty('match_results');
+  expect(PUBLIC_DIRECTORY_COLUMNS).not.toContain('photo_url');
  });
  it.each([null,{},[{kills:10}], '[]'])('does not silently flatten an unknown match_results format: %j',async results=>{
   transport([{...row,match_results:results}]);

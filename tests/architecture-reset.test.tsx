@@ -5,7 +5,7 @@ import { CompetitionRoundProgram } from '../src/components/competition/Competiti
 import { SharecardGenerator } from '../src/components/competition/SharecardGenerator';
 import { buildCompetitionAwareness, CompetitionAwareness } from '../src/components/team/CompetitionAwareness';
 import { deriveNextAction } from '../src/components/team/NextActionCard';
-import { productRouteTitle } from '../src/layouts/layouts';
+import { productRouteTitle } from '../src/layouts/WorkspaceLayouts';
 import { adminMessages, currentTeam, matchHistory, matchSchedule, notifications, teamAnnouncements, tournaments } from './fixtures/platform-data';
 import { RecordDetailPage } from '../src/pages/PublicArchivePages';
 import { TeamDashboardPage, TeamSharecardsPage } from '../src/pages/TeamPages';

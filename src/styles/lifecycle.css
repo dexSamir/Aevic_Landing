@@ -92,17 +92,11 @@
 .credential-panel--released { border-color: var(--color-success); }
 .credential-panel--released .credential-placeholder { grid-template-columns: minmax(0, 1fr) auto; }
 .credential-panel--released .credential-placeholder > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .25rem; }
-
-.completion-page .page-header { margin-bottom: var(--space-lg); }
-.directory-search { max-width: 48rem; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-sm); margin-bottom: var(--space-xl); }
-.entity-ledger, .search-results-ledger, .authority-ledger, .invitation-ledger, .review-ledger, .history-ledger { display: grid; gap: 1px; background: var(--color-border); }
-.entity-ledger > a, .entity-ledger > article, .search-results-ledger > a, .authority-ledger > article, .invitation-ledger > article, .review-ledger > article, .history-ledger > article { min-width: 0; min-height: 4.5rem; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-md); padding: var(--space-md); background: var(--color-bg-secondary); }
-.entity-ledger > a:hover, .search-results-ledger > a:hover, .review-ledger > article:hover { background: var(--color-surface-hover); }
-.entity-ledger span, .authority-ledger div, .invitation-ledger div, .review-ledger div { min-width: 0; display: grid; }
-.entity-ledger small, .authority-ledger small, .invitation-ledger small, .review-ledger small, .search-results-ledger small { color: var(--color-text-muted); overflow-wrap: anywhere; }
-.search-results-ledger > a { grid-template-columns: 7rem minmax(0, 1fr) auto; }
-.search-results-ledger > a > span { color: var(--color-brand-primary); font-size: var(--text-xs); font-weight: 800; text-transform: uppercase; }
-.search-results-ledger > a > div { min-width: 0; display: grid; }
+.authority-ledger, .invitation-ledger, .review-ledger, .history-ledger { display: grid; gap: 1px; background: var(--color-border); }
+.authority-ledger > article, .invitation-ledger > article, .review-ledger > article, .history-ledger > article { min-width: 0; min-height: 4.5rem; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-md); padding: var(--space-md); background: var(--color-bg-secondary); }
+.review-ledger > article:hover { background: var(--color-surface-hover); }
+.authority-ledger div, .invitation-ledger div, .review-ledger div { min-width: 0; display: grid; }
+.authority-ledger small, .invitation-ledger small, .review-ledger small { color: var(--color-text-muted); overflow-wrap: anywhere; }
 .integration-boundary { display: flex; gap: var(--space-sm); margin-bottom: var(--space-lg); padding: var(--space-md); color: var(--color-warning); background: var(--color-warning-soft); border-radius: var(--radius-sm); }
 .integration-boundary > div { min-width: 0; }
 .integration-boundary p { max-width: 72ch; margin-top: .25rem; color: var(--color-text-muted); }
@@ -169,11 +163,9 @@
   .notification-center-list > div > .button { justify-self: start; margin: 0 var(--space-md) var(--space-md); }
   .detail-ledger > div { grid-template-columns: 1fr; gap: .15rem; }
   .ticket-thread article { max-width: 100%; }
-  .directory-search { grid-template-columns: 1fr; }
-  .directory-search .button { justify-self: start; }
-  .search-results-ledger > a, .review-ledger > article, .invitation-ledger > article { grid-template-columns: auto minmax(0, 1fr); gap: var(--space-xs) var(--space-sm); }
-  .search-results-ledger > a > span, .search-results-ledger > a > div, .review-ledger > article > div, .invitation-ledger > article > div { grid-column: 2; }
-  .search-results-ledger > a > svg, .review-ledger > article > span, .review-ledger > article > a, .invitation-ledger > article > span, .invitation-ledger > article > div:last-child { grid-column: 2; justify-self: start; }
+  .review-ledger > article, .invitation-ledger > article { grid-template-columns: auto minmax(0, 1fr); gap: var(--space-xs) var(--space-sm); }
+  .review-ledger > article > div, .invitation-ledger > article > div { grid-column: 2; }
+  .review-ledger > article > span, .review-ledger > article > a, .invitation-ledger > article > span, .invitation-ledger > article > div:last-child { grid-column: 2; justify-self: start; }
   .danger-ledger { grid-template-columns: 1fr; }
   .danger-ledger .button { justify-self: start; }
   .player-profile__actions { justify-items: start; }

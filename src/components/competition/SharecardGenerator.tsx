@@ -1,7 +1,6 @@
 import '../../styles/share-studio.css';
 import { Download, Share2 } from 'lucide-react';
 import { type ReactNode, useRef, useState } from 'react';
-import { toPng } from 'html-to-image';
 import { officialAssets } from '../../assets/official';
 import type { TournamentResultBreakdown } from '../../types/domain';
 import { BrandEmblem } from '../brand/BrandMark';
@@ -98,6 +97,7 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
     if (!poster) return;
     await waitForPreviewAssets(poster);
     const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--color-bg-deep').trim();
+    const { toPng } = await import('html-to-image');
     return toPng(poster, { cacheBust: true, pixelRatio: Math.max(1, 2400 / poster.offsetWidth), backgroundColor });
   };
 

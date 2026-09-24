@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import type { Env, ApiContext } from '../types';
 import { ServiceError } from '../errors';
-import { ProductionTeams, productionSummary } from '../services/productionTeams';
+import { ProductionTeams } from '../services/productionTeams';
 
 const app = new Hono<Env>();
 const repo = (c: ApiContext) => new ProductionTeams(c.get('db'));
@@ -14,14 +14,14 @@ export const unavailable = {
   achievements: 'ORIGINAL_CONTRACT_UNAVAILABLE',
 };
 app.get('/public/context', async c => c.json({
-  teams: (await repo(c).teams()).map(productionSummary),
+  teams: await repo(c).summaries(),
   // Compatibility containers, explicitly unavailable, never represented as verified zero counts.
   tournaments: [], organizations: [], leaderboard: [], leaderboardTeams: [], playerPerformances: [], teamComparisonRecords: [], teamAchievements: [],
   dataSource: 'public.teams', unavailable,
 }));
 app.get('/public/teams', async c => {
   const q = z.string().max(100).parse(c.req.query('search') ?? '').toLocaleLowerCase('az-AZ');
-  return c.json((await repo(c).teams()).filter(t => t.name.toLocaleLowerCase('az-AZ').includes(q)).map(productionSummary));
+  return c.json((await repo(c).summaries()).filter(t => t.name.toLocaleLowerCase('az-AZ').includes(q)));
 });
 app.get('/public/teams/:id', async c => c.json(await repo(c).profile(c.req.param('id'))));
 app.get('/public/teams/:id/matches', async c => {

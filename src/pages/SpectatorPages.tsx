@@ -1,3 +1,4 @@
+import '../styles/match-center.css';
 import '../styles/public-pages.css';
 import { ArrowRight, Map as MapIcon, RotateCcw, Search, Users } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -45,7 +46,7 @@ function MatchCard({ match, tournament, detail, now }: { match: MatchScheduleIte
   const rounds = tournament?.roundsPerDay;
   return <article className="match-card">
     <div className="match-card__scene">
-      <img src={officialAssets.mapsSmall[mapIndex]} alt="" loading="lazy" />
+      <img src={officialAssets.mapsSmall[mapIndex]} srcSet={officialAssets.mapSrcSets[mapIndex]} sizes="(max-width: 768px) 40vw, 240px" width={1600} height={900} decoding="async" alt="" loading="lazy" />
       <div className="match-card__badges"><Link to={`/tournaments/${match.tournamentId}`} className="match-card__tournament"><span aria-hidden="true">Ⅼ</span>{tournament?.name ?? match.lobby}</Link><span className={`match-card__status${live ? ' is-live' : ''}`}>{live ? '● CANLI' : startsIn(match.startsAt, now)}</span></div>
       <h3>{match.map}</h3><p>{match.lobby || (match.stage === 'final' ? 'Final' : match.stage)} · R{match.round}</p>
     </div>

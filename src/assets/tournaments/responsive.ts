@@ -1,3 +1,23 @@
+import image0webp480 from './summer-final-watchtower-480.webp';
+import image0webp800 from './summer-final-watchtower-800.webp';
+import image0avif480 from './summer-final-watchtower-480.avif';
+import image0avif800 from './summer-final-watchtower-800.avif';
+import image1webp480 from './tournament-detail-hero-480.webp';
+import image1webp800 from './tournament-detail-hero-800.webp';
+import image1avif480 from './tournament-detail-hero-480.avif';
+import image1avif800 from './tournament-detail-hero-800.avif';
+import image2webp480 from './rising-squads-aircraft-480.webp';
+import image2webp800 from './rising-squads-aircraft-800.webp';
+import image2avif480 from './rising-squads-aircraft-480.avif';
+import image2avif800 from './rising-squads-aircraft-800.avif';
+import image3webp480 from './featured-daily-cup-480.webp';
+import image3webp800 from './featured-daily-cup-800.webp';
+import image3avif480 from './featured-daily-cup-480.avif';
+import image3avif800 from './featured-daily-cup-800.avif';
+import image4webp480 from './daily-cup-parachutes-480.webp';
+import image4webp800 from './daily-cup-parachutes-800.webp';
+import image4avif480 from './daily-cup-parachutes-480.avif';
+import image4avif800 from './daily-cup-parachutes-800.avif';
 import image0webp640 from './summer-final-watchtower-640.webp';
 import image0webp1120 from './summer-final-watchtower-1120.webp';
 import image0webp1918 from './summer-final-watchtower-1918.webp';
@@ -30,9 +50,9 @@ import image4avif1120 from './daily-cup-parachutes-1120.avif';
 import image4avif1919 from './daily-cup-parachutes-1919.avif';
 
 export const responsiveArtwork = {
-  'summer-final-watchtower': { src: image0webp1918, width: 1918, height: 820, srcSet: `${image0webp640} 640w, ${image0webp1120} 1120w, ${image0webp1918} 1918w`, sources: [{ type: 'image/avif' as const, srcSet: `${image0avif640} 640w, ${image0avif1120} 1120w, ${image0avif1918} 1918w` }] },
-  'tournament-detail-hero': { src: image1webp1983, width: 1983, height: 793, srcSet: `${image1webp640} 640w, ${image1webp1120} 1120w, ${image1webp1983} 1983w`, sources: [{ type: 'image/avif' as const, srcSet: `${image1avif640} 640w, ${image1avif1120} 1120w, ${image1avif1983} 1983w` }] },
-  'rising-squads-aircraft': { src: image2webp1918, width: 1918, height: 820, srcSet: `${image2webp640} 640w, ${image2webp1120} 1120w, ${image2webp1918} 1918w`, sources: [{ type: 'image/avif' as const, srcSet: `${image2avif640} 640w, ${image2avif1120} 1120w, ${image2avif1918} 1918w` }] },
-  'featured-daily-cup': { src: image3webp1947, width: 1947, height: 808, srcSet: `${image3webp640} 640w, ${image3webp1120} 1120w, ${image3webp1947} 1947w`, sources: [{ type: 'image/avif' as const, srcSet: `${image3avif640} 640w, ${image3avif1120} 1120w, ${image3avif1947} 1947w` }] },
-  'daily-cup-parachutes': { src: image4webp1919, width: 1919, height: 820, srcSet: `${image4webp640} 640w, ${image4webp1120} 1120w, ${image4webp1919} 1919w`, sources: [{ type: 'image/avif' as const, srcSet: `${image4avif640} 640w, ${image4avif1120} 1120w, ${image4avif1919} 1919w` }] },
+  'summer-final-watchtower': { src: image0webp1918, width: 1918, height: 820, srcSet: `${image0webp480} 480w, ${image0webp640} 640w, ${image0webp800} 800w, ${image0webp1120} 1120w, ${image0webp1918} 1918w`, sources: [{ type: 'image/avif' as const, srcSet: `${image0avif480} 480w, ${image0avif640} 640w, ${image0avif800} 800w, ${image0avif1120} 1120w, ${image0avif1918} 1918w` }] },
+  'tournament-detail-hero': { src: image1webp1983, width: 1983, height: 793, srcSet: `${image1webp480} 480w, ${image1webp640} 640w, ${image1webp800} 800w, ${image1webp1120} 1120w, ${image1webp1983} 1983w`, sources: [{ type: 'image/avif' as const, srcSet: `${image1avif480} 480w, ${image1avif640} 640w, ${image1avif800} 800w, ${image1avif1120} 1120w, ${image1avif1983} 1983w` }] },
+  'rising-squads-aircraft': { src: image2webp1918, width: 1918, height: 820, srcSet: `${image2webp480} 480w, ${image2webp640} 640w, ${image2webp800} 800w, ${image2webp1120} 1120w, ${image2webp1918} 1918w`, sources: [{ type: 'image/avif' as const, srcSet: `${image2avif480} 480w, ${image2avif640} 640w, ${image2avif800} 800w, ${image2avif1120} 1120w, ${image2avif1918} 1918w` }] },
+  'featured-daily-cup': { src: image3webp1947, width: 1947, height: 808, srcSet: `${image3webp480} 480w, ${image3webp640} 640w, ${image3webp800} 800w, ${image3webp1120} 1120w, ${image3webp1947} 1947w`, sources: [{ type: 'image/avif' as const, srcSet: `${image3avif480} 480w, ${image3avif640} 640w, ${image3avif800} 800w, ${image3avif1120} 1120w, ${image3avif1947} 1947w` }] },
+  'daily-cup-parachutes': { src: image4webp1919, width: 1919, height: 820, srcSet: `${image4webp480} 480w, ${image4webp640} 640w, ${image4webp800} 800w, ${image4webp1120} 1120w, ${image4webp1919} 1919w`, sources: [{ type: 'image/avif' as const, srcSet: `${image4avif480} 480w, ${image4avif640} 640w, ${image4avif800} 800w, ${image4avif1120} 1120w, ${image4avif1919} 1919w` }] },
 };

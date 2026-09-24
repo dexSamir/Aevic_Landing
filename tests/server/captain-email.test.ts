@@ -17,16 +17,17 @@ describe('captain SMTP transport',()=>{
  });
  it('requires validated TLS, disables content logging and sends one reset link',async()=>{
   const mailer=new SmtpResetMailer(smtp,smtp.user);
-  const options=vi.mocked(nodemailer.createTransport).mock.calls.at(-1)![0];
-  expect(options).toMatchObject({secure:false,requireTLS:true,tls:{rejectUnauthorized:true},logger:false,debug:false,disableFileAccess:true,disableUrlAccess:true});
+  expect(nodemailer.createTransport).not.toHaveBeenCalled();
   const link='https://example.test/reset-password#token=fixture';
   await mailer.send('captain@example.test',link);
+  const options=vi.mocked(nodemailer.createTransport).mock.calls.at(-1)![0];
+  expect(options).toMatchObject({secure:false,requireTLS:true,tls:{rejectUnauthorized:true},logger:false,debug:false,disableFileAccess:true,disableUrlAccess:true});
   expect(sendMail).toHaveBeenCalledWith(expect.objectContaining({to:['captain@example.test'],from:smtp.user,text:expect.stringContaining(link)}));
  });
  it('uses implicit TLS on port 465 and redacts provider failures',async()=>{
   const mailer=new SmtpResetMailer({...smtp,port:465},smtp.user);
-  expect(vi.mocked(nodemailer.createTransport).mock.calls.at(-1)![0]).toMatchObject({secure:true,tls:{rejectUnauthorized:true}});
   sendMail.mockRejectedValue(new Error('fixture-private-provider-response'));
   await expect(mailer.send('captain@example.test','https://example.test')).rejects.toMatchObject({code:'EMAIL_DELIVERY_FAILED',message:'EMAIL_DELIVERY_FAILED'});
+  expect(vi.mocked(nodemailer.createTransport).mock.calls.at(-1)![0]).toMatchObject({secure:true,tls:{rejectUnauthorized:true}});
  });
 });

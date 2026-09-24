@@ -1,5 +1,5 @@
 import { ArrowRight } from 'lucide-react';
-import { publicImageUrl } from '../../utils/mediaUrl';
+import { publicImageUrl, publicImageSrcSet, restoreOriginalUpload } from '../../utils/mediaUrl';
 import { useCallback, useState, type ReactNode } from 'react';
 import './loading-skeleton.css';
 import { Link } from 'react-router-dom';
@@ -20,7 +20,7 @@ export function TeamMark({ name, src, size = 'md', className = '' }: { name: str
   const visible = safeSrc && failed !== safeSrc;
   const loading=Boolean(visible&&loaded!==safeSrc);
   return <span aria-busy={loading||undefined} className={`team-logo team-mark team-logo--${size} ${visible ? 'team-mark--artwork' : 'team-mark--fallback'} ${loading?'team-mark--loading':''} ${className}`.trim()}>
-    {visible ? <img ref={imageRef} src={safeSrc} onLoad={()=>setLoaded(safeSrc)} onError={() => setFailed(safeSrc)} alt="" loading="lazy" decoding="async" /> : <span aria-hidden="true">{teamInitials(name)}</span>}
+    {visible ? <img ref={imageRef} src={safeSrc} srcSet={publicImageSrcSet(safeSrc)} sizes={size === 'xl' ? '(max-width: 768px) 160px, 240px' : size === 'lg' ? '80px' : size === 'sm' ? '32px' : '48px'} width={256} height={256} onLoad={()=>setLoaded(safeSrc)} onError={event => { if (!restoreOriginalUpload(event.currentTarget)) setFailed(safeSrc); }} alt="" loading="lazy" decoding="async" /> : <span aria-hidden="true">{teamInitials(name)}</span>}
   </span>;
 }
 

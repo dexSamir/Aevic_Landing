@@ -1,3 +1,4 @@
+import '../../styles/competition-awareness.css';
 import { sanitizeInternalPath } from '../../utils/outboundUrl';
 import { AlertTriangle, Bell, CalendarClock, CheckCircle2, ChevronRight, CircleDot, KeyRound, MessageSquare, Swords, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';

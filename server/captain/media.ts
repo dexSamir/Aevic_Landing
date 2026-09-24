@@ -1,4 +1,3 @@
-import sharp from 'sharp';
 import {createClient} from '@supabase/supabase-js';
 import type {ServerConfig} from '../config';
 import {ServiceError} from '../errors';
@@ -10,6 +9,7 @@ const types={png:'image/png',jpeg:'image/jpeg',webp:'image/webp'} as const;
 export async function validateImage(bytes:Uint8Array, claimed?:string) {
  if(!bytes.length||bytes.length>4_000_000)throw new ServiceError(413,'FILE_TOO_LARGE');
  try{
+  const {default:sharp}=await import('sharp');
   const image=sharp(bytes,{limitInputPixels:20_000_000,animated:false,failOn:'warning'});const info=await image.metadata();
   if(!info.format||!(info.format in types)||(info.pages??1)>1||!info.width||!info.height)throw new Error('format');
   const type=types[info.format as keyof typeof types];if(claimed&&claimed!==type)throw new Error('mime');

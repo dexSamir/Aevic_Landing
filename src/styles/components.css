@@ -574,39 +574,6 @@
 .approval-explainer p { color: var(--color-text-muted); font-size: var(--text-sm); }
 .drawer-tournament-context { min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); margin-top: var(--space-md); padding: var(--space-sm); color: var(--color-brand-primary); border-top: 1px solid var(--color-border); font-size: var(--text-sm); font-weight: 700; }
 .drawer-identity { display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-lg); }
-.competition-awareness { --awareness-accent: var(--color-info); position: relative; display: grid; margin-bottom: var(--space-lg); overflow: hidden; color: var(--color-text-primary); background: color-mix(in srgb, var(--color-bg-deep) 92%, var(--awareness-accent)); border-block: 1px solid var(--color-border-strong); }
-.competition-awareness--critical { --awareness-accent: var(--color-danger); }
-.competition-awareness--important { --awareness-accent: var(--color-warning); }
-.competition-awareness__masthead { min-height: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); padding-inline: var(--space-lg); color: var(--color-text-soft); border-bottom: 1px solid var(--color-border); font-size: .68rem; font-weight: 700; letter-spacing: .08em; }
-.competition-awareness__masthead > span:first-child { color: var(--awareness-accent); }
-.competition-awareness__primary { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-md); padding: var(--space-lg); }
-.competition-awareness__icon { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; color: var(--awareness-accent); background: color-mix(in srgb, var(--awareness-accent) 12%, var(--color-bg-deep)); clip-path: polygon(14% 0, 100% 0, 86% 100%, 0 100%); }
-.competition-awareness__copy { min-width: 0; display: grid; gap: .28rem; }
-.competition-awareness__copy > div { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
-.competition-awareness__priority, .competition-awareness__new { display: inline-flex; align-items: center; gap: .25rem; color: var(--awareness-accent); font: 700 .65rem/1 var(--font-competition); letter-spacing: .08em; }
-.competition-awareness__new { color: var(--color-text-primary); }
-.competition-awareness__copy h2 { max-width: 44ch; font-family: var(--font-heading); font-size: var(--text-md); line-height: 1.15; text-wrap: balance; }
-.competition-awareness__copy p { max-width: 72ch; color: var(--color-text-muted); font-size: var(--text-sm); text-wrap: pretty; }
-.competition-awareness__copy time { color: var(--color-text-soft); font-size: var(--text-xs); font-variant-numeric: tabular-nums; }
-.competition-awareness__action, .competition-awareness__compact-action, .competition-awareness__all { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: .3rem; color: var(--color-text-primary); font-size: var(--text-sm); font-weight: 700; }
-.competition-awareness__action { padding-inline: var(--space-md); border: 1px solid color-mix(in srgb, var(--awareness-accent) 48%, var(--color-border)); border-radius: var(--radius-sm); }
-.competition-awareness__action:hover, .competition-awareness__action:focus-visible { color: var(--awareness-accent); background: color-mix(in srgb, var(--awareness-accent) 9%, transparent); }
-.competition-awareness__secondary { display: grid; margin: 0; padding: 0 var(--space-lg); list-style: none; border-top: 1px solid var(--color-border); }
-.competition-awareness__secondary li { min-width: 0; min-height: 3.25rem; display: grid; grid-template-columns: 5rem minmax(0, 1fr) auto 3.25rem; align-items: center; gap: var(--space-sm); border-bottom: 1px solid var(--color-border); }
-.competition-awareness__secondary li:last-child { border-bottom: 0; }
-.competition-awareness__secondary li[data-seen='true'] { color: var(--color-text-muted); }
-.competition-awareness__secondary li > span { color: var(--color-text-soft); font: 700 .62rem/1 var(--font-competition); letter-spacing: .06em; }
-.competition-awareness__secondary strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-sm); }
-.competition-awareness__secondary time { color: var(--color-text-soft); font-size: var(--text-xs); font-variant-numeric: tabular-nums; }
-.competition-awareness__all { justify-self: end; padding-inline: var(--space-lg); }
-.competition-awareness__mobile-all { display: none; }
-.competition-awareness--empty { min-height: 5.5rem; grid-template-columns: minmax(0, 1fr) auto; align-items: center; padding: var(--space-md) var(--space-lg); background: var(--color-bg-deep); }
-.competition-awareness--empty > a { min-height: 44px; display: inline-flex; align-items: center; gap: .35rem; color: var(--color-text-muted); font-size: var(--text-sm); font-weight: 700; }
-.competition-awareness__status { display: flex; align-items: center; gap: var(--space-sm); }
-.competition-awareness__status > svg { color: var(--color-success); }
-.competition-awareness__status > div { display: grid; gap: .15rem; }
-.competition-awareness__status span { color: var(--color-text-soft); font-size: .65rem; font-weight: 700; letter-spacing: .08em; }
-.competition-awareness__status p { color: var(--color-text-muted); font-size: var(--text-sm); }
 .team-legacy-section { display: grid; grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr); gap: var(--space-xl); align-items: start; margin-top: var(--space-2xl); }
 .performance-summary { display: grid; gap: var(--space-md); }
 .performance-summary > header { display: flex; align-items: center; justify-content: space-between; color: var(--color-brand-primary); }
@@ -1107,12 +1074,6 @@
   .page-section { padding-block: var(--section-compact); }
   .motion-page--editorial .page-header, .motion-page--competition .page-header { grid-template-columns: 1fr; align-items: start; }
   .page-header__actions { justify-self: start; }
-  .competition-awareness__primary { grid-template-columns: auto minmax(0, 1fr); padding: var(--space-md); }
-  .competition-awareness__action { grid-column: 2; justify-self: start; }
-  .competition-awareness__secondary, .competition-awareness__all { display: none; }
-  .competition-awareness__mobile-all { min-height: 44px; display: inline-flex; align-items: center; justify-self: end; gap: .3rem; padding-inline: var(--space-md); color: var(--color-text-muted); border-top: 1px solid var(--border-hairline); font-size: var(--text-sm); font-weight: 700; }
-  .competition-awareness--empty { grid-template-columns: 1fr; }
-  .competition-awareness--empty > a { justify-self: start; }
   .operational-timeline ol { grid-auto-flow: row; grid-auto-columns: auto; }
   .operational-timeline li { grid-template-columns: 2.25rem 4rem minmax(0, 1fr) auto; align-items: center; border-right: 0; border-bottom: 1px solid var(--border-hairline); }
   .operational-timeline li > span { grid-row: 1; }
@@ -1126,12 +1087,6 @@
 
   .motion-page--competition .team-dashboard-header { min-height: 0; margin-bottom: var(--space-md); padding-bottom: var(--space-md); }
   .motion-page--competition .team-dashboard-header h1 { font-size: clamp(1.8rem, 9vw, 2.25rem); }
-  .competition-awareness__masthead { padding-inline: var(--space-md); }
-  .competition-awareness__primary { grid-template-columns: 1fr; gap: .45rem; padding: .85rem var(--space-md); }
-  .competition-awareness__icon { display: none; }
-  .competition-awareness__action { grid-column: 1; width: 100%; }
-  .competition-awareness__copy p { display: -webkit-box; overflow: hidden; font-size: .82rem; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-  .competition-awareness__mobile-all { padding-inline: var(--space-md); }
   .operational-timeline > header { grid-template-columns: 1fr auto; }
   .operational-timeline > header span { grid-column: 1 / -1; }
   .operational-timeline li { grid-template-columns: 2rem 3.25rem minmax(0, 1fr); padding-inline: 0; }
@@ -1475,9 +1430,6 @@
   .recap-standings li > span { grid-column: 2 / -1; }
 }
 
-@media (max-width: 390px) {
-}
-
 /* Shared surface and control finish; page owners set density and composition. */
 .page-header h1 { overflow-wrap: anywhere; }
 .page-header__actions { flex-wrap: wrap; }
@@ -1490,8 +1442,3 @@
 .file-upload:focus-within { outline: 2px solid var(--gold-primary); outline-offset: 3px; }
 
 /* CompetitionAwareness keeps severity and unread indicators above its action. */
-.competition-awareness { border: 1px solid var(--border-default); border-left: 3px solid var(--awareness-accent); border-radius: var(--card-radius); background: var(--card-surface); }
-.competition-awareness__masthead { min-height: 44px; background: var(--surface-2); }
-.competition-awareness__icon { width: 44px; height: 44px; border-radius: var(--control-radius); }
-.competition-awareness__copy h2 { font-family: var(--heading-product); font-size: var(--text-md); line-height: 1.4; }
-.competition-awareness__secondary { background: var(--surface-2); }

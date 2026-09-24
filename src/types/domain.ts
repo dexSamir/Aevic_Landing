@@ -251,6 +251,9 @@ export interface PublicTeamProfile {
 }
 
 export interface PublicTeamSummary {
+  /** Optional directory preview avoids one full profile request per card. */
+  form?: TeamFormEntry[];
+  historyAvailable?: boolean;
   tier?: string;
   sourceStatus?: string;
   legacyHistoryIncomplete?: boolean;

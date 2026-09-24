@@ -42,4 +42,13 @@ describe('existing bigint contract readiness', () => {
   query.mockResolvedValueOnce(columns()).mockResolvedValueOnce([{rolsuper:true}]);
   await expect(store().ready()).rejects.toMatchObject({code:'PRIVATE_DATABASE_ROLE_TOO_BROAD'});
  });
+ it('shares concurrent catalog checks without caching a later permission decision', async () => {
+  query.mockResolvedValueOnce(columns()).mockResolvedValueOnce([{rolsuper:false}]).mockResolvedValueOnce([]);
+  const instance=store();
+  await Promise.all([instance.ready(),instance.ready(),instance.ready()]);
+  expect(query).toHaveBeenCalledTimes(3);
+  query.mockResolvedValueOnce(columns()).mockResolvedValueOnce([{rolsuper:false}]).mockResolvedValueOnce([{rolname:'anon'}]);
+  await expect(instance.ready()).rejects.toMatchObject({code:'AUTH_DATABASE_PERMISSIONS_UNSAFE'});
+  expect(query).toHaveBeenCalledTimes(6);
+ });
 });

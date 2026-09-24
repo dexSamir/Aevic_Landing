@@ -9,12 +9,23 @@ const allowed=new Set(['team_name','captain_name','captain_contact','logo_url',.
 const clean=(r:Record<string,unknown>)=>({...r,created_at:r.created_at instanceof Date?r.created_at.toISOString():r.created_at}) as unknown as CaptainRow;
 export class PostgresCaptainStore implements CaptainStore {
  readonly sql:ReturnType<typeof postgres>;
+ private readiness?:Promise<void>;
  constructor(url:string) {
   const u=new URL(url);const ref='nmjjibifcuzjlsvfcaaz';
   if(!['postgres:','postgresql:'].includes(u.protocol)||!(u.hostname===`db.${ref}.supabase.co`||(u.hostname.endsWith('.pooler.supabase.com')&&decodeURIComponent(u.username).endsWith(`.${ref}`))))throw new ServiceError(503,'PRIVATE_DATABASE_NOT_CONFIGURED');
   this.sql=postgres(url,{ssl:{rejectUnauthorized:true,ca:databaseCa},max:3,prepare:false,idle_timeout:20,connect_timeout:20,onnotice:()=>{},connection:{application_name:'aevic-captain',statement_timeout:8000,lock_timeout:3000}});
  }
- async ready() {
+ ready() {
+  // Concurrent requests share only the in-progress catalog check. Never retain
+  // a successful result: later requests must still detect permission changes.
+  if(!this.readiness) {
+   const pending=this.checkReadiness();
+   this.readiness=pending;
+   void pending.finally(()=>{if(this.readiness===pending)this.readiness=undefined;}).catch(()=>{});
+  }
+  return this.readiness;
+ }
+ private async checkReadiness() {
   // No long-lived positive cache: permission/column changes must fail closed.
   const columns=await this.sql`select column_name,data_type,character_maximum_length,column_default,is_identity,is_nullable from information_schema.columns where table_schema='public' and table_name='teams'`;
   for(const field of ['password_hash','reset_token']) {

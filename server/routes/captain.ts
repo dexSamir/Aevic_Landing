@@ -10,7 +10,7 @@ import {resetMailer} from '../captain/email';
 import {SupabaseCaptainMedia,type CaptainMedia} from '../captain/media';
 import {createAttemptLimiter} from '../captain/limit';
 import type {CaptainStore} from '../captain/store';
-import {originalTeamId,ProductionTeams} from '../services/productionTeams';
+import {originalTeamId,productionProfile} from '../services/productionTeams';
 import {clearSession} from '../auth/session';
 
 export type CaptainDependencies={store?:CaptainStore;mailer?:ResetMailer;media?:CaptainMedia;now?:()=>number};
@@ -69,7 +69,7 @@ export function captainRoutes(deps:CaptainDependencies={}) {
  });
  app.get('/me/team',async c=>c.json(privateTeam(await service(c).authenticate(cookie(c)))));
  app.get('/me/context',async c=>{
-  const row=await service(c).authenticate(cookie(c)),currentTeam=privateTeam(row),profile=await new ProductionTeams(c.get('db')).profile(row.id);
+  const row=await service(c).authenticate(cookie(c)),currentTeam=privateTeam(row),profile=productionProfile(row);
   return c.json({currentTeam,dataSource:'public.teams',unavailable:{competition:true,room:true,notifications:true,achievements:true},publicTeams:[],participations:[],tournaments:[],leaderboard:[],leaderboardTeams:[],matchHistory:profile.recentMatches,historyAvailable:profile.historyAvailable,matchSchedule:[],notifications:[],adminMessages:[],teamAnnouncements:[],teamAchievements:[],teamLegacyStats:profile.legacy,careerSummary:{teamId:row.id,scopeLabel:'Yarış tarixçəsi əlçatan deyil',metrics:[]},teamComparisonRecords:[]});
  });
  app.patch('/teams/:id',async c=>{
