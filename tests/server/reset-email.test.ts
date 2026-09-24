@@ -15,10 +15,10 @@ describe('AEVIC reset email',()=>{
   const mail=passwordResetEmail(link);
   expect(mail.html).toContain('Şifrəni yenilə');expect(mail.text).toContain(link);
   expect(mail.html).toContain('#101014');expect(mail.html).toContain('#F3C450');expect(mail.html).toContain('30 dəqiqə');
-  expect(mail.html.match(/href=/g)).toHaveLength(2);
+  expect(mail.html.match(/href=/g)).toHaveLength(6);
   expect(mail.html).not.toMatch(/<script|<iframe|utm_|onclick|@font-face/i);
   expect(mail.html.split('<table')[0]).not.toContain('16.fixture');expect(mail.subject).not.toContain('fixture');
-  expect(mail.html).toContain('role="presentation"');expect(mail.html).toContain('max-width:600px');
+  expect(mail.html).toContain('role="presentation"');expect(mail.html).toContain('max-width:480px');
  });
  it('escapes the actual href and rejects unsafe origins',()=>{
   const mail=passwordResetEmail('https://example.test/reset-password?a=1&b=2#token=16.fixture');
