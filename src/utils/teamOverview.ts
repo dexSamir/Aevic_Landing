@@ -21,7 +21,7 @@ export function buildTeamOverview(data: TeamPlatformSnapshot, context?: TeamComp
     current: row.teamId === team.id,
   }));
   const derived = deriveNextAction({ team, tournament: context?.tournament, nextMatch: context?.nextMatch, checkIn: context?.checkIn, room: context?.room, announcement: context ? data.teamAnnouncements[0] : undefined });
-  const nextAction: NextAction = !context && derived.kind === 'ready'
+  const nextAction: NextAction = data.dataSource==='public.teams' && derived.kind==='ready' ? {kind:'ready',eyebrow:'KOMANDA',title:'KOMANDA PROFİLİNİ İDARƏ ET',body:'Komanda məlumatlarını, heyəti və şəkilləri yeniləyin.',href:'/team/profile',actionLabel:'Profili aç'} : !context && derived.kind === 'ready'
     ? { kind: 'ready', eyebrow: 'NÖVBƏTİ ADDIM', title: 'AKTİV TURNİR YOXDUR', body: 'Yeni yarışa qoşulun. İştirak təsdiqləndikdə əməliyyat xətti burada görünəcək.', href: '/tournaments', actionLabel: 'Turnirləri kəşf et' }
     : derived;
   return {

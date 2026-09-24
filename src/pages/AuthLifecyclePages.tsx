@@ -17,14 +17,15 @@ const resetCopy: Record<Exclude<AuthTokenState, 'already-verified'>, { title: st
 
 export function ResetPasswordPage() {
   const [params] = useSearchParams();
-  const token = params.get('token_hash') ?? params.get('token') ?? '';
+  const [token] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get('token') ?? params.get('token_hash') ?? params.get('token') ?? '');
+  useEffect(() => { window.history.replaceState(null, '', window.location.pathname); }, []);
   const [state, setState] = useState<AuthTokenState>();
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
-  useEffect(() => { let active = true; services.auth.inspectPasswordReset(token).then((result) => { if (active) setState(result.state); }).catch(() => { if (active) {setState(token?'valid':'invalid');setError('Xidmət hazırda cavab vermir. Formanı doldurub yenidən cəhd edə bilərsiniz.');} }); return () => { active = false; }; }, [token]);
+  useEffect(() => { let active = true; services.auth.inspectPasswordReset(token).then((result) => { if (active) setState(result.state); }).catch(() => { if (active) {setState('invalid');setError('Bərpa linki yoxlanılmadı. Xidmət müvəqqəti əlçatan deyil.');} }); return () => { active = false; }; }, [token]);
   const requirements = useMemo(() => { const result = passwordRequirements(password); return [result.minimumLength, result.uppercase, result.number]; }, [password]);
   const submit = async (event: FormEvent) => {
     event.preventDefault(); setError('');
@@ -34,9 +35,9 @@ export function ResetPasswordPage() {
     try { await services.auth.resetPassword(token, password); setDone(true); } catch { setError('Şifrə yenilənmədi. Bağlantını yoxlayın və yenidən cəhd edin. Linkin vaxtı bitibsə yeni bərpa linki istəyin.'); }
     finally { setLoading(false); }
   };
-  if (!state) return <AuthRecoveryShell title="Bərpa linki yoxlanılır"><LoadingSkeleton rows={4} /></AuthRecoveryShell>;
+  if (!state) return <AuthRecoveryShell title="Bərpa linki yoxlanılır"><LoadingSkeleton variant="form" rows={4} /></AuthRecoveryShell>;
   if (done) return <AuthRecoveryShell title={<>Şifrə uğurla<br /><em>yeniləndi.</em></>}><div className="recovery-state" role="status"><CheckCircle2 className="recovery-state__icon" size={52} /><h2>Yeni şifrəniz hazırdır.</h2><p>Yeni şifrənizlə hesabınıza daxil ola bilərsiniz.</p><Link className="button button--primary" to="/login"><span>Girişə keç</span><ArrowRight size={20} /></Link></div></AuthRecoveryShell>;
-  if (state !== 'valid') { const copy = resetCopy[state === 'already-verified' ? 'invalid' : state]; return <AuthBlockedState icon={state === 'expired' ? <Clock3 /> : <AlertTriangle />} title={copy.title} body={copy.body} />; }
+  if (state !== 'valid') { const copy = resetCopy[state === 'already-verified' ? 'invalid' : state]; return <AuthBlockedState icon={state === 'expired' ? <Clock3 /> : <AlertTriangle />} title={error ? 'Bərpa xidməti əlçatan deyil' : copy.title} body={error || copy.body} />; }
   return <AuthRecoveryShell title={<>Yeni şifrə<br /><em>yarat</em></>} description={resetCopy.valid.body}>{error && <Toast tone="error" title="Şifrə yenilənmədi" body={error} />}<form className="auth-form" onSubmit={submit}><PasswordInput label="Yeni şifrə" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" required /><PasswordInput label="Şifrəni təsdiqlə" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} autoComplete="new-password" required /><ul className="password-requirements" aria-label="Şifrə şərtləri"><li className={requirements[0] ? 'met' : ''}><CheckCircle2 size={15} />Minimum 8 simvol</li><li className={requirements[1] ? 'met' : ''}><CheckCircle2 size={15} />Bir böyük hərf</li><li className={requirements[2] ? 'met' : ''}><CheckCircle2 size={15} />Bir rəqəm</li></ul><Button type="submit" icon={<ArrowRight size={20} />} loading={loading}>Şifrəni yenilə</Button></form><Link className="back-link" to="/login"><ArrowLeft size={16} />Girişə qayıt</Link></AuthRecoveryShell>;
 }
 
@@ -67,7 +68,7 @@ export function VerifyEmailPage() {
     return () => { active = false; };
   }, [token]);
   const resend = async () => { setResending(true); try { await services.auth.resendVerification(); setResent(true); } catch {setNotice('Təsdiq emaili göndərilmədi. Giriş səhifəsindən e-poçt ünvanınızla yenidən cəhd edin.');} finally { setResending(false); } };
-  if (!state) return <div className="auth-form-shell"><LoadingSkeleton rows={4} /></div>;
+  if (!state) return <div className="auth-form-shell"><LoadingSkeleton variant="form" rows={4} /></div>;
   if (state === 'already-verified') return <div className="auth-form-shell auth-success"><MailCheck size={42} /><h1>Email təsdiqləndi.</h1><p>Həssas komanda əməliyyatlarına giriş hesab və komanda səlahiyyəti ilə birlikdə yoxlanacaq.</p><Link className="button button--primary" to={nextPath}><span>{nextPath==='/account/legacy-claim'?'Əvvəlki komandanı bağla':nextPath==='/login'?'Girişə keç':nextPath==='/admin'?'Admin panelini aç':'Komanda panelini aç'}</span></Link></div>;
   return <div className="auth-form-shell auth-lifecycle-state"><span className="auth-lifecycle-state__icon">{state === 'expired' ? <Clock3 /> : <ShieldAlert />}</span><h1>{state === 'expired' ? 'Təsdiq linkinin vaxtı bitib' : 'Təsdiq linki etibarlı deyil'}</h1><p>Yeni təsdiq emaili istəyin. Hesabın mövcudluğu barədə əlavə məlumat göstərilmir.</p>{notice && <Toast title={notice} />}{resent && <Toast title="Təsdiq emaili göndərildi" body="Gələnlər və spam qovluğunu yoxlayın." />}<Button loading={resending} onClick={() => void resend()}>Yenidən göndər</Button><Link className="back-link" to="/login">Girişə qayıt</Link></div>;
 }

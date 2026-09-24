@@ -6,3 +6,6 @@ export default (request:Request)=>{
  if(url.pathname.startsWith('/.netlify/functions/api/')) url.pathname='/api/'+url.pathname.slice('/.netlify/functions/api/'.length);
  return app.fetch(new Request(url,request));
 };
+
+// Distributed edge limit, including direct function URLs. Local limits tighten auth attempts.
+export const config={rateLimit:{windowLimit:60,windowSize:60,aggregateBy:['ip','domain']}};

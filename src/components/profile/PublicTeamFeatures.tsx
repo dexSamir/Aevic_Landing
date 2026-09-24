@@ -15,7 +15,7 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
   const year = competitionNow().getFullYear();
   const slug = team.slug ?? team.id;
   const period = useMemo(() => yearPeriod(year), [year]);
-  const wrapped = usePlatformQuery({ key: `wrapped:${slug}:${period.label}`, query: () => services.wrapped.forTeam(slug, period), staleTime: queryPolicy.historical, retry: 0, enabled: !team.legacyHistoryIncomplete });
+  const wrapped = usePlatformQuery({ scope:'public', key: `wrapped:${slug}:${period.label}`, query: () => services.wrapped.forTeam(slug, period), staleTime: queryPolicy.historical, retry: 0, enabled: !team.legacyHistoryIncomplete });
   const canvas = useRef<HTMLCanvasElement>(null);
   const region = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(() => typeof IntersectionObserver === 'undefined');

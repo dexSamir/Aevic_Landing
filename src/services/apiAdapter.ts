@@ -3,19 +3,19 @@ import { requestJson } from './requestJson';
 import { invalidateQuery } from './queryCache';
 import { validatePublicSnapshot } from './snapshotValidation';
 
-type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; nullStatuses?: number[] };
+type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; nullStatuses?: number[]; timeoutMs?: number };
 
 export function createApiServices(baseUrl: string): PlatformServices {
   const root = baseUrl.replace(/\/$/, '');
   const request = async <T,>(path: string, options: RequestOptions = {}): Promise<T> => {
-    const { nullStatuses = [], body, ...fetchOptions } = options;
+    const { nullStatuses = [], timeoutMs, body, ...fetchOptions } = options;
     const csrfToken = typeof document === 'undefined' ? undefined : document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
     const result = await requestJson<T>(`${root}${path}`, {
       ...fetchOptions, credentials: 'include',
       headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}), ...(csrfToken && fetchOptions.method && fetchOptions.method !== 'GET' ? { 'X-CSRF-Token': csrfToken } : {}), ...options.headers },
       body: body ? JSON.stringify(body) : undefined,
-    }, nullStatuses);
-    if (fetchOptions.method && !['GET','HEAD'].includes(fetchOptions.method)) invalidateQuery('');
+    }, nullStatuses, timeoutMs);
+    if (fetchOptions.method && !['GET','HEAD'].includes(fetchOptions.method) && !path.endsWith('/inspect') && path !== '/media/validate') invalidateQuery('');
     return result;
   };
   const query = (values: Record<string, string | undefined>) => {
@@ -43,8 +43,8 @@ export function createApiServices(baseUrl: string): PlatformServices {
       admin: (signal) => request('/admin/context', { signal }),
     },
     auth: {
-      getSession: () => request('/me/session', { nullStatuses: [401, 403] }),
-      login: (email, password, remember = false) => request('/auth/login', { method: 'POST', body: { email, password, remember } }),
+      getSession: () => request('/me/session', { nullStatuses: [401, 403], timeoutMs: 30_000 }),
+      login: (email, password, remember = false) => request('/auth/login', { method: 'POST', body: { email, password, remember }, timeoutMs: 30_000 }),
       logout: () => request('/auth/logout', { method: 'POST' }),
       requestPasswordReset: (email) => request('/auth/password-reset', { method: 'POST', body: { email } }),
       inspectPasswordReset: (token) => request('/auth/password-reset/inspect', { method: 'POST', body: { token } }),
@@ -95,7 +95,8 @@ export function createApiServices(baseUrl: string): PlatformServices {
     },
     teams: {
       current: () => request('/me/team'),
-      updateProfile: (teamId, body) => request(`/teams/${encodeURIComponent(teamId)}`, { method: 'PATCH', body }),
+      updateProfile: (teamId, body) => request(`/teams/${encodeURIComponent(teamId)}`, { method: 'PATCH', body: {name: body.name} }),
+      updateRosterSlot: (teamId, slot, ign) => request(`/teams/${encodeURIComponent(teamId)}/roster/${slot}`, {method:'PUT',body:{ign}}),
       list: () => request('/teams'),
       setApproval: (teamId, status, reason) => request(`/admin/teams/${encodeURIComponent(teamId)}/approval`, { method: 'PATCH', body: { status, reason } }),
       checkIn: (tournamentId) => request(`/tournaments/${encodeURIComponent(tournamentId)}/check-in`, { method: 'POST' }),
@@ -171,6 +172,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       history: (id) => request(`/records/${encodeURIComponent(id)}/history`),
     },
     media: {
+      uploadPlayerPhoto: (teamId, slot, file) => { const form=new FormData();form.set('file',file);form.set('ownerId',teamId);form.set('assetType','player-photo');form.set('slot',String(slot));return requestJson(`${root}/media/uploads`,{method:'POST',credentials:'include',body:form},[],30_000); },
       validateBrandAsset: (body) => request('/media/validate', { method: 'POST', body }),
       uploadBrandAsset: async (metadata, file) => {
         if (!file) throw new Error('An image file is required.');

@@ -388,6 +388,9 @@ export interface PublicPlatformSnapshot {
 }
 
 export interface TeamPlatformSnapshot {
+  dataSource?: 'public.teams';
+  historyAvailable?: boolean;
+  unavailable?: Record<string, boolean>;
   publicTeams?: PublicTeamSummary[];
   currentTeam: Team;
   participations: TeamTournamentParticipation[];

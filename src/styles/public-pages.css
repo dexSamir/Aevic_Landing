@@ -941,5 +941,5 @@
 
 .public-team-wrapped-visual > picture { display: contents; }
 
-.public-team-player-portrait > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.public-team-player-portrait > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 .public-team-player-portrait > img[hidden] { display: none; }

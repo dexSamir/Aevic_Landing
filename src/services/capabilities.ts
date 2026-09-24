@@ -4,8 +4,8 @@ export function createServiceCapabilities() {
   // Service/action availability only. Public IA lives in app/publicNavigation;
   // the route manifest separately opts safe pages into unavailable-state rendering.
   return {
-    publicSession: false, login: false, register: false, passwordRecovery: false,
-    teamWorkspace: false, adminWorkspace: false, publicPlayers: false,
+    publicSession: true, login: true, register: true, passwordRecovery: true,
+    teamWorkspace: true, adminWorkspace: false, publicPlayers: false,
     publicMatches: false, publicRecords: false, publicSearch: true,
     publicOrganizations: false, publicArchive: false, publicTeamHistory: true, resultPublishing: false,
     tournamentCreation: false, platformSettings: false, bulkApproval: false,

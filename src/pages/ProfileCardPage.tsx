@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
+import {usePlatformQuery} from '../services/queryCache';
 import { Link, useParams } from 'react-router-dom';
 import { ProfileCardGenerator } from '../components/profile/ProfileCardGenerator';
 import { Button, EmptyState, LoadingSkeleton, PageHeader } from '../components/common/primitives';
 import { services } from '../services';
-import type { PublicTeamProfile, TeamProfileCardData } from '../types/domain';
+import type { TeamProfileCardData } from '../types/domain';
 import { publicTeamUrl } from '../utils/publicUrl';
 
 export function TeamProfileCardPage() {
-  const { teamSlug = '' } = useParams(); const [profile, setProfile] = useState<PublicTeamProfile>(); const [loading, setLoading] = useState(true); const [failed, setFailed] = useState(false); const [attempt, setAttempt] = useState(0);
-  useEffect(() => { setLoading(true); setFailed(false); services.profiles.teamBySlug(teamSlug).then(setProfile).catch(() => setFailed(true)).finally(() => setLoading(false)); }, [teamSlug, attempt]);
-  if (loading) return <section className="page-section"><div className="container"><LoadingSkeleton rows={6} /></div></section>;
-  if (failed) return <section className="page-section"><div className="container"><EmptyState title="Profil kartı yüklənmədi" body="Public profil servisi hazırda cavab vermir." action={<Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>Yenidən cəhd et</Button>} /></div></section>;
+  const {teamSlug=''}=useParams();
+  const {data:profile,loading,error,refetch}=usePlatformQuery({key:`profile:${teamSlug}`,scope:'public',query:()=>services.profiles.teamBySlug(teamSlug)});
+  const failed=Boolean(error&&!profile);
+  if (loading) return <section className="page-section"><div className="container"><LoadingSkeleton variant="profile" rows={6} /></div></section>;
+  if (failed) return <section className="page-section"><div className="container"><EmptyState title="Profil kartı yüklənmədi" body="Public profil servisi hazırda cavab vermir." action={<Button variant="secondary" onClick={refetch}>Yenidən cəhd et</Button>} /></div></section>;
   if (!profile) return <section className="page-section"><div className="container"><EmptyState title="Profil kartı əlçatan deyil" body="Public komanda profili tapılmadı." /></div></section>;
   if (profile.team.legacyHistoryIncomplete) return <EmptyState title="Əvvəlki tarixçə yoxlanılır" body="Tam karyera kartı tarixçə uzlaşdırıldıqdan sonra açılacaq. Dərc edilmiş ayrı-ayrı turnir nəticələri komanda studiyasında paylaşılır." />;
   const metric = (key: string) => profile.career?.metrics.find((item) => item.key === key)?.value;

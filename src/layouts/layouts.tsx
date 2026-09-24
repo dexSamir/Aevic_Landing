@@ -1,3 +1,4 @@
+import {RouteSkeleton} from '../components/common/LoadingSkeleton';
 import { responsiveArtwork } from '../assets/official/responsive';
 import { SidebarNav } from './WorkspaceNav';
 import '../styles/public-shell.css';
@@ -308,7 +309,7 @@ export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'a
     }).catch(() => { if(active) { setAllowed(false); setUnavailable(true); } }).finally(() => { if(active)setChecking(false); });
     return () => { active = false; };
   }, [area, attempt]);
-  if (checking) return <main className="route-loading"><div className="route-loading__identity"><BrandEmblem decorative={false} /><span>AEVIC secure access</span></div><LoadingSkeleton rows={3} /></main>;
+  if (checking) return <main className="route-loading"><div className="route-loading__identity"><BrandEmblem decorative={false} /><span>AEVIC secure access</span></div><RouteSkeleton path={window.location.pathname}/></main>;
   if (unavailable) return <main className="route-loading"><h1>Bağlantını yoxlayın</h1><p role="status">Hesab sessiyasını yoxlamaq mümkün olmadı. Bir az sonra yenidən cəhd edin.</p><Button onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</Button></main>;
   if (!allowed) return <Navigate to={deniedPath || (area === 'admin' ? '/admin/login' : '/login')} replace />;
   return <div key={identity} data-protected-area={area}>{children}</div>;

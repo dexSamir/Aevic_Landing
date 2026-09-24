@@ -1,4 +1,4 @@
-import { updateCachedQuery } from '../services/queryCache';
+import { invalidateQuery, updateCachedQuery } from '../services/queryCache';
 import { CareerNav, TeamWrappedEntry } from '../components/team/TeamCareerNav';
 import {
   AlertTriangle,
@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   Clock3,
   Copy,
-  FileClock,
   History,
   KeyRound,
   LockKeyhole,
@@ -21,7 +20,6 @@ import {
   ShieldCheck,
   Swords,
   Trophy,
-  UserRoundPlus,
   Users,
 } from 'lucide-react';
 import { lazy, Suspense, type FormEvent, type KeyboardEvent, useEffect, useState } from 'react';
@@ -29,6 +27,7 @@ import { Link, useParams } from 'react-router-dom';
 import { TeamComparison } from '../components/team/TeamExperience';
 import {
   Button,
+  FileUpload,
   ConfirmDialog,
   CopyButton,
   Countdown,
@@ -107,7 +106,7 @@ export function TeamTournamentDetailPage() {
 }
 
 export function TeamHistoryPage() {
-  const { matchHistory } = useTeamPlatformData();
+  const { matchHistory, historyAvailable } = useTeamPlatformData();
   const { all } = useTeamCompetitionContexts();
   const [mapFilter, setMapFilter] = useState('all');
   const published = [...matchHistory].sort((left, right) => new Date(right.playedAt).getTime() - new Date(left.playedAt).getTime());
@@ -119,6 +118,7 @@ export function TeamHistoryPage() {
   const wwcd = published.filter((round) => round.wwcd).length;
   const finishes = published.reduce((total, round) => total + round.finishes, 0);
   const latestPoints = latestRounds.reduce((total, round) => total + round.points, 0);
+  if(historyAvailable===false)return <EmptyState title="Nəticə formatı hələ dəstəklənmir" body="Mövcud nəticələr dəyişdirilməyib. Bu məlumatın göstərilməsi üçün format təsdiqlənməlidir." />;
   return <><PageHeader eyebrow="Dərc edilmiş nəticələr" title="Komanda tarixçəsi" description="Raund səviyyəli nəticələr və xəritə filtrləri. Yalnız mövcud mənbə məlumatları göstərilir." actions={latestTournamentId ? <Link className="button button--secondary" to={`/tournaments/${latestTournamentId}`}><span>Son turnir</span><ArrowRight size={16} /></Link> : undefined} /><CareerNav /><Tabs active={mapFilter} onChange={setMapFilter} items={[{ id: 'all', label: 'Bütün xəritələr' }, { id: 'erangel', label: 'Erangel' }, { id: 'miramar', label: 'Miramar' }, { id: 'rondo', label: 'Rondo' }]} /><section className="history-summary"><div><span>İştiraklar</span><strong>{new Set(published.map((round) => round.tournamentId)).size}</strong></div><div><span>Ən yaxşı raund yeri</span><strong>{bestPlacement ? `#${String(bestPlacement).padStart(2, '0')}` : '—'}</strong></div><div><span>WWCD</span><strong>{wwcd}</strong></div><div><span>Ümumi kill</span><strong>{finishes}</strong></div><div><span>Dərc edilmiş raundlar</span><strong>{published.length}</strong></div></section>{latestContext && <section className="history-tournament"><div><span>Son tamamlanan</span><h2>{latestContext.tournament.name}</h2><p>{latestRounds.length} dərc edilmiş raund · {latestRounds.filter((round) => round.wwcd).length} WWCD · {latestPoints} xal</p></div><div className="history-placement"><strong>{latestContext.participation.resultPlacement ? String(latestContext.participation.resultPlacement).padStart(2, '0') : '—'}</strong><span>Yekun yer</span></div></section>}<SectionHeading title="Raundlar üzrə" description="Hər dərc edilmiş raund turnirin nəticə bölməsində yoxlanır." />{rounds.length ? <><DataTable headers={['Tarix', 'Turnir', 'Mərhələ / Raund', 'Xəritə', 'Yer', 'Kill', 'WWCD', 'Cəmi']} rows={rounds.map((row) => [new Date(row.playedAt).toLocaleDateString('az-AZ'), row.tournamentName, <Link to={`/tournaments/${row.tournamentId}#results`} state={{ roundId: row.id }}>{row.stageLabel}</Link>, row.map, `#${row.placement}`, row.finishes, row.wwcd ? 'Bəli' : '—', <strong>{row.points}</strong>])} /><MobileDataList items={rounds.map((row) => ({ title: <Link to={`/tournaments/${row.tournamentId}#results`} state={{ roundId: row.id }}>{row.map}</Link>, meta: `${row.tournamentName} · ${row.stageLabel}`, value: `${row.points} xal`, details: `Yer #${row.placement} · ${row.finishes} kill` }))} /></> : <EmptyState icon={<History size={24} />} title="Bu xəritə üzrə nəticə yoxdur" body="Dərc edilmiş nəticələri göstərmək üçün başqa xəritə filtrini seçin." />}</>;
 }
 
@@ -128,29 +128,12 @@ export function TeamComparisonPage() {
 }
 
 export function TeamRosterPage() {
-  const { currentTeam } = useTeamPlatformData();
-  const context = useTeamCompetitionContexts().current;
-  const activeTournament = context?.tournament;
-  const [replaceOpen, setReplaceOpen] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [selected, setSelected] = useState(currentTeam.roster[4] ?? currentTeam.roster[0]);
-  const [incomingIgn, setIncomingIgn] = useState('');
-  const [incomingUid, setIncomingUid] = useState('');
-  const [reason, setReason] = useState('');
-  const [savingRequest, setSavingRequest] = useState(false);
-  const [requestError, setRequestError] = useState('');
-  if (!selected) return <><PageHeader eyebrow="Heyət nəzarəti" title="Heyət" description="Turnir heyəti və dəyişiklik sorğuları." /><EmptyState title={!activeTournament ? 'Aktiv turnir yoxdur' : 'Heyət boşdur'} body={!activeTournament ? 'Yeni turnir dərc edildikdə heyət dəyişiklikləri burada idarə olunacaq.' : 'Komandaya oyunçu əlavə edildikdən sonra dəyişiklik sorğusu yarada bilərsiniz.'} /></>;
-  const submitRequest = async () => {
-    if (!incomingIgn.trim() || reason.trim().length < 10) return;
-    setSavingRequest(true); setRequestError('');
-    try {
-      await services.rosterRequests.submit({ teamId: currentTeam.id, teamName: currentTeam.name, tournamentId: activeTournament?.id, tournamentName: activeTournament?.name, outgoing: { id: selected.id, ign: selected.ign, role: selected.role }, incoming: { ign: incomingIgn.trim(), uid: incomingUid.trim(), role: selected.role }, reason: reason.trim() });
-      setSubmitted(true); setReplaceOpen(false); setIncomingIgn(''); setIncomingUid(''); setReason('');
-    } catch { setRequestError('Sorğu göndərilmədi. Məlumatları yoxlayıb yenidən cəhd edin.'); } finally { setSavingRequest(false); }
-  };
-  const rosterLockAt = context?.participation.rosterLockAt ?? activeTournament?.registrationDeadline;
-  const locked = Boolean(rosterLockAt && competitionNow().getTime() >= Date.parse(rosterLockAt));
-  return <><PageHeader eyebrow="Heyət nəzarəti" title="Heyət" description="Dəyişiklik müddəti, oyunçu rolu və yoxlanılan əvəzləmə sorğuları." actions={<><Link className="button button--ghost" to="/team/roster-requests"><span>Sorğular</span></Link><Button icon={<UserRoundPlus size={18} />} onClick={() => setReplaceOpen(true)}>Oyunçunu dəyiş</Button></>} /><div className="roster-lock-banner"><FileClock size={21} /><div><strong>{locked ? 'Heyət kilidlidir · dəyişiklik üçün admin qərarı lazımdır' : rosterLockAt ? `Heyət müddəti: ${new Date(rosterLockAt).toLocaleString('az-AZ', { timeZone: 'Asia/Baku' })}` : 'Turnirdən kənar heyət idarəetməsi'}</strong><p>Bütün əvəzləmələr mövcud yoxlama axını ilə göndərilir; təsdiqədək heyət dəyişmir.</p></div>{rosterLockAt && !locked && <Countdown target={rosterLockAt} compact />}</div>{submitted && <Toast title="Heyət dəyişikliyi göndərildi" body="Sorğu yoxlama statusu ilə admin növbəsinə əlavə edildi." />}{(['captain', 'starter', 'substitute'] as const).map(role => <section className="roster-group" key={role}><h2>{{ captain: 'KAPİTAN', starter: 'ƏSAS HEYƏT', substitute: 'ƏVƏZEDİCİLƏR' }[role]}</h2><div className="roster-management">{currentTeam.roster.filter(player => player.role === role).map((player, index) => <article key={player.id}><span className="roster-number">{String(index + 1).padStart(2, '0')}</span><TeamLogo name={player.ign} /><div><strong>{player.ign}</strong><span>UID {player.uid ?? 'əlavə edilməyib'} · {locked ? 'Turnir heyəti kilidlidir' : 'Qeydiyyatdakı oyunçu'}</span></div><StatusBadge status="draft">{role === 'substitute' ? 'Əvəzedici' : role === 'captain' ? 'Kapitan' : 'Əsas heyət'}</StatusBadge><Button variant="ghost" icon={<Pencil size={16} />} onClick={() => { setSelected(player); setReplaceOpen(true); }}>Dəyiş</Button></article>)}</div>{!currentTeam.roster.some(player => player.role === role) && <p className="overview-empty">Bu rolda oyunçu yoxdur.</p>}</section>)}<p className="team-roster-note">Oyunçu uyğunluğu hər turnirin qeydiyyat yoxlamasında təsdiqlənir. Cari heyət rolu ayrıca uyğunluq təsdiqi deyil.</p><Modal open={replaceOpen} title={`${selected.ign} üçün əvəzləmə`} onClose={() => setReplaceOpen(false)} footer={<><Button variant="ghost" onClick={() => setReplaceOpen(false)}>Ləğv et</Button><Button loading={savingRequest} disabled={!incomingIgn.trim() || reason.trim().length < 10} onClick={() => void submitRequest()}>Yoxlamaya göndər</Button></>}><form className="modal-form" onSubmit={(event) => { event.preventDefault(); void submitRequest(); }}><>{requestError && <p role="alert" className="field__error">{requestError}</p>}</><div className="replacement-pair"><div><span>Çıxan oyunçu</span><strong>{selected.ign}</strong><small>{selected.role}</small></div><RefreshCcw size={20} /><div><span>Yeni oyunçu</span><strong>{incomingIgn || 'Oyunçu adı'}</strong><small>yoxlanılır</small></div></div><Input label="Yeni oyunçu IGN" placeholder="ExampleIGN" value={incomingIgn} onChange={(event) => setIncomingIgn(event.target.value)} required /><Input label="PUBG UID" placeholder="5100•••000" value={incomingUid} onChange={(event) => setIncomingUid(event.target.value)} hint="UID uyğunluğunu production backend təsdiqləməlidir." /><Select label="Heyət rolu" value={selected.role} disabled><option value="captain">Kapitan</option><option value="starter">Əsas oyunçu</option><option value="substitute">Ehtiyat oyunçu</option></Select><Textarea label="Dəyişiklik səbəbi" placeholder="Ən azı 10 simvolluq faktiki izah" value={reason} onChange={(event) => setReason(event.target.value)} minLength={10} required /></form></Modal></>;
+  const {currentTeam}=useTeamPlatformData();
+  const [selected,setSelected]=useState<number>(),[ign,setIgn]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
+  const refresh=(team:typeof currentTeam)=>{updateCachedQuery<TeamPlatformSnapshot>('snapshot:team',v=>({...v,currentTeam:team}));invalidateQuery('snapshot:public');invalidateQuery('profile:');};
+  const save=async()=>{if(!selected||busy)return;setBusy(true);setError('');try{refresh(await services.teams.updateRosterSlot(currentTeam.id,selected,ign));setSelected(undefined);setNotice('Oyunçu adı saxlanıldı.');}catch{setError('Dəyişiklik saxlanılmadı. Yenidən cəhd edin.');}finally{setBusy(false);}};
+  const upload=async(file:File)=>{if(!selected||busy)return;setBusy(true);setError('');try{await services.media.uploadPlayerPhoto(currentTeam.id,selected,file);refresh(await services.teams.current());setNotice('Oyunçu şəkli saxlanıldı.');}catch{setError('Şəkil yüklənmədi. Formatı, ölçünü və bağlantını yoxlayın.');}finally{setBusy(false);}};
+  return <><PageHeader eyebrow="Heyət nəzarəti" title="Heyət" description="Komandanın beş oyunçu yeri, oyunçu adları və şəkilləri." />{notice&&<Toast title={notice} />}<section className="roster-group"><h2>OYUNÇULAR</h2><div className="roster-management">{[1,2,3,4,5].map(slot=>{const player=currentTeam.roster.find(p=>p.id===`${currentTeam.id}:player${slot}`);return <article key={slot}><span className="roster-number">{String(slot).padStart(2,'0')}</span><TeamLogo name={player?.ign||'Oyunçu'} src={player?.photoUrl} /><div><strong>{player?.ign||'Boş yer'}</strong><span>{slot===5?'Ehtiyat oyunçu':'Əsas heyət'}</span></div><Button variant="ghost" icon={<Pencil size={16}/>} onClick={()=>{setSelected(slot);setIgn(player?.ign||'');setError('');}}>Dəyiş</Button></article>;})}</div></section><Modal open={selected!==undefined} title={`Oyunçu ${selected??''}`} onClose={()=>{if(!busy)setSelected(undefined);}} footer={<Button loading={busy} disabled={selected!==5&&ign.trim().length<2} onClick={()=>void save()}>Saxla</Button>}><div className="modal-form">{error&&<p role="alert" className="field__error">{error}</p>}<Input label="Oyunçu IGN" maxLength={40} value={ign} disabled={busy} onChange={e=>setIgn(e.target.value)} /><FileUpload label="Oyunçu şəkli" accept={['image/png','image/jpeg','image/webp']} maxBytes={4_000_000} disabled={busy} hint="PNG, JPG, WebP · 4 MB · Şəklin nisbəti saxlanılır" onFile={file=>void upload(file)} /></div></Modal></>;
 }
 
 export function TeamMessagesPage() {

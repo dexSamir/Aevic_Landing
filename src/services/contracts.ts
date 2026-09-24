@@ -134,6 +134,7 @@ export interface TournamentService {
 }
 
 export interface TeamService {
+  updateRosterSlot(teamId: string, slot: number, ign: string): Promise<Team>;
   current(): Promise<Team>;
   updateProfile(teamId: string, profile: Pick<Team, 'name' | 'tag' | 'description' | 'country' | 'foundedAt' | 'bannerAlt'>): Promise<Team>;
   list(): Promise<Team[]>;
@@ -232,6 +233,7 @@ export interface RecordsService {
 }
 
 export interface MediaService {
+  uploadPlayerPhoto(teamId: string, slot: number, file: File): Promise<BrandUploadResult>;
   validateBrandAsset(request: BrandUploadRequest): Promise<BrandAssetValidationResult>;
   uploadBrandAsset(request: BrandUploadRequest, file?: File): Promise<BrandUploadResult>;
   deleteBrandAsset(teamId: string, kind: 'logo' | 'banner'): Promise<void>;

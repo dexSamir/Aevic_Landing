@@ -18,3 +18,8 @@ services.auth.getSession = async () => {
 services.auth.login = async (...args) => { identityRevision++; const session = await auth.login(...args); synchronizeSessionCache(`${session.user.id}:${session.role}`); channel?.postMessage('changed'); notifyIdentity(); return session; };
 services.auth.logout = async () => { identityRevision++; clearQueryCache(); synchronizeSessionCache(null); try { await auth.logout(); channel?.postMessage('changed'); } finally { clearQueryCache(); notifyIdentity(); } };
 export function competitionNow() { return new Date(); }
+
+const submitRegistration=services.registration.submit;
+services.registration.submit=async(...args)=>{const receipt=await submitRegistration(...args);await services.auth.getSession().catch(()=>null);channel?.postMessage('changed');notifyIdentity();return receipt;};
+const changePassword=services.account.changePassword;
+services.account.changePassword=async(...args)=>{await changePassword(...args);identityRevision++;synchronizeSessionCache(null);clearQueryCache();channel?.postMessage('changed');notifyIdentity();};

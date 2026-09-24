@@ -6,8 +6,9 @@ import { readConfig, type ServerConfig } from './config';
 import { client } from './db';
 import { ServiceError } from './errors';
 import production from './routes/production';
+import {captainRoutes,type CaptainDependencies} from './routes/captain';
 
-export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process.env) {
+export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process.env, captainDependencies:CaptainDependencies = {}) {
  const app=new Hono<Env>().basePath('/api');
  app.use('*',async(c,next)=>{
   c.set('requestId',crypto.randomUUID());c.header('X-Request-Id',c.get('requestId'));c.header('Cache-Control','private, no-store');c.header('X-Content-Type-Options','nosniff');c.header('Referrer-Policy','no-referrer');
@@ -22,7 +23,7 @@ export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process
   await next();
  });
  app.use('*',bodyLimit({maxSize:4_100_000,onError:c=>c.json({code:'FILE_TOO_LARGE',requestId:c.get('requestId')},413)}));
- app.route('/',production);
+ app.route('/',captainRoutes(captainDependencies));app.route('/',production);
  app.notFound(c=>c.json({code:'NOT_FOUND',message:'Məlumat tapılmadı.',requestId:c.get('requestId')},404));
  app.onError((error,c)=>{
   const e=error instanceof ZodError?new ServiceError(422,'VALIDATION_ERROR',Object.fromEntries(error.issues.map(i=>[i.path.join('.'),'Dəyəri yoxlayın.']))):error instanceof ServiceError?error:new ServiceError(503,'SERVICE_UNAVAILABLE');

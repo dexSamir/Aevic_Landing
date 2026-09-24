@@ -2,7 +2,6 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import type { Env, ApiContext } from '../types';
 import { ServiceError } from '../errors';
-import { clearSession } from '../auth/session';
 import { ProductionTeams, productionSummary } from '../services/productionTeams';
 
 const app = new Hono<Env>();
@@ -13,8 +12,6 @@ export const unavailable = {
   matches: 'TOURNAMENT_STATE_CONTRACT_UNAVAILABLE',
   organizations: 'ORIGINAL_CONTRACT_UNAVAILABLE',
   achievements: 'ORIGINAL_CONTRACT_UNAVAILABLE',
-  authentication: 'ORIGINAL_AUTH_CONTRACT_UNAVAILABLE',
-  writes: 'ORIGINAL_AUTH_CONTRACT_UNAVAILABLE',
 };
 app.get('/public/context', async c => c.json({
   teams: (await repo(c).teams()).map(productionSummary),
@@ -44,14 +41,12 @@ app.get('/registrations/team-name', async c => {
   const name = z.string().trim().min(2).max(60).parse(c.req.query('name'));
   return c.json({ available: !(await repo(c).teams()).some(t => t.name.toLocaleLowerCase('az-AZ') === name.toLocaleLowerCase('az-AZ')), normalizedName: name, scope:'platform', source:'backend' });
 });
-app.get('/me/session', c => c.json(null));
-app.post('/auth/logout', c => { clearSession(c); return c.body(null,204); });
 // No normalized-schema routers are mounted. Never submit credentials to a different
 // authentication system or fall through to aevic.command/claiming/service-role access.
 app.all('*', c => {
   const path = c.req.path.replace(/^\/api/, '');
   const code = /^(\/auth|\/me|\/admin|\/registrations|\/teams\/[^/]+$)/.test(path)
-    ? unavailable.authentication : /^(\/tournaments|\/matches|\/leaderboards|\/archive)/.test(path)
+    ? 'ORIGINAL_AUTH_CONTRACT_UNAVAILABLE' : /^(\/tournaments|\/matches|\/leaderboards|\/archive)/.test(path)
       ? unavailable.tournaments : 'ORIGINAL_CONTRACT_UNAVAILABLE';
   c.header('X-Retryable','false');
   throw new ServiceError(501, code);

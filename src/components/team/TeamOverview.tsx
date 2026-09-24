@@ -71,12 +71,13 @@ export function TeamOverview() {
   const context = useTeamCompetitionContexts().current;
   const vm = buildTeamOverview(data, context);
   const verified = vm.team.approvalStatus === 'approved';
-  const contextLine = context ? [context.tournament.name, context.participation.groupLabel, context.participation.slotNumber ? `Slot #${context.participation.slotNumber}` : undefined].filter(Boolean).join(' · ') : 'Aktiv yarış iştirakı yoxdur.';
+  const contextLine = data.dataSource==='public.teams' ? `Tier: ${vm.team.tier??'—'} · Status: ${vm.team.sourceStatus??'—'} · Yarış və otaq məlumatları hələ əlçatan deyil.` : context ? [context.tournament.name, context.participation.groupLabel, context.participation.slotNumber ? `Slot #${context.participation.slotNumber}` : undefined].filter(Boolean).join(' · ') : 'Aktiv yarış iştirakı yoxdur.';
   return <div className="team-overview">
     <header className="overview-identity">
       <div><span className="overview-eyebrow">// KAPİTAN XƏTTİ</span><h1 aria-label={vm.team.name}>{vm.team.name}{verified && <ShieldCheck aria-label="Təsdiqlənmiş komanda" />}</h1><p>{contextLine}</p></div>
       <nav aria-label="Komanda kontekst keçidləri"><Link to={`/teams/${encodeURIComponent(vm.team.slug ?? vm.team.id)}`}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link>{context && vm.tournamentHref && <Link className="overview-current-tournament" to={vm.tournamentHref}><span>AKTİV TURNİR</span>{context.tournament.shortName || context.tournament.name}<ArrowRight size={14} aria-hidden="true" /></Link>}</nav>
     </header>
+    {vm.team.rejectionReason && <p role="status" className="overview-empty">{vm.team.rejectionReason}</p>}
     <NextActionCommand vm={vm} />
     <OperationalRail vm={vm} />
     <dl className="team-stat-ledger" aria-label="Rəsmi komanda statistikası">{([['matches', 'Matç'], ['wwcd', 'WWCD'], ['championships', 'Çempionluq'], ['podiums', 'Podium']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{data.careerSummary.metrics.find(metric => metric.key === key)?.value ?? '—'}</dd></div>)}<div><dt>Heyət hazırlığı</dt><dd><Link className="overview-status--roster" to="/team/roster">{vm.activeRosterCount}/4 <Users size={17} /></Link></dd></div></dl>
@@ -87,7 +88,7 @@ export function TeamOverview() {
       {vm.updates.length ? <ol>{vm.updates.map(event => <li key={event.id} data-priority={event.priority}>
         <strong>{event.title}</strong><time dateTime={event.occurredAt}>{overviewDate(event.occurredAt)} · {bakuTime(event.occurredAt)}</time><p>{event.body}</p>
         {event.actionTarget && <Link to={event.actionTarget} aria-label={`${event.title}: ${event.actionLabel || 'Aç'}`}><ArrowRight size={16} aria-hidden="true" /></Link>}
-      </li>)}</ol> : <p className="overview-empty">Yeni əməliyyat yeniliyi yoxdur.</p>}
+      </li>)}</ol> : <p className="overview-empty">{data.unavailable?.notifications?'Bildiriş xidməti hələ əlçatan deyil.':'Yeni əməliyyat yeniliyi yoxdur.'}</p>}
     </section>
   </div>;
 }

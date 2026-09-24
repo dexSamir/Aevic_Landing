@@ -75,7 +75,12 @@ export function usePlatformQuery<T>(options: {
     return () => window.clearInterval(timer);
   }, [retryAt]);
   // Manual retries also respect a server cooldown; no consumer can bypass it.
-  const refetch = useCallback(() => { if (Date.now() < retryAt) return; cache.delete(cacheKey); setAttempt((n) => n + 1); }, [cacheKey, retryAt]);
+  const refetch = useCallback(() => {
+    if (Date.now() < retryAt) return;
+    const entry = cache.get(cacheKey);
+    if (entry) cache.set(cacheKey, { ...entry, updatedAt: 0 });
+    setAttempt((n) => n + 1);
+  }, [cacheKey, retryAt]);
 
   useEffect(() => {
     if (!enabled || !refetchOnFocus) return;
@@ -106,15 +111,27 @@ export function usePlatformQuery<T>(options: {
       if (!isCurrent()) return;
       cache.set(cacheKey, { data, updatedAt: Date.now() });
       setState({ key: stateKey, data, loading: false });
-    }).catch((error) => { if (isCurrent()) setState({ key: stateKey, data: entry?.data, error: safeQueryError(error), loading: false }); });
+    }).catch((error) => {
+      if (!isCurrent()) return;
+      const failure = safeQueryError(error);
+      const denied = scope === 'private' && [401,403].includes(failure.status);
+      if (denied) cache.delete(cacheKey);
+      setState({ key: stateKey, data: denied ? undefined : entry?.data, error: failure, loading: false });
+    });
     return () => {
       active = false; owned.observers -= 1;
-      if (owned.observers <= 0 && inFlight.get(cacheKey) === owned) { owned.controller.abort(); inFlight.delete(cacheKey); }
+      // React StrictMode and same-tick route hand-offs can immediately resubscribe.
+      // Share that request; abort only when it truly has no remaining observers.
+      queueMicrotask(() => {
+        if (owned.observers <= 0 && inFlight.get(cacheKey) === owned) { owned.controller.abort(); inFlight.delete(cacheKey); }
+      });
     };
   }, [attempt, enabled, cacheKey, epoch, scope, stateKey, retry, staleTime]);
 
   // Key/identity changes hide the old value during render, before effects run.
   const refreshed = enabled ? cache.get(cacheKey) as CacheEntry<T> | undefined : undefined;
   const current = state.key === stateKey && enabled ? state : refreshed ? { data: refreshed.data, loading: false, error: undefined } : { loading: enabled, data: undefined, error: undefined };
-  return { data: current.data, loading: current.loading, error: current.error, refetch, retryAfterSeconds: Math.max(0, Math.ceil((retryAt - retryClock) / 1000)) };
+  return { data: current.data, loading: current.loading && current.data === undefined,
+    refreshing: current.loading && current.data !== undefined, error: current.error, refetch,
+    retryAfterSeconds: Math.max(0, Math.ceil((retryAt - retryClock) / 1000)) };
 }

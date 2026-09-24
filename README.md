@@ -1,3 +1,5 @@
+> Captain auth, reset, team updates and media code: [implementation and activation blockers](docs/CAPTAIN_IMPLEMENTATION.md). Production remains blocked pending existing database/storage credentials and safe grants. No migrations or deployment.
+
 > Current backend: [original production integration](docs/ORIGINAL_PRODUCTION_INTEGRATION.md). The running application reads existing `public.teams`; earlier normalized-schema, migration, claiming and staging instructions below are historical and must not be executed for this integration.
 
 # AEVIC Esports — Competitive Legacy

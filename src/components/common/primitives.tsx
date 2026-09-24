@@ -248,9 +248,7 @@ export function EmptyState({ icon, title, body, action, heading = 'h2' }: { icon
   return <div className="empty-state">{icon ?? <Info size={28} />}<Heading>{title}</Heading><p>{body}</p>{action}</div>;
 }
 
-export function LoadingSkeleton({ rows = 3 }: { rows?: number }) {
-  return <div className="skeleton" role="status" aria-busy="true" aria-label="Məlumat yüklənir">{Array.from({ length: rows }, (_, index) => <span key={index} />)}</div>;
-}
+export { LoadingSkeleton } from './LoadingSkeleton';
 
 export function Toast({ tone = 'success', title, body, onClose }: { tone?: 'success' | 'error' | 'info'; title: string; body?: string; onClose?: () => void }) {
   const Icon = tone === 'success' ? CheckCircle2 : tone === 'error' ? CircleAlert : Info;

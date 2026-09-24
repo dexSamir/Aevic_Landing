@@ -1,3 +1,5 @@
+> Auth/media implementation update: [CAPTAIN_IMPLEMENTATION.md](CAPTAIN_IMPLEMENTATION.md). The public integration findings below remain useful; its earlier auth/media implementation status and configuration are superseded.
+
 # Original production integration
 
 2026-09-24. This document supersedes the normalized-schema, migration, staging and claiming instructions elsewhere in this repository for the current application. Do not run those workflows for this integration.

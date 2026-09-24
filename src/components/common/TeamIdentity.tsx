@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { publicImageUrl } from '../../utils/mediaUrl';
-import { useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
+import './loading-skeleton.css';
 import { Link } from 'react-router-dom';
 
 export type TeamMarkSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -11,10 +12,15 @@ function teamInitials(name: string) {
 
 export function TeamMark({ name, src, size = 'md', className = '' }: { name: string; src?: string; size?: TeamMarkSize; className?: string }) {
   const [failed, setFailed] = useState<string>();
+  const [loaded, setLoaded] = useState<string>();
   const safeSrc = publicImageUrl(src);
+  const imageRef=useCallback((image:HTMLImageElement|null)=>{
+    if(image?.complete&&image.naturalWidth>0&&safeSrc)setLoaded(safeSrc);
+  },[safeSrc]);
   const visible = safeSrc && failed !== safeSrc;
-  return <span className={`team-logo team-mark team-logo--${size} ${visible ? 'team-mark--artwork' : 'team-mark--fallback'} ${className}`.trim()}>
-    {visible ? <img src={safeSrc} onError={() => setFailed(safeSrc)} alt="" loading="lazy" decoding="async" /> : <span aria-hidden="true">{teamInitials(name)}</span>}
+  const loading=Boolean(visible&&loaded!==safeSrc);
+  return <span aria-busy={loading||undefined} className={`team-logo team-mark team-logo--${size} ${visible ? 'team-mark--artwork' : 'team-mark--fallback'} ${loading?'team-mark--loading':''} ${className}`.trim()}>
+    {visible ? <img ref={imageRef} src={safeSrc} onLoad={()=>setLoaded(safeSrc)} onError={() => setFailed(safeSrc)} alt="" loading="lazy" decoding="async" /> : <span aria-hidden="true">{teamInitials(name)}</span>}
   </span>;
 }
 

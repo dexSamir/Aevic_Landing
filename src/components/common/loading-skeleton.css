@@ -1,0 +1,35 @@
+.loading-skeleton{width:100%;min-width:0;--skeleton-fill:var(--color-bg-elevated,#1c1c21)}
+.loading-skeleton__block{display:block;background:var(--skeleton-fill);border-radius:4px;animation:aevic-skeleton-pulse 1.8s ease-in-out infinite alternate}
+.loading-skeleton__line{height:14px;width:100%;max-width:32rem;margin:10px 0}
+.loading-skeleton__short{height:12px;width:58%;max-width:9rem;margin:10px 0}
+.loading-skeleton__title{height:22px;width:76%;margin:20px 0 14px}
+.loading-skeleton__heading{height:44px;width:80%;max-width:28rem;margin:14px 0 22px}
+div.loading-skeleton__heading{height:auto;width:100%;max-width:none;margin:0 0 24px}
+.loading-skeleton__label{height:12px;width:32%;max-width:9rem;margin-bottom:12px}
+.loading-skeleton__input{height:48px;width:100%;border:1px solid var(--color-border,#303034)}
+.loading-skeleton__button{height:48px;width:10rem;margin-top:20px}
+.loading-skeleton__value{height:38px;width:50%;margin-top:18px}
+.loading-skeleton__avatar{width:48px;height:48px;flex-shrink:0}
+.loading-skeleton__artwork{aspect-ratio:16/10;width:100%;min-height:110px}
+.loading-skeleton__portrait{aspect-ratio:1;width:100%;max-height:210px}
+.loading-skeleton__media{aspect-ratio:16/9;width:100%}
+.loading-skeleton__panel{min-width:0;padding:24px;border:1px solid var(--color-border,#303034);border-radius:8px;background:var(--color-bg-secondary,#111114)}
+.loading-skeleton__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.loading-skeleton__grid--roster{grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.loading-skeleton__stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:24px 0}
+.loading-skeleton__form{display:grid;gap:24px;width:100%;max-width:48rem}
+.loading-skeleton__row{display:grid;grid-template-columns:48px minmax(0,1fr) minmax(40px,15%);align-items:center;gap:20px;min-height:82px;padding:16px 12px;border-bottom:1px solid var(--color-border,#303034)}
+.loading-skeleton__table .loading-skeleton__row:first-child{min-height:48px}
+.loading-skeleton__hero{display:grid;grid-template-columns:minmax(96px,25%) minmax(0,1fr);gap:32px;align-items:center;min-height:240px;padding:24px 0}
+.loading-skeleton__hero>.loading-skeleton__avatar{width:100%;height:auto;aspect-ratio:1;max-width:180px}
+.loading-skeleton__columns{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px}
+.loading-skeleton__rail{display:grid;grid-template-columns:1fr 2fr auto;gap:24px;align-items:center;min-height:180px;padding:24px;border:1px solid var(--color-border,#303034);background:var(--color-bg-primary,#0a0a0c)}
+.loading-skeleton__rail .loading-skeleton__panel{padding:12px;border:0}
+.route-data-loading{width:100%;max-width:1280px;margin:0 auto;padding:40px var(--page-gutter,24px);min-height:60vh}
+.query-refresh{display:block;min-height:20px;color:var(--color-text-secondary,#b7b5be);font-size:12px;text-align:right;position:absolute;right:var(--page-gutter,24px);z-index:1;pointer-events:none}
+.team-mark--loading{position:relative}.team-mark--loading::after{content:'';position:absolute;inset:0;background:var(--color-bg-elevated,#1c1c21);border-radius:inherit;animation:aevic-skeleton-pulse 1.8s ease-in-out infinite alternate}
+.team-mark--loading img{opacity:0}
+@keyframes aevic-skeleton-pulse{from{opacity:.95}to{opacity:.5}}
+@media(max-width:900px){.loading-skeleton__grid{grid-template-columns:repeat(2,minmax(0,1fr))}.loading-skeleton__grid--roster{grid-template-columns:repeat(3,minmax(0,1fr))}.loading-skeleton__rail{grid-template-columns:1fr}.loading-skeleton__columns{grid-template-columns:1fr}}
+@media(max-width:560px){.loading-skeleton__grid{grid-template-columns:1fr}.loading-skeleton__grid--roster,.loading-skeleton__stats{grid-template-columns:repeat(2,minmax(0,1fr))}.loading-skeleton__hero{gap:20px;min-height:180px}.loading-skeleton__panel{padding:16px}.loading-skeleton__heading{height:34px}.loading-skeleton__row{gap:12px}.route-data-loading{padding-top:24px}}
+@media(prefers-reduced-motion:reduce){.loading-skeleton__block,.team-mark--loading::after{animation:none}}

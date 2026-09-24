@@ -31,7 +31,7 @@ describe('original production contract', () => {
  });
  it('queries only public.teams with a lossless explicit projection, never service credentials', async () => {
   const fetch=transport(); const response=await app.request('/api/public/context');expect(response.status).toBe(200);
-  const data=validatePublicSnapshot(await response.json());expect(data.teams[0]).toMatchObject({id:row.id,slug:row.id,rosterSize:5});expect(data.unavailable?.authentication).toBe('ORIGINAL_AUTH_CONTRACT_UNAVAILABLE');
+  const data=validatePublicSnapshot(await response.json());expect(data.teams[0]).toMatchObject({id:row.id,slug:row.id,rosterSize:5});expect(data.dataSource).toBe('public.teams');
   expect(fetch).toHaveBeenCalledTimes(1);
   const [input,init]=fetch.mock.calls[0] as unknown as [string,RequestInit];
   const url=new URL(input);expect(url.pathname).toBe('/rest/v1/teams');expect(url.searchParams.get('select')).toBe(PUBLIC_TEAM_COLUMNS);
@@ -73,7 +73,7 @@ describe('original production contract', () => {
  });
  it('blocks every unsupported read/write without contacting replacement tables or auth',async()=>{
   const fetch=transport();
-  for(const [method,path] of [['GET','/tournaments'],['GET','/matches'],['GET','/leaderboards/1'],['GET','/me/context'],['GET','/admin/context'],['POST','/auth/login'],['POST','/auth/legacy-activation'],['POST','/registrations'],['PATCH','/teams/1'],['POST','/tournaments/1/entries'],['POST','/admin/tournaments'],['PUT','/admin/matches/1/results'],['POST','/media']]) {
+  for(const [method,path] of [['GET','/tournaments'],['GET','/matches'],['GET','/leaderboards/1'],['GET','/admin/context'],['POST','/auth/legacy-activation'],['POST','/tournaments/1/entries'],['POST','/admin/tournaments'],['PUT','/admin/matches/1/results'],['POST','/media']]) {
    const result=await app.request(`/api${path}`,{method,headers:{origin:config.siteUrl,'content-type':'application/json',cookie:'aevic-access=old-session'},...(method!=='GET'?{body:'{}'}:{})});expect(result.status,`${method} ${path}`).toBe(501);
   }
   expect(fetch).not.toHaveBeenCalled();
