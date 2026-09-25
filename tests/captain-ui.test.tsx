@@ -1,4 +1,4 @@
-import {render,screen,waitFor} from '@testing-library/react';
+import {fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {beforeEach,it,expect,vi} from 'vitest';
 import {ResetPasswordPage} from '../src/pages/AuthLifecyclePages';
@@ -16,8 +16,8 @@ it('does not unlock password submission when token verification fails',async()=>
  render(<MemoryRouter><ResetPasswordPage /></MemoryRouter>);
  await screen.findByText('Bərpa xidməti əlçatan deyil');expect(screen.queryByLabelText('Yeni şifrə')).not.toBeInTheDocument();
 });
-it('keeps registration available but disables unsupported tag persistence',async()=>{
+it('accepts a team tag alongside the registration name',async()=>{
  vi.spyOn(services.registration,'checkTeamName').mockResolvedValue({available:true,normalizedName:'Test',scope:'platform',source:'backend'});
  render(<MemoryRouter><RegisterPage /></MemoryRouter>);
- await waitFor(()=>expect(screen.getByLabelText(/Qısa tag/)).toBeDisabled());expect(screen.getByLabelText('Komanda adı')).toBeEnabled();expect(screen.getByText('Teq saxlanması hazırda dəstəklənmir.')).toBeInTheDocument();
+ await waitFor(()=>expect(screen.getByLabelText(/Qısa tag/)).toBeEnabled());fireEvent.change(screen.getByLabelText(/Qısa tag/),{target:{value:'TEST'}});expect(screen.getByLabelText(/Qısa tag/)).toHaveValue('TEST');expect(screen.getByLabelText('Komanda adı')).toBeEnabled();
 });

@@ -8,7 +8,8 @@ import type { AuthTokenState } from '../../types/domain';
 
 export function VerifyEmailPage() {
   const [params] = useSearchParams();
-  const token = params.get('token_hash') ?? params.get('token') ?? '';
+  const [token] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get('token') ?? params.get('token_hash') ?? params.get('token') ?? '');
+  useEffect(() => { if (window.location.hash) window.history.replaceState(null, '', window.location.pathname + window.location.search); }, []);
   const [state, setState] = useState<AuthTokenState>();
   const [nextPath,setNextPath]=useState('/login');
   useEffect(()=>{

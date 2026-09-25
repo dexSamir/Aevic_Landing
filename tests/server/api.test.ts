@@ -1,5 +1,5 @@
 import { describe,it,expect,vi,afterEach } from 'vitest';
-import { createApp } from '../../server/app';
+import { createNormalizedModuleApp as createApp } from '../fixtures/normalized-app';
 import { processImage } from '../../server/routes/media';
 import sharp from 'sharp';
 const config={supabaseUrl:'http://127.0.0.1:54321',publishableKey:'local-test-publishable',serviceKey:'local-test-service',siteUrl:'http://localhost:8888',secureCookies:false};
@@ -8,7 +8,7 @@ const user={id:'00000000-0000-4000-8000-000000000001',email:'owner@example.test'
 const response=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json'}});
 const request=(path:string,body:unknown,extra:Record<string,string>={})=>app.request(`/api${path}`,{method:'POST',headers:{origin:config.siteUrl,'content-type':'application/json',...extra},body:JSON.stringify(body)});
 afterEach(()=>vi.unstubAllGlobals());
-describe('Hono production API boundary',()=>{
+describe('Retained normalized modules with production HTTP boundary',()=>{
  it('rejects cross-site writes before touching Supabase',async()=>{const fetch=vi.fn();vi.stubGlobal('fetch',fetch);const r=await request('/auth/login',{email:'a@example.test',password:'secret'},{origin:'https://attacker.example'});expect(r.status).toBe(403);expect(fetch).not.toHaveBeenCalled();});
  it('validates JSON and returns structured, sanitized errors',async()=>{const r=await request('/auth/login',{email:'bad'});expect(r.status).toBe(422);expect(await r.json()).toMatchObject({code:'VALIDATION_ERROR',requestId:expect.any(String),fieldErrors:expect.any(Object)});expect(r.headers.get('cache-control')).toContain('no-store');});
  it('fails closed without server configuration',async()=>{const r=await createApp().request('/api/public/context');expect(r.status).toBe(503);expect(JSON.stringify(await r.json())).not.toContain('stack');});

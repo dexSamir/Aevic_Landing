@@ -79,8 +79,10 @@ import type {
 } from '../types/domain';
 
 export interface AuthService {
+  workspaces(): Promise<Array<{id:string;name:string;role:TeamAuthorityRole}>>;
+  selectWorkspace(teamId:string): Promise<void>;
   getSession(): Promise<{ user: User; role: UserRole } | null>;
-  login(email: string, password: string, remember?: boolean): Promise<{ user: User; role: UserRole }>;
+  login(email: string, password: string, remember?: boolean, admin?: boolean, otp?: string): Promise<{ user: User; role: UserRole }>;
   logout(): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;
   inspectPasswordReset(token: string): Promise<PasswordResetInspection>;
@@ -98,7 +100,7 @@ export interface AccountService {
   revokeSession(sessionId: string): Promise<void>;
   revokeOtherSessions(): Promise<void>;
   twoFactorStatus(): Promise<TwoFactorStatus>;
-  beginTwoFactorSetup(): Promise<TwoFactorSetup>;
+  beginTwoFactorSetup(password:string): Promise<TwoFactorSetup>;
   verifyTwoFactorSetup(setupId: string, code: string): Promise<TwoFactorRecoveryCodes>;
   disableTwoFactor(password: string, code: string): Promise<void>;
   regenerateRecoveryCodes(password: string, code: string): Promise<TwoFactorRecoveryCodes>;
@@ -115,6 +117,8 @@ export interface RegistrationService {
 }
 
 export interface TournamentService {
+  assignSlot(tournamentId:string,input:{teamId:string;slotNumber:number;expectedSlotNumber:number|null;reason:string},idempotencyKey:string):Promise<void>;
+  correctCheckIn(tournamentId:string,input:{teamId:string;checkedIn:boolean;expectedCheckedIn:boolean;reason:string},idempotencyKey:string):Promise<void>;
   update(id: string, input: import('../types/domain').TournamentUpdate): Promise<Tournament>;
   create(input:import('../types/domain').TournamentCreation,idempotencyKey:string):Promise<Tournament>;
   entries(id:string):Promise<Array<{id:string;teamId:string;status:string;slotNumber?:number}>>;
@@ -201,6 +205,7 @@ export interface SearchService {
 export interface PlayerProfileService {
   getBySlug(slug: string): Promise<PublicPlayerProfile | undefined>;
   list(query?: string, cursor?: string): Promise<CursorPage<PublicPlayerProfile>>;
+  claims(playerId: string): Promise<PlayerClaim[]>;
   claim(playerId: string, method: PlayerClaim['verificationMethod'], evidence: string[], idempotencyKey: string): Promise<PlayerClaim>;
   invitations(cursor?: string): Promise<CursorPage<DurableInvitation>>;
   membershipHistory(playerId: string): Promise<MembershipHistoryEntry[]>;
@@ -258,6 +263,7 @@ export interface ResultService {
 export interface NotificationService {
   inbox(): Promise<Notification[]>;
   messages(): Promise<AdminMessage[]>;
+  markMessageRead(id: string): Promise<void>;
   preferences(): Promise<NotificationPreferences>;
   updatePreferences(value: NotificationPreferences): Promise<NotificationPreferences>;
   markRead(id: string): Promise<void>;
@@ -280,6 +286,7 @@ export interface DisputeService {
 }
 
 export interface SupportService {
+  uploadAttachment(ticketId:string,file:File):Promise<{id:string;fileName:string;url:string}>;
   adminTicket(id: string): Promise<SupportTicket | undefined>;
   adminReply(id: string, reply: SupportTicketReply): Promise<SupportTicket>;
   listTickets(): Promise<SupportTicket[]>;
@@ -294,6 +301,11 @@ export interface SupportService {
 export interface OperationsService {
   audit(cursor?: string): Promise<AdminAuditEvent[]>;
   adminUsers(): Promise<AdminUser[]>;
+  inviteAdmin(input:{email:string;firstName:string;lastName:string;role:AdminUser['role']}): Promise<AdminUser>;
+  updateAdmin(id:string,input:{role:AdminUser['role'];active:boolean}): Promise<AdminUser>;
+  resendAdminSetup(id:string): Promise<void>;
+  bulkTeamReview(teamIds:string[],status:'approved'|'rejected',reason?:string): Promise<{updated:number}>;
+  reviewPlayerClaim(id: string, status: 'APPROVED' | 'REJECTED', reason: string): Promise<void>;
   player(playerId: string): Promise<AdminPlayerDetail | undefined>;
 }
 
@@ -306,6 +318,9 @@ export interface VerificationService {
 }
 
 export interface AdminService {
+  publicSettings(): Promise<{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}>;
+  settings(): Promise<{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}>;
+  updateSettings(input:{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}): Promise<{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}>;
   blacklist(): Promise<BlacklistEntry[]>;
   ban(teamId: string, reason: string, expiresAt?: string): Promise<void>;
   sendMessage(message: Pick<AdminMessage, 'title' | 'body' | 'severity' | 'audience'>): Promise<void>;

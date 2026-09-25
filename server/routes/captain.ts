@@ -1,3 +1,7 @@
+import {PlatformAccountStore,accountUser} from '../platform/account-store';
+import {consumeFactor} from '../platform/mfa';
+import {tokenDigest} from '../platform/context';
+import {transaction} from '../platform/competition';
 import {Hono} from 'hono';
 import {getCookie,setCookie,deleteCookie} from 'hono/cookie';
 import {z} from 'zod';
@@ -28,7 +32,7 @@ export function captainRoutes(deps:CaptainDependencies={}) {
  const store=(c:ApiContext)=>{
   if(deps.store)return deps.store;
   const url=c.get('config').databaseUrl;if(!url)throw new ServiceError(503,'PRIVATE_DATABASE_NOT_CONFIGURED');
-  if(!stores.has(url))stores.set(url,new PostgresCaptainStore(url));return stores.get(url)!;
+  if(!stores.has(url))stores.set(url,c.get('platform')?new PlatformAccountStore(url,!c.get('config').secureCookies):new PostgresCaptainStore(url,!c.get('config').secureCookies));return stores.get(url)!;
  };
  const service=(c:ApiContext)=>{
   const config=c.get('config');return new CaptainService(store(c),config.sessionSecret??'',config.siteUrl,deps.mailer??resetMailer(config),deps.now);
@@ -40,12 +44,14 @@ export function captainRoutes(deps:CaptainDependencies={}) {
   c.res.headers.delete('Retry-After');
  };
  app.post('/auth/login',async c=>{
-  attempt(c,'login');const input=await body(c,z.object({email,password:z.string().min(1).max(128),remember:z.boolean().default(false)}).strict());
-  limit('login-account',input.email,10);const auth=service(c),result=await auth.login(input.email,input.password,input.remember);save(c,result.cookie,input.remember);return c.json(auth.sessionView(result.row));
+  attempt(c,'login');const input=await body(c,z.object({email,password:z.string().min(1).max(128),remember:z.boolean().default(false),otp:z.string().max(40).optional()}).strict());
+  limit('login-account',input.email,10);const auth=service(c),result=await auth.login(input.email,input.password,input.remember);
+  if(c.get('platform'))await transaction(c.get('platform')!.sql,async tx=>{const verified=await consumeFactor(tx,{teamId:result.row.id},c.get('config').sessionSecret??'',input.otp);await tx`insert into aevic_platform.sessions(token_digest,team_id,expires_at,device,mfa_verified_at) values(${tokenDigest(result.cookie)},${result.row.id},to_timestamp(${Number(result.cookie.split('.')[1])}),${(c.req.header('user-agent')??'Browser').slice(0,300)},case when ${verified} then clock_timestamp() else null end)`;});
+  save(c,result.cookie,input.remember);return c.json(c.get('platform')?{user:accountUser(result.row),role:'captain'}:auth.sessionView(result.row));
  });
  app.get('/me/session',async c=>{
   if(!cookie(c))return c.json(null);
-  try{const auth=service(c);return c.json(auth.sessionView(await auth.authenticate(cookie(c))));}catch(error){if(error instanceof ServiceError&&error.status===401){clear(c);return c.json(null);}throw error;}
+  try{const auth=service(c);const row=await auth.authenticate(cookie(c));return c.json(c.get('platform')?{user:accountUser(row),role:'captain'}:auth.sessionView(row));}catch(error){if(error instanceof ServiceError&&error.status===401){clear(c);return c.json(null);}throw error;}
  });
  app.post('/auth/logout',async c=>{try{if(cookie(c))await service(c).logout(cookie(c));}finally{clear(c);}return c.body(null,204);});
  app.post('/auth/password-reset',async c=>{
@@ -69,7 +75,9 @@ export function captainRoutes(deps:CaptainDependencies={}) {
  });
  app.get('/me/team',async c=>c.json(privateTeam(await service(c).authenticate(cookie(c)))));
  app.get('/me/context',async c=>{
-  const row=await service(c).authenticate(cookie(c)),currentTeam=privateTeam(row),profile=productionProfile(row);
+  const row=await service(c).authenticate(cookie(c));
+  if(c.get('platform'))return c.json({...await c.get('platform')!.teamSnapshot(row.id,row.id),dataSource:'public.teams',historyAvailable:true});
+  const currentTeam=privateTeam(row),profile=productionProfile(row);
   return c.json({currentTeam,dataSource:'public.teams',unavailable:{competition:true,room:true,notifications:true,achievements:true},publicTeams:[],participations:[],tournaments:[],leaderboard:[],leaderboardTeams:[],matchHistory:profile.recentMatches,historyAvailable:profile.historyAvailable,matchSchedule:[],notifications:[],adminMessages:[],teamAnnouncements:[],teamAchievements:[],teamLegacyStats:profile.legacy,careerSummary:{teamId:row.id,scopeLabel:'Yarış tarixçəsi əlçatan deyil',metrics:[]},teamComparisonRecords:[]});
  });
  app.patch('/teams/:id',async c=>{
@@ -80,7 +88,11 @@ export function captainRoutes(deps:CaptainDependencies={}) {
   const id=originalTeamId(c.req.param('id')),position=slot.parse(c.req.param('slot')),input=await body(c,z.object({ign:text(position===5?0:2,40)}).strict());
   return c.json(privateTeam(await service(c).update(cookie(c),id,{[`player${position}_ign`]:input.ign||null})));
  });
- app.delete('/me/sessions/others',async c=>{save(c,await service(c).revokeOthers(cookie(c)),false);return c.body(null,204);});
+ app.delete('/me/sessions/others',async c=>{
+  const fresh=await service(c).revokeOthers(cookie(c));
+  if(c.get('platform'))await c.get('platform')!.sql`insert into aevic_platform.sessions(token_digest,team_id,expires_at,device,mfa_verified_at) values(${tokenDigest(fresh)},${fresh.split('.')[0]},to_timestamp(${Number(fresh.split('.')[1])}),${(c.req.header('user-agent')??'Browser').slice(0,300)},clock_timestamp())`;
+  save(c,fresh,false);return c.body(null,204);
+ });
  app.get('/me/2fa',async c=>{await service(c).authenticate(cookie(c));return c.json({enabled:false,required:false,setupAvailable:false});});
  app.get('/me/account',async c=>{const row=await service(c).authenticate(cookie(c));return c.json({user:privateTeam(row).captain,emailVerified:false,dataExportStatus:'backend-required'});});
  app.patch('/me/account',async c=>{

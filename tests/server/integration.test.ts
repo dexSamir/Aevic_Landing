@@ -1,5 +1,5 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
-import {createApp} from '../../server/app';
+import {createNormalizedModuleApp as createApp} from '../fixtures/normalized-app';
 const owner='00000000-0000-4000-8000-000000000001', other='00000000-0000-4000-8000-000000000002';
 const team='20000000-0000-4000-8000-000000000001', cup='10000000-0000-4000-8000-000000000001';
 const config={supabaseUrl:'http://127.0.0.1:54321',publishableKey:'test-key',serviceKey:'test-service',siteUrl:'http://localhost:8888',secureCookies:false};
@@ -15,7 +15,7 @@ function database(rows:Record<string,unknown>={},role='super-admin'){
 }
 const signed=(path:string)=>app.request(`/api${path}`,{headers:{cookie:'aevic-access=test-session'}});
 afterEach(()=>vi.unstubAllGlobals());
-describe('real Hono route integration with isolated Supabase response fixtures',()=>{
+describe('retained normalized Hono modules with isolated Supabase response fixtures',()=>{
  it('returns truthful empty public data',async()=>{database();const r=await app.request('/api/public/context');expect(r.status).toBe(200);expect(await r.json()).toMatchObject({teams:[],tournaments:[],leaderboard:[],teamComparisonRecords:[]});});
  it('never includes another account inbox, follows or tickets in a super-admin personal view',async()=>{
   database({notifications:[{id:'own',recipient_id:owner},{id:'other',recipient_id:other}],follows:[{user_id:owner,team_id:team},{user_id:other,team_id:'20000000-0000-4000-8000-000000000002'}],support_tickets:[{id:'own-ticket',user_id:owner},{id:'other-ticket',user_id:other}]});

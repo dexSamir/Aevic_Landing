@@ -18,13 +18,16 @@ export class Repository {
  private loaded = new Map<string,Promise<Row[]>>();
  private capacity?: Promise<Array<{tournament_id:string;used_slots:number}>>;
  private reasons?: Promise<Array<{team_id:string;reason:string|null}>>;
- private tournamentCapacity() {
+ protected tournamentCapacity() {
   return this.capacity ??= (async()=>{const {data,error}=await this.db.rpc('tournament_capacity');dbError(error);return data as Array<{tournament_id:string;used_slots:number}>;})();
  }
  private teamReasons() {
   return this.reasons ??= (async()=>{const {data,error}=await this.db.rpc('team_review_reasons');dbError(error);return data as Array<{team_id:string;reason:string|null}>;})();
  }
  constructor(readonly db:DbClient) {}
+ async achievementProgress(teamId:string):Promise<Array<{id:string;current_value:number;target:number;unlocked_at?:string}>> {
+  const {data,error}=await this.db.rpc('achievement_progress',{team:teamId});dbError(error);return data;
+ }
  async rows(table:string):Promise<Row[]> {
   if(!this.loaded.has(table)) this.loaded.set(table,(async()=>{
    const rows:Row[]=[];let offset=0;

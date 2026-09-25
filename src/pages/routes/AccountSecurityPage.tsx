@@ -28,6 +28,8 @@ export function AccountSecurityPage() {
   const [setup, setSetup] = useState<TwoFactorSetup>();
   const [otp, setOtp] = useState("");
   const [recovery, setRecovery] = useState<TwoFactorRecoveryCodes>();
+  const [factorPassword,setFactorPassword]=useState("");
+  const [factorCode,setFactorCode]=useState("");
   const [twoFactorLoading, setTwoFactorLoading] = useState(false);
   useEffect(() => {
     services.account
@@ -59,12 +61,18 @@ export function AccountSecurityPage() {
   const beginTwoFactor = async () => {
     setTwoFactorLoading(true);
     try {
-      setSetup(await services.account.beginTwoFactorSetup());
+      setSetup(await services.account.beginTwoFactorSetup(factorPassword));
     } catch {
-      setNotice("2FA aktivləşdirmə xidməti hələ qoşulmayıb.");
+      setNotice("Aktivləşdirmə başlamadı. Cari şifrəni və bağlantını yoxlayın.");
     } finally {
       setTwoFactorLoading(false);
     }
+  };
+  const changeFactor = async (disable:boolean) => {
+    if(twoFactorLoading||!factorPassword||!factorCode)return;
+    setTwoFactorLoading(true);
+    try{if(disable){await services.account.disableTwoFactor(factorPassword,factorCode);setRecovery(undefined);}else setRecovery(await services.account.regenerateRecoveryCodes(factorPassword,factorCode));setStatus(await services.account.twoFactorStatus());setFactorPassword("");setFactorCode("");setNotice(disable?"İki mərhələli doğrulama deaktiv edildi.":"Yeni bərpa kodları yaradıldı. Əvvəlki kodlar artıq işləmir.");}
+    catch{setNotice("Əməliyyat tamamlanmadı. Şifrəni və yeni doğrulama kodunu yoxlayın.");}finally{setTwoFactorLoading(false);}
   };
   const verifyTwoFactor = async () => {
     if (!setup || !/^\d{6}$/.test(otp)) {
@@ -78,6 +86,7 @@ export function AccountSecurityPage() {
       );
       setStatus(await services.account.twoFactorStatus());
       setSetup(undefined);
+      setFactorPassword("");
       setOtp("");
       setNotice("2FA aktiv edildi. Bərpa kodlarını təhlükəsiz saxlayın.");
     } catch {
@@ -155,8 +164,10 @@ export function AccountSecurityPage() {
             Məxfi açar və bərpa kodları serverdə yaradılır, birdəfəlik kod orada
             yoxlanılır. Kodlar audit jurnalına daxil edilmir.
           </p>
+          {!setup&&status?.setupAvailable&&<Input label="2FA əməliyyatı üçün cari şifrə" type="password" autoComplete="current-password" value={factorPassword} onChange={event=>setFactorPassword(event.target.value)}/>}
           {setup ? (
             <div className="two-factor-setup">
+              <p>Qurulma {new Date(setup.expiresAt).toLocaleTimeString('az-AZ',{hour:'2-digit',minute:'2-digit'})} vaxtınadək etibarlıdır.</p>
               <img
                 src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(setup.qrSvg)}`}
                 alt="Doğrulama tətbiqi üçün TOTP QR kodu"
@@ -178,16 +189,18 @@ export function AccountSecurityPage() {
               >
                 Kodu təsdiqlə
               </Button>
+              <Button variant="secondary" disabled={twoFactorLoading} onClick={()=>{setSetup(undefined);setOtp('');}}>Qurulmanı yenidən başlat</Button>
             </div>
           ) : (
             <Button
               loading={twoFactorLoading}
-              disabled={!status?.setupAvailable || status?.enabled}
+              disabled={!status?.setupAvailable || status?.enabled || !factorPassword}
               onClick={() => void beginTwoFactor()}
             >
               {status?.enabled ? "2FA aktivdir" : "2FA-nı aktiv et"}
             </Button>
           )}
+          {status?.enabled&&<div className="two-factor-actions"><p>{status.backupCodesRemaining??0} bərpa kodu qalıb.</p><Input label="Doğrulama və ya bərpa kodu" value={factorCode} onChange={event=>setFactorCode(event.target.value.trim())} autoComplete="one-time-code" maxLength={40}/><Button disabled={!factorPassword||!factorCode||twoFactorLoading} onClick={()=>void changeFactor(false)}>Bərpa kodlarını yenilə</Button><Button variant="danger" disabled={!factorPassword||!factorCode||twoFactorLoading} onClick={()=>void changeFactor(true)}>2FA-nı deaktiv et</Button></div>}
           {recovery && (
             <div className="recovery-codes" role="status">
               <strong>Birdəfəlik bərpa kodları</strong>

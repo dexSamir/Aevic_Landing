@@ -81,7 +81,7 @@ export function AccountProfilePage() {
         "Yükləmə sorğusu yaradıldı. Hazır olduqda təhlükəsiz keçid görünəcək.",
       );
     } catch {
-      setNotice("Məlumatları hazırlayan server xidməti hələ qoşulmayıb.");
+      setNotice("Məlumatlar hazırlanmadı. Yenidən cəhd edin.");
     } finally {
       setExporting(false);
     }
@@ -154,7 +154,7 @@ export function AccountProfilePage() {
               <small>
                 {exportJob
                   ? `Export ${exportJob.status.toLocaleLowerCase("az")}`
-                  : "Yüklənəcək fayl yalnız server xidməti hazır olduqda yaradılır."}
+                  : "Hesabınıza aid məlumatların surətini yükləyin."}
               </small>
             </span>
             {exportJob?.status === "READY" && exportJob.downloadUrl ? (

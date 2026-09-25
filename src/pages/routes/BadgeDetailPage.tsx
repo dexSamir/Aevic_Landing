@@ -1,3 +1,4 @@
+import { AchievementMedal } from '../../components/team/Achievements';
 import { Link,useParams } from "react-router-dom";
 import "../../app/workspaceStyles";
 import {
@@ -16,14 +17,15 @@ export function BadgeDetailPage() {
   if (!badge)
     return (
       <EmptyState
-        title="Badge tapılmadı"
-        body="Bu badge kolleksiyada yoxdur və ya public görünür deyil."
+        heading="h1"
+        title="Nişan tapılmadı"
+        body="Bu nişan komandanın kolleksiyasında yoxdur."
       />
     );
   return (
     <>
       <Link className="text-link" to="/team/badges">
-        ← Badge Cabinet
+        ← Nişan kabineti
       </Link>
       <PageHeader
         eyebrow={badge.category}
@@ -31,23 +33,17 @@ export function BadgeDetailPage() {
         description={badge.description}
       />
       <div className="completion-grid">
-        <section className="badge-art-pending">
-          <span>ART PENDING</span>
-          <strong>{badge.tier}</strong>
-          <p>
-            Nişanın təsviri hazırlanır. Qazanılma şərtləri aşağıda göstərilir.
-          </p>
-        </section>
+        <section className="badge-detail-art"><AchievementMedal achievement={badge} featured /></section>
         <section>
-          <SectionHeading title="Tier və progress" />
+          <SectionHeading title="Səviyyə və irəliləyiş" />
           <dl className="detail-ledger">
             <div>
-              <dt>Cari tier</dt>
+              <dt>Səviyyə</dt>
               <dd>{badge.tier}</dd>
             </div>
             <div>
               <dt>Status</dt>
-              <dd>{badge.state}</dd>
+              <dd>{{locked:'Kilidli',progress:'Davam edir',unlocked:'Qazanılıb'}[badge.state]}</dd>
             </div>
             <div>
               <dt>Tələb</dt>
@@ -58,15 +54,15 @@ export function BadgeDetailPage() {
               </dd>
             </div>
             <div>
-              <dt>Progress</dt>
+              <dt>İrəliləyiş</dt>
               <dd>
                 {badge.progress
                   ? `${badge.progress.current} / ${badge.progress.target}`
-                  : "Authoritative server event tələb olunur"}
+                  : "Hələ nəticə qeydə alınmayıb"}
               </dd>
             </div>
             <div>
-              <dt>Unlock tarixi</dt>
+              <dt>Qazanılma tarixi</dt>
               <dd>
                 {badge.unlockedAt ? formatDate(badge.unlockedAt) : "Açılmayıb"}
               </dd>
@@ -74,12 +70,7 @@ export function BadgeDetailPage() {
           </dl>
         </section>
       </div>
-      <>
-        <p>
-          Tier unlock history və yeni achievement notification yalnız
-          server-calculated unlock events-dən gəlməlidir.
-        </p>
-      </>
+      <p>Nişanlar yalnız dərc edilmiş rəsmi nəticələrdən hesablanır. Əvvəlki tarixçənin qeydə alınmamış nəticələri bu göstəriciyə daxil deyil.</p>
     </>
   );
 }

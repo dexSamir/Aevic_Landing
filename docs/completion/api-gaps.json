@@ -1,0 +1,4 @@
+{
+  "scope": "Static comparison of frontend request calls against currently mounted platform/captain/public routes. Candidate gaps require manual validation; matching paths do not prove functionality. Dynamic login selection and multipart uploads excluded. All previously enumerated request paths now have mounted handlers. This does not certify feature completeness, disabled controls, UI behavior, or route verification.",
+  "gaps": []
+}

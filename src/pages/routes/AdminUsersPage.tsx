@@ -1,86 +1,21 @@
-import {
-KeyRound,
-UserCog,
-Users
-} from "lucide-react";
-import {
-Button,
-EmptyState,
-LoadingSkeleton,
-PageHeader,
-StatusBadge
-} from "../../components/common/primitives";
-import { services } from "../../services";
-import { usePlatformQuery } from "../../services/queryCache";
-import type { } from "../../types/domain";
-import { productTerm } from "../../utils/productLexicon";
-
-export function AdminUsersPage() {
-  const {data:users,error}=usePlatformQuery({key:'admin:users',query:()=>services.operations.adminUsers()});
-  const loadError=Boolean(error&&!users);
-
-  if (loadError)
-    return (
-      <EmptyState
-        title="Məlumat yüklənmədi"
-        body="Xidmət hazırda cavab vermir."
-        action={
-          <Button onClick={() => window.location.reload()}>
-            Yenidən yoxla
-          </Button>
-        }
-      />
-    );
-  return (
-    <>
-      <PageHeader
-        eyebrow="Rollar və icazələr"
-        title="Admin istifadəçiləri"
-        description="Rolun interfeysdə göstərilməsi icazə vermir; bütün icazələri server yoxlamalıdır."
-        actions={<Button disabled>Admin dəvət et</Button>}
-      />
-      {!users ? (
-        <LoadingSkeleton variant="table" rows={5} />
-      ) : (
-        <div className="admin-user-list">
-          {users.map((user) => (
-            <article key={user.id}>
-              <span>
-                <UserCog size={21} />
-              </span>
-              <div>
-                <strong>{user.name}</strong>
-                <small>{user.email}</small>
-              </div>
-              <StatusBadge
-                status={user.status === "active" ? "approved" : "pending"}
-              >
-                {productTerm(user.status)}
-              </StatusBadge>
-              <div>
-                <b>{user.role}</b>
-                <small>
-                  {user.twoFactorEnabled ? "2FA aktivdir" : "2FA tələb olunur"}
-                </small>
-              </div>
-              <Button variant="ghost" disabled>
-                <KeyRound size={17} />
-                İcazələr
-              </Button>
-            </article>
-          ))}
-        </div>
-      )}
-      <section className="rbac-note">
-        <Users size={21} />
-        <div>
-          <strong>Rol cədvəli server icazələrini müəyyən edir</strong>
-          <p>
-            Super Admin, Tournament Manager, Result Operator və Support
-            Moderator rollarının hər xidmət üçün ayrıca icazələri olmalıdır.
-          </p>
-        </div>
-      </section>
-    </>
-  );
+import {useState,type FormEvent} from 'react';
+import {Button,EmptyState,Input,LoadingSkeleton,Modal,PageHeader,Select,StatusBadge} from '../../components/common/primitives';
+import {services} from '../../services';
+import {usePlatformQuery} from '../../services/queryCache';
+import type {AdminUser,AdminRoleKey} from '../../types/domain';
+const roles:Record<AdminRoleKey,string>={'super-admin':'Baş administrator','tournament-manager':'Turnir meneceri','result-operator':'Nəticə operatoru','support-moderator':'Dəstək moderatoru'};
+const roleOptions=Object.entries(roles).map(([value,label])=><option key={value} value={value}>{label}</option>);
+export function AdminUsersPage(){
+ const query=usePlatformQuery({key:'admin:users',query:()=>services.operations.adminUsers()}),users=query.data;
+ const [inviteOpen,setInviteOpen]=useState(false),[editing,setEditing]=useState<AdminUser>(),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
+ async function invite(event:FormEvent<HTMLFormElement>){event.preventDefault();if(busy)return;const data=new FormData(event.currentTarget);setBusy(true);setError('');try{await services.operations.inviteAdmin({email:String(data.get('email')),firstName:String(data.get('firstName')),lastName:String(data.get('lastName')),role:String(data.get('role')) as AdminRoleKey});setInviteOpen(false);setNotice('Administrator dəvəti göndərildi. Şifrəni alıcı özü yaradacaq.');}catch{setError('Dəvət tamamlanmadı. Hesab siyahıda gözləyirsə, qurulum məktubunu yenidən göndərin.');}finally{query.refetch();setBusy(false);}}
+ async function save(event:FormEvent<HTMLFormElement>){event.preventDefault();if(!editing||busy)return;const data=new FormData(event.currentTarget);setBusy(true);setError('');try{await services.operations.updateAdmin(editing.id,{role:String(data.get('role')) as AdminRoleKey,active:data.get('active')==='true'});setEditing(undefined);setNotice('İcazələr saxlanıldı. Dəyişdirilmiş hesabın əvvəlki sessiyaları bağlandı.');query.refetch();}catch{setError('İcazələr dəyişdirilmədi. Öz girişinizi və son baş administratoru ləğv edə bilməzsiniz.');}finally{setBusy(false);}}
+ async function resend(id:string){if(busy)return;setBusy(true);setError('');try{await services.operations.resendAdminSetup(id);setNotice('Qurulum məktubu yenidən göndərildi.');}catch{setError('Məktub göndərilmədi. Hesabın gözləmə vəziyyətini və poçt xidmətini yoxlayın.');}finally{setBusy(false);}}
+ if(query.error&&!users)return <EmptyState title="Məlumat yüklənmədi" body="Administratorları idarə etmək üçün baş administrator icazəsi tələb olunur." action={<Button onClick={query.refetch}>Yenidən yoxla</Button>}/>;
+ return <><PageHeader eyebrow="Rollar və icazələr" title="Admin istifadəçiləri" description="Administrator girişini və səlahiyyətlərini idarə edin." actions={<Button onClick={()=>{setError('');setInviteOpen(true);}}>Admin dəvət et</Button>}/>
+ {notice&&<p role="status">{notice}</p>}{error&&<p role="alert">{error}</p>}
+ {!users?<LoadingSkeleton variant="table" rows={5}/>:<div className="admin-user-list">{users.map(user=><article key={user.id}><div><strong>{user.name}</strong><small>{user.email}</small></div><StatusBadge status={user.status==='active'?'approved':user.status==='invited'?'pending':'banned'}>{user.status==='active'?'Aktiv':user.status==='invited'?'Dəvət gözləyir':'Giriş dayandırılıb'}</StatusBadge><div><b>{roles[user.role]}</b><small>{user.twoFactorEnabled?'2FA aktivdir':'2FA aktiv deyil'}</small></div><Button variant="ghost" disabled={busy} onClick={()=>{setError('');setEditing(user);}}>İcazələr</Button>{user.status==='invited'&&<Button variant="secondary" disabled={busy} onClick={()=>void resend(user.id)}>Məktubu yenidən göndər</Button>}</article>)}</div>}
+ <Modal open={inviteOpen} title="Administrator dəvət et" onClose={()=>{if(!busy)setInviteOpen(false);}}><form className="operation-form" onSubmit={invite}><Input name="firstName" label="Ad" required maxLength={80}/><Input name="lastName" label="Soyad" required maxLength={80}/><Input name="email" type="email" label="E-poçt" required maxLength={254}/><Select name="role" label="Rol" defaultValue="support-moderator">{roleOptions}</Select><p>Alıcıya birdəfəlik şifrə qurulumu keçidi göndərilir.</p>{error&&<p role="alert">{error}</p>}<Button type="submit" loading={busy}>Dəvəti göndər</Button></form></Modal>
+ <Modal open={!!editing} title="Administrator icazələri" onClose={()=>{if(!busy)setEditing(undefined);}}>{editing&&<form key={editing.id} className="operation-form" onSubmit={save}><p>{editing.name} · {editing.email}</p><Select name="role" label="Rol" defaultValue={editing.role}>{roleOptions}</Select><Select name="active" label="Hesab girişi" defaultValue={editing.status==='suspended'?'false':'true'}><option value="true">Aktiv</option><option value="false">Dayandırılıb</option></Select><p>Rol və ya giriş dəyişdikdə həmin hesabın sessiyaları bağlanır.</p>{error&&<p role="alert">{error}</p>}<Button type="submit" loading={busy}>İcazələri saxla</Button></form>}</Modal>
+ </>;
 }

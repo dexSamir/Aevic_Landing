@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { TeamLogoTile } from '../common/primitives';
-import { Bell } from 'lucide-react';
+import { TeamFollowButton } from './TeamFollowButton';
 import { VerificationCrest } from './ProfileElements';
 import { serviceCapabilities, services } from '../../services';
 import { queryPolicy, usePlatformQuery } from '../../services/queryCache';
@@ -12,7 +12,7 @@ export function DirectoryTeamCard({ team, ordinal, compareMode, selected, ownTea
   const form = [...(team.form ?? profile.data?.form ?? [])].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt));
   const top10 = form.length ? Math.round(form.filter(item => item.placement <= 10).length / form.length * 100) : undefined;
   return <div role="listitem" tabIndex={0} aria-label={team.name} onKeyDown={event => { if (event.target !== event.currentTarget || !['Enter', ' '].includes(event.key)) return; event.preventDefault(); if (compareMode) onToggle(team.id); else onOpen(); }} className={`team-directory-card ${compareMode ? 'is-comparing' : ''} ${selected ? 'is-comparison-selected' : ''}`} onClick={event => { const nested = (event.target as HTMLElement).closest('a, button, input, label, select, [tabindex]'); if (nested && nested !== event.currentTarget) return; if (compareMode) onToggle(team.id); else onOpen(); }}>
-    <div className="directory-card-top"><span>{String(ordinal).padStart(2, '0')}</span><div className="directory-card-badges">{ownTeam && <span className="directory-own-team">Sizin komanda</span>}{registration && <Link className="directory-registration" to={`/tournaments/${registration.tournamentId}`} title={registration.label}>{registration.label}</Link>}</div><div className="directory-follow"><button type="button" disabled aria-label="Komandanı izləmə funksiyası tezliklə"><Bell size={15} aria-hidden="true" /><span>Tezliklə</span></button></div></div>
+    <div className="directory-card-top"><span>{String(ordinal).padStart(2, '0')}</span><div className="directory-card-badges">{ownTeam && <span className="directory-own-team">Sizin komanda</span>}{registration && <Link className="directory-registration" to={`/tournaments/${registration.tournamentId}`} title={registration.label}>{registration.label}</Link>}</div><div className="directory-follow"><TeamFollowButton teamId={team.id}/></div></div>
     {compareMode && <input className="team-directory-card__check" type="checkbox" aria-label={`${team.name} müqayisə üçün seç`} checked={selected} onChange={() => onToggle(team.id)} />}
     <TeamLogoTile revealVariant="names-only" id={team.id} name={team.name} tag={team.tag} logoUrl={team.logoUrl} profileHref={`/teams/${team.slug}`} selected={selected} onSelect={compareMode ? onToggle : undefined} meta={[`${team.rosterSize} oyunçu`, team.tier, team.sourceStatus].filter(Boolean).join(" · ")} />
     {team.verificationLevel && <div className="directory-verification"><VerificationCrest level={team.verificationLevel} /></div>}

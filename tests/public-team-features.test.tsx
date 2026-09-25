@@ -16,7 +16,7 @@ it('uses seasonal facts, supplied phone, current identity and clipboard fallback
  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: copy } });
  Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
  const view = render(<MemoryRouter><PublicTeamFeatures team={currentTeam} /></MemoryRouter>);
- const wrapped = screen.getByRole('region', { name: /mövsümü üçün hazırdır/ });
+ const wrapped = screen.getByRole('region', { name: /mövsümünün rəsmi nəticələri/ });
  expect(await within(wrapped).findByText('123')).toBeInTheDocument();
  expect(within(wrapped).getByText('17')).toBeInTheDocument();
  expect(within(wrapped).getByText('4')).toBeInTheDocument();

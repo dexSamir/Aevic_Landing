@@ -391,6 +391,8 @@ export interface PublicPlatformSnapshot {
 }
 
 export interface TeamPlatformSnapshot {
+  accountId?: ID;
+  workspaceRole?: TeamAuthorityRole;
   dataSource?: 'public.teams';
   historyAvailable?: boolean;
   unavailable?: Record<string, boolean>;
@@ -428,6 +430,7 @@ export interface AdminPlatformSnapshot {
 }
 
 export interface FollowState {
+  team?: PublicTeamSummary;
   entityType: FollowEntityType;
   entityId: ID;
   following: boolean;
@@ -987,6 +990,7 @@ export interface ResultDispute {
 }
 
 export interface SupportTicket {
+  attachments?: Array<{id:string;fileName:string;url:string}>;
   id: ID;
   category: 'account' | 'registration' | 'roster' | 'tournament' | 'results' | 'technical' | 'other';
   subject: string;
@@ -1003,7 +1007,7 @@ export interface AdminAuditEvent {
   entityType: string;
   entityId: ID;
   actorName: string;
-  actorRole: AdminRoleKey;
+  actorRole: AdminRoleKey | 'team' | 'account' | 'unknown';
   createdAt: ISODate;
   metadata: Record<string, string | number | boolean>;
 }
@@ -1116,9 +1120,10 @@ export interface MissedCheckIn {
 }
 
 export interface AdminPlayerDetail extends PublicPlayerProfile {
-  linkedAccount?: { userId: ID; emailHint: string; status: 'ACTIVE' | 'SUSPENDED' };
+  claims?: Array<{id: ID; claimantName: string; status: 'PENDING' | 'APPROVED' | 'REJECTED'; method: string; createdAt: ISODate; reason?: string}>;
+  linkedAccount?: { userId: ID; emailHint?: string; displayName?: string; status: 'ACTIVE' | 'SUSPENDED' };
   membershipHistory: MembershipHistoryEntry[];
-  tournamentHistory: Array<{ tournamentId: ID; tournamentName: string; playedAt: ISODate; rosterSnapshotId: ID }>;
+  tournamentHistory: Array<{ tournamentId: ID; tournamentName: string; playedAt?: ISODate; rosterSnapshotId: ID }>;
   eligibilityConflicts: Array<{ id: ID; reason: string; createdAt: ISODate; resolvedAt?: ISODate }>;
   sanctions: Array<{ id: ID; type: 'BAN' | 'SUSPENSION'; reason: string; startsAt: ISODate; endsAt?: ISODate }>;
   verification: VerificationRequest;

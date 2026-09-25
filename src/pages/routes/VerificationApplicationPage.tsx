@@ -74,8 +74,8 @@ export function VerificationApplicationPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Authoritative verification"
-        title="Verification müraciəti"
+        eyebrow="KOMANDA KİMLİYİ"
+        title="Komanda təsdiqi"
         description="Təsdiq nişanı yalnız müraciətiniz yoxlanılıb qəbul edildikdən sonra görünür."
       />
       {notice && (
@@ -97,11 +97,11 @@ export function VerificationApplicationPage() {
           </div>
         </section>
       )}
-      <form className="operation-form narrow-form" onSubmit={submit}>
+      {!['PENDING','APPROVED'].includes(request?.status??'')&&<form className="operation-form narrow-form" onSubmit={submit}>
         <Input name="representative" label="Səlahiyyətli nümayəndə" required />
         <Input
           name="website"
-          label="Rəsmi website/social URL"
+          label="Rəsmi sayt və ya sosial hesab"
           type="url"
           required
         />
@@ -109,7 +109,7 @@ export function VerificationApplicationPage() {
         <Button type="submit" loading={loading}>
           Müraciəti göndər
         </Button>
-      </form>
+      </form>}
     </>
   );
 }

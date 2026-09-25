@@ -14,6 +14,7 @@
     "server",
     "src/types/domain.ts",
     "src/utils/wrapped.ts",
-    "src/utils/competitionAnalytics.ts"
+    "src/utils/competitionAnalytics.ts",
+    "src/services/brandAssetValidation.ts"
   ]
 }

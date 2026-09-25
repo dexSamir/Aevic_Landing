@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, it, vi } from 'vitest';
 import { DirectoryTeamCard } from '../src/components/profile/DirectoryTeamCard';
-vi.mock('../src/services/queryCache', () => ({ queryPolicy: { publicCompetition: 1000 }, usePlatformQuery: () => ({ data: { form: [
+vi.mock('../src/services/queryCache', () => ({ queryPolicy: { publicCompetition: 1000 }, usePlatformQuery: ({key}:{key:string}) => key.startsWith('following:') ? ({data:key==='following:session'?null:[],loading:false}) : ({ data: { form: [
   { matchId: 'one', playedAt: '2026-08-04', placement: 3, wwcd: false, map: 'Erangel' },
   { matchId: 'two', playedAt: '2026-08-03', placement: 1, wwcd: true, map: 'Miramar' },
 ] }, loading: false }) }));

@@ -176,7 +176,7 @@ export function TournamentCreateForm() {
           loading={busy}
           disabled={!serviceCapabilities.tournamentCreation}
         >
-          Turniri yarat və qeydiyyatı aç
+          Qaralama turnir yarat
         </Button>
       </form>
     </>

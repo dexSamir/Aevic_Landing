@@ -10,6 +10,7 @@ SectionHeading,
 Textarea,
 Toast
 } from "../../components/common/primitives";
+import { SocialLinks } from "../../components/social/SocialLinks";
 import { services } from "../../services";
 import type {
 VerificationRequest
@@ -22,6 +23,7 @@ export function AdminVerificationDetailPage() {
   const [loaded, setLoaded] = useState(false);
   const [reason, setReason] = useState("");
   const [notice, setNotice] = useState("");
+  const [saving,setSaving]=useState(false);
   useEffect(() => {
     services.verifications
       .get(verificationId)
@@ -30,10 +32,12 @@ export function AdminVerificationDetailPage() {
       .finally(() => setLoaded(true));
   }, [verificationId]);
   const review = async (status: "APPROVED" | "REJECTED" | "REVOKED") => {
+    if(saving)return;
     if (!item || reason.trim().length < 10) {
       setNotice("Qərar üçün ən az 10 simvolluq faktiki səbəb yazın.");
       return;
     }
+    setSaving(true);
     try {
       setItem(
         await services.verifications.review(
@@ -48,7 +52,7 @@ export function AdminVerificationDetailPage() {
       setNotice(
         "Qərar saxlanılmadı. Müraciət dəyişmiş ola bilər; səhifəni yeniləyib yenidən yoxlayın.",
       );
-    }
+    } finally {setSaving(false);}
   };
   if (loadError)
     return (
@@ -112,6 +116,7 @@ export function AdminVerificationDetailPage() {
               <dd>{item.notes ?? "—"}</dd>
             </div>
           </dl>
+          <SocialLinks links={item.officialSocials} ownerName={item.entityName}/>
         </section>
         <form className="operation-form">
           <SectionHeading title="Qərar" />
@@ -123,13 +128,13 @@ export function AdminVerificationDetailPage() {
             required
           />
           <div className="decision-actions">
-            <Button onClick={() => void review("APPROVED")}>Təsdiqlə</Button>
-            <Button variant="danger" onClick={() => void review("REJECTED")}>
+            <Button disabled={item.status!=="PENDING"||saving} loading={saving} onClick={() => void review("APPROVED")}>Təsdiqlə</Button>
+            <Button disabled={item.status!=="PENDING"||saving} variant="danger" onClick={() => void review("REJECTED")}>
               Rədd et
             </Button>
             {item.status === "APPROVED" && (
-              <Button variant="danger" onClick={() => void review("REVOKED")}>
-                Revoke
+              <Button disabled={saving} variant="danger" onClick={() => void review("REVOKED")}>
+                Təsdiqi ləğv et
               </Button>
             )}
           </div>

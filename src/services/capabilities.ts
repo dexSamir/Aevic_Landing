@@ -5,11 +5,11 @@ export function createServiceCapabilities() {
   // the route manifest separately opts safe pages into unavailable-state rendering.
   return {
     publicSession: true, login: true, register: true, passwordRecovery: true,
-    teamWorkspace: true, adminWorkspace: false, publicPlayers: false,
-    publicMatches: false, publicRecords: false, publicSearch: true,
-    publicOrganizations: false, publicArchive: false, publicTeamHistory: true, resultPublishing: false,
-    tournamentCreation: false, platformSettings: false, bulkApproval: false,
-    ownershipTransfer: false, tournamentLifecycleWrites: false,
+    teamWorkspace: true, adminWorkspace: true, publicPlayers: true,
+    publicMatches: true, publicRecords: true, publicSearch: true,
+    publicOrganizations: true, publicArchive: true, publicTeamHistory: true, resultPublishing: true,
+    tournamentCreation: true, platformSettings: true, bulkApproval: true,
+    ownershipTransfer: true, tournamentLifecycleWrites: true,
   } as const;
 }
 

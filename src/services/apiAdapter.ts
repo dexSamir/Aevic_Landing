@@ -43,8 +43,10 @@ export function createApiServices(baseUrl: string): PlatformServices {
       admin: (signal) => request('/admin/context', { signal }),
     },
     auth: {
+      workspaces: () => request('/me/workspaces'),
+      selectWorkspace: (teamId) => request('/me/workspace',{method:'POST',body:{teamId}}),
       getSession: () => request('/me/session', { nullStatuses: [401, 403], timeoutMs: 30_000 }),
-      login: (email, password, remember = false) => request('/auth/login', { method: 'POST', body: { email, password, remember }, timeoutMs: 30_000 }),
+      login: (email, password, remember = false, admin = false, otp) => request(admin ? '/auth/admin/login' : '/auth/login', { method: 'POST', body: { email, password, remember, otp }, timeoutMs: 30_000 }),
       logout: () => request('/auth/logout', { method: 'POST' }),
       requestPasswordReset: (email) => request('/auth/password-reset', { method: 'POST', body: { email } }),
       inspectPasswordReset: (token) => request('/auth/password-reset/inspect', { method: 'POST', body: { token } }),
@@ -61,7 +63,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       revokeSession: (sessionId) => request(`/me/sessions/${encodeURIComponent(sessionId)}`, { method: 'DELETE' }),
       revokeOtherSessions: () => request('/me/sessions/others', { method: 'DELETE' }),
       twoFactorStatus: () => request('/me/2fa'),
-      beginTwoFactorSetup: () => request('/me/2fa/setup', { method: 'POST' }),
+      beginTwoFactorSetup: (password) => request('/me/2fa/setup', { method: 'POST',body:{password} }),
       verifyTwoFactorSetup: (setupId, code) => request('/me/2fa/setup/verification', { method: 'POST', body: { setupId, code } }),
       disableTwoFactor: (password, code) => request('/me/2fa', { method: 'DELETE', body: { password, code } }),
       regenerateRecoveryCodes: (password, code) => request('/me/2fa/recovery-codes', { method: 'POST', body: { password, code } }),
@@ -76,6 +78,8 @@ export function createApiServices(baseUrl: string): PlatformServices {
       submit: (body) => request('/registrations', { method: 'POST', headers: { 'Idempotency-Key': body.idempotencyKey }, body }),
     },
     tournaments: {
+      assignSlot:(id,body,key)=>request(`/admin/tournaments/${encodeURIComponent(id)}/slot-assignment`,{method:'POST',body,headers:{'Idempotency-Key':key}}),
+      correctCheckIn:(id,body,key)=>request(`/admin/tournaments/${encodeURIComponent(id)}/check-in-correction`,{method:'POST',body,headers:{'Idempotency-Key':key}}),
       update: (id,body) => request(`/admin/tournaments/${encodeURIComponent(id)}`,{method:'PATCH',body}),
       create: (body,idempotencyKey) => request('/admin/tournaments',{method:'POST',body,headers:{'Idempotency-Key':idempotencyKey}}),
       entries: id => request(`/admin/tournaments/${encodeURIComponent(id)}/entries`),
@@ -95,7 +99,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
     },
     teams: {
       current: () => request('/me/team'),
-      updateProfile: (teamId, body) => request(`/teams/${encodeURIComponent(teamId)}`, { method: 'PATCH', body: {name: body.name} }),
+      updateProfile: (teamId, body) => request(`/teams/${encodeURIComponent(teamId)}`, { method: 'PATCH', body }),
       updateRosterSlot: (teamId, slot, ign) => request(`/teams/${encodeURIComponent(teamId)}/roster/${slot}`, {method:'PUT',body:{ign}}),
       list: () => request('/teams'),
       setApproval: (teamId, status, reason) => request(`/admin/teams/${encodeURIComponent(teamId)}/approval`, { method: 'PATCH', body: { status, reason } }),
@@ -151,6 +155,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
     },
     search: { public: (value, cursor) => request(`/search${query({ q: value, cursor })}`) },
     players: {
+      claims: (id) => request(`/players/${encodeURIComponent(id)}/claims`),
       getBySlug: (slug) => request(`/players/${encodeURIComponent(slug)}`, { nullStatuses: [404] }),
       list: (search, cursor) => request(`/players${query({ search, cursor })}`),
       claim: (playerId, verificationMethod, evidence, idempotencyKey) => request(`/players/${encodeURIComponent(playerId)}/claims`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: { verificationMethod, evidence } }),
@@ -199,6 +204,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
     notifications: {
       inbox: () => request('/me/notifications'),
       messages: () => request('/me/messages'),
+      markMessageRead: (id) => request(`/me/messages/${encodeURIComponent(id)}/read`, { method: 'PUT' }),
       preferences: () => request('/me/notification-preferences'),
       updatePreferences: (body) => request('/me/notification-preferences', { method: 'PUT', body }),
       markRead: (id) => request(`/me/notifications/${encodeURIComponent(id)}/read`, { method: 'PUT' }),
@@ -218,6 +224,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       review: (id, status, note) => request(`/admin/disputes/${encodeURIComponent(id)}`, { method: 'PATCH', body: { status, note } }),
     },
     support: {
+      uploadAttachment:async(id,file)=>{const form=new FormData();form.append('file',file);const result=await requestJson<{id:string;fileName:string;url:string}>(`${root}/me/support/tickets/${encodeURIComponent(id)}/attachments`,{method:'POST',credentials:'include',body:form});invalidateQuery('support:');return result;},
       adminTicket: id => request(`/admin/support/tickets/${encodeURIComponent(id)}`,{nullStatuses:[404]}),
       adminReply: (id,body) => request(`/admin/support/tickets/${encodeURIComponent(id)}/messages`,{method:'POST',body}),
       listTickets: () => request('/me/support/tickets'),
@@ -229,6 +236,11 @@ export function createApiServices(baseUrl: string): PlatformServices {
       adminPage: (cursor, status) => request(`/admin/support/tickets${query({ cursor, status })}`),
     },
     operations: {
+      inviteAdmin: (body) => request('/admin/users',{method:'POST',body}),
+      updateAdmin: (id,body) => request(`/admin/users/${encodeURIComponent(id)}`,{method:'PATCH',body}),
+      resendAdminSetup: (id) => request(`/admin/users/${encodeURIComponent(id)}/setup-email`,{method:'POST'}),
+      bulkTeamReview: (teamIds,status,reason) => request('/admin/teams/bulk-approval',{method:'POST',body:{teamIds,status,reason}}),
+      reviewPlayerClaim: (id, status, reason) => request(`/admin/player-claims/${encodeURIComponent(id)}`, {method: 'PATCH', body: {status, reason}}),
       audit: () => request('/admin/audit'),
       adminUsers: () => request('/admin/users'),
       player: (playerId) => request(`/admin/players/${encodeURIComponent(playerId)}`, { nullStatuses: [404] }),
@@ -241,6 +253,9 @@ export function createApiServices(baseUrl: string): PlatformServices {
       review: (id, status, reason, expectedStatus) => request(`/admin/verifications/${encodeURIComponent(id)}`, { method: 'PATCH', body: { status, reason, expectedStatus } }),
     },
     admin: {
+      publicSettings: () => request('/public/settings'),
+      settings: () => request('/admin/settings'),
+      updateSettings: (body) => request('/admin/settings',{method:'PUT',body}),
       blacklist: () => request('/admin/blacklist'),
       ban: (teamId, reason, expiresAt) => request('/admin/blacklist', { method: 'POST', body: { teamId, reason, expiresAt } }),
       sendMessage: (body) => request('/admin/messages', { method: 'POST', body }),

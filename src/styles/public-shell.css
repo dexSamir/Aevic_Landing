@@ -117,3 +117,5 @@
   .site-footer__brand { grid-column: 1 / -1; }
   .site-footer__bottom { flex-wrap: wrap; }
 }
+
+.platform-announcement{margin-block:20px;padding:16px 20px;background:var(--color-surface,#191b21);border-radius:8px;line-height:1.6;overflow-wrap:anywhere}

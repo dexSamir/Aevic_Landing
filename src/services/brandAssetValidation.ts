@@ -8,7 +8,7 @@ export const brandAssetGuidance = {
 
 export function validateBrandAssetRequest(request: BrandUploadRequest): BrandAssetValidationResult {
   if (!['image/png', 'image/jpeg', 'image/webp'].includes(request.mimeType)) return { ok: false, reason: 'Use PNG, JPG or WebP.' };
-  if (request.sizeBytes > 6_000_000) return { ok: false, reason: 'The file must be 6 MB or smaller.' };
+  if (request.sizeBytes > 4_000_000) return { ok: false, reason: 'The file must be 4 MB or smaller.' };
   if (!Number.isFinite(request.width) || !Number.isFinite(request.height) || request.width < 1 || request.height < 1) return { ok: false, reason: 'Şəkil ölçüləri oxuna bilmədi. Başqa fayl seçin.' };
   const aspectRatio = request.width / request.height;
   if (request.assetType === 'logo') {

@@ -6,11 +6,11 @@ import { PlatformFooterSocials } from '../components/social/SocialLinks';
 import { serviceCapabilities } from '../services';
 
 /** Brand signature and configured public wayfinding, below the participation band. */
-export function PublicFooter({ showCta = true }: { showCta?: boolean }) {
+export function PublicFooter({ showCta = true, supportEmail, registrationEnabled }: { showCta?: boolean; supportEmail?:string; registrationEnabled?:boolean }) {
   const { pathname } = useLocation();
   const operational = ['/team', '/admin', '/account'].some((root) => pathname === root || pathname.startsWith(root + '/'));
   if (operational) return null;
-  return <>{showCta && pathname !== '/' && <section className="participation-band" aria-label="Rəqabətə qoşul"><div className="container"><div><span>KOMANDANI QUR.</span><strong>RƏQABƏTƏ QOŞUL.</strong><em>İRSİNİ BAŞLAT.</em></div><Link to={serviceCapabilities.register ? '/register' : '/regulations'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'Yarışa hazırlaş'}</span><ArrowRight size={20} aria-hidden="true" /></Link></div></section>}<footer className="site-footer">
+  return <>{showCta && pathname !== '/' && <section className="participation-band" aria-label="Rəqabətə qoşul"><div className="container"><div><span>KOMANDANI QUR.</span><strong>RƏQABƏTƏ QOŞUL.</strong><em>İRSİNİ BAŞLAT.</em></div><Link to={serviceCapabilities.register && registrationEnabled!==false ? '/register' : '/regulations'}><span>{serviceCapabilities.register && registrationEnabled!==false ? 'Komanda yarat' : 'Yarışa hazırlaş'}</span><ArrowRight size={20} aria-hidden="true" /></Link></div></section>}<footer className="site-footer">
     <div className="container site-footer__inner">
       <div className="site-footer__main">
         <section className="site-footer__brand" aria-label="AEVIC Esports">
@@ -25,6 +25,7 @@ export function PublicFooter({ showCta = true }: { showCta?: boolean }) {
         {<section className="site-footer__group site-footer__social">
           <h2>Bizi izlə</h2>
           <PlatformFooterSocials />
+          {supportEmail&&<a href={`mailto:${supportEmail}`}>Dəstək ilə əlaqə</a>}
         </section>}
       </div>
       <div className="site-footer__bottom">

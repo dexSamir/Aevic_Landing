@@ -10,10 +10,11 @@ const clean=(r:Record<string,unknown>)=>({...r,created_at:r.created_at instanceo
 export class PostgresCaptainStore implements CaptainStore {
  readonly sql:ReturnType<typeof postgres>;
  private readiness?:Promise<void>;
- constructor(url:string) {
+ constructor(url:string,allowLocal=false) {
   const u=new URL(url);const ref='nmjjibifcuzjlsvfcaaz';
-  if(!['postgres:','postgresql:'].includes(u.protocol)||!(u.hostname===`db.${ref}.supabase.co`||(u.hostname.endsWith('.pooler.supabase.com')&&decodeURIComponent(u.username).endsWith(`.${ref}`))))throw new ServiceError(503,'PRIVATE_DATABASE_NOT_CONFIGURED');
-  this.sql=postgres(url,{ssl:{rejectUnauthorized:true,ca:databaseCa},max:3,prepare:false,idle_timeout:20,connect_timeout:20,onnotice:()=>{},connection:{application_name:'aevic-captain',statement_timeout:8000,lock_timeout:3000}});
+  const local=allowLocal&&['localhost','127.0.0.1'].includes(u.hostname);
+  if(!['postgres:','postgresql:'].includes(u.protocol)||!(local||u.hostname===`db.${ref}.supabase.co`||(u.hostname.endsWith('.pooler.supabase.com')&&decodeURIComponent(u.username).endsWith(`.${ref}`))))throw new ServiceError(503,'PRIVATE_DATABASE_NOT_CONFIGURED');
+  this.sql=postgres(url,{ssl:local?false:{rejectUnauthorized:true,ca:databaseCa},max:3,prepare:false,idle_timeout:20,connect_timeout:20,onnotice:()=>{},connection:{application_name:'aevic-captain',statement_timeout:8000,lock_timeout:3000}});
  }
  ready() {
   // Concurrent requests share only the in-progress catalog check. Never retain

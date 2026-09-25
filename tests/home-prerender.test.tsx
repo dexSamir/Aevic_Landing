@@ -23,7 +23,8 @@ describe('Home first-paint rendering contract', () => {
       expect(html).toContain('Rəqabətin <em>yeni səhnəsi.</em>');
       expect(html).toContain('home-live-hero__media');
       expect(html).toContain('image/avif');
-      expect(html).toContain('Yarış məlumatı yoxlanılır…');
+      expect(html).toContain('loading-skeleton--rail');
+      expect(html).toContain('aria-busy="true"');
       expect(html).not.toContain('prerender-shell');
       expect(html.match(/<h1[ >]/g)).toHaveLength(1);
       expect(fetchSpy).not.toHaveBeenCalled();

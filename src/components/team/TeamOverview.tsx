@@ -69,7 +69,7 @@ export function TeamOverview() {
   const [, setTick] = useState(0);
   useEffect(() => {
     // Original-team snapshots have no temporal competition state to refresh.
-    if (data.dataSource === 'public.teams') return;
+    if (data.unavailable?.competition) return;
     const tick = () => { if (!document.hidden) setTick(value => value + 1); };
     const timer = window.setInterval(tick, 30_000);
     document.addEventListener('visibilitychange', tick);
@@ -78,7 +78,7 @@ export function TeamOverview() {
   const context = useTeamCompetitionContexts().current;
   const vm = buildTeamOverview(data, context);
   const verified = vm.team.approvalStatus === 'approved';
-  const contextLine = data.dataSource==='public.teams' ? `Tier: ${vm.team.tier??'—'} · Status: ${vm.team.sourceStatus??'—'} · Yarış və otaq məlumatları hələ əlçatan deyil.` : context ? [context.tournament.name, context.participation.groupLabel, context.participation.slotNumber ? `Slot #${context.participation.slotNumber}` : undefined].filter(Boolean).join(' · ') : 'Aktiv yarış iştirakı yoxdur.';
+  const contextLine = data.unavailable?.competition ? `Tier: ${vm.team.tier??'—'} · Status: ${vm.team.sourceStatus??'—'} · Yarış və otaq məlumatları hələ əlçatan deyil.` : context ? [context.tournament.name, context.participation.groupLabel, context.participation.slotNumber ? `Slot #${context.participation.slotNumber}` : undefined].filter(Boolean).join(' · ') : 'Aktiv yarış iştirakı yoxdur.';
   return <div className="team-overview">
     <header className="overview-identity">
       <div><span className="overview-eyebrow">// KAPİTAN XƏTTİ</span><h1 aria-label={vm.team.name}>{vm.team.name}{verified && <ShieldCheck aria-label="Təsdiqlənmiş komanda" />}</h1><p>{contextLine}</p></div>

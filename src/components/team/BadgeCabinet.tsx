@@ -70,13 +70,13 @@ export function BadgeCabinetEditor({ achievements, teamId }: { achievements: Tea
   const [saving, setSaving] = useState(false); const [notice, setNotice] = useState<'success' | 'error'>();
   const toggle = (achievement: TeamAchievement) => setSelected((items) => items.some((item) => item.id === achievement.id) ? items.filter((item) => item.id !== achievement.id) : items.length < 3 ? [...items, achievement] : items);
   const preview = selected.map((item, index) => ({ ...item, displayOrder: index + 1 }));
-  const save = async () => { setSaving(true); setNotice(undefined); try { await services.achievements.saveFeatured(teamId, selected.map((item) => item.id)); setNotice('success'); } catch { setNotice('error'); } finally { setSaving(false); } };
+  const save = async () => { if(saving)return;setSaving(true); setNotice(undefined); try { await services.achievements.saveFeatured(teamId, selected.map((item) => item.id)); setNotice('success'); } catch { setNotice('error'); } finally { setSaving(false); } };
   return <div className="badge-editor">
-    {notice && <Toast tone={notice} title={notice === 'success' ? 'Badge Cabinet saxlanıldı' : 'Yadda saxlamaq mümkün olmadı'} body={notice === 'error' ? 'Yenidən cəhd edin. Production-da backend ownership yoxlaması tələb olunur.' : 'Public team profilində bu sıra göstəriləcək.'} onClose={() => setNotice(undefined)} />}
+    {notice && <Toast tone={notice} title={notice === 'success' ? 'Badge Cabinet saxlanıldı' : 'Yadda saxlamaq mümkün olmadı'} body={notice === 'error' ? 'Seçimlər saxlanılmadı. Yenidən cəhd edin.' : 'Public team profilində bu sıra göstəriləcək.'} onClose={() => setNotice(undefined)} />}
     <section className="badge-editor__picker"><header><div><span>{selected.length} / 3 seçilib</span><h2>Qazanılmış nişanlar</h2></div><p>Yalnız qazanılmış nişanlar seçilə bilər.</p></header><div>{unlocked.map((achievement) => { const active = selected.some((item) => item.id === achievement.id); return <article key={achievement.id}><button type="button" aria-pressed={active} disabled={!active && selected.length === 3} onClick={() => toggle(achievement)}><AchievementMedal achievement={achievement} compact /><span>{active ? <><Check size={16} /> Seçilib</> : <>Seç <span className="sr-only">{achievement.title}</span></>}</span></button><Link to={`/team/badges/${achievement.id}`}>{achievement.title} detalı</Link></article>; })}</div></section>
     <section className="badge-editor__order"><header><div><span>Public sıra</span><h2>Sıranı idarə et</h2></div><p>Siçanla daşıyın və ya hər elementdəki yuxarı/aşağı düymələrindən istifadə edin.</p></header>{selected.length ? <BadgeReorderList items={selected} onChange={setSelected} /> : <div className="badge-editor__empty"><LockKeyhole size={24} /><p>Preview üçün ən az bir qazanılmış nişan seçin.</p></div>}</section>
     <section className="badge-editor__preview"><FeaturedBadgeCabinet achievements={preview} /></section>
-    <footer><span>Exactly three badges are shown when three are selected.</span><Button loading={saving} disabled={selected.length !== 3} icon={<Save size={17} />} onClick={save}>Cabinet-i saxla</Button></footer>
+    <footer><span>Profilinizdə ən çox üç qazanılmış nişan göstərin.</span><Button loading={saving} disabled={saving} icon={<Save size={17} />} onClick={save}>Cabinet-i saxla</Button></footer>
   </div>;
 }
 

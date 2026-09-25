@@ -6,6 +6,7 @@ Select,
 Textarea
 } from "../../components/common/primitives";
 import { services } from "../../services";
+import { invalidateQuery } from '../../services/queryCache';
 import { useAdminPlatformData } from "../../services/PlatformDataContext";
 import "../../styles/lifecycle.css";
 
@@ -27,9 +28,12 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
   const locked =
     Date.now() >= Date.parse(tournament.registrationDeadline) ||
     ["ongoing", "completed", "cancelled"].includes(tournament.status);
+  const terminal = ['completed', 'cancelled'].includes(tournament.status);
+  const nextStatuses: Record<string,string[]> = {draft:['draft','published'],published:['published','registration-open'],'registration-open':['registration-open','ongoing'],ongoing:['ongoing','completed'],completed:['completed'],cancelled:['cancelled']};
+  const statusLabels:Record<string,string> = {draft:'Qaralama',published:'Dərc edilib','registration-open':'Qeydiyyat açıqdır',ongoing:'Davam edir',completed:'Tamamlandı',cancelled:'Ləğv edildi'};
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (busy || !tournament.updatedAt) return;
+    if (busy || terminal || !tournament.updatedAt) return;
     setBusy(true);
     setNotice("");
     const data = new FormData(e.currentTarget);
@@ -52,9 +56,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
           .split("\n")
           .map((v) => v.trim())
           .filter(Boolean),
-        status: (locked
-          ? tournament.status
-          : value("status")) as typeof tournament.status,
+        status: value("status") as typeof tournament.status,
         expectedUpdatedAt: tournament.updatedAt,
         maxSlots: locked ? tournament.maxSlots : Number(value("maxSlots")),
         startsAt: time("startsAt"),
@@ -74,12 +76,14 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
             : new Date(value(`time:${m.id}`)).toISOString(),
         })),
       });
+      invalidateQuery("snapshot:admin");
+      invalidateQuery("snapshot:public");
       setNotice("Turnir yeniləndi.");
     } catch (error) {
       setNotice(
         error instanceof Error &&
           "code" in error &&
-          error.code === "TOURNAMENT_VERSION_CONFLICT"
+          ["TOURNAMENT_VERSION_CONFLICT","STALE_VERSION"].includes(String(error.code))
           ? "Turnir başqa administrator tərəfindən dəyişdirilib. Məlumatları yeniləyib yenidən cəhd edin."
           : "Dəyişiklik saxlanılmadı. İcazəni, vaxtları və cədvəlin kilid vəziyyətini yoxlayın.",
       );
@@ -120,14 +124,9 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
           name="status"
           label="Nəşr statusu"
           defaultValue={tournament.status}
-          disabled={locked}
+          disabled={terminal}
         >
-          <option value="draft">Qaralama</option>
-          <option value="published">Dərc edilib</option>
-          <option value="registration-open">Qeydiyyat açıqdır</option>
-          {locked && (
-            <option value={tournament.status}>{tournament.status}</option>
-          )}
+          {(nextStatuses[tournament.status] ?? [tournament.status]).map(status => <option key={status} value={status}>{statusLabels[status] ?? status}</option>)}
         </Select>
         <p>
           Qeydiyyat olduqda turniri gizlətmək mümkün deyil. Qeydiyyat
@@ -196,7 +195,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
         <Button
           type="submit"
           loading={busy}
-          disabled={!tournament.updatedAt || tournament.status === "cancelled"}
+          disabled={!tournament.updatedAt || terminal}
         >
           Dəyişiklikləri saxla
         </Button>

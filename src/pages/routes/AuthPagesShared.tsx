@@ -37,7 +37,7 @@ export function restoreRegistrationDraft() {
   try {
     window.sessionStorage.removeItem('aevic-register-draft-v1');
     const stored = parseRegistrationDraft(window.sessionStorage.getItem(REGISTER_DRAFT_KEY));
-    if (stored) return {...stored,draft:{...stored.draft,tag:'',players:stored.draft.players.map(player=>({...player,uid:''}))}};
+    if (stored) return stored;
     window.sessionStorage.removeItem(REGISTER_DRAFT_KEY);
   } catch { /* Storage may be disabled; the form remains usable. */ }
   return { step: 1, draft: defaultDraft };
@@ -58,7 +58,7 @@ export function getStepErrors(step: number, draft: TeamRegistrationDraft, passwo
     else if (confirmation !== password) errors.confirmation = 'Şifrələr uyğun gəlmir.';
   }
   if (step === 3) {
-    draft.players.forEach((player,index)=>{if(index<4&&player.ign.trim().length<2)errors[`player-${index}-ign`]='Oyunçu adı ən azı 2 simvol olmalıdır.';});
+    draft.players.forEach((player,index)=>{if(index===4&&!player.ign&&!player.uid)return;if(player.ign.trim().length<2)errors[`player-${index}-ign`]='Oyunçu adı ən azı 2 simvol olmalıdır.';if(!/^\d{5,20}$/.test(player.uid))errors[`player-${index}-uid`]='PUBG ID 5–20 rəqəmdən ibarət olmalıdır.';else if(draft.players.some((other,i)=>i!==index&&other.uid===player.uid))errors[`player-${index}-uid`]='Bu PUBG ID heyətdə təkrarlanır.';});
   }
   return errors;
 }

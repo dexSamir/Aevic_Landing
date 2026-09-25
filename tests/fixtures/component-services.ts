@@ -69,6 +69,7 @@ const publishedRecords = () => buildFixtureRecords(currentTeam, matchHistory);
 
 const legacyUnavailable = async (): Promise<never> => { throw new Error('Legacy claim HTTP fixture must be explicitly configured'); };
 export const fixtureServices: PlatformServices = {
+  follows:{async list(){return [];},async status(entityType,entityId){return{entityType,entityId,following:false,source:'backend'};},mutate:backendRequired},
   legacyClaims: {activate:legacyUnavailable,list:legacyUnavailable,request:legacyUnavailable,consume:legacyUnavailable,roster:legacyUnavailable,completeRoster:legacyUnavailable,holdings:legacyUnavailable,queue:legacyUnavailable,review:legacyUnavailable},
   snapshots: {
     async public() { await wait(40); return clone({ tournaments, teams: publicTeamSummaries(), organizations, leaderboard, leaderboardTeams, playerPerformances, teamComparisonRecords, teamAchievements }); },
@@ -76,6 +77,8 @@ export const fixtureServices: PlatformServices = {
     async admin() { await wait(40); return clone({ currentTeam, tournaments, teams, matchSchedule, slots, adminMessages, blacklist, organizations, teamAchievements }); },
   },
   auth: {
+    async workspaces() { return [{id:currentTeam.id,name:currentTeam.name,role:"OWNER" as const}]; },
+    async selectWorkspace() {},
     async getSession() {
       await wait(40);
       if (mockRole === 'visitor') return null;
@@ -440,6 +443,7 @@ export const fixtureServices: PlatformServices = {
   notifications: {
     async inbox() { await wait(50); return clone(mockNotifications); },
     async messages() { await wait(50); return clone(adminMessages); },
+    async markMessageRead(id) { await wait(40); const message = adminMessages.find(item => item.id === id); if (message) message.read = true; },
     async preferences() { await wait(50); return clone(mockPreferences); },
     async updatePreferences(value) { await wait(); mockPreferences = clone(value); return clone(mockPreferences); },
     async markRead(id) { await wait(40); mockNotifications = mockNotifications.map((item) => item.id === id ? { ...item, read: true } : item); },

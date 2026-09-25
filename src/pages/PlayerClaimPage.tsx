@@ -1,4 +1,4 @@
-import { type FormEvent,useState } from "react";
+import { type FormEvent,useEffect,useState } from "react";
 import { useParams } from "react-router-dom";
 import "../app/workspaceStyles";
 import {
@@ -19,6 +19,10 @@ function formatDate(value: string) {
 
 export function PlayerClaimPage() {
   const { playerId = "" } = useParams();
+  const [claims,setClaims]=useState<Awaited<ReturnType<typeof services.players.claims>>>([]);
+  const [loaded,setLoaded]=useState(false);
+  const [loadError,setLoadError]=useState(false);
+  useEffect(()=>{let active=true;setLoaded(false);setLoadError(false);services.players.claims(playerId).then(rows=>{if(active)setClaims(rows);}).catch(()=>{if(active)setLoadError(true);}).finally(()=>{if(active)setLoaded(true);});return()=>{active=false;};},[playerId]);
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -26,7 +30,7 @@ export function PlayerClaimPage() {
     const data = new FormData(event.currentTarget);
     setLoading(true);
     try {
-      await services.players.claim(
+      const claim=await services.players.claim(
         playerId,
         data.get("method") as
           | "ACCOUNT_MATCH"
@@ -35,7 +39,8 @@ export function PlayerClaimPage() {
         [],
         crypto.randomUUID(),
       );
-      setNotice("Claim review üçün göndərildi.");
+      setClaims(previous=>[claim,...previous]);
+      setNotice("Müraciət yoxlama üçün göndərildi.");
     } catch {
       setNotice(
         "Müraciət saxlanılmadı. Yenidən cəhd edin; hesabın sizə aid olduğunu təsdiqləmək üçün əlavə yoxlama tələb oluna bilər.",
@@ -58,7 +63,10 @@ export function PlayerClaimPage() {
           onClose={() => setNotice("")}
         />
       )}
-      <form className="operation-form narrow-form" onSubmit={submit}>
+      {!loaded && <p role="status">Müraciətlər yüklənir…</p>}
+      {loadError && <p role="alert">Müraciətlər yüklənmədi. Səhifəni yenidən açın.</p>}
+      {claims.map(claim=><section key={claim.id}><h2>{claim.status==='PENDING'?'Yoxlanılır':claim.status==='APPROVED'?'Təsdiqləndi':'Rədd edildi'}</h2><p>{formatDate(claim.createdAt)}</p>{claim.safeReason&&<p>{claim.safeReason}</p>}</section>)}
+      {loaded&&!loadError&&!claims.some(c=>c.status==='PENDING'||c.status==='APPROVED')&&<form className="operation-form narrow-form" onSubmit={submit}>
         <Select
           name="method"
           label="Verification üsulu"
@@ -72,7 +80,7 @@ export function PlayerClaimPage() {
         <Button type="submit" loading={loading}>
           Claim review göndər
         </Button>
-      </form>
+      </form>}
     </>
   );
 }

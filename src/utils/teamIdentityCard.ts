@@ -179,7 +179,8 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
     context.fillStyle = 'rgba(255,255,255,.1)'; context.fillRect(76, 642, 928, 1);
     drawRoster(context, data, 76, 668, 928);
     if (stats.length) drawStats(context, stats, 52, 770, 976, stats.length, 104);
-    if (options.showQr) drawQrZone(context, data, assets.qr, 76, 900, 928, 136);
+    if (options.showQr) drawQrZone(context, data, assets.qr, 76, 880, 928, 116);
+    if (data.sourceLabel) { context.fillStyle = '#aaa69e'; context.font = '500 16px Raleway, sans-serif'; context.fillText(data.sourceLabel, 76, 1048, 928); }
   } else if (format === 'portrait') {
     drawLogo(context, data, assets.logo, 76, 300, 238);
     context.fillStyle = '#f3c450'; context.font = '700 18px Raleway, sans-serif'; context.fillText(`${data.teamTag || 'PUBG MOBILE'} · OFFICIAL TEAM IDENTITY`, 350, 370);
@@ -189,7 +190,7 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
     drawRoster(context, data, 76, 642, 928);
     if (stats.length) drawStats(context, stats, 52, 748, 976, stats.length, 112);
     if (options.showQr) drawQrZone(context, data, assets.qr, 72, 940, 936, 210);
-    if (data.sourceLabel) { context.fillStyle = '#8e8a82'; context.font = '500 16px Raleway, sans-serif'; context.fillText(data.sourceLabel, 72, 1268); }
+    if (data.sourceLabel) { context.fillStyle = '#8e8a82'; context.font = '500 16px Raleway, sans-serif'; context.fillText(data.sourceLabel, 72, 1268, 936); }
   } else {
     drawLogo(context, data, assets.logo, 390, 390, 300);
     context.textAlign = 'center'; context.fillStyle = '#f3c450'; context.font = '700 22px Raleway, sans-serif'; context.fillText(`${data.teamTag || 'PUBG MOBILE'} · AEVIC TEAM IDENTITY`, width / 2, 758);
@@ -199,7 +200,7 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
     drawRoster(context, data, 96, 1030, 888, true);
     if (stats.length) drawStats(context, stats, 72, 1170, 936, stats.length, 120);
     if (options.showQr) drawQrZone(context, data, assets.qr, 72, 1430, 936, 210);
-    if (data.sourceLabel || data.year) { context.fillStyle = '#8e8a82'; context.font = '500 17px Raleway, sans-serif'; context.fillText([data.sourceLabel, data.year].filter(Boolean).join(' · '), 72, 1770); }
+    if (data.sourceLabel || data.year) { context.fillStyle = '#8e8a82'; context.font = '500 17px Raleway, sans-serif'; context.fillText([data.sourceLabel, data.year].filter(Boolean).join(' · '), 72, 1770, 936); }
   }
 }
 

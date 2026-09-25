@@ -116,7 +116,7 @@ describe('session cache isolation', () => {
     let finish: ((value: string) => void) | undefined;
     const view = renderHook(() => usePlatformQuery({ key: 'late', query: (s) => { signal = s; return new Promise<string>((resolve) => { finish = resolve; }); } }));
     await waitFor(() => expect(signal).toBeDefined());
-    view.unmount(); expect(signal?.aborted).toBe(true);
+    view.unmount(); await waitFor(() => expect(signal?.aborted).toBe(true));
     finish?.('private-old');
     const fresh = renderHook(() => usePlatformQuery({ key: 'late', query: async () => 'new' }));
     await waitFor(() => expect(fresh.result.current.data).toBe('new'));

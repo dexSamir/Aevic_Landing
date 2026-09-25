@@ -48,6 +48,7 @@ export function drawWrappedSharecard(canvas: HTMLCanvasElement, summary: Wrapped
     context.fillStyle = '#b6b3ac'; context.font = `600 ${width * .026}px Raleway, sans-serif`; context.fillText('ƏN GÜCLÜ XƏRİTƏ', pad, height * .76);
     context.fillStyle = '#f3c450'; context.font = `800 ${width * .07}px Orbitron, sans-serif`; context.fillText(summary.bestMap.map.toLocaleUpperCase('az'), pad, height * .82);
   }
+  if (summary.historyIncomplete) { context.fillStyle = '#b6b3ac'; context.font = `500 ${width * .022}px Raleway, sans-serif`; context.fillText('Yalnız qeydə alınmış rəsmi nəticələr · Əvvəlki tarixçə tam deyil', pad, height * .9, width - pad * 2); }
   context.fillStyle = '#f5f4f0'; context.font = `700 ${width * .032}px Orbitron, sans-serif`; context.fillText('AEVIC', pad, height - pad * .62);
   context.fillStyle = '#8d8a83'; context.font = `500 ${width * .022}px Raleway, sans-serif`; context.textAlign = 'right'; context.fillText('aevic.gg', width - pad, height - pad * .62);
   context.textAlign = 'left';

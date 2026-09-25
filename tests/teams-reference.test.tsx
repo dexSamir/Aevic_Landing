@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TeamsDirectoryPage } from '../src/pages/ProfilePages';
@@ -11,6 +11,8 @@ vi.mock('../src/services', async importOriginal => { const actual = await import
 function Location() { const location = useLocation(); return <output data-testid="location">{location.pathname}{location.search}</output>; }
 function mount() { return render(<MemoryRouter initialEntries={['/teams']}><TeamsDirectoryPage /><PublicFooter showCta={false} /><Location /></MemoryRouter>); }
 beforeEach(() => {
+ vi.mocked(services.follows!.list).mockResolvedValue([]);
+ vi.mocked(services.follows!.mutate).mockImplementation(async mutation=>({...mutation,source:'backend'}));
  vi.spyOn(services.auth, 'getSession').mockResolvedValue({ user: currentTeam.captain, role: 'team' });
  vi.spyOn(services.teams, 'current').mockResolvedValue(currentTeam);
  vi.spyOn(services.tournaments, 'slots').mockImplementation(async id => id === tournaments[0].id ? [{ number: 1, tournamentId: id, teamId: currentTeam.id, state: 'occupied' }] : []);
@@ -35,17 +37,18 @@ describe('updated Teams reference', () => {
   await screen.findByText('Sizin komanda');
   expect(screen.queryByRole('link', { name: /Qeydiyyatda:|Canlı:/ })).not.toBeInTheDocument();
  });
- it('keeps future follow disabled even when a follow service exists', async () => {
+ it('persists follow without selecting or navigating the surrounding card', async () => {
   mount(); await screen.findByText('Sizin komanda');
-  const controls = screen.getAllByRole('button', { name: 'Komandanı izləmə funksiyası tezliklə' });
-  for (const control of controls) { expect(control).toBeDisabled(); expect(control).toHaveTextContent('Tezliklə'); fireEvent.click(control); }
+  const controls = screen.getAllByRole('button', { name: 'Komandanı izlə', exact:true });
+  await waitFor(()=>expect(controls[0]).toBeEnabled());
+  fireEvent.click(controls[0]);
+  await waitFor(()=>expect(services.follows!.mutate).toHaveBeenCalledWith({entityType:'TEAM',entityId:currentTeam.id,following:true}));
   expect(screen.getByTestId('location')).toHaveTextContent('/teams');
   fireEvent.click(screen.getByRole('button', { name: 'Müqayisə et', exact: true }));
-  fireEvent.click(controls[0]);
+  await waitFor(()=>expect(controls[0]).toBeEnabled());fireEvent.click(controls[0]);
   expect(screen.getAllByRole('checkbox').every(input => !(input as HTMLInputElement).checked)).toBe(true);
-  expect(services.follows!.list).not.toHaveBeenCalled();
+  expect(services.follows!.list).toHaveBeenCalled();
   expect(services.follows!.status).not.toHaveBeenCalled();
-  expect(services.follows!.mutate).not.toHaveBeenCalled();
  });
  it('opens and selects whole cards using the keyboard without activating nested controls', async () => {
   mount(); await screen.findByText('Sizin komanda');

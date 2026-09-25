@@ -1,5 +1,5 @@
 import {afterEach,expect,it,vi} from 'vitest';
-import {createApp} from '../../server/app';
+import {createNormalizedModuleApp as createApp} from '../fixtures/normalized-app';
 const userId='00000000-0000-4000-8000-000000000001',teamId='20000000-0000-4000-8000-000000000001';
 afterEach(()=>vi.unstubAllGlobals());
 it('existing-user login resolves migrated membership without signup or metadata role grants (Auth transport fixture)',async()=>{

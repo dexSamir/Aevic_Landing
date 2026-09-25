@@ -1,6 +1,6 @@
 import {createApiServices} from '../../src/services/apiAdapter';
 import {afterEach,expect,it,vi} from 'vitest';
-import {createApp} from '../../server/app';
+import {createNormalizedModuleApp as createApp} from '../fixtures/normalized-app';
 const uid='00000000-0000-4000-8000-000000000001',claimId='60000000-0000-4000-8000-000000000001';
 const config={supabaseUrl:'http://127.0.0.1:54321',publishableKey:'test',serviceKey:'test-service',siteUrl:'http://localhost:8888',secureCookies:false};
 const app=createApp(config),json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});

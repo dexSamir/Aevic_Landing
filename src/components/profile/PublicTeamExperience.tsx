@@ -1,15 +1,14 @@
-import { BellPlus, CalendarClock, Crown, GitCompareArrows, Share2, Swords, Trophy } from 'lucide-react';
+import { CalendarClock, Crown, GitCompareArrows, Share2, Swords, Trophy } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './public-roster.css';
-import { services } from '../../services';
+import { TeamFollowButton } from './TeamFollowButton';
 import type { MatchHistoryEntry, MatchScheduleItem, TeamMember } from '../../types/domain';
 import { Button, EmptyState, StatusBadge, Toast } from '../common/primitives';
 import { CalendarAction } from '../competition/CalendarAction';
 
 export function FollowTeamEntry({ teamId }: { teamId: string }) {
-  const supported = Boolean(services.follows);
-  return <Button variant="secondary" aria-pressed={false} aria-label={supported ? 'Komandanı izlə' : 'Komandanı izləmək üçün hesab-backed follow servisi tələb olunur'} disabled={!supported} title={supported ? 'Komandanı izlə' : 'İzləmə üçün hesab və backend tələb olunur'} icon={<BellPlus size={17} />}>{supported ? 'İzlə' : 'İzlə · tezliklə'}</Button>;
+  return <TeamFollowButton teamId={teamId}/>;
 }
 
 export function ShareProfileAction({ teamName }: { teamName: string }) {

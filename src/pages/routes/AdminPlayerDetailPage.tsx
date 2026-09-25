@@ -18,6 +18,15 @@ export function AdminPlayerDetailPage() {
   const { playerId = "" } = useParams();
   const [detail, setDetail] =
     useState<Awaited<ReturnType<typeof services.operations.player>>>();
+  const [reviewReason, setReviewReason] = useState<Record<string,string>>({});
+  const [reviewBusy, setReviewBusy] = useState<string>();
+  const [reviewError, setReviewError] = useState('');
+  async function review(id:string,status:'APPROVED'|'REJECTED') {
+    setReviewBusy(id);setReviewError('');
+    try {await services.operations.reviewPlayerClaim(id,status,reviewReason[id]??'');setDetail(await services.operations.player(playerId));}
+    catch {setReviewError('Müraciət yenilənmədi. Səbəbi və müraciətin cari vəziyyətini yoxlayın.');}
+    finally {setReviewBusy(undefined);}
+  }
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     services.operations
@@ -63,7 +72,7 @@ export function AdminPlayerDetailPage() {
           <dl className="detail-ledger">
             <div>
               <dt>Linked account</dt>
-              <dd>{detail.linkedAccount?.emailHint ?? "Bağlanmayıb"}</dd>
+              <dd>{detail.linkedAccount?.displayName ?? detail.linkedAccount?.emailHint ?? "Bağlanmayıb"}</dd>
             </div>
             <div>
               <dt>Cari komanda</dt>
@@ -84,6 +93,21 @@ export function AdminPlayerDetailPage() {
         </section>
       </div>
       <section>
+        <SectionHeading title="Oyunçu iddiaları" />
+        {reviewError && <p role="alert">{reviewError}</p>}
+        {!detail.claims?.length && <p>Müraciət yoxdur.</p>}
+        {detail.claims?.map(claim=><article key={claim.id} className="history-ledger">
+          <strong>{claim.claimantName}</strong><p>{claim.method} · {claim.status} · {formatDate(claim.createdAt)}</p>
+          {claim.reason && <p>{claim.reason}</p>}
+          {claim.status==='PENDING' && <>
+            <label htmlFor={`reason-${claim.id}`}>Yoxlamanın səbəbi (ən azı 10 simvol)</label>
+            <textarea id={`reason-${claim.id}`} minLength={10} maxLength={2000} value={reviewReason[claim.id]??''} onChange={e=>setReviewReason({...reviewReason,[claim.id]:e.target.value})} />
+            <Button disabled={!!reviewBusy||(reviewReason[claim.id]?.trim().length??0)<10} onClick={()=>void review(claim.id,'APPROVED')}>Təsdiqlə</Button>
+            <Button disabled={!!reviewBusy||(reviewReason[claim.id]?.trim().length??0)<10} onClick={()=>void review(claim.id,'REJECTED')}>Rədd et</Button>
+          </>}
+        </article>)}
+      </section>
+      <section>
         <SectionHeading title="Membership history" />
         {detail.membershipHistory.length ? (
           <div className="history-ledger">
@@ -94,8 +118,9 @@ export function AdminPlayerDetailPage() {
                 <span>{entry.role}</span>
                 <time>
                   {formatDate(entry.joinedAt)} —{" "}
-                  {entry.leftAt ? formatDate(entry.leftAt) : "davam edir"}
+                  {entry.leftAt ? formatDate(entry.leftAt) : entry.snapshotLabel ? "heyət qeydi" : "davam edir"}
                 </time>
+                {entry.snapshotLabel && <p>{entry.snapshotLabel}</p>}
               </article>
             ))}
           </div>

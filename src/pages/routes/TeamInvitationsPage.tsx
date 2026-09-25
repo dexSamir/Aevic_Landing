@@ -18,23 +18,27 @@ import { formatDate } from './TeamCompletionPagesShared';
 export function TeamInvitationsPage() {
   const [loadError, setLoadError] = useState(false);
   const [items, setItems] = useState<DurableInvitation[]>();
+  const [busy,setBusy]=useState(false);
+  const [cursor,setCursor]=useState<string>();
   const [notice, setNotice] = useState("");
   const load = () =>
     services.teams
       .invitations()
-      .then((page) => setItems(page.items))
+      .then((page) => {setItems(page.items);setCursor(page.nextCursor);setLoadError(false);})
       .catch(() => setLoadError(true));
   useEffect(() => {
     void load();
   }, []);
-  const respond = async (id: string, response: "ACCEPTED" | "REJECTED") => {
+  const respond = async (item: DurableInvitation, response: "ACCEPTED" | "REJECTED") => {
+    if(busy)return;setBusy(true);
     try {
-      await services.teams.respondToInvitation(
-        id,
+      await (item.type.startsWith("ORGANIZATION_")?services.organizations.respondToInvitation:services.teams.respondToInvitation)(
+        item.id,
         response,
         crypto.randomUUID(),
       );
       await load();
+      if(response==='ACCEPTED'&&!item.type.startsWith('ORGANIZATION_')){window.location.assign('/team');return;}
       setNotice(
         response === "ACCEPTED" ? "Dəvət qəbul edildi." : "Dəvət rədd edildi.",
       );
@@ -42,8 +46,9 @@ export function TeamInvitationsPage() {
       setNotice(
         "Qərar saxlanılmadı. Dəvətin müddətini və bağlantını yoxlayın.",
       );
-    }
+    }finally{setBusy(false);}
   };
+  async function more(){if(!cursor||busy)return;setBusy(true);try{const page=await services.teams.invitations(undefined,cursor);setItems(rows=>[...(rows??[]),...page.items]);setCursor(page.nextCursor);}catch{setNotice('Dəvətlər yüklənmədi.');}finally{setBusy(false);}}
   if (loadError)
     return (
       <EmptyState
@@ -89,12 +94,13 @@ export function TeamInvitationsPage() {
               <span>{item.status}</span>
               {item.status === "PENDING" && (
                 <div>
-                  <Button onClick={() => void respond(item.id, "ACCEPTED")}>
+                  <Button disabled={busy} onClick={() => void respond(item, "ACCEPTED")}>
                     Qəbul et
                   </Button>
                   <Button
                     variant="ghost"
-                    onClick={() => void respond(item.id, "REJECTED")}
+                    disabled={busy}
+                    onClick={() => void respond(item, "REJECTED")}
                   >
                     Rədd et
                   </Button>
@@ -102,6 +108,7 @@ export function TeamInvitationsPage() {
               )}
             </article>
           ))}
+          {cursor&&<Button disabled={busy} onClick={()=>void more()}>Daha çox</Button>}
         </div>
       ) : (
         <EmptyState

@@ -18,16 +18,18 @@ Trophy,
 UserRoundCog,
 Users
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link,useLocation } from 'react-router-dom';
 import { BrandMark } from '../components/brand/BrandMark';
 import { RouteTransitionOutlet } from '../components/common/Motion';
-import { Drawer,IconButton,StatusBadge,TeamLogo } from '../components/common/primitives';
+import { Drawer,IconButton,StatusBadge,TeamLogo,Select } from '../components/common/primitives';
 import { RouteSeo } from '../components/common/Seo';
 import { useTeamCompetitionContexts,useTeamPlatformData } from '../services/PlatformDataContext';
 import '../styles/public-shell.css';
 import type { Team } from '../types/domain';
 import { productRouteMetadata,type ProductArea } from '../utils/routeMetadata';
+import {services} from '../services';
+import {clearQueryCache} from '../services/queryCache';
 import { SidebarNav } from './WorkspaceNav';
 
 const teamLinks = [
@@ -75,6 +77,13 @@ function ProductTopbar({ metadata, admin = false, onMenu }: { metadata?: ReturnT
   return <header className="product-topbar"><div className="product-topbar__mobile-identity"><BrandMark variant="compact" /></div><div className="product-topbar__route"><span>{metadata?.parentLabel ?? (admin ? 'Admin' : 'Komanda iş sahəsi')}</span><strong>{metadata?.title ?? (admin ? 'Admin əməliyyatları' : 'Komanda iş sahəsi')}</strong></div><div className="product-topbar__actions">{!admin && <Link className="icon-button" aria-label="Bildirişlər" to="/team/notifications"><Bell size={19} /></Link>}<Link className="icon-button" aria-label={admin ? 'Admin hesabı' : 'Hesab ayarları'} title={admin ? 'Admin hesabı' : 'Hesab ayarları'} to={admin ? '/admin/users' : '/account/profile'}><CircleUserRound size={20} /></Link><IconButton className="product-topbar__menu" label="Naviqasiyanı aç" onClick={onMenu}><PanelLeft size={20} /></IconButton></div></header>;
 }
 
+function WorkspacePicker({currentId}:{currentId:string}) {
+ const [items,setItems]=useState<Awaited<ReturnType<typeof services.auth.workspaces>>>([]),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ useEffect(()=>{let active=true;services.auth.workspaces().then(rows=>{if(active)setItems(rows);}).catch(()=>{if(active)setError('İş sahələri yüklənmədi.');});return()=>{active=false;};},[]);
+ async function select(id:string){setBusy(true);setError('');try{await services.auth.selectWorkspace(id);clearQueryCache();window.location.assign('/team');}catch{setError('İş sahəsi dəyişdirilmədi.');setBusy(false);}}
+ return <div className="workspace-picker">{items.length>1&&<Select label="İş sahəsi" value={currentId} disabled={busy} onChange={e=>void select(e.target.value)}>{items.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</Select>}{error&&<p role="alert">{error}</p>}</div>;
+}
+
 function TeamIdentityBlock({ team, compact = false, onNavigate }: { team: Team; compact?: boolean; onNavigate?: () => void }) {
   const profilePath = `/teams/${encodeURIComponent(team.slug ?? team.id)}`;
   return <div className={compact ? 'team-identity team-identity--drawer drawer-identity' : 'team-identity'}><TeamLogo name={team.name} src={team.logoUrl} /><div className="team-identity__body"><strong title={team.name}>{team.name}</strong>{!compact && <StatusBadge status={team.approvalStatus} />}<Link to={profilePath} onClick={onNavigate}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link></div></div>;
@@ -89,7 +98,7 @@ export function TeamLayout() {
   const nextMatch = activeContext?.nextMatch;
   const activeTournament = activeContext?.tournament;
   const tournamentContext = nextMatch && activeTournament ? <Link className="sidebar-note sidebar-note--interactive" to={`/team/tournaments/${activeTournament.id}`} aria-label={`${nextMatch.map}, Raund ${nextMatch.round} turnir əməliyyatlarını aç`}><CalendarDays size={17} aria-hidden="true" /><span>Növbəti matç<strong>{nextMatch.map} · {new Date(nextMatch.startsAt).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baku' })}</strong></span><ChevronRight size={16} aria-hidden="true" /></Link> : <div className="sidebar-note sidebar-note--status"><CalendarDays size={17} aria-hidden="true" /><span>Növbəti matç<strong>Hələ planlanmayıb</strong></span></div>;
-  return <div className="product-shell product-shell--team"><RouteSeo /><aside className="product-sidebar"><BrandMark variant="navigation" /><TeamIdentityBlock team={team} /><SidebarNav links={teamLinks} unread={unread} />{tournamentContext}</aside><div className="product-main"><ProductTopbar metadata={productRouteMetadata(pathname, 'team')} team={team} onMenu={() => setMenuOpen(true)} /><main id="main-content" className="product-page" tabIndex={-1}>{team?.legacyHistoryIncomplete&&<aside role="status"><p>Əvvəlki tarixçə tam uzlaşdırılmayıb. Statistikalar yalnız yeni sistemdə dərc edilmiş nəticələri əhatə edir.</p>{team.roster.length!==5&&<Link to="/account/legacy-claim">Əvvəlki heyəti real oyunçu ID-ləri ilə tamamla</Link>}</aside>}<RouteTransitionOutlet family="team" /></main></div><Drawer open={menuOpen} title="Komanda paneli" onClose={() => setMenuOpen(false)}><TeamIdentityBlock team={team} compact onNavigate={() => setMenuOpen(false)} /><SidebarNav links={teamLinks} unread={unread} onNavigate={() => setMenuOpen(false)} />{nextMatch && activeTournament && <Link className="drawer-tournament-context" to={`/team/tournaments/${activeTournament.id}`} onClick={() => setMenuOpen(false)}>Növbəti matç · {nextMatch.map} · {new Date(nextMatch.startsAt).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baku' })}<ChevronRight size={16} aria-hidden="true" /></Link>}</Drawer></div>;
+  return <div className="product-shell product-shell--team"><RouteSeo /><aside className="product-sidebar"><BrandMark variant="navigation" /><TeamIdentityBlock team={team} /><WorkspacePicker currentId={team.id}/><SidebarNav links={teamLinks} unread={unread} />{tournamentContext}</aside><div className="product-main"><ProductTopbar metadata={productRouteMetadata(pathname, 'team')} team={team} onMenu={() => setMenuOpen(true)} /><main id="main-content" className="product-page" tabIndex={-1}>{team?.legacyHistoryIncomplete&&<aside className="history-scope-note" role="status"><p>Əvvəlki tarixçə tam uzlaşdırılmayıb. Statistikalar yalnız yeni sistemdə dərc edilmiş nəticələri əhatə edir.</p>{team.roster.some(player=>!player.uid)&&<Link to="/account/legacy-claim">Əvvəlki heyəti real oyunçu ID-ləri ilə tamamla</Link>}</aside>}<RouteTransitionOutlet family="team" /></main></div><Drawer open={menuOpen} title="Komanda paneli" onClose={() => setMenuOpen(false)}><TeamIdentityBlock team={team} compact onNavigate={() => setMenuOpen(false)} /><WorkspacePicker currentId={team.id}/><SidebarNav links={teamLinks} unread={unread} onNavigate={() => setMenuOpen(false)} />{nextMatch && activeTournament && <Link className="drawer-tournament-context" to={`/team/tournaments/${activeTournament.id}`} onClick={() => setMenuOpen(false)}>Növbəti matç · {nextMatch.map} · {new Date(nextMatch.startsAt).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baku' })}<ChevronRight size={16} aria-hidden="true" /></Link>}</Drawer></div>;
 }
 
 export function AdminLayout() {
