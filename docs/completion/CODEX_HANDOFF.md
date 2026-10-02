@@ -1,3 +1,11 @@
+# Production deployment authorization — 2026-10-02
+
+The user now authorizes committing the complete legitimate current project state, pushing main to origin and allowing the existing Netlify production deployment, followed only by read-only production smoke checks. This supersedes prior no-push/no-deploy instructions below. All existing source commits are included; no cherry-picking. Five generated local verification reports remain excluded. No application source has changed since the recorded passing TypeScript/build checks.
+
+No migrations, migration-history repair, environment changes, manual database mutations, replacement projects or first-admin email are authorized. Preserve original team IDs 2, 7, 8, 9, 10, 12, 16. Stop on critical deployment/runtime failure and report it; do not resume acceptance, SEO or optimization work. Deployment outcome must be verified externally and is not claimed by this pre-push checkpoint.
+
+---
+
 # Final commit checkpoint — 2026-10-02
 
 **SOURCE COMMIT: READY. PRODUCTION DEPLOYMENT: UNVERIFIED.** Phase 2 feature, SEO, performance and route-completion work stopped at the user's request. Commit locally only; do not push, deploy, mutate production or send the first-admin email.
