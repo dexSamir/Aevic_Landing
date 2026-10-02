@@ -9,7 +9,7 @@ export const teamIdentityCardSizes: Record<ProfileCardFormat, { width: number; h
 
 export interface TeamIdentityCardAssets {
   logo?: CanvasImageSource;
-  banner?: CanvasImageSource;
+  background?: CanvasImageSource;
   qr?: CanvasImageSource;
 }
 
@@ -158,7 +158,7 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
   const context = canvas.getContext('2d'); if (!context) return;
   context.fillStyle = '#070709'; context.fillRect(0, 0, width, height);
   const bannerHeight = format === 'story' ? 540 : format === 'portrait' ? 430 : 300;
-  if (assets.banner) { context.save(); context.globalAlpha = .72; drawCover(context, assets.banner, 0, 0, width, bannerHeight); context.restore(); }
+  if (assets.background) { context.save(); context.globalAlpha = .72; drawCover(context, assets.background, 0, 0, width, height); context.restore(); }
   const fade = context.createLinearGradient(0, 0, 0, bannerHeight + 260); fade.addColorStop(0, 'rgba(7,7,9,.22)'); fade.addColorStop(.68, 'rgba(7,7,9,.7)'); fade.addColorStop(1, '#070709'); context.fillStyle = fade; context.fillRect(0, 0, width, bannerHeight + 260);
   polygon(context, [[0, 0], [width * .22, 0], [width * .09, bannerHeight * .72], [0, bannerHeight]], 'rgba(106,27,154,.2)');
   polygon(context, [[width * .78, 0], [width, 0], [width, bannerHeight * .34], [width * .88, bannerHeight * .22]], 'rgba(243,196,80,.12)');
@@ -214,7 +214,7 @@ export function drawPublicTeamIdentityCard(canvas: HTMLCanvasElement, data: Team
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Canvas unavailable');
   context.fillStyle = '#080a0b'; context.fillRect(0, 0, 1200, 660);
-  if (assets.banner) drawCover(context, assets.banner, 0, 0, 950, 660);
+  if (assets.background) drawCover(context, assets.background, 0, 0, 950, 660);
   const shade = context.createLinearGradient(0, 0, 0, 660);
   shade.addColorStop(0, 'rgba(0,0,0,.65)'); shade.addColorStop(.4, 'rgba(0,0,0,0)'); shade.addColorStop(1, 'rgba(0,0,0,.8)');
   context.fillStyle = shade; context.fillRect(0, 0, 950, 660);

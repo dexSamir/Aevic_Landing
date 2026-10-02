@@ -1,3 +1,5 @@
+import { TeamAnalytics } from './TeamAnalytics';
+import { TeamIntelligence } from './TeamIntelligence';
 import { ArrowRight, CheckCircle2, Clock3, ExternalLink, KeyRound, ShieldCheck, Users } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -80,6 +82,7 @@ export function TeamOverview() {
   const verified = vm.team.approvalStatus === 'approved';
   const contextLine = data.unavailable?.competition ? `Tier: ${vm.team.tier??'—'} · Status: ${vm.team.sourceStatus??'—'} · Yarış və otaq məlumatları hələ əlçatan deyil.` : context ? [context.tournament.name, context.participation.groupLabel, context.participation.slotNumber ? `Slot #${context.participation.slotNumber}` : undefined].filter(Boolean).join(' · ') : 'Aktiv yarış iştirakı yoxdur.';
   return <div className="team-overview">
+    <TeamIntelligence />
     <header className="overview-identity">
       <div><span className="overview-eyebrow">// KAPİTAN XƏTTİ</span><h1 aria-label={vm.team.name}>{vm.team.name}{verified && <ShieldCheck aria-label="Təsdiqlənmiş komanda" />}</h1><p>{contextLine}</p></div>
       <nav aria-label="Komanda kontekst keçidləri"><Link to={`/teams/${encodeURIComponent(vm.team.slug ?? vm.team.id)}`}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link>{context && vm.tournamentHref && <Link className="overview-current-tournament" to={vm.tournamentHref}><span>AKTİV TURNİR</span>{context.tournament.shortName || context.tournament.name}<ArrowRight size={14} aria-hidden="true" /></Link>}</nav>
@@ -89,6 +92,7 @@ export function TeamOverview() {
     <OperationalRail vm={vm} />
     <dl className="team-stat-ledger" aria-label="Rəsmi komanda statistikası">{([['matches', 'Matç'], ['wwcd', 'WWCD'], ['championships', 'Çempionluq'], ['podiums', 'Podium']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{data.careerSummary.metrics.find(metric => metric.key === key)?.value ?? '—'}</dd></div>)}<div><dt>Heyət hazırlığı</dt><dd><Link className="overview-status--roster" to="/team/roster">{vm.activeRosterCount}/4 <Users size={17} /></Link></dd></div></dl>
     <RecentForm vm={vm} />
+    <TeamAnalytics history={data.matchHistory} />
     <OperationsCanvas vm={vm} />
     <section className="overview-updates">
       <SectionTitle action={<Link to="/team/notifications">Hamısını göstər <ArrowRight size={16} aria-hidden="true" /></Link>}>SON YENİLİKLƏR</SectionTitle>

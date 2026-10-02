@@ -751,20 +751,6 @@ html:has(.auth-identity)::-webkit-scrollbar, body:has(.auth-identity)::-webkit-s
  .auth-identity .team-identity-fields { gap: 14px; }
  .auth-identity .registration-agreement a { min-height: 44px; }
 }
-/* Native dialog owns focus trapping, Escape, and background inertness. */
-.team-logo-editor { width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 22px; overflow: auto; border: 1px solid var(--color-border); border-radius: 20px; background: var(--color-bg-deep); color: var(--color-text-primary); }
-.team-logo-editor::backdrop { background: rgba(0,0,0,.75); }
-.team-logo-editor h2 { font-size: 20px; }
-.team-logo-editor header p { font-size: 13px; line-height: 1.5; margin-top: 8px; color: var(--color-text-muted); }
-.team-logo-editor canvas { display: block; width: min(100%, 260px); aspect-ratio: 1; margin: 16px auto; border: 1px dashed var(--color-border-strong); background: var(--color-bg-secondary); touch-action: none; cursor: grab; }
-.team-logo-editor canvas:active { cursor: grabbing; }
-.team-logo-editor :is(button, input, canvas):focus-visible { outline: 2px solid var(--color-brand-primary); outline-offset: 3px; }
-.logo-editor-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
-.logo-editor-controls label { display: flex; gap: 6px; align-items: center; font-size: 12px; }
-.logo-editor-controls input { width: 100px; accent-color: var(--color-brand-primary); }
-.logo-editor-controls button, .logo-editor-position button { display: grid; place-items: center; min-width: 44px; min-height: 44px; padding: 8px; border: 1px solid var(--color-border); border-radius: 8px; color: var(--color-text-primary); background: var(--color-bg-secondary); cursor: pointer; }
-.logo-editor-position { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
-.team-logo-editor footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 16px; }
 .auth-identity .auth-availability--compact { display: block; font-size: 12px; }
 .auth-identity .auth-availability--compact summary { display: flex; align-items: center; gap: 8px; min-height: 28px; cursor: pointer; color: var(--color-text-muted); }
 .auth-identity .auth-availability--compact summary::after { content: '+'; margin-left: auto; color: var(--color-brand-primary); }

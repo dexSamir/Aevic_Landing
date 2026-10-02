@@ -39,9 +39,9 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
     void (async () => {
       const { drawPublicTeamIdentityCard, loadCardImage } = await import('../../utils/teamIdentityCard');
       await document.fonts?.ready;
-      const [banner, logo] = await Promise.all([loadCardImage(artwork), loadCardImage(data.teamLogo).catch(() => undefined)]);
+      const [background, logo] = await Promise.all([loadCardImage(artwork), loadCardImage(data.teamLogo).catch(() => undefined)]);
       if (cancelled || !canvas.current) return;
-      drawPublicTeamIdentityCard(canvas.current, data, { banner, logo }); setReady(true);
+      drawPublicTeamIdentityCard(canvas.current, data, { background, logo }); setReady(true);
     })().catch(() => { if (!cancelled) setNotice('Kart yüklənmədi. Səhifəni yeniləyib cəhd edin.'); });
     return () => { cancelled = true; };
   }, [data, visible]);

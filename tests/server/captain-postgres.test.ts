@@ -1,6 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {PostgresCaptainStore} from '../../server/captain/postgres';
 import postgres from 'postgres';
+import {PlatformAccountStore} from '../../server/platform/account-store';
 import {X509Certificate} from 'node:crypto';
 
 const {query} = vi.hoisted(() => ({query: vi.fn()}));
@@ -25,6 +26,18 @@ describe('existing bigint contract readiness', () => {
   expect(cert.ca).toBe(true);
   expect(cert.subject).toContain('Supabase');
   expect(Date.parse(cert.validTo)).toBeGreaterThan(Date.now());
+ });
+ it('shares a bounded non-pipelined pool between platform and auth stores',()=>{
+  const first=store(),second=new PlatformAccountStore('postgres://fixture@db.nmjjibifcuzjlsvfcaaz.supabase.co/postgres');
+  expect(first.sql).toBe(second.sql);
+  expect(vi.mocked(postgres).mock.calls[0][1]).toMatchObject({max:2,prepare:false,max_pipeline:1,max_lifetime:300});
+ });
+ it('uses transaction pooling on Lambda without rewriting local configuration',()=>{
+  const url='postgres://fixture.nmjjibifcuzjlsvfcaaz@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres';
+  new PostgresCaptainStore(url,false,true);
+  expect(new URL(String(vi.mocked(postgres).mock.calls.at(-1)![0])).port).toBe('6543');
+  new PostgresCaptainStore(url,false,false);
+  expect(new URL(String(vi.mocked(postgres).mock.calls.at(-1)![0])).port).toBe('5432');
  });
  it('accepts bigint with no default/identity so trigger-generated IDs do not block auth', async () => {
   query.mockResolvedValueOnce(columns()).mockResolvedValueOnce([{rolsuper:false}]).mockResolvedValueOnce([]);

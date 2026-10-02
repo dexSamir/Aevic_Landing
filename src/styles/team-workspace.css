@@ -292,7 +292,7 @@
 .product-shell--team .team-identity .status { background:transparent; padding:0; }
 .product-shell--team .tabs button { min-height:44px; padding:.625rem 1rem; }
 .product-shell--team :is(.career-nav a,.tabs button):hover { color:var(--team-text-primary); background:var(--team-surface-secondary); }
-.product-shell--team .career-nav a.active { box-shadow:inset 0 -2px var(--color-brand-primary); }
+.product-shell--team .career-nav a.active { box-shadow:none; }
 .product-shell--team .section-heading { align-items:flex-start; gap:1rem; flex-wrap:wrap; }
 .product-shell--team :is(.completion-grid > section,.completion-grid > form,.request-detail-grid > section,.request-detail-grid > aside,.operation-form) { padding:var(--workspace-gap); }
 .product-shell--team :is(.completion-grid,.request-detail-grid,.settings-workspace) { margin-bottom:var(--workspace-section); }

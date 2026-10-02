@@ -36,3 +36,7 @@
 @media (min-width: 1121px) { .public-team-hero { --public-team-hero-image: url('../../assets/official/public-team-hero-1983.webp'); --public-team-hero-image: image-set(url('../../assets/official/public-team-hero-1983.avif') type('image/avif'), url('../../assets/official/public-team-hero-1983.webp') type('image/webp')); } }
 
 .public-team-local-banner { width: 100%; height: 100%; object-fit: cover; opacity: .4; }
+
+/* Uploaded 16:5 compositions remain intact in the responsive identity shell. */
+.public-team-hero__banner.media-backdrop > picture > img,
+.public-team-hero .public-team-local-banner { object-fit: contain; }

@@ -86,8 +86,8 @@ export async function apiErrorFromResponse(response: Response) {
   return new ApiError({
     status: response.status,
     kind,
-    code: typeof payload.code === 'string' && ['ORIGINAL_AUTH_CONTRACT_UNAVAILABLE','ORIGINAL_CONTRACT_UNAVAILABLE','TOURNAMENT_STATE_CONTRACT_UNAVAILABLE','MATCH_RESULTS_CONTRACT_UNAVAILABLE','SERVER_NOT_CONFIGURED','TOURNAMENT_VERSION_CONFLICT','CAPABILITY_UNAVAILABLE','PLAYER_ADMIN_UNAVAILABLE','ACCOUNT_LOCKED', 'ALREADY_REGISTERED', 'FULL', 'REGISTRATION_CLOSED', 'INELIGIBLE', 'ROSTER_INCOMPLETE', 'PLAYER_CONFLICT', 'UNAUTHORIZED'].includes(payload.code) ? payload.code : undefined,
-    message: response.status === 501 ? 'Bu funksiya üçün mövcud məlumat və ya giriş xidməti hələ qoşulmayıb.' : undefined,
+    code: typeof payload.code === 'string' && ['SERVICE_UNAVAILABLE','ORIGINAL_AUTH_CONTRACT_UNAVAILABLE','ORIGINAL_CONTRACT_UNAVAILABLE','TOURNAMENT_STATE_CONTRACT_UNAVAILABLE','MATCH_RESULTS_CONTRACT_UNAVAILABLE','SERVER_NOT_CONFIGURED','TOURNAMENT_VERSION_CONFLICT','CAPABILITY_UNAVAILABLE','PLAYER_ADMIN_UNAVAILABLE','ACCOUNT_LOCKED', 'ALREADY_REGISTERED', 'FULL', 'REGISTRATION_CLOSED', 'INELIGIBLE', 'ROSTER_INCOMPLETE', 'PLAYER_CONFLICT', 'UNAUTHORIZED'].includes(payload.code) ? payload.code : undefined,
+    message: response.status === 503 ? 'Xidmət müvəqqəti əlçatan deyil. Bir az sonra yenidən cəhd edin.' : response.status === 501 ? 'Bu funksiya üçün mövcud məlumat və ya giriş xidməti hələ qoşulmayıb.' : undefined,
     // Never display untrusted server messages, stacks, SQL or field values.
     requestId: safeRequestId(payload.requestId) ?? safeRequestId(response.headers.get('x-request-id')),
     retryAllowed: response.headers.get('x-retryable') === 'false' ? false : undefined,

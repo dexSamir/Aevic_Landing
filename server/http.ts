@@ -16,7 +16,7 @@ export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=proces
   const durationMs=Math.round((performance.now()-started)*10)/10;
   c.header('Server-Timing',`app;dur=${durationMs}`);
   // Route templates only: never log URLs, query strings, bodies, cookies or errors.
-  console.info(JSON.stringify({event:'api_request',requestId:c.get('requestId'),route:c.req.routePath??'unmatched',method:c.req.method,status:c.res.status,durationMs,coldStart,version:/^[a-f0-9]{7,40}$/i.test(env.COMMIT_REF??'')?env.COMMIT_REF:'local',code:c.get('operationalError'),database:c.get('platform')?.metrics}));
+  console.info(JSON.stringify({event:'api_request',requestId:c.get('requestId'),route:c.req.routePath??'unmatched',method:c.req.method,status:c.res.status,durationMs,coldStart,version:/^[a-f0-9]{7,40}$/i.test(env.COMMIT_REF??'')?env.COMMIT_REF:/^[a-zA-Z0-9_-]{1,80}$/.test(env.DEPLOY_ID??'')?env.DEPLOY_ID:env.NETLIFY?'netlify-unknown':'local',code:c.get('operationalError'),database:c.get('platform')?.metrics,databaseFailure:c.get('databaseFailure')}));
  });
  app.use('*',async(c,next)=>{
   c.set('requestId',crypto.randomUUID());c.header('X-Request-Id',c.get('requestId'));c.header('Cache-Control','private, no-store');c.header('X-Content-Type-Options','nosniff');c.header('Referrer-Policy','no-referrer');
@@ -35,6 +35,10 @@ export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=proces
  app.onError((error,c)=>{
   const e=error instanceof ZodError?new ServiceError(422,'VALIDATION_ERROR',Object.fromEntries(error.issues.map(i=>[i.path.join('.'),'Dəyəri yoxlayın.']))):error instanceof ServiceError?error:new ServiceError(503,'SERVICE_UNAVAILABLE');
   c.set('operationalError',e.code);
+  // Allowlisted error codes only: never exception messages, SQL or connection URLs.
+  const cause=error&&typeof error==='object'&&'code' in error?String(error.code):'';
+  if(['CONNECT_TIMEOUT','CONNECTION_CLOSED','CONNECTION_ENDED','CONNECTION_DESTROYED','ECONNRESET','ECONNREFUSED','ETIMEDOUT','57P01','57P02','57P03','53300','53400','57014','55P03','42501','42P01','42703','XX000'].includes(cause))c.set('databaseFailure',cause);
+  if(e.status===503)c.header('Retry-After','3');
   // Deliberately no request body/error logging: auth, room and private fields can occur in errors.
   return c.json({code:e.code,message:e.status>=500?'Xidmət müvəqqəti əlçatan deyil.':'Sorğu tamamlanmadı.',fieldErrors:e.fieldErrors,requestId:c.get('requestId')},e.status);
  });

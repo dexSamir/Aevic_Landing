@@ -30,7 +30,7 @@ export function LoginPage({ admin = false }: { admin?: boolean }) {
       else if (nextError instanceof ApiError && nextError.kind === 'rate-limit') setError('Çox sayda giriş cəhdi edildi. Bir az sonra yenidən cəhd edin.');
       else if (nextError instanceof ApiError && nextError.kind === 'timeout') setError('Giriş sorğusu 30 saniyə ərzində tamamlanmadı. Bağlantını yoxlayıb yenidən cəhd edin.');
       else if (nextError instanceof ApiError && nextError.kind === 'network') setError('Serverlə bağlantı qurulmadı. İnternet və lokal server bağlantısını yoxlayın.');
-      else if (nextError instanceof ApiError && nextError.kind === 'server') setError(`Giriş serveri xəta qaytardı (${nextError.code || nextError.status}).${nextError.requestId ? ` Sorğu kodu: ${nextError.requestId}` : ''}`);
+      else if (nextError instanceof ApiError && nextError.kind === 'server') setError(`${nextError.message}${nextError.requestId ? ` Sorğu kodu: ${nextError.requestId}` : ''}`);
       else setError('Daxil olmaq mümkün olmadı. Email və şifrəni yoxlayın. Əvvəlki hesabınız varsa “Şifrəni unutmusunuz?” keçidi ilə yeni şifrə yaradın.');
     }
     finally { setLoading(false); }

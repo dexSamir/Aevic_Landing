@@ -81,7 +81,7 @@ export class Repository {
   });
  }
  async profile(slug:string):Promise<PublicTeamProfile> {
-  const team=await this.team(slug);if(team.approvalStatus!=='approved')throw new ServiceError(404,'TEAM_NOT_FOUND');
+  const team=await this.team(slug);if(team.archivedAt||!['approved','pending'].includes(team.approvalStatus))throw new ServiceError(404,'TEAM_NOT_FOUND');
   const [history,standings,schedule,registrations]=await Promise.all([this.history(team.id),this.standings(),this.schedule(),this.rows('tournament_registrations')]);
   const recentResults=standings.filter(r=>r.teamId===team.id);const badges=await achievements(this,team.id);const career=deriveCareerSummary(team.id,history,countChampionships(team.id,standings,await this.tournaments()));
   const legacy={foundedAt:team.foundedAt??team.registeredAt,tournaments:new Set(history.map(m=>m.tournamentId)).size,wins:history.filter(m=>m.wwcd).length,topPlacements:history.filter(m=>m.placement<=3).length,finishes:history.reduce((sum,m)=>sum+m.finishes,0),unlockedAchievements:badges.filter(a=>a.state==='unlocked').length};

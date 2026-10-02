@@ -4,17 +4,27 @@ import {ServiceError} from '../errors';
 import {databaseCa} from './database-ca';
 
 // Existing objects only: catalog reads, SELECT, INSERT and UPDATE. No DDL/RPC/migrations.
+const pools=new Map<string,ReturnType<typeof postgres>>();
 const projection='id::text,team_name,captain_name,captain_contact,email,password_hash,reset_token,player1_ign,player2_ign,player3_ign,player4_ign,player5_ign,logo_url,tier,status,created_at,rejection_reason,player1_photo_url,player2_photo_url,player3_photo_url,player4_photo_url,player5_photo_url,match_results';
 const allowed=new Set(['team_name','captain_name','captain_contact','logo_url',...[1,2,3,4,5].flatMap(i=>[`player${i}_ign`,`player${i}_photo_url`])]);
 const clean=(r:Record<string,unknown>)=>({...r,created_at:r.created_at instanceof Date?r.created_at.toISOString():r.created_at}) as unknown as CaptainRow;
 export class PostgresCaptainStore implements CaptainStore {
  readonly sql:ReturnType<typeof postgres>;
  private readiness?:Promise<void>;
- constructor(url:string,allowLocal=false) {
+ constructor(url:string,allowLocal=false,serverless=process.env.NETLIFY==='true'||Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME)) {
   const u=new URL(url);const ref='nmjjibifcuzjlsvfcaaz';
   const local=allowLocal&&['localhost','127.0.0.1'].includes(u.hostname);
   if(!['postgres:','postgresql:'].includes(u.protocol)||!(local||u.hostname===`db.${ref}.supabase.co`||(u.hostname.endsWith('.pooler.supabase.com')&&decodeURIComponent(u.username).endsWith(`.${ref}`))))throw new ServiceError(503,'PRIVATE_DATABASE_NOT_CONFIGURED');
-  this.sql=postgres(url,{ssl:local?false:{rejectUnauthorized:true,ca:databaseCa},max:3,prepare:false,idle_timeout:20,connect_timeout:20,onnotice:()=>{},connection:{application_name:'aevic-captain',statement_timeout:8000,lock_timeout:3000}});
+  // Shared Supavisor endpoints expose both modes on the same host. A warm
+  // Lambda must not reserve session-mode server connections between requests.
+  // Do not rewrite direct database endpoints or local development connections.
+  if(serverless&&u.hostname.endsWith('.pooler.supabase.com')&&(!u.port||u.port==='5432'))u.port='6543';
+  const connectionUrl=u.toString();
+  // postgres 3.4.9 supports max_pipeline at runtime (missing from its TS options).
+  // Supavisor transaction pooling cannot safely pipeline queries. Share one pool
+  // across the credential and platform adapters in each warm function.
+  this.sql=pools.get(connectionUrl)??postgres(connectionUrl,{ssl:local?false:{rejectUnauthorized:true,ca:databaseCa},max:2,prepare:false,...{max_pipeline:1},idle_timeout:20,max_lifetime:300,connect_timeout:10,onnotice:()=>{},connection:{application_name:'aevic-captain',statement_timeout:8000,lock_timeout:3000}});
+  pools.set(connectionUrl,this.sql);
  }
  ready() {
   // Concurrent requests share only the in-progress catalog check. Never retain

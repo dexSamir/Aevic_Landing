@@ -1,9 +1,12 @@
+import { TeamLogoEditor } from '../auth/TeamLogoEditor';
+import { brandAssetGuidance } from '../../services/brandAssetValidation';
 import { useState } from 'react';
 import { FileUpload } from '../common/primitives';
 import { services } from '../../services';
 import { invalidateQuery, updateCachedQuery } from '../../services/queryCache';
 import type { TeamPlatformSnapshot } from '../../types/domain';
 export default function TeamMediaPreview({ teamId, onPreview }: { teamId: string; onPreview: (type: 'logo' | 'banner', url: string) => void }) {
+ const [editing,setEditing]=useState<{file:File;type:'logo'|'banner'}>();
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const publish=async(file:File,assetType:'logo'|'banner')=>{
   if(busy)return;setBusy(true);setError('');setNotice('');let bitmap:ImageBitmap|undefined;
@@ -13,5 +16,5 @@ export default function TeamMediaPreview({ teamId, onPreview }: { teamId: string
    onPreview(assetType,result.previewUrl);updateCachedQuery<TeamPlatformSnapshot>('snapshot:team',v=>({...v,currentTeam:{...v.currentTeam,[assetType==='logo'?'logoUrl':'bannerUrl']:result.previewUrl}}));invalidateQuery('profile:');invalidateQuery('snapshot:public');setNotice(assetType==='logo'?'Loqo saxlanıldı.':'Banner saxlanıldı.');
   }catch{setError('Şəkil yüklənmədi. Formatı, ölçünü və bağlantını yoxlayın.');}finally{bitmap?.close();setBusy(false);}
  };
- return <div>{error&&<p role="alert" className="field__error">{error}</p>}{notice&&<p role="status">{notice}</p>}<div className="form-grid"><FileUpload disabled={busy} label="Komanda loqosu" accept={['image/png','image/jpeg','image/webp']} maxBytes={4_000_000} hint="PNG, JPG, WebP · 4 MB · Şəklin nisbəti saxlanılır" onFile={file=>void publish(file,'logo')} /><FileUpload disabled={busy} label="Komanda banneri" accept={['image/png','image/jpeg','image/webp']} maxBytes={4_000_000} hint="PNG, JPG, WebP · 4 MB" onFile={file=>void publish(file,'banner')} /></div>{busy&&<p role="status">Şəkil yüklənir…</p>}</div>;
+ return <div><p>Banner: 1600 × 500 px (16:5). Tam kəsim ölçüsü qorunur; profilin hündürlüyü ekran ölçüsünə görə dəyişir.</p>{error&&<p role="alert" className="field__error">{error}</p>}{notice&&<p role="status">{notice}</p>}<div className="form-grid"><FileUpload disabled={busy} label="Komanda loqosu" accept={['image/png','image/jpeg','image/webp']} maxBytes={4_000_000} hint="1024 × 1024 px · 1:1 · PNG, JPG, WebP · 4 MB" onFile={file=>setEditing({file,type:'logo'})} /><FileUpload disabled={busy} label="Komanda banneri" accept={['image/png','image/jpeg','image/webp']} maxBytes={4_000_000} hint="1600 × 500 px · 16:5 · PNG, JPG, WebP · 4 MB" onFile={file=>setEditing({file,type:'banner'})} /></div>{editing&&<TeamLogoEditor file={editing.file} fit={editing.type==='banner'?'cover':'contain'} width={editing.type==='banner'?brandAssetGuidance.teamBanner.recommendedWidth:1024} height={editing.type==='banner'?brandAssetGuidance.teamBanner.recommendedHeight:1024} title={editing.type==='banner'?'Komanda bannerini düzəlt':'Komanda loqosunu düzəlt'} onCancel={()=>setEditing(undefined)} onApply={file=>{const type=editing.type;setEditing(undefined);void publish(file,type);}} />}{busy&&<p role="status">Şəkil yüklənir…</p>}</div>;
 }

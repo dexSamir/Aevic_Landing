@@ -1,3 +1,4 @@
+import '../../styles/image-editor.css';
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -12,16 +13,19 @@ import {
 } from "lucide-react";
 import { Button } from "../common/primitives";
 
-/** Local square composition. Canvas stays transparent; only confirmation creates an output blob. */
+/** Shared aspect-locked crop. Only confirmation creates the upload/export file. */
 export function TeamLogoEditor({
   file,
+  width = 1024, height = 1024, fit = "contain", title = "Komanda loqosunu düzəlt",
   onCancel,
   onApply,
 }: {
   file: File;
+  width?: number; height?: number; title?: string; fit?: "contain" | "cover";
   onCancel: () => void;
   onApply: (file: File) => void;
 }) {
+  const minimumZoom = fit === "cover" ? 1 : 0.25;
   const dialog = useRef<HTMLDialogElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [source, setSource] = useState<HTMLImageElement | null>(null);
@@ -48,7 +52,10 @@ export function TeamLogoEditor({
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      if (mounted.current) setSource(img);
+      if (mounted.current) {
+        if(img.naturalWidth*img.naturalHeight>20_000_000){setError("Şəkil 20 meqapikseldən böyükdür. Daha kiçik şəkil seçin.");return;}
+        setSource(img);
+      }
     };
     img.onerror = () => {
       if (mounted.current)
@@ -63,13 +70,17 @@ export function TeamLogoEditor({
   const draw = (target: HTMLCanvasElement) => {
     const context = target.getContext("2d");
     if (!context || !source) return;
-    const size = target.width;
-    context.clearRect(0, 0, size, size);
+    const size = target.width, tall = target.height;
+    const turned = Math.abs(rotation % 180) === 90;
+    const sw = turned ? source.naturalHeight : source.naturalWidth;
+    const sh = turned ? source.naturalWidth : source.naturalHeight;
+    const scale = (fit === "cover" ? Math.max(size / sw, tall / sh) : Math.min(size / sw, tall / sh)) * zoom;
+    const x = fit === "contain" ? size * offset.x : Math.max(-(sw * scale - size) / 2, Math.min((sw * scale - size) / 2, size * offset.x));
+    const y = fit === "contain" ? tall * offset.y : Math.max(-(sh * scale - tall) / 2, Math.min((sh * scale - tall) / 2, tall * offset.y));
+    context.clearRect(0, 0, size, tall);
     context.save();
-    context.translate(size * (0.5 + offset.x), size * (0.5 + offset.y));
+    context.translate(size / 2 + x, tall / 2 + y);
     context.rotate((rotation * Math.PI) / 180);
-    const scale =
-      (size / Math.max(source.naturalWidth, source.naturalHeight)) * zoom;
     context.scale(scale, scale);
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = "high";
@@ -82,7 +93,7 @@ export function TeamLogoEditor({
   };
   useEffect(() => {
     if (canvas.current) draw(canvas.current);
-  }, [source, zoom, rotation, offset]);
+  }, [source, zoom, rotation, offset, width, height, fit]);
   const move = (x: number, y: number) =>
     setOffset({
       x: Math.max(-1, Math.min(1, x)),
@@ -92,16 +103,16 @@ export function TeamLogoEditor({
     if (!source || saving) return;
     setSaving(true);
     const output = document.createElement("canvas");
-    output.width = output.height = 1024;
+    output.width = width; output.height = height;
     draw(output);
     output.toBlob((blob) => {
       if (!mounted.current) return;
-      if (!blob) {
-        setError("Şəkli hazırlamaq mümkün olmadı. Yenidən cəhd edin.");
+      if (!blob || blob.size > 4_000_000) {
+        setError("Şəkil hazırlana bilmədi və ya 4 MB həddini aşdı. Başqa şəkil seçin.");
         setSaving(false);
         return;
       }
-      onApply(new File([blob], "team-logo.png", { type: "image/png" }));
+      onApply(new File([blob], "team-image.png", { type: "image/png" }));
     }, "image/png");
   };
   return createPortal(
@@ -132,15 +143,16 @@ export function TeamLogoEditor({
       }}
     >
       <header>
-        <h2 id="logo-editor-title">Komanda loqosunu düzəlt</h2>
-        <p>Kvadrat çərçivədə sürüşdürün və ölçünü seçin. Şəffaflıq qorunur.</p>
+        <h2 id="logo-editor-title">{title}</h2>
+        <p>{width} × {height} px · Çərçivədə görünən hissə saxlanılır. Sürüşdürün və ölçünü seçin.</p>
       </header>
       <canvas
         ref={canvas}
         width={512}
-        height={512}
+        height={Math.round(512 * height / width)}
+        style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, 360px, ${48*width/height}dvh)` }}
         tabIndex={0}
-        aria-label="Loqo kəsimi. Mövqeyi dəyişmək üçün ox düymələrindən istifadə edin."
+        aria-label="Şəkil kəsimi. Mövqeyi dəyişmək üçün ox düymələrindən istifadə edin."
         onKeyDown={(event) => {
           const delta: Record<string, [number, number]> = {
             ArrowLeft: [-0.02, 0],
@@ -163,7 +175,7 @@ export function TeamLogoEditor({
           const size = event.currentTarget.getBoundingClientRect().width;
           move(
             drag.current.start.x + (event.clientX - drag.current.x) / size,
-            drag.current.start.y + (event.clientY - drag.current.y) / size,
+            drag.current.start.y + (event.clientY - drag.current.y) / event.currentTarget.getBoundingClientRect().height,
           );
         }}
         onPointerUp={() => {
@@ -177,17 +189,17 @@ export function TeamLogoEditor({
         <button
           type="button"
           aria-label="Kiçilt"
-          disabled={zoom <= 0.25}
-          onClick={() => setZoom((value) => Math.max(0.25, value - 0.1))}
+          disabled={zoom <= minimumZoom}
+          onClick={() => setZoom((value) => Math.max(minimumZoom, value - 0.1))}
         >
           <ZoomOut size={18} />
         </button>
         <label>
           Ölçü{" "}
           <input
-            aria-label="Loqo ölçüsü"
+            aria-label="Şəkil ölçüsü"
             type="range"
-            min="0.25"
+            min={minimumZoom}
             max="4"
             step="0.05"
             value={zoom}
@@ -227,7 +239,7 @@ export function TeamLogoEditor({
           Sıfırla
         </button>
       </div>
-      <div className="logo-editor-position" aria-label="Loqo mövqeyi">
+      <div className="logo-editor-position" aria-label="Şəkil mövqeyi">
         {[
           { label: "Sola çək", icon: ArrowLeft, x: -0.02, y: 0 },
           { label: "Yuxarı çək", icon: ArrowUp, x: 0, y: -0.02 },

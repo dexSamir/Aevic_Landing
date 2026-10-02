@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { Select } from '../common/primitives';
 import { deriveWrappedSummary, yearPeriod } from '../../utils/wrapped';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useTeamPlatformData } from '../../services/PlatformDataContext';
 import { competitionNow } from '../../services';
 
 export function CareerNav() {
-  return <nav className="career-nav" aria-label="Karyera bölmələri"><NavLink to="/team/career" end>Karyera xülasəsi</NavLink><NavLink to="/team/history">Matç tarixçəsi</NavLink><Link to="/team/career#maps">Xəritələr</Link><NavLink to="/team/comparison">Müqayisə</NavLink><NavLink to="/team/sharecards">Paylaşım studiyası</NavLink><Link to="/team/career#wrapped">Wrapped</Link></nav>;
+  const {pathname,hash}=useLocation();
+  const links=[['/team/career','Karyera xülasəsi'],['/team/history','Matç tarixçəsi'],['/team/career#maps','Xəritələr'],['/team/comparison','Müqayisə'],['/team/sharecards','Paylaşım studiyası'],['/team/career#wrapped','Wrapped']];
+  return <nav className="career-nav" aria-label="Karyera bölmələri">{links.map(([to,label])=>{const active=pathname+hash===to;return <Link key={to} to={to} className={active?'active':undefined} aria-current={active?'page':undefined}>{label}</Link>;})}</nav>;
 }
 export function TeamWrappedEntry({ year = competitionNow().getFullYear() }: { year?: number }) {
   const { currentTeam, matchHistory } = useTeamPlatformData();

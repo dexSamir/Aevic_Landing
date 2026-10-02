@@ -1,0 +1,4163 @@
+{
+  "scope": "Intermediate local production builds before final Home/accessibility refinements; synthetic HTTP fixtures, unthrottled. Fixture clocks invalidate LCP/CLS values of zero. This is render/transfer evidence, not functional acceptance or production timings. Final representative Lighthouse results are recorded separately.",
+  "rows": [
+    {
+      "id": "legacy_activation",
+      "path": "/activate-legacy",
+      "device": "desktop",
+      "before": {
+        "js": 492606,
+        "css": 180183,
+        "image": 73681,
+        "lcp": 152,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 492600,
+        "css": 180183,
+        "image": 73681,
+        "lcp": 80,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_legacy_claim",
+      "path": "/account/legacy-claim",
+      "device": "desktop",
+      "before": {
+        "js": 493995,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 372,
+        "cls": 0.0013111590685013718
+      },
+      "after": {
+        "js": 493989,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 344,
+        "cls": 0.03169125166109397
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_legacy_claims",
+      "path": "/admin/legacy-claims",
+      "device": "desktop",
+      "before": {
+        "js": 507041,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 507035,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0.013085475846278817
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_profile",
+      "path": "/team/profile",
+      "device": "desktop",
+      "before": {
+        "js": 745991,
+        "css": 287272,
+        "image": 90915,
+        "lcp": 504,
+        "cls": 0
+      },
+      "after": {
+        "js": 745985,
+        "css": 287272,
+        "image": 90915,
+        "lcp": 520,
+        "cls": 0.0014549802678112142
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_career",
+      "path": "/team/career",
+      "device": "desktop",
+      "before": {
+        "js": 737040,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 440,
+        "cls": 0
+      },
+      "after": {
+        "js": 737034,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 244,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "home",
+      "path": "/",
+      "device": "desktop",
+      "before": {
+        "js": 486424,
+        "css": 180183,
+        "image": 579247,
+        "lcp": 68,
+        "cls": 0.4326619994279942
+      },
+      "after": {
+        "js": 486418,
+        "css": 180183,
+        "image": 579247,
+        "lcp": 64,
+        "cls": 0.4326619994279942
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "tournaments",
+      "path": "/tournaments",
+      "device": "desktop",
+      "before": {
+        "js": 500898,
+        "css": 240265,
+        "image": 105911,
+        "lcp": 168,
+        "cls": 0.06309625138647762
+      },
+      "after": {
+        "js": 500892,
+        "css": 240265,
+        "image": 105911,
+        "lcp": 180,
+        "cls": 0.0641459356111754
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "tournaments_tournamentId_recap",
+      "path": "/tournaments/daily-cup-24/recap",
+      "device": "desktop",
+      "before": {
+        "js": 498090,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 208,
+        "cls": 0.23424447810169108
+      },
+      "after": {
+        "js": 498084,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 208,
+        "cls": 0.23424447810169108
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "tournaments_tournamentId",
+      "path": "/tournaments/daily-cup-24",
+      "device": "desktop",
+      "before": {
+        "js": 504947,
+        "css": 249381,
+        "image": 228023,
+        "lcp": 216,
+        "cls": 0.0014218898192354683
+      },
+      "after": {
+        "js": 505053,
+        "css": 249381,
+        "image": 228023,
+        "lcp": 192,
+        "cls": 0.0014218898192354683
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "leaderboard",
+      "path": "/leaderboard",
+      "device": "desktop",
+      "before": {
+        "js": 491865,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 124,
+        "cls": 0.19316209767031572
+      },
+      "after": {
+        "js": 491859,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 88,
+        "cls": 0.1942150847760738
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "regulations",
+      "path": "/regulations",
+      "device": "desktop",
+      "before": {
+        "js": 491719,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 108,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 491713,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 56,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "contact",
+      "path": "/contact",
+      "device": "desktop",
+      "before": {
+        "js": 491719,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 100,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 491713,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 100,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "privacy",
+      "path": "/privacy",
+      "device": "desktop",
+      "before": {
+        "js": 491719,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 491713,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "terms",
+      "path": "/terms",
+      "device": "desktop",
+      "before": {
+        "js": 491719,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 116,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 491713,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 32,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "support",
+      "path": "/support",
+      "device": "desktop",
+      "before": {
+        "js": 491127,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 40,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 491121,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 104,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "organizations",
+      "path": "/organizations",
+      "device": "desktop",
+      "before": {
+        "js": 493258,
+        "css": 263056,
+        "image": 17452,
+        "lcp": 88,
+        "cls": 0.08690724119754158
+      },
+      "after": {
+        "js": 493252,
+        "css": 263056,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0.08690724119754158
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "organizations_organizationSlug",
+      "path": "/organizations/caspian-vanguard",
+      "device": "desktop",
+      "before": {
+        "js": 507752,
+        "css": 263056,
+        "image": 20369,
+        "lcp": 188,
+        "cls": 0.1247429511678562
+      },
+      "after": {
+        "js": 507865,
+        "css": 263056,
+        "image": 20369,
+        "lcp": 88,
+        "cls": 0.12469569820199973
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "records",
+      "path": "/records",
+      "device": "desktop",
+      "before": {
+        "js": 495534,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 136,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 495528,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 96,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "records_recordId",
+      "path": "/records/record-1",
+      "device": "desktop",
+      "before": {
+        "js": 495853,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 152,
+        "cls": 0.8266775654859504
+      },
+      "after": {
+        "js": 495847,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 128,
+        "cls": 0.8266775654859504
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "teams",
+      "path": "/teams",
+      "device": "desktop",
+      "before": {
+        "js": 503838,
+        "css": 268285,
+        "image": 96900,
+        "lcp": 180,
+        "cls": 0.04063246618200231
+      },
+      "after": {
+        "js": 503867,
+        "css": 268285,
+        "image": 96900,
+        "lcp": 208,
+        "cls": 0.04063246618200231
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "teams_compare",
+      "path": "/teams/compare",
+      "device": "desktop",
+      "before": {
+        "js": 490841,
+        "css": 263056,
+        "image": 17452,
+        "lcp": 40,
+        "cls": 0.04959441671489198
+      },
+      "after": {
+        "js": 490835,
+        "css": 263056,
+        "image": 17452,
+        "lcp": 24,
+        "cls": 0.04959441671489198
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "teams_teamSlug_share_card",
+      "path": "/teams/caspian-wolves/share-card",
+      "device": "desktop",
+      "before": {
+        "js": 529466,
+        "css": 201197,
+        "image": 20369,
+        "lcp": 200,
+        "cls": 0.016809292916505913
+      },
+      "after": {
+        "js": 529460,
+        "css": 201197,
+        "image": 20369,
+        "lcp": 212,
+        "cls": 0.016809292916505913
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "teams_teamSlug",
+      "path": "/teams/caspian-wolves",
+      "device": "desktop",
+      "before": {
+        "js": 516965,
+        "css": 268285,
+        "image": 90915,
+        "lcp": 440,
+        "cls": 0.016809292916505913
+      },
+      "after": {
+        "js": 517214,
+        "css": 268285,
+        "image": 90915,
+        "lcp": 256,
+        "cls": 0.016809292916505913
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "matches",
+      "path": "/matches",
+      "device": "desktop",
+      "before": {
+        "js": 498933,
+        "css": 243373,
+        "image": 49238,
+        "lcp": 108,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 498927,
+        "css": 243373,
+        "image": 49238,
+        "lcp": 104,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "matches_matchId",
+      "path": "/matches/dc24-r1",
+      "device": "desktop",
+      "before": {
+        "js": 506012,
+        "css": 259714,
+        "image": 228023,
+        "lcp": 248,
+        "cls": 0.00629009005071695
+      },
+      "after": {
+        "js": 506118,
+        "css": 259714,
+        "image": 228023,
+        "lcp": 312,
+        "cls": 1.2971033134303467
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "search",
+      "path": "/search",
+      "device": "desktop",
+      "before": {
+        "js": 488299,
+        "css": 181587,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0.014322928622524433
+      },
+      "after": {
+        "js": 488444,
+        "css": 181587,
+        "image": 17452,
+        "lcp": 120,
+        "cls": 0.0014318497018068416
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "following",
+      "path": "/following",
+      "device": "desktop",
+      "before": {
+        "js": 489536,
+        "css": 181587,
+        "image": 17452,
+        "lcp": 36,
+        "cls": 0.050451174453714415
+      },
+      "after": {
+        "js": 489530,
+        "css": 181587,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0.04445360715261702
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "archive",
+      "path": "/archive",
+      "device": "desktop",
+      "before": {
+        "js": 489900,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 104,
+        "cls": 0.0015843157984101724
+      },
+      "after": {
+        "js": 489894,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0.0015843157984101724
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "403",
+      "path": "/403",
+      "device": "desktop",
+      "before": {
+        "js": 490560,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 128,
+        "cls": 0.0014318497018068416
+      },
+      "after": {
+        "js": 490554,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 92,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "500",
+      "path": "/500",
+      "device": "desktop",
+      "before": {
+        "js": 490560,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 136,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 490554,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "maintenance",
+      "path": "/maintenance",
+      "device": "desktop",
+      "before": {
+        "js": 490560,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 76,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 490554,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "offline",
+      "path": "/offline",
+      "device": "desktop",
+      "before": {
+        "js": 490560,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 76,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 490554,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 72,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "not_found",
+      "path": "/not-a-route",
+      "device": "desktop",
+      "before": {
+        "js": 490560,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 92,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 490554,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 88,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "teams_teamSlug_wrapped_year",
+      "path": "/teams/caspian-wolves/wrapped/2026",
+      "device": "desktop",
+      "before": {
+        "js": 503156,
+        "css": 189083,
+        "image": 17452,
+        "lcp": 172,
+        "cls": 0
+      },
+      "after": {
+        "js": 503150,
+        "css": 189083,
+        "image": 17452,
+        "lcp": 164,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "login",
+      "path": "/login",
+      "device": "desktop",
+      "before": {
+        "js": 499716,
+        "css": 244034,
+        "image": 41664,
+        "lcp": 124,
+        "cls": 0.0016136726117755486
+      },
+      "after": {
+        "js": 499710,
+        "css": 244034,
+        "image": 41664,
+        "lcp": 88,
+        "cls": 0.0016543858239026063
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "register",
+      "path": "/register",
+      "device": "desktop",
+      "before": {
+        "js": 519144,
+        "css": 244034,
+        "image": 43185,
+        "lcp": 100,
+        "cls": 0.015391363918895748
+      },
+      "after": {
+        "js": 519138,
+        "css": 244034,
+        "image": 43185,
+        "lcp": 100,
+        "cls": 0.0015664196459190672
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "forgot_password",
+      "path": "/forgot-password",
+      "device": "desktop",
+      "before": {
+        "js": 493936,
+        "css": 244034,
+        "image": 52725,
+        "lcp": 56,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 493930,
+        "css": 244034,
+        "image": 52725,
+        "lcp": 96,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "reset_password",
+      "path": "/reset-password",
+      "device": "desktop",
+      "before": {
+        "js": 495857,
+        "css": 239565,
+        "image": 52725,
+        "lcp": 28,
+        "cls": 0.05553629028152864
+      },
+      "after": {
+        "js": 495851,
+        "css": 239565,
+        "image": 52725,
+        "lcp": 92,
+        "cls": 0.05553629028152864
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "verify_email",
+      "path": "/verify-email",
+      "device": "desktop",
+      "before": {
+        "js": 493734,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 156,
+        "cls": 0.04934135953173226
+      },
+      "after": {
+        "js": 493728,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 176,
+        "cls": 0.04934135953173226
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "unauthorized",
+      "path": "/unauthorized",
+      "device": "desktop",
+      "before": {
+        "js": 492094,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 84,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 492088,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 96,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "session_expired",
+      "path": "/session-expired",
+      "device": "desktop",
+      "before": {
+        "js": 492094,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 80,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 492088,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 92,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_locked",
+      "path": "/account-locked",
+      "device": "desktop",
+      "before": {
+        "js": 492094,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 196,
+        "cls": 0.0014318497018068416
+      },
+      "after": {
+        "js": 492088,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 80,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "too_many_attempts",
+      "path": "/too-many-attempts",
+      "device": "desktop",
+      "before": {
+        "js": 492094,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 132,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 492088,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 72,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "forbidden",
+      "path": "/forbidden",
+      "device": "desktop",
+      "before": {
+        "js": 492094,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 148,
+        "cls": 0.0013845967359503602
+      },
+      "after": {
+        "js": 492088,
+        "css": 239565,
+        "image": 73681,
+        "lcp": 72,
+        "cls": 0.0013845967359503602
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_login",
+      "path": "/admin/login",
+      "device": "desktop",
+      "before": {
+        "js": 499716,
+        "css": 244034,
+        "image": 73681,
+        "lcp": 112,
+        "cls": 0.0008733100043402778
+      },
+      "after": {
+        "js": 499710,
+        "css": 244034,
+        "image": 73681,
+        "lcp": 28,
+        "cls": 0.0008733100043402778
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team",
+      "path": "/team",
+      "device": "desktop",
+      "before": {
+        "js": 749760,
+        "css": 277462,
+        "image": 17452,
+        "lcp": 472,
+        "cls": 0
+      },
+      "after": {
+        "js": 749754,
+        "css": 277462,
+        "image": 17452,
+        "lcp": 428,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_tournaments",
+      "path": "/team/tournaments",
+      "device": "desktop",
+      "before": {
+        "js": 735480,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 420,
+        "cls": 0.007303559563614541
+      },
+      "after": {
+        "js": 735474,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0.007303559563614541
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_tournaments_tournamentId",
+      "path": "/team/tournaments/daily-cup-24",
+      "device": "desktop",
+      "before": {
+        "js": 742950,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0.0027137195644718797
+      },
+      "after": {
+        "js": 742944,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_history",
+      "path": "/team/history",
+      "device": "desktop",
+      "before": {
+        "js": 738556,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 420,
+        "cls": 0.0014077273019547328
+      },
+      "after": {
+        "js": 738550,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0.0027137195644718797
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_comparison",
+      "path": "/team/comparison",
+      "device": "desktop",
+      "before": {
+        "js": 738281,
+        "css": 282043,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0.0014549802678112142
+      },
+      "after": {
+        "js": 738275,
+        "css": 282043,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_roster",
+      "path": "/team/roster",
+      "device": "desktop",
+      "before": {
+        "js": 736509,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 420,
+        "cls": 0
+      },
+      "after": {
+        "js": 736503,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 440,
+        "cls": 0.0014077273019547328
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_messages",
+      "path": "/team/messages",
+      "device": "desktop",
+      "before": {
+        "js": 733551,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 733545,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_notifications",
+      "path": "/team/notifications",
+      "device": "desktop",
+      "before": {
+        "js": 734209,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0.0027137195644718797
+      },
+      "after": {
+        "js": 734203,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 416,
+        "cls": 0.007303559563614541
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_roster_requests",
+      "path": "/team/roster-requests",
+      "device": "desktop",
+      "before": {
+        "js": 734144,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 420,
+        "cls": 0.0027137195644718797
+      },
+      "after": {
+        "js": 734138,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_roster_requests_requestId",
+      "path": "/team/roster-requests/RC-0021",
+      "device": "desktop",
+      "before": {
+        "js": 735992,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 60,
+        "cls": 0.0027137195644718797
+      },
+      "after": {
+        "js": 735986,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 408,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_disputes",
+      "path": "/team/disputes",
+      "device": "desktop",
+      "before": {
+        "js": 733974,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0.0027137195644718797
+      },
+      "after": {
+        "js": 733968,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0.0027137195644718797
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_disputes_new",
+      "path": "/team/disputes/new",
+      "device": "desktop",
+      "before": {
+        "js": 738037,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 44,
+        "cls": 0.007303559563614541
+      },
+      "after": {
+        "js": 738031,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_disputes_disputeId",
+      "path": "/team/disputes/DSP-0007",
+      "device": "desktop",
+      "before": {
+        "js": 735548,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0.0027137195644718797
+      },
+      "after": {
+        "js": 735542,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_sharecards",
+      "path": "/team/sharecards",
+      "device": "desktop",
+      "before": {
+        "js": 781253,
+        "css": 280266,
+        "image": 20369,
+        "lcp": 704,
+        "cls": 0.0014077273019547328
+      },
+      "after": {
+        "js": 781247,
+        "css": 280266,
+        "image": 20369,
+        "lcp": 720,
+        "cls": 0.0027137195644718797
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_badges",
+      "path": "/team/badges",
+      "device": "desktop",
+      "before": {
+        "js": 745216,
+        "css": 342125,
+        "image": 17452,
+        "lcp": 40,
+        "cls": 0.0027137195644718797
+      },
+      "after": {
+        "js": 745210,
+        "css": 342125,
+        "image": 17452,
+        "lcp": 408,
+        "cls": 0.0027137195644718797
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_badges_badgeId",
+      "path": "/team/badges/ach-top-four",
+      "device": "desktop",
+      "before": {
+        "js": 739383,
+        "css": 282043,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0.0027137195644718797
+      },
+      "after": {
+        "js": 739377,
+        "css": 282043,
+        "image": 17452,
+        "lcp": 432,
+        "cls": 0.0014549802678112142
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_invitations",
+      "path": "/team/invitations",
+      "device": "desktop",
+      "before": {
+        "js": 734515,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0
+      },
+      "after": {
+        "js": 734509,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0.0027137195644718797
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_settings_managers",
+      "path": "/team/settings/managers",
+      "device": "desktop",
+      "before": {
+        "js": 739190,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0.02625977232295953
+      },
+      "after": {
+        "js": 739184,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0.018951045953360765
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_verification",
+      "path": "/team/verification",
+      "device": "desktop",
+      "before": {
+        "js": 734560,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 734554,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 408,
+        "cls": 0.0027137195644718797
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_organization_organizationSlug",
+      "path": "/team/organization/caspian-vanguard",
+      "device": "desktop",
+      "before": {
+        "js": 738147,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 532,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 738141,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 548,
+        "cls": 0.0014077273019547328
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_settings",
+      "path": "/team/settings",
+      "device": "desktop",
+      "before": {
+        "js": 736956,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 416,
+        "cls": 0.0027188863704561044
+      },
+      "after": {
+        "js": 736950,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin",
+      "path": "/admin",
+      "device": "desktop",
+      "before": {
+        "js": 509271,
+        "css": 231510,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0
+      },
+      "after": {
+        "js": 509265,
+        "css": 231510,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_tournaments",
+      "path": "/admin/tournaments",
+      "device": "desktop",
+      "before": {
+        "js": 507310,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 507304,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_tournaments_new",
+      "path": "/admin/tournaments/new",
+      "device": "desktop",
+      "before": {
+        "js": 506691,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 380,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 506685,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0.007303559563614541
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_tournaments_tournamentId",
+      "path": "/admin/tournaments/daily-cup-24",
+      "device": "desktop",
+      "before": {
+        "js": 518144,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 518138,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 416,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_tournaments_tournamentId_lifecycle",
+      "path": "/admin/tournaments/daily-cup-24/lifecycle",
+      "device": "desktop",
+      "before": {
+        "js": 505578,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 416,
+        "cls": 0
+      },
+      "after": {
+        "js": 505572,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_check_ins_missed",
+      "path": "/admin/check-ins/missed",
+      "device": "desktop",
+      "before": {
+        "js": 504972,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 504966,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_teams",
+      "path": "/admin/teams",
+      "device": "desktop",
+      "before": {
+        "js": 508821,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 508815,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_teams_teamId",
+      "path": "/admin/teams/team-01",
+      "device": "desktop",
+      "before": {
+        "js": 506966,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 380,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 506960,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_organizations",
+      "path": "/admin/organizations",
+      "device": "desktop",
+      "before": {
+        "js": 507817,
+        "css": 312865,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 507811,
+        "css": 312865,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_results",
+      "path": "/admin/results",
+      "device": "desktop",
+      "before": {
+        "js": 507109,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 364,
+        "cls": 0.007303559563614541
+      },
+      "after": {
+        "js": 507103,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 432,
+        "cls": 0.007303559563614541
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_results_resultId_correct",
+      "path": "/admin/results/result-1/correct",
+      "device": "desktop",
+      "before": {
+        "js": 506255,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 420,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 506249,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 416,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_messages",
+      "path": "/admin/messages",
+      "device": "desktop",
+      "before": {
+        "js": 505311,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 505305,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 496,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_blacklist",
+      "path": "/admin/blacklist",
+      "device": "desktop",
+      "before": {
+        "js": 504206,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0.005997567301097394
+      },
+      "after": {
+        "js": 504200,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 380,
+        "cls": 0.005997567301097394
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_roster_requests",
+      "path": "/admin/roster-requests",
+      "device": "desktop",
+      "before": {
+        "js": 506154,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 384,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 506148,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_roster_requests_requestId",
+      "path": "/admin/roster-requests/RC-0021",
+      "device": "desktop",
+      "before": {
+        "js": 507471,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 507465,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_disputes",
+      "path": "/admin/disputes",
+      "device": "desktop",
+      "before": {
+        "js": 506058,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 380,
+        "cls": 0
+      },
+      "after": {
+        "js": 506052,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_disputes_disputeId",
+      "path": "/admin/disputes/DSP-0007",
+      "device": "desktop",
+      "before": {
+        "js": 507027,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 507021,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 384,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_players_playerId",
+      "path": "/admin/players/p1",
+      "device": "desktop",
+      "before": {
+        "js": 507452,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 368,
+        "cls": 0
+      },
+      "after": {
+        "js": 507446,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 36,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_verifications",
+      "path": "/admin/verifications",
+      "device": "desktop",
+      "before": {
+        "js": 505618,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 505612,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_verifications_verificationId",
+      "path": "/admin/verifications/verification-1",
+      "device": "desktop",
+      "before": {
+        "js": 506234,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 360,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 506228,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_support",
+      "path": "/admin/support",
+      "device": "desktop",
+      "before": {
+        "js": 505430,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 505424,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_audit",
+      "path": "/admin/audit",
+      "device": "desktop",
+      "before": {
+        "js": 506249,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 384,
+        "cls": 0
+      },
+      "after": {
+        "js": 506243,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 384,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_users",
+      "path": "/admin/users",
+      "device": "desktop",
+      "before": {
+        "js": 507757,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 24,
+        "cls": 0.0013059922625171469
+      },
+      "after": {
+        "js": 507751,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0.0013059922625171469
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_settings",
+      "path": "/admin/settings",
+      "device": "desktop",
+      "before": {
+        "js": 505204,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 368,
+        "cls": 0.0013111590685013718
+      },
+      "after": {
+        "js": 505198,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 408,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account",
+      "path": "/account",
+      "device": "desktop",
+      "before": {
+        "js": 494126,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0
+      },
+      "after": {
+        "js": 494120,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_profile",
+      "path": "/account/profile",
+      "device": "desktop",
+      "before": {
+        "js": 494126,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0.0013111590685013718
+      },
+      "after": {
+        "js": 494120,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 420,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_security",
+      "path": "/account/security",
+      "device": "desktop",
+      "before": {
+        "js": 496116,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 328,
+        "cls": 0
+      },
+      "after": {
+        "js": 496110,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_notifications",
+      "path": "/account/notifications",
+      "device": "desktop",
+      "before": {
+        "js": 491756,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 384,
+        "cls": 0
+      },
+      "after": {
+        "js": 491750,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 44,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_sessions",
+      "path": "/account/sessions",
+      "device": "desktop",
+      "before": {
+        "js": 491621,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 332,
+        "cls": 0.0013111590685013718
+      },
+      "after": {
+        "js": 491615,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 56,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_player_claim_playerId",
+      "path": "/account/player/claim/p1",
+      "device": "desktop",
+      "before": {
+        "js": 491939,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 336,
+        "cls": 0.0013111590685013718
+      },
+      "after": {
+        "js": 491933,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 64,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_support_tickets",
+      "path": "/account/support/tickets",
+      "device": "desktop",
+      "before": {
+        "js": 491416,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 336,
+        "cls": 0.0013111590685013718
+      },
+      "after": {
+        "js": 491410,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_support_tickets_new",
+      "path": "/account/support/tickets/new",
+      "device": "desktop",
+      "before": {
+        "js": 493874,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 328,
+        "cls": 0.0013111590685013718
+      },
+      "after": {
+        "js": 493868,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 44,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_support_tickets_ticketId",
+      "path": "/account/support/tickets/SUP-1042",
+      "device": "desktop",
+      "before": {
+        "js": 492434,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 316,
+        "cls": 0
+      },
+      "after": {
+        "js": 492428,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 32,
+        "cls": 0.0013111590685013718
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "legacy_activation",
+      "path": "/activate-legacy",
+      "device": "mobile",
+      "before": {
+        "js": 492606,
+        "css": 180183,
+        "image": 26670,
+        "lcp": 104,
+        "cls": 0
+      },
+      "after": {
+        "js": 492600,
+        "css": 180183,
+        "image": 26670,
+        "lcp": 92,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_legacy_claim",
+      "path": "/account/legacy-claim",
+      "device": "mobile",
+      "before": {
+        "js": 493995,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 332,
+        "cls": 0
+      },
+      "after": {
+        "js": 493989,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 328,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_legacy_claims",
+      "path": "/admin/legacy-claims",
+      "device": "mobile",
+      "before": {
+        "js": 507041,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 380,
+        "cls": 0
+      },
+      "after": {
+        "js": 507035,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 364,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_profile",
+      "path": "/team/profile",
+      "device": "mobile",
+      "before": {
+        "js": 745991,
+        "css": 287272,
+        "image": 28560,
+        "lcp": 396,
+        "cls": 0
+      },
+      "after": {
+        "js": 745985,
+        "css": 287272,
+        "image": 28560,
+        "lcp": 424,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_career",
+      "path": "/team/career",
+      "device": "mobile",
+      "before": {
+        "js": 737040,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 737034,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "home",
+      "path": "/",
+      "device": "mobile",
+      "before": {
+        "js": 486424,
+        "css": 180183,
+        "image": 109257,
+        "lcp": 48,
+        "cls": 0
+      },
+      "after": {
+        "js": 486418,
+        "css": 180183,
+        "image": 109257,
+        "lcp": 56,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "tournaments",
+      "path": "/tournaments",
+      "device": "mobile",
+      "before": {
+        "js": 500898,
+        "css": 240265,
+        "image": 25611,
+        "lcp": 156,
+        "cls": 0
+      },
+      "after": {
+        "js": 500892,
+        "css": 240265,
+        "image": 25611,
+        "lcp": 168,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "tournaments_tournamentId_recap",
+      "path": "/tournaments/daily-cup-24/recap",
+      "device": "mobile",
+      "before": {
+        "js": 498090,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 220,
+        "cls": 0
+      },
+      "after": {
+        "js": 498084,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 204,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "tournaments_tournamentId",
+      "path": "/tournaments/daily-cup-24",
+      "device": "mobile",
+      "before": {
+        "js": 504947,
+        "css": 249381,
+        "image": 70968,
+        "lcp": 148,
+        "cls": 0
+      },
+      "after": {
+        "js": 505053,
+        "css": 249381,
+        "image": 70968,
+        "lcp": 184,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "leaderboard",
+      "path": "/leaderboard",
+      "device": "mobile",
+      "before": {
+        "js": 491865,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 92,
+        "cls": 0
+      },
+      "after": {
+        "js": 491859,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "regulations",
+      "path": "/regulations",
+      "device": "mobile",
+      "before": {
+        "js": 491719,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 92,
+        "cls": 0
+      },
+      "after": {
+        "js": 491713,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 76,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "contact",
+      "path": "/contact",
+      "device": "mobile",
+      "before": {
+        "js": 491719,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 76,
+        "cls": 0
+      },
+      "after": {
+        "js": 491713,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 80,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "privacy",
+      "path": "/privacy",
+      "device": "mobile",
+      "before": {
+        "js": 491719,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 88,
+        "cls": 0
+      },
+      "after": {
+        "js": 491713,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 92,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "terms",
+      "path": "/terms",
+      "device": "mobile",
+      "before": {
+        "js": 491719,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 80,
+        "cls": 0
+      },
+      "after": {
+        "js": 491713,
+        "css": 240265,
+        "image": 17452,
+        "lcp": 108,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "support",
+      "path": "/support",
+      "device": "mobile",
+      "before": {
+        "js": 491127,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 88,
+        "cls": 0
+      },
+      "after": {
+        "js": 491121,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 92,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "organizations",
+      "path": "/organizations",
+      "device": "mobile",
+      "before": {
+        "js": 493258,
+        "css": 263056,
+        "image": 17452,
+        "lcp": 92,
+        "cls": 0
+      },
+      "after": {
+        "js": 493252,
+        "css": 263056,
+        "image": 17452,
+        "lcp": 76,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "organizations_organizationSlug",
+      "path": "/organizations/caspian-vanguard",
+      "device": "mobile",
+      "before": {
+        "js": 507752,
+        "css": 263056,
+        "image": 20369,
+        "lcp": 208,
+        "cls": 0
+      },
+      "after": {
+        "js": 507865,
+        "css": 263056,
+        "image": 20369,
+        "lcp": 240,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "records",
+      "path": "/records",
+      "device": "mobile",
+      "before": {
+        "js": 495534,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0
+      },
+      "after": {
+        "js": 495528,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 92,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "records_recordId",
+      "path": "/records/record-1",
+      "device": "mobile",
+      "before": {
+        "js": 495853,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 108,
+        "cls": 0
+      },
+      "after": {
+        "js": 495847,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 108,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "teams",
+      "path": "/teams",
+      "device": "mobile",
+      "before": {
+        "js": 503838,
+        "css": 268285,
+        "image": 25611,
+        "lcp": 140,
+        "cls": 0
+      },
+      "after": {
+        "js": 503867,
+        "css": 268285,
+        "image": 25611,
+        "lcp": 148,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "teams_compare",
+      "path": "/teams/compare",
+      "device": "mobile",
+      "before": {
+        "js": 490841,
+        "css": 263056,
+        "image": 17452,
+        "lcp": 132,
+        "cls": 0
+      },
+      "after": {
+        "js": 490835,
+        "css": 263056,
+        "image": 17452,
+        "lcp": 164,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "teams_teamSlug_share_card",
+      "path": "/teams/caspian-wolves/share-card",
+      "device": "mobile",
+      "before": {
+        "js": 529466,
+        "css": 201197,
+        "image": 20369,
+        "lcp": 504,
+        "cls": 0
+      },
+      "after": {
+        "js": 529460,
+        "css": 201197,
+        "image": 20369,
+        "lcp": 540,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "teams_teamSlug",
+      "path": "/teams/caspian-wolves",
+      "device": "mobile",
+      "before": {
+        "js": 516965,
+        "css": 268285,
+        "image": 34394,
+        "lcp": 288,
+        "cls": 0
+      },
+      "after": {
+        "js": 517214,
+        "css": 268285,
+        "image": 34394,
+        "lcp": 284,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "matches",
+      "path": "/matches",
+      "device": "mobile",
+      "before": {
+        "js": 498933,
+        "css": 243373,
+        "image": 49238,
+        "lcp": 88,
+        "cls": 0
+      },
+      "after": {
+        "js": 498927,
+        "css": 243373,
+        "image": 49238,
+        "lcp": 36,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "matches_matchId",
+      "path": "/matches/dc24-r1",
+      "device": "mobile",
+      "before": {
+        "js": 506012,
+        "css": 259714,
+        "image": 70968,
+        "lcp": 252,
+        "cls": 0
+      },
+      "after": {
+        "js": 506118,
+        "css": 259714,
+        "image": 70968,
+        "lcp": 224,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "search",
+      "path": "/search",
+      "device": "mobile",
+      "before": {
+        "js": 488299,
+        "css": 181587,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0
+      },
+      "after": {
+        "js": 488444,
+        "css": 181587,
+        "image": 17452,
+        "lcp": 88,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "following",
+      "path": "/following",
+      "device": "mobile",
+      "before": {
+        "js": 489536,
+        "css": 181587,
+        "image": 17452,
+        "lcp": 76,
+        "cls": 0.24644549763033174
+      },
+      "after": {
+        "js": 489530,
+        "css": 181587,
+        "image": 17452,
+        "lcp": 92,
+        "cls": 0.24644549763033174
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "archive",
+      "path": "/archive",
+      "device": "mobile",
+      "before": {
+        "js": 489900,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 80,
+        "cls": 0
+      },
+      "after": {
+        "js": 489894,
+        "css": 250598,
+        "image": 17452,
+        "lcp": 88,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "403",
+      "path": "/403",
+      "device": "mobile",
+      "before": {
+        "js": 490560,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 72,
+        "cls": 0
+      },
+      "after": {
+        "js": 490554,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 100,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "500",
+      "path": "/500",
+      "device": "mobile",
+      "before": {
+        "js": 490560,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 72,
+        "cls": 0
+      },
+      "after": {
+        "js": 490554,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 88,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "maintenance",
+      "path": "/maintenance",
+      "device": "mobile",
+      "before": {
+        "js": 490560,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 76,
+        "cls": 0
+      },
+      "after": {
+        "js": 490554,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "offline",
+      "path": "/offline",
+      "device": "mobile",
+      "before": {
+        "js": 490560,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 92,
+        "cls": 0
+      },
+      "after": {
+        "js": 490554,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 76,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "not_found",
+      "path": "/not-a-route",
+      "device": "mobile",
+      "before": {
+        "js": 490560,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 72,
+        "cls": 0
+      },
+      "after": {
+        "js": 490554,
+        "css": 180974,
+        "image": 17452,
+        "lcp": 100,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "teams_teamSlug_wrapped_year",
+      "path": "/teams/caspian-wolves/wrapped/2026",
+      "device": "mobile",
+      "before": {
+        "js": 503156,
+        "css": 189083,
+        "image": 17452,
+        "lcp": 164,
+        "cls": 0
+      },
+      "after": {
+        "js": 503150,
+        "css": 189083,
+        "image": 17452,
+        "lcp": 180,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "login",
+      "path": "/login",
+      "device": "mobile",
+      "before": {
+        "js": 499716,
+        "css": 244034,
+        "image": 23067,
+        "lcp": 88,
+        "cls": 0
+      },
+      "after": {
+        "js": 499710,
+        "css": 244034,
+        "image": 23067,
+        "lcp": 88,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "register",
+      "path": "/register",
+      "device": "mobile",
+      "before": {
+        "js": 519144,
+        "css": 244034,
+        "image": 23661,
+        "lcp": 92,
+        "cls": 0
+      },
+      "after": {
+        "js": 519138,
+        "css": 244034,
+        "image": 23661,
+        "lcp": 108,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "forgot_password",
+      "path": "/forgot-password",
+      "device": "mobile",
+      "before": {
+        "js": 493936,
+        "css": 244034,
+        "image": 24248,
+        "lcp": 92,
+        "cls": 0
+      },
+      "after": {
+        "js": 493930,
+        "css": 244034,
+        "image": 24248,
+        "lcp": 96,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "reset_password",
+      "path": "/reset-password",
+      "device": "mobile",
+      "before": {
+        "js": 495857,
+        "css": 239565,
+        "image": 24248,
+        "lcp": 84,
+        "cls": 0
+      },
+      "after": {
+        "js": 495851,
+        "css": 239565,
+        "image": 24248,
+        "lcp": 88,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "verify_email",
+      "path": "/verify-email",
+      "device": "mobile",
+      "before": {
+        "js": 493734,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 88,
+        "cls": 0
+      },
+      "after": {
+        "js": 493728,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 80,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "unauthorized",
+      "path": "/unauthorized",
+      "device": "mobile",
+      "before": {
+        "js": 492094,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 88,
+        "cls": 0
+      },
+      "after": {
+        "js": 492088,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 88,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "session_expired",
+      "path": "/session-expired",
+      "device": "mobile",
+      "before": {
+        "js": 492094,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 104,
+        "cls": 0
+      },
+      "after": {
+        "js": 492088,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 80,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_locked",
+      "path": "/account-locked",
+      "device": "mobile",
+      "before": {
+        "js": 492094,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 104,
+        "cls": 0
+      },
+      "after": {
+        "js": 492088,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 104,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "too_many_attempts",
+      "path": "/too-many-attempts",
+      "device": "mobile",
+      "before": {
+        "js": 492094,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 88,
+        "cls": 0
+      },
+      "after": {
+        "js": 492088,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 108,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "forbidden",
+      "path": "/forbidden",
+      "device": "mobile",
+      "before": {
+        "js": 492094,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 100,
+        "cls": 0
+      },
+      "after": {
+        "js": 492088,
+        "css": 239565,
+        "image": 26670,
+        "lcp": 88,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_login",
+      "path": "/admin/login",
+      "device": "mobile",
+      "before": {
+        "js": 499716,
+        "css": 244034,
+        "image": 26670,
+        "lcp": 84,
+        "cls": 0
+      },
+      "after": {
+        "js": 499710,
+        "css": 244034,
+        "image": 26670,
+        "lcp": 84,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team",
+      "path": "/team",
+      "device": "mobile",
+      "before": {
+        "js": 749760,
+        "css": 277462,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0
+      },
+      "after": {
+        "js": 749754,
+        "css": 277462,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_tournaments",
+      "path": "/team/tournaments",
+      "device": "mobile",
+      "before": {
+        "js": 735480,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0
+      },
+      "after": {
+        "js": 735474,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_tournaments_tournamentId",
+      "path": "/team/tournaments/daily-cup-24",
+      "device": "mobile",
+      "before": {
+        "js": 742950,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0
+      },
+      "after": {
+        "js": 742944,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_history",
+      "path": "/team/history",
+      "device": "mobile",
+      "before": {
+        "js": 738556,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 416,
+        "cls": 0
+      },
+      "after": {
+        "js": 738550,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 432,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_comparison",
+      "path": "/team/comparison",
+      "device": "mobile",
+      "before": {
+        "js": 738281,
+        "css": 282043,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 738275,
+        "css": 282043,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_roster",
+      "path": "/team/roster",
+      "device": "mobile",
+      "before": {
+        "js": 736509,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0
+      },
+      "after": {
+        "js": 736503,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_messages",
+      "path": "/team/messages",
+      "device": "mobile",
+      "before": {
+        "js": 733551,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0
+      },
+      "after": {
+        "js": 733545,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_notifications",
+      "path": "/team/notifications",
+      "device": "mobile",
+      "before": {
+        "js": 734209,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 384,
+        "cls": 0
+      },
+      "after": {
+        "js": 734203,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_roster_requests",
+      "path": "/team/roster-requests",
+      "device": "mobile",
+      "before": {
+        "js": 734144,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "after": {
+        "js": 734138,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_roster_requests_requestId",
+      "path": "/team/roster-requests/RC-0021",
+      "device": "mobile",
+      "before": {
+        "js": 735992,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0
+      },
+      "after": {
+        "js": 735986,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_disputes",
+      "path": "/team/disputes",
+      "device": "mobile",
+      "before": {
+        "js": 733974,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 733968,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_disputes_new",
+      "path": "/team/disputes/new",
+      "device": "mobile",
+      "before": {
+        "js": 738037,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "after": {
+        "js": 738031,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_disputes_disputeId",
+      "path": "/team/disputes/DSP-0007",
+      "device": "mobile",
+      "before": {
+        "js": 735548,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 408,
+        "cls": 0
+      },
+      "after": {
+        "js": 735542,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_sharecards",
+      "path": "/team/sharecards",
+      "device": "mobile",
+      "before": {
+        "js": 781253,
+        "css": 280266,
+        "image": 20369,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 781247,
+        "css": 280266,
+        "image": 20369,
+        "lcp": 412,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_badges",
+      "path": "/team/badges",
+      "device": "mobile",
+      "before": {
+        "js": 745216,
+        "css": 342125,
+        "image": 17452,
+        "lcp": 408,
+        "cls": 0
+      },
+      "after": {
+        "js": 745210,
+        "css": 342125,
+        "image": 17452,
+        "lcp": 408,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_badges_badgeId",
+      "path": "/team/badges/ach-top-four",
+      "device": "mobile",
+      "before": {
+        "js": 739383,
+        "css": 282043,
+        "image": 17452,
+        "lcp": 420,
+        "cls": 0
+      },
+      "after": {
+        "js": 739377,
+        "css": 282043,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_invitations",
+      "path": "/team/invitations",
+      "device": "mobile",
+      "before": {
+        "js": 734515,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 408,
+        "cls": 0
+      },
+      "after": {
+        "js": 734509,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 428,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_settings_managers",
+      "path": "/team/settings/managers",
+      "device": "mobile",
+      "before": {
+        "js": 739190,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0
+      },
+      "after": {
+        "js": 739184,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_verification",
+      "path": "/team/verification",
+      "device": "mobile",
+      "before": {
+        "js": 734560,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 380,
+        "cls": 0
+      },
+      "after": {
+        "js": 734554,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_organization_organizationSlug",
+      "path": "/team/organization/caspian-vanguard",
+      "device": "mobile",
+      "before": {
+        "js": 738147,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 548,
+        "cls": 0
+      },
+      "after": {
+        "js": 738141,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 520,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "team_settings",
+      "path": "/team/settings",
+      "device": "mobile",
+      "before": {
+        "js": 736956,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 736950,
+        "css": 259252,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin",
+      "path": "/admin",
+      "device": "mobile",
+      "before": {
+        "js": 509271,
+        "css": 231510,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 509265,
+        "css": 231510,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_tournaments",
+      "path": "/admin/tournaments",
+      "device": "mobile",
+      "before": {
+        "js": 507310,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "after": {
+        "js": 507304,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_tournaments_new",
+      "path": "/admin/tournaments/new",
+      "device": "mobile",
+      "before": {
+        "js": 506691,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0
+      },
+      "after": {
+        "js": 506685,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_tournaments_tournamentId",
+      "path": "/admin/tournaments/daily-cup-24",
+      "device": "mobile",
+      "before": {
+        "js": 518144,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 420,
+        "cls": 0
+      },
+      "after": {
+        "js": 518138,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 408,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_tournaments_tournamentId_lifecycle",
+      "path": "/admin/tournaments/daily-cup-24/lifecycle",
+      "device": "mobile",
+      "before": {
+        "js": 505578,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "after": {
+        "js": 505572,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 412,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_check_ins_missed",
+      "path": "/admin/check-ins/missed",
+      "device": "mobile",
+      "before": {
+        "js": 504972,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 504966,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_teams",
+      "path": "/admin/teams",
+      "device": "mobile",
+      "before": {
+        "js": 508821,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 508815,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_teams_teamId",
+      "path": "/admin/teams/team-01",
+      "device": "mobile",
+      "before": {
+        "js": 506966,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0
+      },
+      "after": {
+        "js": 506960,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_organizations",
+      "path": "/admin/organizations",
+      "device": "mobile",
+      "before": {
+        "js": 507817,
+        "css": 312865,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0
+      },
+      "after": {
+        "js": 507811,
+        "css": 312865,
+        "image": 17452,
+        "lcp": 32,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_results",
+      "path": "/admin/results",
+      "device": "mobile",
+      "before": {
+        "js": 507109,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 380,
+        "cls": 0
+      },
+      "after": {
+        "js": 507103,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_results_resultId_correct",
+      "path": "/admin/results/result-1/correct",
+      "device": "mobile",
+      "before": {
+        "js": 506255,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 420,
+        "cls": 0
+      },
+      "after": {
+        "js": 506249,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_messages",
+      "path": "/admin/messages",
+      "device": "mobile",
+      "before": {
+        "js": 505311,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0
+      },
+      "after": {
+        "js": 505305,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 84,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_blacklist",
+      "path": "/admin/blacklist",
+      "device": "mobile",
+      "before": {
+        "js": 504206,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 376,
+        "cls": 0
+      },
+      "after": {
+        "js": 504200,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 368,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_roster_requests",
+      "path": "/admin/roster-requests",
+      "device": "mobile",
+      "before": {
+        "js": 506154,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 506148,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_roster_requests_requestId",
+      "path": "/admin/roster-requests/RC-0021",
+      "device": "mobile",
+      "before": {
+        "js": 507471,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "after": {
+        "js": 507465,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 368,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_disputes",
+      "path": "/admin/disputes",
+      "device": "mobile",
+      "before": {
+        "js": 506058,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 32,
+        "cls": 0
+      },
+      "after": {
+        "js": 506052,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 416,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_disputes_disputeId",
+      "path": "/admin/disputes/DSP-0007",
+      "device": "mobile",
+      "before": {
+        "js": 507027,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 368,
+        "cls": 0
+      },
+      "after": {
+        "js": 507021,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 492,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_players_playerId",
+      "path": "/admin/players/p1",
+      "device": "mobile",
+      "before": {
+        "js": 507452,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 392,
+        "cls": 0
+      },
+      "after": {
+        "js": 507446,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 468,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_verifications",
+      "path": "/admin/verifications",
+      "device": "mobile",
+      "before": {
+        "js": 505618,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 380,
+        "cls": 0
+      },
+      "after": {
+        "js": 505612,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 68,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_verifications_verificationId",
+      "path": "/admin/verifications/verification-1",
+      "device": "mobile",
+      "before": {
+        "js": 506234,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 452,
+        "cls": 0
+      },
+      "after": {
+        "js": 506228,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 44,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_support",
+      "path": "/admin/support",
+      "device": "mobile",
+      "before": {
+        "js": 505430,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 400,
+        "cls": 0
+      },
+      "after": {
+        "js": 505424,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 404,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_audit",
+      "path": "/admin/audit",
+      "device": "mobile",
+      "before": {
+        "js": 506249,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 48,
+        "cls": 0
+      },
+      "after": {
+        "js": 506243,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 32,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_users",
+      "path": "/admin/users",
+      "device": "mobile",
+      "before": {
+        "js": 507757,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 416,
+        "cls": 0
+      },
+      "after": {
+        "js": 507751,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 48,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "admin_settings",
+      "path": "/admin/settings",
+      "device": "mobile",
+      "before": {
+        "js": 505204,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 380,
+        "cls": 0
+      },
+      "after": {
+        "js": 505198,
+        "css": 229992,
+        "image": 17452,
+        "lcp": 384,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account",
+      "path": "/account",
+      "device": "mobile",
+      "before": {
+        "js": 494126,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0
+      },
+      "after": {
+        "js": 494120,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 420,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_profile",
+      "path": "/account/profile",
+      "device": "mobile",
+      "before": {
+        "js": 494126,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 396,
+        "cls": 0
+      },
+      "after": {
+        "js": 494120,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 388,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_security",
+      "path": "/account/security",
+      "device": "mobile",
+      "before": {
+        "js": 496116,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 336,
+        "cls": 0
+      },
+      "after": {
+        "js": 496110,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 320,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_notifications",
+      "path": "/account/notifications",
+      "device": "mobile",
+      "before": {
+        "js": 491756,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 380,
+        "cls": 0
+      },
+      "after": {
+        "js": 491750,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 668,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_sessions",
+      "path": "/account/sessions",
+      "device": "mobile",
+      "before": {
+        "js": 491621,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 340,
+        "cls": 0
+      },
+      "after": {
+        "js": 491615,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 352,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_player_claim_playerId",
+      "path": "/account/player/claim/p1",
+      "device": "mobile",
+      "before": {
+        "js": 491939,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 336,
+        "cls": 0
+      },
+      "after": {
+        "js": 491933,
+        "css": 228059,
+        "image": 17452,
+        "lcp": 536,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_support_tickets",
+      "path": "/account/support/tickets",
+      "device": "mobile",
+      "before": {
+        "js": 491416,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 324,
+        "cls": 0
+      },
+      "after": {
+        "js": 491410,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 56,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_support_tickets_new",
+      "path": "/account/support/tickets/new",
+      "device": "mobile",
+      "before": {
+        "js": 493874,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 340,
+        "cls": 0
+      },
+      "after": {
+        "js": 493868,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 364,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "id": "account_support_tickets_ticketId",
+      "path": "/account/support/tickets/SUP-1042",
+      "device": "mobile",
+      "before": {
+        "js": 492434,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 328,
+        "cls": 0
+      },
+      "after": {
+        "js": 492428,
+        "css": 229758,
+        "image": 17452,
+        "lcp": 308,
+        "cls": 0
+      },
+      "overflow": false,
+      "errors": []
+    }
+  ]
+}

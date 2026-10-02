@@ -1,4 +1,6 @@
 import '../../styles/share-studio.css';
+import { TeamLogoEditor } from '../auth/TeamLogoEditor';
+import { FileUpload } from '../common/FileUpload';
 import { Check, Copy, Download, Share2 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { useEffect, useRef, useState } from 'react';
@@ -15,6 +17,8 @@ function FormatSelector({ value, onChange }: { value: ProfileCardFormat; onChang
 }
 
 export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
+  const [backgrounds,setBackgrounds]=useState<Partial<Record<ProfileCardFormat,File>>>({});
+  const [editing,setEditing]=useState<File>();
   const [format, setFormat] = useState<ProfileCardFormat>('portrait');
   const [showStats, setShowStats] = useState(true);
   const [showQr, setShowQr] = useState(true);
@@ -29,15 +33,15 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
     setBusy(true);
     void Promise.all([
       loadCardImage(data.teamLogo).catch(() => undefined),
-      loadCardImage(data.teamBanner).catch(() => undefined),
+      (async()=>{const file=backgrounds[format];if(!file)return undefined;const url=URL.createObjectURL(file);try{const image=new Image();image.src=url;await image.decode();return image;}finally{URL.revokeObjectURL(url);}})().catch(() => undefined),
       QRCode.toDataURL(data.profileUrl, { errorCorrectionLevel: 'H', margin: 4, width: 360, color: { dark: '#070709', light: '#f3c450' } }).then((source) => loadCardImage(source, true)).catch(() => undefined),
-    ]).then(([logo, banner, qr]) => {
+    ]).then(([logo, background, qr]) => {
       if (!active) return;
-      assetsRef.current = { logo, banner, qr };
+      assetsRef.current = { logo, background, qr };
       if (!qr) setNotice('QR hazırlanmadı; public profil keçidi kartda mətn kimi saxlanıldı.');
     }).finally(() => { if (active) setBusy(false); });
     return () => { active = false; };
-  }, [data.profileUrl, data.teamBanner, data.teamLogo]);
+  }, [data.profileUrl, data.teamLogo, backgrounds, format]);
 
   const options = { template: 'identity' as const, showStats, showQr };
   useEffect(() => { if (canvasRef.current && !busy) drawTeamIdentityCard(canvasRef.current, data, format, assetsRef.current, options); }, [busy, data, format, showQr, showStats]);
@@ -74,6 +78,10 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
         <h2>Komanda kimliyi</h2>
         <p>Bir rəsmi public aktiv: logo, heyət, profil keçidi və istəyə görə dərc edilmiş karyera sübutu. Preview və PNG eyni kompozisiya mənbəyindən çəkilir.</p>
         <FormatSelector value={format} onChange={setFormat} />
+        <FileUpload label="Kartın ayrıca fonu" hint={`${teamIdentityCardSizes[format].width} × ${teamIdentityCardSizes[format].height} px · PNG, JPG, WebP · 4 MB`} accept={['image/png','image/jpeg','image/webp']} maxBytes={4_000_000} onFile={setEditing} disabled={busy} />
+        <small>Fon yalnız bu açıq studiyada saxlanılır. PNG faylına daxil edilir.</small>
+        {backgrounds[format]&&<Button variant="ghost" onClick={()=>setBackgrounds(value=>({...value,[format]:undefined}))}>AEVIC fonuna qayıt</Button>}
+        {editing&&<TeamLogoEditor file={editing} fit="cover" width={teamIdentityCardSizes[format].width} height={teamIdentityCardSizes[format].height} title="Kartın fonunu düzəlt" onCancel={()=>setEditing(undefined)} onApply={file=>{setBackgrounds(value=>({...value,[format]:file}));setEditing(undefined);}} />}
         <div className="share-card-options"><Checkbox checked={showStats} onChange={(event) => setShowStats(event.target.checked)} label="Dərc edilmiş statistikanı göstər" /><Checkbox checked={showQr} onChange={(event) => setShowQr(event.target.checked)} label="Public profil QR-ni göstər" /></div>
         <div className="studio-actions"><Button loading={busy} icon={<Download size={17} />} onClick={() => void download()}>PNG yüklə</Button><Button variant="secondary" disabled={busy} icon={<Share2 size={17} />} onClick={() => void share()}>Paylaş</Button><Button variant="ghost" icon={copied ? <Check size={17} /> : <Copy size={17} />} onClick={() => void copy()}>{copied ? 'Kopyalandı' : 'Profil linkini kopyala'}</Button></div>
         <small>Yalnız public kimlik və dərc edilmiş statistika. Export: {teamIdentityCardSizes[format].width} × {teamIdentityCardSizes[format].height} PNG.</small>

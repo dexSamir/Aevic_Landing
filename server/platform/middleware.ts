@@ -10,6 +10,21 @@ import {ServiceError} from '../errors';
 import {PlatformRepository,type Actor} from './repository';
 import {adminCookieName,currentCaptainCookie,tokenDigest} from './context';
 const stores=new Map<string,PostgresCaptainStore>();
+const maintenance=new WeakMap<Sql,{next:number;pending?:Promise<void>}>();
+async function maintainSanctions(sql:Sql){
+ let state=maintenance.get(sql);if(!state){state={next:0};maintenance.set(sql,state);}
+ if(state.pending)return state.pending;if(Date.now()<state.next)return;
+ const entry=state;
+ entry.pending=(async()=>{
+  try{await sql.begin(async tx=>{
+   await tx`set local statement_timeout='1500ms'`;
+   await tx`set local lock_timeout='500ms'`;
+   const expired=await tx`select s.id,s.team_id,s.previous_status from aevic_platform.sanctions s join public.teams t on t.id=s.team_id where s.expires_at<=now() and s.revoked_at is null order by s.expires_at limit 25 for update of s,t skip locked`;
+   for(const s of expired){await tx`update public.teams set status=${s.previous_status},rejection_reason=null where id=${s.team_id} and status='banned'`;await tx`update aevic_platform.sanctions set revoked_at=now() where id=${s.id}`;}
+  });entry.next=Date.now()+60_000;}catch{entry.next=Date.now()+5_000;console.warn(JSON.stringify({event:'sanction_expiry_deferred'}));}
+ })();
+ try{await entry.pending;}finally{entry.pending=undefined;}
+}
 export function platformMiddleware(testSql?:Sql){
  const app=new Hono<Env>();
  app.use('*',async(c,next)=>{
@@ -17,15 +32,17 @@ export function platformMiddleware(testSql?:Sql){
   let store:PostgresCaptainStore|undefined;
   if(config.databaseUrl){store=stores.get(config.databaseUrl);if(!store){store=new PostgresCaptainStore(config.databaseUrl,!config.secureCookies);stores.set(config.databaseUrl,store);}}
   const sql=testSql??store!.sql;
-  await sql.begin(async tx=>{
-   const expired=await tx`select id,team_id,previous_status from aevic_platform.sanctions where expires_at<=now() and revoked_at is null for update skip locked`;
-   for(const s of expired){await tx`update public.teams set status=${s.previous_status},rejection_reason=null where id=${s.team_id} and status='banned'`;await tx`update aevic_platform.sanctions set revoked_at=now() where id=${s.id}`;}
-  });
+  // Public reads must not depend on session state or maintenance writes.
+  const publicRead=['GET','HEAD'].includes(c.req.method)&&/^\/api\/(public(?:\/|$)|tournaments(?:\/|$)|matches(?:\/|$)|leaderboards(?:\/|$)|records(?:\/|$)|archive$|search$|sitemap)/.test(c.req.path);
+  if(publicRead){c.set('platform',new PlatformRepository(c.get('db'),sql,{}));return next();}
+  // Expiry maintenance is optional. Coalesce it per warm runtime; a failure
+  // leaves bans in force, but must not take login/media/session endpoints down.
+  await maintainSanctions(sql);
   const identity:Actor={};
   const adminToken=getCookie(c,adminCookieName(c));
-  if(adminToken){const rows=await sql`select a.id,a.role from aevic_platform.sessions s join aevic_platform.admin_accounts a on a.id=s.admin_id where s.token_digest=${tokenDigest(adminToken)} and s.expires_at>now() and s.revoked_at is null and a.active and not exists(select 1 from aevic_platform.mfa_factors f where f.admin_id=a.id and f.enabled_at is not null and (s.mfa_verified_at is null or s.mfa_verified_at<f.enabled_at))`;if(rows[0]){identity.adminId=String(rows[0].id);identity.role=String(rows[0].role);}}
+  if(adminToken&&c.req.path!=='/api/auth/login'){const rows=await sql`select a.id,a.role from aevic_platform.sessions s join aevic_platform.admin_accounts a on a.id=s.admin_id where s.token_digest=${tokenDigest(adminToken)} and s.expires_at>now() and s.revoked_at is null and a.active and not exists(select 1 from aevic_platform.mfa_factors f where f.admin_id=a.id and f.enabled_at is not null and (s.mfa_verified_at is null or s.mfa_verified_at<f.enabled_at))`;if(rows[0]){identity.adminId=String(rows[0].id);identity.role=String(rows[0].role);}}
   const captainToken=currentCaptainCookie(c);
-  if(captainToken&&store&&!identity.adminId){
+  if(captainToken&&store&&!identity.adminId&&c.req.path!=='/api/auth/login'){
    try{const auth=new CaptainService(store,config.sessionSecret??'',config.siteUrl,resetMailer(config));const row=await auth.authenticate(captainToken);
     const revoked=await sql`select id from aevic_platform.sessions where token_digest=${tokenDigest(captainToken)} and (revoked_at is not null or expires_at<=now())`;
     if(revoked.length)throw new ServiceError(401,'SESSION_REVOKED');

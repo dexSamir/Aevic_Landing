@@ -43,7 +43,7 @@ app.get('/media/:id',async(c,next)=>{
  let allowed=Boolean(r.actor.adminId||r.actor.teamId===String(row.team_id));
  if(!allowed&&row.asset_type!=='evidence'){
   const url=`/api/media/${id}`;
-  const found=await r.sql`select t.id from public.teams t left join aevic_platform.team_details d on d.team_id=t.id where t.id=${row.team_id} and t.status='approved' and d.archived_at is null and ${url} in (t.logo_url,t.player1_photo_url,t.player2_photo_url,t.player3_photo_url,t.player4_photo_url,t.player5_photo_url,d.banner_url)`;allowed=found.length>0;
+  const found=await r.sql`select t.id from public.teams t left join aevic_platform.team_details d on d.team_id=t.id where t.id=${row.team_id} and t.status in ('approved','pending') and d.archived_at is null and ${url} in (t.logo_url,t.player1_photo_url,t.player2_photo_url,t.player3_photo_url,t.player4_photo_url,t.player5_photo_url,d.banner_url)`;allowed=found.length>0;
  }
  if(!allowed)throw new ServiceError(404,'MEDIA_NOT_FOUND');
  return new Response(new Uint8Array(row.bytes).buffer,{headers:{'Content-Type':row.mime_type,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Content-Disposition':'inline'}});
