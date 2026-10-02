@@ -32,12 +32,17 @@ describe('existing bigint contract readiness', () => {
   expect(first.sql).toBe(second.sql);
   expect(vi.mocked(postgres).mock.calls[0][1]).toMatchObject({max:2,prepare:false,max_pipeline:1,max_lifetime:300});
  });
- it('uses transaction pooling on Lambda without rewriting local configuration',()=>{
+ it('preserves the configured pooler endpoint in Lambda',()=>{
+  vi.stubEnv('NETLIFY','true');
+  vi.stubEnv('AWS_LAMBDA_FUNCTION_NAME','api');
+  try{
   const url='postgres://fixture.nmjjibifcuzjlsvfcaaz@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres';
-  new PostgresCaptainStore(url,false,true);
-  expect(new URL(String(vi.mocked(postgres).mock.calls.at(-1)![0])).port).toBe('6543');
-  new PostgresCaptainStore(url,false,false);
-  expect(new URL(String(vi.mocked(postgres).mock.calls.at(-1)![0])).port).toBe('5432');
+  new PostgresCaptainStore(url);
+  expect(vi.mocked(postgres).mock.calls.at(-1)![0]).toBe(url);
+  const transactionUrl=url.replace(':5432/',':6543/');
+  new PostgresCaptainStore(transactionUrl);
+  expect(vi.mocked(postgres).mock.calls.at(-1)![0]).toBe(transactionUrl);
+  }finally{vi.unstubAllEnvs();}
  });
  it('accepts bigint with no default/identity so trigger-generated IDs do not block auth', async () => {
   query.mockResolvedValueOnce(columns()).mockResolvedValueOnce([{rolsuper:false}]).mockResolvedValueOnce([]);

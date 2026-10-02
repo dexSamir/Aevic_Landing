@@ -11,18 +11,16 @@ const clean=(r:Record<string,unknown>)=>({...r,created_at:r.created_at instanceo
 export class PostgresCaptainStore implements CaptainStore {
  readonly sql:ReturnType<typeof postgres>;
  private readiness?:Promise<void>;
- constructor(url:string,allowLocal=false,serverless=process.env.NETLIFY==='true'||Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME)) {
+ constructor(url:string,allowLocal=false) {
   const u=new URL(url);const ref='nmjjibifcuzjlsvfcaaz';
   const local=allowLocal&&['localhost','127.0.0.1'].includes(u.hostname);
   if(!['postgres:','postgresql:'].includes(u.protocol)||!(local||u.hostname===`db.${ref}.supabase.co`||(u.hostname.endsWith('.pooler.supabase.com')&&decodeURIComponent(u.username).endsWith(`.${ref}`))))throw new ServiceError(503,'PRIVATE_DATABASE_NOT_CONFIGURED');
-  // Shared Supavisor endpoints expose both modes on the same host. A warm
-  // Lambda must not reserve session-mode server connections between requests.
-  // Do not rewrite direct database endpoints or local development connections.
-  if(serverless&&u.hostname.endsWith('.pooler.supabase.com')&&(!u.port||u.port==='5432'))u.port='6543';
-  const connectionUrl=u.toString();
+  // The configured endpoint selects the pooler mode. Rewriting 5432 to 6543
+  // caused concurrent queries to stall on the production Supavisor endpoint.
+  const connectionUrl=url;
   // postgres 3.4.9 supports max_pipeline at runtime (missing from its TS options).
-  // Supavisor transaction pooling cannot safely pipeline queries. Share one pool
-  // across the credential and platform adapters in each warm function.
+  // Bound queued work per connection and share one pool across the credential
+  // and platform adapters in each warm function.
   this.sql=pools.get(connectionUrl)??postgres(connectionUrl,{ssl:local?false:{rejectUnauthorized:true,ca:databaseCa},max:2,prepare:false,...{max_pipeline:1},idle_timeout:20,max_lifetime:300,connect_timeout:10,onnotice:()=>{},connection:{application_name:'aevic-captain',statement_timeout:8000,lock_timeout:3000}});
   pools.set(connectionUrl,this.sql);
  }

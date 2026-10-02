@@ -38,6 +38,13 @@ export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=proces
   // Allowlisted error codes only: never exception messages, SQL or connection URLs.
   const cause=error&&typeof error==='object'&&'code' in error?String(error.code):'';
   if(['CONNECT_TIMEOUT','CONNECTION_CLOSED','CONNECTION_ENDED','CONNECTION_DESTROYED','ECONNRESET','ECONNREFUSED','ETIMEDOUT','57P01','57P02','57P03','53300','53400','57014','55P03','42501','42P01','42703','XX000'].includes(cause))c.set('databaseFailure',cause);
+  if(e.status>=500){
+   let database: {endpoint:string;port:string}|undefined;
+   try{const url=new URL(c.get('config')?.databaseUrl??'');database={endpoint:url.hostname.endsWith('.pooler.supabase.com')?'supavisor':'postgres',port:url.port||'5432'};}catch{}
+   const errorType=['PostgresError','TypeError','RangeError','ServiceError','Error'].includes(error.name)?error.name:'Error';
+   const errorCode=/^(?:[0-9A-Z]{5}|CONNECT_TIMEOUT|CONNECTION_CLOSED|CONNECTION_ENDED|CONNECTION_DESTROYED|ECONNRESET|ECONNREFUSED|ETIMEDOUT|ENOTFOUND|EAI_AGAIN|CERT_HAS_EXPIRED|DEPTH_ZERO_SELF_SIGNED_CERT|SELF_SIGNED_CERT_IN_CHAIN|UNABLE_TO_VERIFY_LEAF_SIGNATURE|ERR_TLS_CERT_ALTNAME_INVALID)$/.test(cause)?cause:undefined;
+   console.error(JSON.stringify({event:'api_failure',requestId:c.get('requestId'),route:c.req.routePath??'unmatched',method:c.req.method,errorType,errorCode,code:e.code,database,runtime:env.AWS_LAMBDA_FUNCTION_NAME?'lambda':env.NETLIFY?'netlify':'node'}));
+  }
   if(e.status===503)c.header('Retry-After','3');
   // Deliberately no request body/error logging: auth, room and private fields can occur in errors.
   return c.json({code:e.code,message:e.status>=500?'Xidmət müvəqqəti əlçatan deyil.':'Sorğu tamamlanmadı.',fieldErrors:e.fieldErrors,requestId:c.get('requestId')},e.status);
