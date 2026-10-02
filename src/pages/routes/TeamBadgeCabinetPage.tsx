@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { PageHeader } from '../../components/common/primitives';
 import { BadgeCabinetEditor } from '../../components/team/BadgeCabinet';
 import { useTeamPlatformData } from '../../services/PlatformDataContext';
-import '../../styles/public-pages.css';
 
 export function TeamBadgeCabinetPage() {
   const { currentTeam, teamAchievements } = useTeamPlatformData();

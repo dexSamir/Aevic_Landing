@@ -1,3 +1,4 @@
+import { TeamWorkspacePlaceholder } from './TeamWorkspaceFrame';
 import {
 ChevronRight,
 CircleUserRound,
@@ -11,7 +12,7 @@ import { publicNavigation } from '../app/publicNavigation';
 import { BrandEmblem,BrandMark } from '../components/brand/BrandMark';
 import { RouteSkeleton } from '../components/common/LoadingSkeleton';
 import { RouteTransitionOutlet } from '../components/common/Motion';
-import { Button,Drawer,IconButton,TeamLogo } from '../components/common/primitives';
+import { EmptyState, Button,Drawer,IconButton,TeamLogo } from '../components/common/primitives';
 import { RouteSeo } from '../components/common/Seo';
 import { InstallAevic,OfflineNotice } from '../components/pwa/PwaExperience';
 import { serviceCapabilities,services } from '../services';
@@ -205,7 +206,9 @@ export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'a
     }).catch(() => { if(active) { setAllowed(false); setUnavailable(true); } }).finally(() => { if(active)setChecking(false); });
     return () => { active = false; };
   }, [area, attempt]);
+  if (checking && area === 'team') return <TeamWorkspacePlaceholder phase="session" />;
   if (checking) return <main className="route-loading"><div className="route-loading__identity"><BrandEmblem decorative={false} /><span>AEVIC secure access</span></div><RouteSkeleton path={window.location.pathname}/></main>;
+  if (unavailable && area === 'team') return <TeamWorkspacePlaceholder><EmptyState heading="h1" title="Bağlantını yoxlayın" body="Hesab sessiyasını yoxlamaq mümkün olmadı. Bir az sonra yenidən cəhd edin." action={<Button onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</Button>} /></TeamWorkspacePlaceholder>;
   if (unavailable) return <main className="route-loading"><h1>Bağlantını yoxlayın</h1><p role="status">Hesab sessiyasını yoxlamaq mümkün olmadı. Bir az sonra yenidən cəhd edin.</p><Button onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</Button></main>;
   if (!allowed) return <Navigate to={deniedPath || (area === 'admin' ? '/admin/login' : '/login')} replace />;
   return <div key={identity} data-protected-area={area}>{children}</div>;
