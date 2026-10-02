@@ -1,3 +1,19 @@
+# Current quality/performance evidence — 2026-10-01
+
+See [FINAL_QUALITY_AUDIT.md](completion/FINAL_QUALITY_AUDIT.md) for the current release decision, Lighthouse table and test limitations. Earlier optimization claims below are historical and do not establish current functional acceptance or production health.
+
+- 99 routes; 198 desktop/mobile rendered route checks plus 10 state/network checks passed on the intermediate production build. Detailed before/after route transfer observations are in [route-measurements.json](quality/route-measurements.json); they predate the final accessibility/CSS fixes and must not be represented as final field vitals.
+- Final representative Lighthouse results are in [lighthouse.json](quality/lighthouse.json). Same gzip build host, mobile simulated throttling, synthetic API replay; no production API speed or field INP conclusion. One sample per route is noisy. The baseline captain fixture omitted workspace discovery, so its apparent perfect performance is not a comparable successful dashboard measurement.
+- Directory logic fixes the pending-team omission without data changes. A read-only production-backed source check returned all seven original IDs. Request-scoped repeated reads drop from 874.367 ms first aggregation to 0.003833 ms cached; this is deduplication, not a deployed endpoint latency result. Cold/warm serverless latency remains unmeasured.
+- Emitted JS: 1,214,105 → 1,215,383 bytes; CSS: 485,894 → 486,622; images unchanged at 9,887,539. No reduction claim this pass. Largest emitted asset remains 240,308 bytes. Budgets in [quality-budgets.json](performance/quality-budgets.json) pass with headroom.
+- Home calendar loading experiment was reverted after a measured CLS regression. Final Home retains the baseline layout and known shift. Tournament semantics/layout fixes improved the measured detail CLS; see final metrics without extrapolating from one run.
+- 16 selected axe scans and 56 responsive cells passed; additional Lighthouse visible-label/name findings remain, so this is not comprehensive WCAG compliance. Final 18-test quality suite passed before the calendar revert; rebuild/unit/server checks pass after it. Full historical browser suite stalled (1 pass, 127 incomplete), retained as a release gate.
+- Preview/demo noindex is intentional and reduces Lighthouse SEO to 66; do not remove it to game scores. Dynamic sitemap/metadata are implemented, but dynamic entity SSR and the real canonical-domain verification remain unfinished.
+
+---
+
+## Historical optimization reports
+
 # AEVIC performance optimization — current follow-up
 
 ## Current result

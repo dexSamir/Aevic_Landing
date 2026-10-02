@@ -27,7 +27,7 @@ test('captures the approved public shell and auth redesign', async ({ page }, te
   }
 
   await expect(page.locator('.site-header')).toHaveAttribute('data-public-header-state', 'hero-top');
-  await expect(page.getByRole('heading', { name: /rəqabətin rəsmi səhnəsi/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /rəqabətin yeni səhnəsi/i })).toBeVisible();
   await page.screenshot({ path: `${evidence}/home-desktop-top.png` });
 
   await page.evaluate(() => window.scrollTo({ top: 160, behavior: 'auto' }));

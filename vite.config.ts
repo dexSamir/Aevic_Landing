@@ -10,7 +10,7 @@ export default defineConfig(({ command, mode }) => {
     // Parallel dev servers and temporary SSR checks must not replace each
     // other's optimized dependency files while a browser is loading them.
     cacheDir: command === 'serve' ? `node_modules/.vite/aevic-dev-${process.pid}` : 'node_modules/.vite',
-    define: { 'import.meta.env.VITE_PUBLIC_SITE_URL': JSON.stringify(publicConfig.canonicalOrigin ?? ''), 'import.meta.env.VITE_PUBLIC_MEDIA_ORIGIN': JSON.stringify(publicConfig.mediaOrigin ?? '') },
+    define: { 'import.meta.env.VITE_PUBLIC_SITE_URL': JSON.stringify(publicConfig.canonicalOrigin ?? ''), 'import.meta.env.VITE_INDEXABLE_DEPLOYMENT': JSON.stringify(publicConfig.indexableDeployment), 'import.meta.env.VITE_PUBLIC_MEDIA_ORIGIN': JSON.stringify(publicConfig.mediaOrigin ?? '') },
     plugins: [react(), {
       name: 'aevic-hono-development',
       configureServer(server) {

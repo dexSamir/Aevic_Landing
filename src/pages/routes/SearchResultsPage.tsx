@@ -24,6 +24,7 @@ export function SearchResultsPage() {
     let active = true;
     setLoadError(false);
     setResult(undefined);
+    if (query.trim().length < 2) { setResult({ query, groups: {} }); return; }
     services.search
       .public(query)
       .then((value) => {
@@ -40,7 +41,6 @@ export function SearchResultsPage() {
     () =>
       result
         ? Object.entries(result.groups)
-            .filter(([group]) => group !== "player")
             .flatMap(([, group]) => group ?? [])
             .map((item) => ({ ...item, href: safeInternalPath(item.href) }))
             .filter((item): item is typeof item & { href: string } =>
@@ -68,7 +68,7 @@ export function SearchResultsPage() {
         <PageHeader
           eyebrow="Platformada axtarış"
           title="Axtarış nəticələri"
-          description="Komandaları, turnirləri və rəsmi rekordları tapın."
+          description="Komandaları, oyunçuları, turnirləri və təşkilatları tapın."
         />
         <form
           className="directory-search"
@@ -84,6 +84,7 @@ export function SearchResultsPage() {
             label="Axtarış"
             defaultValue={query}
             minLength={2}
+            maxLength={100}
             required
           />
           <Button type="submit">Axtar</Button>
@@ -94,7 +95,7 @@ export function SearchResultsPage() {
           <div className="search-results-ledger">
             {items.map((item) => (
               <Link key={`${item.type}-${item.id}`} to={item.href}>
-                <span>{item.type}</span>
+                <span>{{team: "Komanda", player: "Oyunçu", tournament: "Turnir", organization: "Təşkilat", record: "Rekord"}[item.type]}</span>
                 <div>
                   <strong>{item.title}</strong>
                   <small>{item.subtitle}</small>

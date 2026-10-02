@@ -365,7 +365,7 @@
   .slot-management-item { min-width: 0; grid-template-columns: 44px minmax(0, 1fr) 44px; padding: 12px; }
   .slot-management-item > div:nth-child(2) { grid-column: 1 / -1; min-width: 0; overflow-wrap: anywhere; }
   .slot-management-item > .status { grid-column: 1 / -1; white-space: normal; }
-  .slot-management-item > .button { grid-row: 1; grid-column: 3; }
+  .slot-management-item > .button { grid-row: 1; grid-column: 3; width:44px; min-width:44px; padding-inline:0; }
   .message-admin-layout { grid-template-columns: 1fr; }
   .blacklist-list article { grid-template-columns: auto minmax(0, 1fr); padding: 16px; }
   .blacklist-list article > .button { grid-column: 2; justify-self: start; }

@@ -37,7 +37,7 @@ describe('tournament reference planning page', () => {
   const view = mount(); await screen.findByText('Sizin komandanız qeydiyyatdadır');
   fireEvent.click(screen.getByRole('button', { name: 'Planlaşdırılıb (1)' }));
   expect(view.container.querySelectorAll('.planning-event')).toHaveLength(1);
-  fireEvent.click(screen.getByRole('button', { name: 'Rising Squads Series təqvimdə seç' }));
+  fireEvent.click(screen.getByRole('button', { name: /Rising Squads Series təqvimdə seç/ }));
   expect(view.container.querySelector('.calendar-event-inspector h3')).toHaveTextContent('Rising Squads Series');
   expect(view.container.querySelector('.tournament-calendar__days [aria-pressed=true]')).toHaveAttribute('data-calendar-date', '2026-09-12');
   expect(view.container.querySelector('.planning-event')).toHaveAttribute('data-selected', 'true');
@@ -45,7 +45,7 @@ describe('tournament reference planning page', () => {
   fireEvent.change(screen.getByRole('searchbox', { name: 'Turnir axtar' }), { target: { value: 'Summer' } });
   expect(view.container.querySelectorAll('.planning-event')).toHaveLength(1);
   fireEvent.change(screen.getByRole('searchbox', { name: 'Turnir axtar' }), { target: { value: '' } });
-  fireEvent.click(screen.getByRole('button', { name: 'AEVIC Daily Cup #24 təqvimdə seç' }));
+  fireEvent.click(screen.getByRole('button', { name: /AEVIC Daily Cup #24 təqvimdə seç/ }));
   fireEvent.click(within(view.container.querySelector('.tournament-calendar__days') as HTMLElement).getByRole('button', { name: '5 avqust, turnir yoxdur' }));
   expect(screen.getByText('Bu gün turnir yoxdur.')).toBeInTheDocument();
   expect(view.container.querySelector('.planning-event[data-selected=true]')).not.toBeInTheDocument();

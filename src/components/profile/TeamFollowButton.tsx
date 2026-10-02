@@ -20,5 +20,5 @@ export function TeamFollowButton({teamId}:{teamId:string}) {
   finally{setBusy(false);}
  };
  const failed=session.error||follows.error;
- return <div><Button size="sm" variant="secondary" aria-pressed={following} aria-label={following?'Komandanı izləməyi dayandır':'Komandanı izlə'} disabled={session.loading||eligible&&follows.loading||busy} loading={busy} icon={<BellPlus size={15}/>} onClick={()=>{if(failed){session.refetch();follows.refetch();}else void toggle();}}>{failed?'Yenidən yoxla':following?'İzlənir':'İzlə'}</Button>{failure&&<small role="alert">{failure}</small>}</div>;
+ return <div><Button size="sm" variant="secondary" aria-pressed={following} aria-label={failed?'Yenidən yoxla':following?'İzlənir — izləməyi dayandır':'İzlə — komanda'} disabled={session.loading||eligible&&follows.loading||busy} loading={busy} icon={<BellPlus size={15}/>} onClick={()=>{if(failed){session.refetch();follows.refetch();}else void toggle();}}>{failed?'Yenidən yoxla':following?'İzlənir':'İzlə'}</Button>{failure&&<small role="alert">{failure}</small>}</div>;
 }

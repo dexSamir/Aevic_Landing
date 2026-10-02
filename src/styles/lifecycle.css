@@ -58,6 +58,11 @@
 .decision-actions { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
 .operation-form { min-width: 0; max-width: 48rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-md); padding: var(--space-lg); background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 .operation-form > .button { justify-self: start; }
+.operation-form :is(h1,h2,h3,.field__label) { overflow-wrap:anywhere; }
+@media (max-width:600px) {
+ .operation-form { padding:16px; }
+ .operation-form .button { max-width:100%; padding-inline:12px; white-space:normal; overflow-wrap:anywhere; }
+}
 .evidence-list, .deadline-note, .inline-status, .rbac-note { display: flex; align-items: center; gap: var(--space-xs); padding: var(--space-sm); color: var(--color-text-muted); background: var(--color-bg-elevated); border-radius: var(--radius-sm); overflow-wrap: anywhere; }
 .deadline-note { color: var(--color-warning); }
 .smart-review-result { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); padding: var(--space-md); color: var(--color-warning); background: var(--color-warning-soft); border-radius: var(--radius-sm); }

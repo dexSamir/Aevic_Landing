@@ -15,6 +15,28 @@ function transport(rows: unknown[] = [row]) {
 }
 afterEach(() => vi.unstubAllGlobals());
 describe('original production contract', () => {
+ it('emits only public canonical sitemap URLs and keeps preview deployments empty',async()=>{
+  transport();
+  const preview=createApp({...config,indexableDeployment:false});
+  expect(await(await preview.request('/api/sitemap.xml')).text()).not.toContain('<loc>');
+  const production=createApp({...config,siteUrl:'https://aevic.example',indexableDeployment:true});
+  const response=await production.request('/api/sitemap.xml');
+  const body=await response.text();
+  expect(response.headers.get('content-type')).toContain('application/xml');
+  expect(body).toContain(`https://aevic.example/teams/${row.id}`);
+  expect(body).not.toMatch(/<loc>[^<]*(?:\/admin|\/account|\/team\/|:teamSlug)/);
+ });
+ it('correlates sanitized operational failures without logging request secrets',async()=>{
+  const log=vi.spyOn(console,'info').mockImplementation(()=>{});
+  try{
+   const response=await app.request('/api/not-found?token=DO_NOT_LOG',{headers:{cookie:'secret=DO_NOT_LOG'}});
+   expect(response.headers.get('x-request-id')).toBeTruthy();
+   expect(response.headers.get('server-timing')).toMatch(/app;dur=/);
+   const output=log.mock.calls.map(call=>String(call[0])).join('');
+   expect(output).not.toContain('DO_NOT_LOG');
+   expect(output).toContain(response.headers.get('x-request-id'));
+  }finally{log.mockRestore();}
+ });
  it('loads without a service-role key and rejects a different project', () => {
   const env={SUPABASE_URL:config.supabaseUrl,SUPABASE_PUBLISHABLE_KEY:config.publishableKey,PUBLIC_SITE_URL:config.siteUrl};
   expect(readConfig(env)).not.toHaveProperty('serviceKey');

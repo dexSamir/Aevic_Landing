@@ -9,6 +9,15 @@ import { ServiceError } from './errors';
 /** Shared same-origin, bounded-body and sanitized-error HTTP boundary. */
 export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=process.env) {
  const app=new Hono<Env>().basePath('/api');
+ let firstRequest=true;
+ app.use('*',async(c,next)=>{
+  const started=performance.now(),coldStart=firstRequest;firstRequest=false;
+  await next();
+  const durationMs=Math.round((performance.now()-started)*10)/10;
+  c.header('Server-Timing',`app;dur=${durationMs}`);
+  // Route templates only: never log URLs, query strings, bodies, cookies or errors.
+  console.info(JSON.stringify({event:'api_request',requestId:c.get('requestId'),route:c.req.routePath??'unmatched',method:c.req.method,status:c.res.status,durationMs,coldStart,version:/^[a-f0-9]{7,40}$/i.test(env.COMMIT_REF??'')?env.COMMIT_REF:'local',code:c.get('operationalError'),database:c.get('platform')?.metrics}));
+ });
  app.use('*',async(c,next)=>{
   c.set('requestId',crypto.randomUUID());c.header('X-Request-Id',c.get('requestId'));c.header('Cache-Control','private, no-store');c.header('X-Content-Type-Options','nosniff');c.header('Referrer-Policy','no-referrer');
   let settings:ServerConfig;try{settings=config??readConfig(env);}catch{throw new ServiceError(503,'SERVER_NOT_CONFIGURED');}
@@ -25,6 +34,7 @@ export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=proces
  app.notFound(c=>c.json({code:'NOT_FOUND',message:'Məlumat tapılmadı.',requestId:c.get('requestId')},404));
  app.onError((error,c)=>{
   const e=error instanceof ZodError?new ServiceError(422,'VALIDATION_ERROR',Object.fromEntries(error.issues.map(i=>[i.path.join('.'),'Dəyəri yoxlayın.']))):error instanceof ServiceError?error:new ServiceError(503,'SERVICE_UNAVAILABLE');
+  c.set('operationalError',e.code);
   // Deliberately no request body/error logging: auth, room and private fields can occur in errors.
   return c.json({code:e.code,message:e.status>=500?'Xidmət müvəqqəti əlçatan deyil.':'Sorğu tamamlanmadı.',fieldErrors:e.fieldErrors,requestId:c.get('requestId')},e.status);
  });

@@ -176,7 +176,7 @@
 .career-map-ledger dd { margin:0; font-variant-numeric:tabular-nums; }
 .team-wrapped-entry { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:24px; padding:28px; margin-block:32px; border:0; border-radius:12px; background:var(--team-purple-wash); }
 .team-wrapped-entry>* { min-width:0; max-width:100%; }
-.team-wrapped-entry h2 { margin-block:10px; font:650 1.8rem/1.2 var(--font-ui); }
+.team-wrapped-entry h2 { margin-block:10px; font:650 1.8rem/1.2 var(--font-ui); overflow-wrap:anywhere; }
 .team-wrapped-entry :is(span,p) { color:var(--team-text-secondary); font-size:.875rem; }
 .career-secondary a { display:inline-flex; align-items:center; gap:16px; min-height:44px; color:var(--team-text-muted); }
 /* Overview uses the same content typography and tonal structure as every subpage. */

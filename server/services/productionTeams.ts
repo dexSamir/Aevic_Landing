@@ -54,9 +54,9 @@ export class ProductionTeams {
       throw new ServiceError(503, 'DATASET_TOO_LARGE');
     })();
   }
-  async teams() { return (await this.rows()).map(mapProductionTeam); }
+  async teams() { return (await this.rows()).filter(row=>['pending','approved'].includes(String(row.status))).map(mapProductionTeam); }
   async summaries(): Promise<PublicTeamSummary[]> {
-    return (await this.rows()).map(row => ({ ...productionSummary(mapProductionTeam(row)), form: [], historyAvailable: Array.isArray(row.match_results) && row.match_results.length === 0 }));
+    return (await this.rows()).filter(row=>['pending','approved'].includes(String(row.status))).map(row => ({ ...productionSummary(mapProductionTeam(row)), form: [], historyAvailable: Array.isArray(row.match_results) && row.match_results.length === 0 }));
   }
   private row(id: string) {
     originalTeamId(id);
@@ -66,7 +66,7 @@ export class ProductionTeams {
         const { data, error } = await this.db.from('teams').select(PUBLIC_TEAM_COLUMNS).eq('id', id).limit(1);
         dbError(error);
         const row = (data as unknown as Row[] | null)?.find(row => row.id === id);
-        if (!row) throw new ServiceError(404, 'TEAM_NOT_FOUND');
+        if (!row || !['pending','approved'].includes(String(row.status))) throw new ServiceError(404, 'TEAM_NOT_FOUND');
         return row;
       })();
       this.details.set(id, pending);

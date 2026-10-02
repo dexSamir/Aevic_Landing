@@ -38,3 +38,16 @@ for (const relative of readdirSync(resolve(root, 'assets'))) {
   }
 }
 console.log(`Validated ${references} manifest asset references, all module edges/CSS URLs, and ${images.length} local images. No browser or production requests made.`);
+
+// Meaningful regression headroom; source masters and user uploads are not bundles.
+const budgets=JSON.parse(readFileSync(resolve('docs/performance/quality-budgets.json'),'utf8'));
+const totals={javascriptBytes:0,cssBytes:0,imageBytes:0,largestJavascriptBytes:0,largestEmittedAssetBytes:0};
+for(const name of readdirSync(resolve(root,'assets'))){
+ const size=statSync(resolve(root,'assets',name)).size;
+ if(name.endsWith('.js')){totals.javascriptBytes+=size;totals.largestJavascriptBytes=Math.max(totals.largestJavascriptBytes,size);}
+ else if(name.endsWith('.css'))totals.cssBytes+=size;
+ else if(/\.(png|jpe?g|avif|webp|svg)$/.test(name))totals.imageBytes+=size;
+ totals.largestEmittedAssetBytes=Math.max(totals.largestEmittedAssetBytes,size);
+}
+for(const [metric,value] of Object.entries(totals))if(value>budgets[metric])throw new Error(`Performance budget exceeded: ${metric} ${value} > ${budgets[metric]}`);
+console.log('Performance budgets passed:',JSON.stringify(totals));

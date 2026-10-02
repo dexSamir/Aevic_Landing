@@ -56,6 +56,24 @@ beforeAll(async()=>{
 });
 afterAll(async()=>{await sql.end();command('dropdb',['--force',database]);command('psql',['-d','postgres','-c',`drop role if exists ${gateway}`]);});
 describe('original-team competition persistence',()=>{
+ it('keeps pending public identities discoverable without accounts while respecting moderation and archive',async()=>{
+  await sql.begin(async tx=>{
+   for(const [id,status] of [[9001,'pending'],[9002,'approved'],[9003,'rejected'],[9004,'banned'],[9005,'pending']] as const)
+    await tx`insert into public.teams(id,team_name,email,status,captain_name,captain_contact,password_hash,player1_ign,player2_ign,player3_ign,player4_ign) values(${id},${'Directory '+id},${id+'@example.invalid'},${status},'Captain','000','fixture','One','Two','Three','Four')`;
+   await tx`insert into aevic_platform.team_details(team_id,archived_at) values(9005,now())`;
+   const repository=new PlatformRepository(client,tx as unknown as typeof sql);
+   const [first,second]=await Promise.all([repository.teams(),repository.teams()]);
+   expect(first).toBe(second);
+   expect(first.filter(t=>Number(t.id)>=9000).map(t=>t.id)).toEqual(['9001','9002']);
+   expect((await repository.team('9001')).captain.email).toBe('');
+   await expect(repository.team('9003')).rejects.toMatchObject({status:404});
+   await expect(repository.teams(true)).rejects.toMatchObject({status:401});
+   const owner=new PlatformRepository(client,tx as unknown as typeof sql,{teamId:'9004',accountId:'9004'});
+   expect((await owner.team('9004')).sourceStatus).toBe('banned');
+   await tx`delete from aevic_platform.team_details where team_id=9005`;
+   await tx`delete from public.teams where id between 9001 and 9005`;
+  });
+ });
  it('serializes administrator slot assignment and protects check-in corrections',async()=>{
   const created=await createTournament(sql,actor,input(),'slot-admin-isolated');
   const appFor=(identity:Actor)=>{const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,identity));await next();});app.route('/',staffRoutes);app.onError((e,c)=>c.json({code:e instanceof ServiceError?e.code:'ERROR'},e instanceof ServiceError?e.status:422));return app;};

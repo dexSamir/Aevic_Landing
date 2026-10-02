@@ -35,7 +35,7 @@ test('captain console puts the real next action first and preserves operation ro
   await expect(page).not.toHaveURL(/\/team$/);
   await expect(page.getByText('Bu səhifə yarış cədvəlində yoxdur.')).toHaveCount(0);
   await page.goto('/team?scenario=no-active-tournament');
-  await expect(page.getByRole('heading', {name:'AKTİV TURNİR YOXDUR'})).toBeVisible();
+  await expect(page.getByRole('heading', {name:'KOMANDA PROFİLİNİ İDARƏ ET'})).toBeVisible();
   await expect(page.locator('.overview-status, .overview-rounds, .overview-standings')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

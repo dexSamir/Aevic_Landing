@@ -27,7 +27,7 @@ test('targeted refinement evidence and behavior', async ({ page }, testInfo) => 
     shine: getComputedStyle(element, '::after').content,
     underline: getComputedStyle(element.querySelector('.public-nav-indicator')!, '::after').content,
   }));
-  expect(navChrome).toEqual({ border: '0px', shine: 'none', underline: 'none' });
+  expect(navChrome).toEqual({ border: '1px', shine: 'none', underline: 'none' });
   await page.locator('.site-header__inner').screenshot({ path: `${evidence}/01-navbar.png` });
 
   const map = page.locator('.map-program');
@@ -38,10 +38,16 @@ test('targeted refinement evidence and behavior', async ({ page }, testInfo) => 
 
   const teams = page.locator('.home-team-stage');
   await teams.scrollIntoViewIfNeeded();
-  await expect(teams.getByRole('button')).toHaveCount(5);
+  await expect(teams.getByRole('link')).toHaveCount(6);
   await teams.screenshot({ path: `${evidence}/03-home-teams-default.png` });
-  await teams.getByRole('button').first().hover();
-  await expect(teams.locator('.team-roster-reveal--names').first()).toHaveCSS('opacity', '1');
+  const featuredTeam = teams.getByRole('link', { name: /Caspian Wolves/ });
+  await expect(featuredTeam).toHaveAttribute('href', '/teams/caspian-wolves');
+  await featuredTeam.focus();
+  await featuredTeam.press('Enter');
+  await expect(page).toHaveURL(/\/teams\/caspian-wolves$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Caspian Wolves', exact: true })).toBeVisible();
+  await page.goBack();
+  await expect(teams).toBeVisible();
   await teams.screenshot({ path: `${evidence}/04-home-team-hover.png` });
 
   await page.goto('/tournaments/summer-final-25#results');
@@ -79,19 +85,20 @@ test('targeted refinement evidence and behavior', async ({ page }, testInfo) => 
   await page.locator('.profile-card-canvas').screenshot({ path: `${evidence}/06-team-identity-sharecard.png` });
 
   await page.goto('/team');
-  await expect(page.locator('.team-standing-preview__table')).toHaveCount(0);
-  await expect(page.locator('.team-standing-preview__empty')).toContainText('dərc edilmiş cari sıralama yoxdur');
-  await page.locator('.team-standing-preview').screenshot({ path: `${evidence}/07-team-overview-standings.png` });
+  await expect(page.locator('.overview-standings table')).toHaveCount(0);
+  await expect(page.locator('.overview-standing-empty')).toContainText('Komandanız üçün cari sıralama dərc edilməyib.');
+  await page.locator('.overview-standings').screenshot({ path: `${evidence}/07-team-overview-standings.png` });
   const sidebarIdentity = page.locator('.product-sidebar > .team-identity');
   await expect(sidebarIdentity).toContainText('Caspian Wolves');
   await expect(sidebarIdentity.getByRole('link', { name: 'İctimai profili aç' })).toHaveAttribute('href', '/teams/caspian-wolves');
   await sidebarIdentity.screenshot({ path: `${evidence}/09-team-sidebar-identity.png` });
 
   await page.goto('/team?scenario=room-ready');
-  const room = page.locator('.team-room-status');
-  await expect(room).toContainText('Otaq məlumatları yayımlandı');
+  const room = page.locator('.overview-status--room');
+  await expect(room).toContainText('Hazırdır');
   await room.screenshot({ path: `${evidence}/08-team-overview-room.png` });
-  await room.getByRole('link', { name: 'Otaq məlumatlarını aç' }).click();
+  await expect(room).toHaveAttribute('href', '/team/tournaments/daily-cup-24#room');
+  await room.click();
   await expect(page).toHaveURL(/\/team\/tournaments\/daily-cup-24\?scenario=room-ready#room|\/team\/tournaments\/daily-cup-24#room/);
   await expect(page.locator('.credential-panel#room')).toBeVisible();
 

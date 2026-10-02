@@ -26,9 +26,9 @@ describe('updated Teams reference', () => {
   expect(badge).toHaveAttribute('href', `/tournaments/${tournaments[0].id}`);
   expect(badge.closest('.team-directory-card')).toHaveTextContent(currentTeam.name);
   expect(screen.getAllByRole('link', { name: /Qeydiyyatda:/ })).toHaveLength(1);
-  expect(view.container.querySelector('.teams-directory__count strong')).toHaveTextContent(String(screen.getAllByRole('listitem').length).padStart(2, '0'));
+  expect(view.container.querySelector('.teams-directory__count strong')).toHaveTextContent(`${screen.getAllByRole('listitem').length} komanda`);
   fireEvent.change(screen.getByRole('textbox', { name: 'Komanda adı ilə axtar' }), { target: { value: currentTeam.name } });
-  expect(view.container.querySelector('.teams-directory__count strong')).toHaveTextContent('01');
+  expect(view.container.querySelector('.teams-directory__count strong')).toHaveTextContent('1 komanda');
   expect(screen.getByRole('contentinfo')).toBeInTheDocument();
   expect(view.container.querySelector('.home-brand-statement')).not.toBeInTheDocument();
  });
@@ -39,7 +39,7 @@ describe('updated Teams reference', () => {
  });
  it('persists follow without selecting or navigating the surrounding card', async () => {
   mount(); await screen.findByText('Sizin komanda');
-  const controls = screen.getAllByRole('button', { name: 'Komandanı izlə', exact:true });
+  const controls = screen.getAllByRole('button', { name: 'İzlə — komanda', exact:true });
   await waitFor(()=>expect(controls[0]).toBeEnabled());
   fireEvent.click(controls[0]);
   await waitFor(()=>expect(services.follows!.mutate).toHaveBeenCalledWith({entityType:'TEAM',entityId:currentTeam.id,following:true}));

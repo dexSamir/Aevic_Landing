@@ -1,10 +1,13 @@
 /** Browser UI regression fixtures at the HTTP boundary. These are NOT live backend tests. */
-import {test as base,expect} from '@playwright/test';
-import {fixtureServices as s} from '../fixtures/component-services';
+import {test as base,expect,type Page} from '@playwright/test';
+import {fixtureServices as s,teamSnapshotScenario,fixtureRoom} from '../fixtures/component-services';
 import {MOCK_COMPETITION_NOW_ISO} from '../fixtures/clock';
 export {expect};
-export const test=base.extend({
- page:async({page},use)=>{
+export async function installApiFixtures(page:Page){
+  let loggedOut=false;
+  let checkedIn=false;
+  const fixtureTeam=await s.teams.current();
+  fixtureTeam.roster=fixtureTeam.roster.map((player,index)=>({...player,id:`${fixtureTeam.id}:player${index+1}`}));
   await page.clock.install({time:new Date(MOCK_COMPETITION_NOW_ISO)});
   await page.route('**/api/**',async route=>{
    const request=route.request(),url=new URL(request.url()),path=url.pathname.slice(4),method=request.method(),q=url.searchParams;
@@ -12,10 +15,13 @@ export const test=base.extend({
    const key=`${method} ${path}`;let value:unknown;let found=true;
    try{
     if(key==='GET /public/context')value=await s.snapshots.public();
+    else if(key==='GET /public/settings')value={supportEmail:'support@example.invalid',registrationEnabled:true,maintenanceMessage:''};
+    else if(key==='GET /me/session'&&loggedOut)value=null;
     else if(key==='GET /me/session'){await s.auth.login(page.url().includes('/admin')?'admin@example.test':'team@example.test','test-fixture');value=await s.auth.getSession();}
-    else if(key==='GET /me/context')value=await s.snapshots.team();
+    else if(key==='GET /me/context'){const scenario=new URL(page.url()).searchParams.get('scenario')??'';if(scenario==='check-in-open'||scenario==='room-ready')await page.clock.setFixedTime(new Date(scenario==='check-in-open'?'2026-08-04T20:20:00+04:00':'2026-08-04T20:55:00+04:00'));const snapshot=teamSnapshotScenario(scenario);value={...snapshot,currentTeam:fixtureTeam,checkIn:checkedIn&&snapshot.checkIn?{...snapshot.checkIn,status:'checked-in'}:snapshot.checkIn,dataSource:'public.teams'};}
     else if(key==='GET /admin/context')value=await s.snapshots.admin();
-    else if(key==='GET /me/team')value=await s.teams.current();
+    else if(key==='GET /me/team')value=fixtureTeam;
+    else if(key==='GET /me/workspaces'){const team=await s.teams.current();value=[{id:team.id,name:team.name,role:'OWNER'}];}
     else if(key==='GET /tournaments')value=await s.tournaments.list();
     else if(key==='GET /public/teams')value=await s.profiles.listTeams();
     else if(key==='GET /organizations')value=await s.organizations.list();
@@ -34,21 +40,39 @@ export const test=base.extend({
     else if(key==='GET /me/follows/status')value=await s.follows!.status('TEAM',q.get('entityId')!);
     else if(key==='PUT /me/follows')value=await s.follows!.mutate(body);
     else if(key==='POST /auth/login')value=await s.auth.login(body.email,body.password);
-    else if(key==='POST /auth/logout')value=await s.auth.logout();
+    else if(key==='POST /auth/logout'){loggedOut=true;value=await s.auth.logout();}
     else if(key==='POST /auth/password-reset')value=await s.auth.requestPasswordReset(body.email);
     else if(key==='POST /auth/password-reset/inspect')value=await s.auth.inspectPasswordReset(body.token);
     else if(key==='POST /auth/email-verification/inspect')value=await s.auth.inspectEmailVerification(body.token);
+    else if(key==='POST /roster-requests')value=await s.rosterRequests.submit(body);
+    else if(method==='POST'&&/^\/tournaments\/[^/]+\/check-in$/.test(path)){const snapshot=teamSnapshotScenario(new URL(page.url()).searchParams.get('scenario')??'');if(snapshot.checkIn?.status!=='open')return route.fulfill({status:409,json:{code:'CHECK_IN_CLOSED'}});checkedIn=true;value={...snapshot.checkIn,status:'checked-in',checkedInAt:'2026-08-04T16:20:00Z'};}
     else if(key==='GET /roster-requests')value=await s.rosterRequests.list(q.get('teamId')??undefined);
     else if(key==='GET /disputes')value=await s.disputes.list(q.get('teamId')??undefined);
-    else if(key==='GET /me/support/tickets')value=await s.support.listTickets();
+    else if(key==='GET /me/support/tickets')value=q.has('page')?await s.support.page():await s.support.listTickets();
+    else if(key==='GET /team-invitations')value=await s.teams.invitations();
+    else if(key==='GET /verifications/entity')value=(await s.verifications.forEntity('TEAM',q.get('entityId')!))??null;
+    else if(key==='GET /admin/verifications')value=await s.verifications.page();
+    else if(key==='GET /admin/support/tickets')value=await s.support.adminPage();
+    else if(key==='GET /admin/results')value=await s.results.roundEntries(q.get('roundId')!);
+    else if(key==='GET /admin/audit')value=await s.operations.audit();
+    else if(key==='GET /admin/users')value=await s.operations.adminUsers();
     else {
      const parts=path.split('/').filter(Boolean).map(decodeURIComponent);
-     if(method==='GET'&&parts[0]==='public'&&parts[1]==='teams'&&parts.length===3)value=await s.profiles.teamBySlug(parts[2]);
+     if(method==='GET'&&parts[0]==='team'&&parts[1]==='tournaments'&&parts[3]==='rounds'&&parts[5]==='room')value=fixtureRoom(new URL(page.url()).searchParams.get('scenario')??'');
+     else if(method==='PUT'&&parts[0]==='teams'&&parts[2]==='roster'){const player=fixtureTeam.roster.find(p=>p.id===`${fixtureTeam.id}:player${parts[3]}`);if(player)player.ign=body.ign;value=fixtureTeam;}
+     else if(method==='GET'&&parts[0]==='admin'&&parts[1]==='tournaments'&&parts[3]==='entries')value=await s.tournaments.entries(parts[2]);
+     else if(method==='GET'&&parts[0]==='admin'&&parts[1]==='verifications'&&parts.length===3)value=(await s.verifications.get(parts[2]))??null;
+     else if(method==='GET'&&parts[0]==='teams'&&parts[2]==='authority')value=await s.teams.authority(parts[1]);
+     else if(method==='GET'&&parts[0]==='roster-requests'&&parts.length===2)value=await s.rosterRequests.get(parts[1]);
+     else if(method==='GET'&&parts[0]==='disputes'&&parts.length===2)value=await s.disputes.get(parts[1]);
+     else if(method==='GET'&&parts[0]==='public'&&parts[1]==='teams'&&parts.length===3)value=await s.profiles.teamBySlug(parts[2]);
      else if(method==='GET'&&parts[0]==='tournaments'){
       const id=parts[1];const action=parts[2];
       if(!action)value=await s.tournaments.get(id);else if(action==='participants')value=await s.tournaments.publicParticipants(id);else if(action==='slots')value=await s.tournaments.slots(id);else if(action==='recap')value=await s.tournaments.recap(id);else found=false;
      }else if(method==='GET'&&parts[0]==='leaderboards')value=parts[2]==='movement'?await s.results.movement(parts[1]):parts[2]==='snapshots'?await s.results.snapshots(parts[1]):await s.results.leaderboard(parts[1]);
-     else if(method==='GET'&&parts[0]==='organizations')value=await s.organizations.getBySlug(parts[1]);
+     else if(method==='GET'&&parts[0]==='organizations'&&parts[2]==='members')value=await s.organizations.members(parts[1]);
+     else if(method==='GET'&&parts[0]==='organizations'&&parts[2]==='invitations')value=await s.organizations.invitations(parts[1]);
+     else if(method==='GET'&&parts[0]==='organizations'&&parts.length===2)value=await s.organizations.getBySlug(parts[1]);
      else if(method==='GET'&&parts[0]==='matches')value=await s.publicMatches.get(parts[1]);
      else if(method==='GET'&&parts[0]==='records')value=parts[2]==='history'?await s.records.history(parts[1]):await s.records.get(parts[1]);
      else if(method==='GET'&&parts[0]==='teams'&&parts[2]==='wrapped')value=await s.wrapped.forTeam(parts[1],{type:'year',year:Number(q.get('year')),label:q.get('year')!,startDate:`${q.get('year')}-01-01T00:00:00Z`,endDate:`${q.get('year')}-12-31T23:59:59Z`});
@@ -56,10 +80,10 @@ export const test=base.extend({
      else if(method==='PATCH'&&parts[0]==='teams'&&parts.length===2)value=await s.teams.updateProfile(parts[1],body);
      else found=false;
     }
-    if(!found)return route.fulfill({status:501,contentType:'application/json',body:JSON.stringify({code:'TEST_FIXTURE_NOT_DEFINED',path})});
-    return route.fulfill({status:value===undefined?204:200,contentType:'application/json',body:value===undefined?undefined:JSON.stringify(value)});
+    if(!found){console.info('Missing browser fixture:',key);return route.fulfill({status:501,contentType:'application/json',body:JSON.stringify({code:'TEST_FIXTURE_NOT_DEFINED',path})});}
+    if(value===undefined)return route.fulfill({status:204,body:''});
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(value)});
    }catch{return route.fulfill({status:503,contentType:'application/json',body:'{"code":"TEST_FIXTURE_ERROR"}'});}
   });
-  await use(page);
- },
-});
+}
+export const test=base.extend({page:async({page},use)=>{await installApiFixtures(page);await use(page);}});

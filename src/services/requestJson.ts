@@ -11,7 +11,11 @@ export async function requestJson<T>(url: string, options: RequestInit = {}, nul
     const response = await fetch(url, { ...options, signal: controller.signal });
     if (nullStatuses.includes(response.status)) return undefined as T;
     if (!response.ok) throw await apiErrorFromResponse(response);
-    if (response.status === 204) return undefined as T;
+    if (response.status === 204) {
+      // Finish the empty response before the caller navigates after a mutation.
+      await response.text();
+      return undefined as T;
+    }
     const type = response.headers.get('content-type')?.toLowerCase() ?? '';
     if (!type.includes('application/json') && !type.includes('+json')) throw new ApiError({ status: response.status, kind: 'server', code: 'UNEXPECTED_CONTENT_TYPE', message: 'Məlumat servisi etibarsız cavab qaytardı.' });
     try { return await response.json() as T; }

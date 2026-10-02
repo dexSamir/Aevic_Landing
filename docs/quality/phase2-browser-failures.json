@@ -1,0 +1,184 @@
+{
+  "source": "/tmp/aevic-phase2-broad.log",
+  "result": {
+    "passed": 77,
+    "failed": 19,
+    "skipped": 32,
+    "total": 128,
+    "duration": "3.2h"
+  },
+  "failures": [
+    {
+      "number": 1,
+      "project": "desktop-chrome",
+      "test": "tests/e2e/final-stabilization.spec.ts:18:3 › cold component style ownership › Home calendar is independently styled at eight widths and 200% text ",
+      "classification": "real application bug",
+      "evidence": "35.14px calendar date targets at 320px. Fixed; unchanged eight-width/200% text and keyboard test passed.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-targets.log (3 passed, 1 duplicate matrix skipped, 21.1s)"
+    },
+    {
+      "number": 2,
+      "project": "desktop-chrome",
+      "test": "tests/e2e/public-shell-contract.spec.ts:21:1 › public navigation and footer contract across modes, session states and viewports ",
+      "classification": "stale test expectation + real application bug",
+      "evidence": "Footer intentionally uses primary/contact/legal links. Updated contract exposed 37.22px link width; minimum width fixed. Geometry now checks column alignment and no overlap.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-targets.log (3 passed, 1 duplicate matrix skipped, 21.1s)"
+    },
+    {
+      "number": 3,
+      "project": "desktop-chrome",
+      "test": "tests/e2e/public-shell-redesign.spec.ts:5:1 › captures the approved public shell and auth redesign ",
+      "classification": "real application bug",
+      "evidence": "Logout cache invalidation ran before server acknowledgement; HTTP 204 returned before consuming the empty response. Defer invalidation until success and finish response before navigation. Original request-failure assertion passes; delayed acknowledgement and failed logout covered by component regressions.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-public-final.log (2 passed, 14.7s); /tmp/aevic-resume-logout.log (26 passed)"
+    },
+    {
+      "number": 4,
+      "project": "desktop-chrome",
+      "test": "tests/e2e/targeted-product-refinement.spec.ts:13:1 › targeted refinement evidence and behavior ",
+      "classification": "stale test expectation",
+      "evidence": "Current Home uses six public team profile links rather than five roster-hover buttons. Test now checks keyboard navigation to actual profile.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-public-final.log (2 passed, 14.7s)"
+    },
+    {
+      "number": 5,
+      "project": "desktop-chrome",
+      "test": "tests/e2e/targeted-ui-refinement.spec.ts:19:3 › targeted UI refinement › navbar moves from a transparent hero state to dark glass with a solid reduced-transparency fallback ",
+      "classification": "stale test expectation",
+      "evidence": "Reduced-transparency CSS intentionally uses surface-command (#070709). Solid-background/backdrop assertions retained; focused test passed.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-public.log (navbar test passed; other cases subsequently resolved separately)"
+    },
+    {
+      "number": 6,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/accessibility-layout.spec.ts:309:1 › public navbar groups navigation beside the logo and keeps utilities separate ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 7,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/accessibility-layout.spec.ts:502:1 › redesigned route families remain contained at every requested breakpoint ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 8,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/critical-flows.spec.ts:3:1 › auth lifecycle: login, recovery, verification, and security ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 9,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/critical-flows.spec.ts:29:1 › public competition graph: tournament, participant team, results, match center, and search stay connected ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 10,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/critical-flows.spec.ts:70:1 › team overview exposes canonical public identity and an unambiguous tournament context link ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 11,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/critical-flows.spec.ts:91:1 › admin lifecycle: team, roster, disputes, verification, results, support, and audit ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 12,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/legacy-claim.spec.ts:26:1 › admin review requires confirmation, uses backend version and displays a removable one-time code ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 13,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/public-shell-contract.spec.ts:21:1 › public navigation and footer contract across modes, session states and viewports ",
+      "classification": "stale test expectation + real application bug",
+      "evidence": "Footer intentionally uses primary/contact/legal links. Updated contract exposed 37.22px link width; minimum width fixed. Geometry now checks column alignment and no overlap.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-targets.log (3 passed, 1 duplicate matrix skipped, 21.1s)"
+    },
+    {
+      "number": 14,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/public-shell-redesign.spec.ts:72:1 › registration keeps its page heading at short and zoom-equivalent viewports ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 15,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/team-overview-reference.spec.ts:3:1 › captain console puts the real next action first and preserves operation routes ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 16,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/team-workspace-rebuild.spec.ts:3:1 › workspace routes fit all operating viewports and keep the menu on the right ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 17,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/team-workspace-rebuild.spec.ts:29:1 › identity preview is local, social saving uses the service, and settings persist preferences ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 18,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/team-workspace-rebuild.spec.ts:73:1 › protected room reveal and roster editing retain their UI flows ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    },
+    {
+      "number": 19,
+      "project": "mobile-chrome",
+      "test": "tests/e2e/tournament-detail-reference.spec.ts:3:1 › tournament dossier follows the reference at desktop, tablet and mobile widths ",
+      "classification": "infrastructure/browser problem",
+      "evidence": "Passed unchanged mobile assertion in isolated 13-case rerun (13 passed, 2.0m). Earlier long-run timeout/actionability/context failure did not reproduce. Underlying long-run instability remains a release-validation concern.",
+      "resolution": "Targeted rerun passed",
+      "verification": "/tmp/aevic-resume-mobile.log"
+    }
+  ],
+  "targetedRecovery": "All 19 original failed cases passed targeted reruns; full 128-test suite not rerun."
+}

@@ -15,13 +15,13 @@ function upsertMeta(selector: string, attributes: Record<string, string>) {
   Object.entries(attributes).forEach(([key, value]) => element!.setAttribute(key, value));
 }
 
-export function Seo({ title, description = DEFAULT_DESCRIPTION, canonicalPath, image }: { title: string; description?: string; canonicalPath?: string; image?: string }) {
+export function Seo({ title, description = DEFAULT_DESCRIPTION, canonicalPath, image, publicEntity = false }: { title: string; description?: string; canonicalPath?: string; image?: string; publicEntity?: boolean }) {
   const location = useLocation();
   useEffect(() => {
     const fullTitle = title.includes('AEVIC') ? title : `${title} | ${SITE_NAME}`;
     const route = matchRoute(location.pathname);
     const origin = configuredPublicOrigin();
-    const indexable = Boolean(origin && route?.indexable && routeIsAvailable(route, serviceCapabilities));
+    const indexable = Boolean(origin && import.meta.env.VITE_INDEXABLE_DEPLOYMENT && route && (route.indexable || publicEntity) && routeIsAvailable(route, serviceCapabilities));
     const canonical = origin && indexable ? new URL(canonicalPath ?? location.pathname, origin).toString() : '';
     upsertMeta('meta[name="robots"]', { name: 'robots', content: indexable ? 'index,follow' : 'noindex,follow' });
     document.title = fullTitle;
@@ -42,7 +42,7 @@ export function Seo({ title, description = DEFAULT_DESCRIPTION, canonicalPath, i
     if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
     if (canonical) link.href = canonical;
     else link.remove();
-  }, [canonicalPath, description, image, location.pathname, title]);
+  }, [canonicalPath, description, image, location.pathname, title, publicEntity]);
   return null;
 }
 

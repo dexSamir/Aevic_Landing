@@ -13,8 +13,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "account_legacy_claim",
@@ -30,8 +35,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 768, 375, 320px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_legacy_claims",
@@ -47,8 +57,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_profile",
@@ -65,7 +80,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_career",
@@ -82,7 +102,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "home",
@@ -98,8 +123,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "resume20261002": {
+      "status": "PARTIAL",
+      "evidence": "/tmp/aevic-resume-targets.log (3 passed, 1 duplicate matrix skipped); docs/quality/phase2-browser-failures.json",
+      "scope": "Calendar eight widths, normal/200% text, >=44px targets, no clipping and keyboard/month navigation passed. Full Home acceptance/performance pending."
+    }
   },
   {
     "id": "tournaments",
@@ -115,8 +150,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "tournaments_tournamentId_recap",
@@ -136,7 +176,12 @@
       "verified": "Completed tournament winner recap rendered; mobile overflow checked."
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "tournaments_tournamentId",
@@ -151,8 +196,13 @@
     "states": "review pending",
     "functional": "not verified",
     "responsive": "not verified",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "leaderboard",
@@ -168,8 +218,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "regulations",
@@ -185,8 +240,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/public-static.spec.ts; 2026-10-02 isolated production application/browser run: 12 passed.",
+      "scope": "Direct entry/reload/back, seven widths and 200% text passed. Final approved legal/rules content or verified official contact configuration remains unaccepted."
+    }
   },
   {
     "id": "contact",
@@ -202,8 +267,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/public-static.spec.ts; 2026-10-02 isolated production application/browser run: 12 passed.",
+      "scope": "Direct entry/reload/back, seven widths and 200% text passed. Final approved legal/rules content or verified official contact configuration remains unaccepted."
+    }
   },
   {
     "id": "privacy",
@@ -219,8 +294,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/public-static.spec.ts; 2026-10-02 isolated production application/browser run: 12 passed.",
+      "scope": "Direct entry/reload/back, seven widths and 200% text passed. Final approved legal/rules content or verified official contact configuration remains unaccepted."
+    }
   },
   {
     "id": "terms",
@@ -236,8 +321,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/public-static.spec.ts; 2026-10-02 isolated production application/browser run: 12 passed.",
+      "scope": "Direct entry/reload/back, seven widths and 200% text passed. Final approved legal/rules content or verified official contact configuration remains unaccepted."
+    }
   },
   {
     "id": "support",
@@ -250,11 +345,21 @@
     "authorization": "review pending",
     "dynamicData": "review pending",
     "states": "review pending",
-    "functional": "not verified",
-    "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
-    "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "functional": "Accepted for current public FAQ scope",
+    "responsive": "320,375,390,768,1024,1440,1920; 390px at 200% text; no document overflow.",
+    "browserEvidence": "tests/platform-browser/public-static.spec.ts; 2026-10-02 isolated production application/browser run: 12 passed.",
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Static FAQ search/no-results/reset, keyboard disclosure open/close, guest ticket-entry login boundary, direct entry/reload/back, seven widths, 200% text and axe WCAG 2.1 A accepted. No server mutation belongs to this public FAQ route.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "COMPLETE",
+      "evidence": "tests/platform-browser/public-static.spec.ts; 2026-10-02 isolated production application/browser run: 12 passed.",
+      "scope": "Static FAQ search/no-results/reset, keyboard disclosure open/close, guest ticket-entry login boundary, direct entry/reload/back, seven widths, 200% text and axe WCAG 2.1 A accepted. No server mutation belongs to this public FAQ route."
+    }
   },
   {
     "id": "organizations",
@@ -270,8 +375,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "organizations_organizationSlug",
@@ -286,8 +396,13 @@
     "states": "review pending",
     "functional": "not verified",
     "responsive": "not verified",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "records",
@@ -303,8 +418,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "records_recordId",
@@ -324,7 +444,12 @@
       "verified": "Record derived from published match results rendered in detail page."
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "teams",
@@ -341,7 +466,17 @@
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "teams_compare",
@@ -358,7 +493,12 @@
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "teams_teamSlug_share_card",
@@ -378,7 +518,12 @@
       "verified": "Three PNG formats exported with recorded-results disclosure; mobile overflow checked."
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "teams_teamSlug",
@@ -394,7 +539,17 @@
     "functional": "not verified",
     "responsive": "not verified",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "matches",
@@ -410,8 +565,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "matches_matchId",
@@ -426,8 +586,13 @@
     "states": "review pending",
     "functional": "not verified",
     "responsive": "not verified",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "search",
@@ -443,8 +608,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "following",
@@ -460,8 +630,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "archive",
@@ -477,8 +652,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "403",
@@ -494,8 +674,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths.",
+    "quality20261001": {
+      "status": "COMPLETE",
+      "evidence": "tests/quality/system-routes.spec.ts",
+      "scope": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths."
+    }
   },
   {
     "id": "500",
@@ -511,8 +696,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths.",
+    "quality20261001": {
+      "status": "COMPLETE",
+      "evidence": "tests/quality/system-routes.spec.ts",
+      "scope": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths."
+    }
   },
   {
     "id": "maintenance",
@@ -528,8 +718,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths.",
+    "quality20261001": {
+      "status": "COMPLETE",
+      "evidence": "tests/quality/system-routes.spec.ts",
+      "scope": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths."
+    }
   },
   {
     "id": "offline",
@@ -545,8 +740,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths.",
+    "quality20261001": {
+      "status": "COMPLETE",
+      "evidence": "tests/quality/system-routes.spec.ts",
+      "scope": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths."
+    }
   },
   {
     "id": "not_found",
@@ -561,8 +761,13 @@
     "states": "review pending",
     "functional": "not verified",
     "responsive": "not verified",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths.",
+    "quality20261001": {
+      "status": "COMPLETE",
+      "evidence": "tests/quality/system-routes.spec.ts",
+      "scope": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths."
+    }
   },
   {
     "id": "teams_teamSlug_wrapped_year",
@@ -578,7 +783,12 @@
     "functional": "not verified",
     "responsive": "not verified",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "login",
@@ -594,8 +804,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "register",
@@ -616,7 +836,12 @@
       "verified": "Four-step registration creates an isolated account and dashboard session"
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "forgot_password",
@@ -632,8 +857,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "reset_password",
@@ -649,8 +884,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "verify_email",
@@ -666,8 +911,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "unauthorized",
@@ -683,8 +933,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths.",
+    "quality20261001": {
+      "status": "COMPLETE",
+      "evidence": "tests/quality/system-routes.spec.ts",
+      "scope": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths."
+    }
   },
   {
     "id": "session_expired",
@@ -700,8 +955,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths.",
+    "quality20261001": {
+      "status": "COMPLETE",
+      "evidence": "tests/quality/system-routes.spec.ts",
+      "scope": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths."
+    }
   },
   {
     "id": "account_locked",
@@ -717,8 +977,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 768, 375, 320px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths.",
+    "quality20261001": {
+      "status": "COMPLETE",
+      "evidence": "tests/quality/system-routes.spec.ts",
+      "scope": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths."
+    }
   },
   {
     "id": "too_many_attempts",
@@ -734,8 +999,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths.",
+    "quality20261001": {
+      "status": "COMPLETE",
+      "evidence": "tests/quality/system-routes.spec.ts",
+      "scope": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths."
+    }
   },
   {
     "id": "forbidden",
@@ -751,8 +1021,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "COMPLETE",
+    "handoffReason": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths.",
+    "quality20261001": {
+      "status": "COMPLETE",
+      "evidence": "tests/quality/system-routes.spec.ts",
+      "scope": "Direct entry, heading, reload, retry where available, keyboard exit, back navigation, noindex and seven viewport widths."
+    }
   },
   {
     "id": "admin_login",
@@ -767,8 +1042,13 @@
     "states": "review pending",
     "functional": "not verified",
     "responsive": "not verified",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team",
@@ -785,7 +1065,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_tournaments",
@@ -802,7 +1087,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_tournaments_tournamentId",
@@ -819,7 +1109,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_history",
@@ -836,7 +1131,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_comparison",
@@ -853,7 +1153,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_roster",
@@ -874,7 +1179,12 @@
       "verified": "Roster name edit persists after reload"
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_messages",
@@ -895,7 +1205,12 @@
       "verified": "Persistent announcement read/filter workflow"
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_notifications",
@@ -912,7 +1227,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_roster_requests",
@@ -929,7 +1249,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_roster_requests_requestId",
@@ -946,7 +1271,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_disputes",
@@ -963,7 +1293,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_disputes_new",
@@ -980,7 +1315,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_disputes_disputeId",
@@ -997,7 +1337,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_sharecards",
@@ -1014,7 +1359,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_badges",
@@ -1035,7 +1385,12 @@
       "verified": "First earned badge selection persists; detail shows category artwork and official progress"
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_badges_badgeId",
@@ -1056,7 +1411,12 @@
       "verified": "First earned badge selection persists; detail shows category artwork and official progress"
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_invitations",
@@ -1077,7 +1437,12 @@
       "verified": "Invitation acceptance, delegated workspace permissions and revocation through UI"
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_settings_managers",
@@ -1098,7 +1463,12 @@
       "verified": "Invitation acceptance, delegated workspace permissions and revocation through UI"
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_verification",
@@ -1115,7 +1485,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_organization_organizationSlug",
@@ -1132,7 +1507,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "team_settings",
@@ -1149,7 +1529,12 @@
     "responsive": "Populated isolated layouts checked at 320,768,1440,1920px; initial two overflows corrected and affected routes rechecked. No runtime errors.",
     "browserEvidence": "/tmp/aevic-completion-qa2/captain-final/report.json; /tmp/aevic-completion-qa2/captain-corrections/report.json",
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin",
@@ -1165,8 +1550,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_tournaments",
@@ -1182,8 +1572,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_tournaments_new",
@@ -1199,8 +1594,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_tournaments_tournamentId",
@@ -1215,8 +1615,13 @@
     "states": "review pending",
     "functional": "not verified",
     "responsive": "not verified",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_tournaments_tournamentId_lifecycle",
@@ -1231,8 +1636,13 @@
     "states": "review pending",
     "functional": "not verified",
     "responsive": "not verified",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_check_ins_missed",
@@ -1248,8 +1658,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_teams",
@@ -1265,8 +1680,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_teams_teamId",
@@ -1281,8 +1701,13 @@
     "states": "review pending",
     "functional": "not verified",
     "responsive": "not verified",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_organizations",
@@ -1298,8 +1723,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_results",
@@ -1315,8 +1745,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_results_resultId_correct",
@@ -1331,8 +1766,13 @@
     "states": "review pending",
     "functional": "not verified",
     "responsive": "not verified",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_messages",
@@ -1353,7 +1793,12 @@
       "verified": "Persistent announcement read/filter workflow"
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_blacklist",
@@ -1369,8 +1814,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_roster_requests",
@@ -1386,8 +1836,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_roster_requests_requestId",
@@ -1407,7 +1862,12 @@
       "verified": "Review rejection persisted after reload; final decision controls hidden."
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_disputes",
@@ -1423,8 +1883,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_disputes_disputeId",
@@ -1444,7 +1909,12 @@
       "verified": "Review rejection persisted after reload; final decision controls hidden."
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_players_playerId",
@@ -1464,7 +1934,12 @@
       "verified": "Pending claim approved with reason and reflected in claimant account."
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_verifications",
@@ -1480,8 +1955,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_verifications_verificationId",
@@ -1501,7 +1981,12 @@
       "verified": "Team verification approved; public team verification changed."
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_support",
@@ -1517,8 +2002,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_audit",
@@ -1534,8 +2024,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_users",
@@ -1551,8 +2046,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "admin_settings",
@@ -1568,8 +2068,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 375px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "account",
@@ -1585,8 +2090,13 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 768, 375, 320px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "account_profile",
@@ -1607,7 +2117,17 @@
       "verified": "Profile edit persists and private JSON export excludes authentication fields"
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "account_security",
@@ -1623,8 +2143,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 768, 375, 320px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "account_notifications",
@@ -1640,8 +2170,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 768, 375, 320px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "account_sessions",
@@ -1657,8 +2197,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 768, 375, 320px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "account_player_claim_playerId",
@@ -1678,7 +2228,12 @@
       "verified": "Claim submitted and persisted; administrator approval visible after reload."
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    }
   },
   {
     "id": "account_support_tickets",
@@ -1694,8 +2249,18 @@
     "functional": "not verified",
     "responsive": "Initial rendered baseline: 1440, 768, 375, 320px; no document overflow. Full state/visual review pending.",
     "browserEvidence": "/tmp/aevic-completion-qa2/report.json",
-    "handoffStatus": "NOT VERIFIED",
-    "handoffReason": "Route exists; implementation and rendering are not sufficient evidence of complete end-to-end behavior."
+    "handoffStatus": "PARTIAL",
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "account_support_tickets_new",
@@ -1716,7 +2281,17 @@
       "verified": "Created ticket with actual image upload; anonymous download denied."
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   },
   {
     "id": "account_support_tickets_ticketId",
@@ -1736,6 +2311,16 @@
       "verified": "Owner/staff replies persisted after reload; closed state hides reply controls."
     },
     "handoffStatus": "PARTIAL",
-    "handoffReason": "Implemented foundation and/or focused evidence exists; full action/state/security sign-off is incomplete."
+    "handoffReason": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete.",
+    "quality20261001": {
+      "status": "PARTIAL",
+      "evidence": "docs/quality/route-measurements.json",
+      "scope": "Desktop/mobile fixture-backed render smoke. Full mutation, persistence, permission and state acceptance remains incomplete."
+    },
+    "quality20261002": {
+      "status": "PARTIAL",
+      "evidence": "tests/platform-browser/account.spec.ts; 7 real application/disposable PostgreSQL browser tests passed 2026-10-02. See PHASE2_PROGRESS.md for exact scope.",
+      "scope": "Persisted success and selected authorization/failure checks added; full route-specific loading/error/retry, responsive and keyboard acceptance still incomplete."
+    }
   }
 ]

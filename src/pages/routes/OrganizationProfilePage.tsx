@@ -1,3 +1,4 @@
+import { Seo } from '../../components/common/Seo';
 import { ArrowRight,CalendarDays,Flag,Globe2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link,useParams } from 'react-router-dom';
@@ -19,7 +20,7 @@ export function OrganizationProfilePage() {
   if (loading) return <section className="page-section"><div className="container"><LoadingSkeleton variant="profile" rows={5} /></div></section>;
   if (!organization) return <section className="page-section"><div className="container"><EmptyState title="Təşkilat tapılmadı" body="Bu public profil mövcud deyil və ya görünürlükdən çıxarılıb." action={<Link className="button button--secondary" to="/organizations"><span>Directory-yə qayıt</span></Link>} /></div></section>;
   const featured = teamAchievements.filter((item) => organization.featuredAchievements.includes(item.id)).map((item, index) => ({ ...item, displayOrder: index + 1 }));
-  return <>
+  return <><Seo title={organization.name} description={organization.description} canonicalPath={`/organizations/${organization.slug}`} publicEntity />
     <article className="public-profile organization-profile">
       <div className="container">
         <OrganizationBanner organization={organization}>

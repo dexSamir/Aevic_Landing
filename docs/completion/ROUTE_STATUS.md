@@ -1,3 +1,11 @@
+# Current acceptance — 2026-10-01
+
+99 routes: **10 COMPLETE, 89 PARTIAL, 0 BLOCKED, 0 NOT VERIFIED**. See [current route matrix](../performance/route-coverage.md), [routes.json](routes.json), and [final audit](FINAL_QUALITY_AUDIT.md). COMPLETE is limited to tested static system/access states. Other routes have fixture-backed render evidence, not complete workflow acceptance.
+
+---
+
+## Historical status
+
 # Route handoff status
 
 Authoritative conservative status at safe handoff. COMPLETE requires all intended actions, authorization, states, responsive behavior and persistence verified. PARTIAL means implemented work exists but full sign-off remains. NOT VERIFIED means no sufficient route-level functional sign-off. NOT IMPLEMENTED requires a confirmed absent implementation, not merely missing evidence. No route is asserted wholly absent; no route receives full COMPLETE sign-off at handoff.

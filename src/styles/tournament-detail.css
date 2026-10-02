@@ -95,3 +95,10 @@
 @media (min-width: 641px) { .tournament-detail-hero { --tournament-detail-hero-image: url('../assets/tournaments/tournament-detail-hero-1120.webp'); --tournament-detail-hero-image: image-set(url('../assets/tournaments/tournament-detail-hero-1120.avif') type('image/avif'), url('../assets/tournaments/tournament-detail-hero-1120.webp') type('image/webp')); } }
 
 @media (min-width: 1121px) { .tournament-detail-hero { --tournament-detail-hero-image: url('../assets/tournaments/tournament-detail-hero-1983.webp'); --tournament-detail-hero-image: image-set(url('../assets/tournaments/tournament-detail-hero-1983.avif') type('image/avif'), url('../assets/tournaments/tournament-detail-hero-1983.webp') type('image/webp')); } }
+
+/* Keep each definition term/value semantic without changing the icon column. */
+.tournament-detail-format > div { position:relative; }
+.tournament-detail-format dt { grid-column:2; }
+.tournament-detail-format dt svg { position:absolute; left:22px; top:50%; transform:translateY(-50%); }
+.tournament-detail-format dd small { display:block; margin-top:5px; font-family:var(--font-body); font-weight:400; }
+@media(max-width:600px) { .tournament-detail-format dt { grid-column:1; } .tournament-detail-format dt svg { position:static; display:block; transform:none; margin-bottom:8px; } }

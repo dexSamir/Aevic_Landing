@@ -1,4 +1,14 @@
 {
   "scope": "Static comparison of frontend request calls against currently mounted platform/captain/public routes. Candidate gaps require manual validation; matching paths do not prove functionality. Dynamic login selection and multipart uploads excluded. All previously enumerated request paths now have mounted handlers. This does not certify feature completeness, disabled controls, UI behavior, or route verification.",
-  "gaps": []
+  "gaps": [],
+  "quality20261001": {
+    "classification": "Current mounted platform paths have handlers; functional acceptance remains partial.",
+    "unmountedCompatibility": "server/routes/workspace.ts retains CAPABILITY_UNAVAILABLE, PLAYER_ADMIN_UNAVAILABLE and TIMED_SANCTIONS_UNAVAILABLE for the normalized compatibility contract.",
+    "fallback": "server/routes/production.ts remains limited when no platform database connection is configured.",
+    "legacyGuards": [
+      "server/db.ts: privileged normalized auth is intentionally unsupported",
+      "server/services/productionTeams.ts: unsupported historical match payloads are rejected rather than fabricated"
+    ],
+    "productionObservation": "Guest directory returned an empty array; corrected local read-only repository returned seven originals. Source not deployed."
+  }
 }

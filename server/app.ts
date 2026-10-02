@@ -14,6 +14,7 @@ import communityRoutes from './platform/community';
 import accountRoutes from './platform/account';
 import verificationRoutes from './platform/verification';
 import publicRoutes from './routes/public';
+import sitemapRoutes from './routes/sitemap';
 import staffRoutes from './platform/staff';
 import profileRoutes from './platform/profile';
 import adminRecoveryRoutes from './platform/admin-recovery';
@@ -50,6 +51,7 @@ export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process
   app.route('/',verificationRoutes);
  }
  app.route('/',captainRoutes(captainDependencies));
+ app.route('/',sitemapRoutes);
  app.route('/',platformEnabled?publicRoutes:production);
  return app;
 }

@@ -45,7 +45,7 @@ test('identity preview is local, social saving uses the service, and settings pe
 
 test('roster remains visible without a tournament and media export still produces a PNG', async ({ page }) => {
   await page.goto('/team/roster?scenario=no-active-tournament');
-  await expect(page.getByRole('heading', { name: 'KAPİTAN', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'OYUNÇULAR', exact: true })).toBeVisible();
   await expect(page.getByText('Vega', { exact: true })).toBeVisible();
   await page.goto('/team/sharecards');
   await expect(page.getByRole('radio', { name: /Komanda kimliyi/ })).toBeChecked();
@@ -70,7 +70,7 @@ test('clean Team arrival excludes public and auth CSS and heavy generators', asy
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
 });
 
-test('protected room release and roster review retain their real service flows', async ({ page }) => {
+test('protected room reveal and roster editing retain their UI flows', async ({ page }) => {
   await page.goto('/team/tournaments/daily-cup-24?scenario=room-ready');
   await page.getByRole('button', { name: 'Otaq statusunu yoxla' }).click();
   await expect(page.locator('.credential-placeholder')).toHaveCount(2);
@@ -78,12 +78,11 @@ test('protected room release and roster review retain their real service flows',
   await page.getByRole('button', { name: 'Göstər', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Gizlət', exact: true })).toBeVisible();
   await page.goto('/team/roster?scenario=check-in-open');
-  await page.getByRole('button', { name: 'Oyunçunu dəyiş', exact: true }).click();
-  await page.getByLabel('Yeni oyunçu IGN').fill('RESERVE');
-  await page.getByLabel('PUBG UID').fill('5100888999');
-  await page.getByLabel('Dəyişiklik səbəbi').fill('Oyunçunun bağlantısı turnir üçün sabit deyil.');
-  await page.getByRole('button', { name: 'Yoxlamaya göndər', exact: true }).click();
-  await expect(page.getByText('Heyət dəyişikliyi göndərildi')).toBeVisible();
+  await page.getByRole('button', { name: 'Dəyiş', exact: true }).first().click();
+  await page.getByLabel('Oyunçu IGN').fill('RESERVE');
+  await page.getByRole('button', { name: 'Saxla', exact: true }).click();
+  await expect(page.getByText('Oyunçu adı saxlanıldı.')).toBeVisible();
+  await expect(page.getByText('RESERVE', {exact:true})).toBeVisible();
   await page.goto('/team/settings/managers');
   await page.getByRole('button', { name: 'Arxiv qaydalarını yoxla' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();

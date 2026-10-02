@@ -1,4 +1,4 @@
-import { expect, test } from '../helpers/api-fixture-test';
+import { expect, test, installApiFixtures } from '../helpers/api-fixture-test';
 
 test.describe('cold component style ownership', () => {
   test('public Support owns its layout and 44px search input on cold entry', async ({page}) => {
@@ -20,10 +20,11 @@ test.describe('cold component style ownership', () => {
     test.setTimeout(90000);
     for(const width of [320,360,390,412,768,1024,1440,1920]) for(const scale of [1,2]) {
       const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
-      const page=await context.newPage(); await page.goto('http://127.0.0.1:4173/');
+      const page=await context.newPage(); await installApiFixtures(page); await page.goto('http://127.0.0.1:4173/');
       const calendar=page.locator('.tournament-calendar'); await expect(calendar).toBeVisible();
       await page.evaluate(scale=>{document.documentElement.style.fontSize=`${scale*100}%`;},scale);
-      await expect(calendar).toHaveCSS('display','grid');
+      // Home uses the approved single-column overview variant.
+      await expect(calendar).toHaveCSS('display','block');
       const metrics=await calendar.evaluate(element=>({overflow:document.documentElement.scrollWidth-innerWidth,columns:getComputedStyle(element).gridTemplateColumns,buttons:[...element.querySelectorAll('button')].filter(x=>x.getClientRects().length).map(x=>({label:x.getAttribute('aria-label'),width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})),selected:[...element.querySelectorAll('[aria-pressed="true"]')].filter(x=>x.getClientRects().length).map(x=>({background:getComputedStyle(x).backgroundColor,color:getComputedStyle(x).color,tabindex:x.getAttribute('tabindex')}))}));
       expect(metrics.overflow,`${width} at ${scale}x`).toBeLessThanOrEqual(1);
       expect(metrics.buttons.filter(x=>x.width<43.9||x.height<43.9),`${width} targets`).toEqual([]);
@@ -31,6 +32,7 @@ test.describe('cold component style ownership', () => {
       expect(metrics.selected[0].background).not.toBe('rgba(0, 0, 0, 0)');
       const clipped=await calendar.evaluate(root=>{const bounds=root.getBoundingClientRect();return [...root.querySelectorAll('button,dt,dd,h3,.calendar-team-state,.calendar-authority-note')].filter(e=>e.getClientRects().length).flatMap(e=>{const r=e.getBoundingClientRect();return r.right>bounds.right+1||r.left<bounds.left-1?[e.textContent]:[];});});
       expect(clipped,`${width} at ${scale}x internal clipping`).toEqual([]);
+      if (width === 320) await calendar.screenshot({ path: testInfo.outputPath(`calendar-320-${scale}x.png`) });
       const selected=calendar.locator('[data-calendar-date][aria-pressed="true"]:visible');
       const previous=await selected.getAttribute('data-calendar-date'); await selected.focus(); await page.keyboard.press('ArrowRight');
       await expect(selected).toBeFocused(); expect(await selected.getAttribute('data-calendar-date')).not.toBe(previous);

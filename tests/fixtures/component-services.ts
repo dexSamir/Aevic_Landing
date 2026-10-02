@@ -53,8 +53,9 @@ const syntheticRoom = {
 const releasedRoomAvailability = { ...syntheticRoom, status: 'released' as const };
 const releasedSyntheticRoom = { ...releasedRoomAvailability, roomId: '1234567', password: 'AEVIC24' };
 
-function teamSnapshotScenario() {
-  const scenario = typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('scenario');
+export function fixtureRoom(scenario: string) { return clone(scenario === 'room-ready' ? releasedSyntheticRoom : syntheticRoom); }
+
+export function teamSnapshotScenario(scenario = typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('scenario') ?? '') {
   const checkIn = { tournamentId: tournaments[0].id, teamId: currentTeam.id, status: scenario === 'room-ready' ? 'checked-in' as const : scenario === 'check-in-open' ? 'open' as const : 'pending' as const, opensAt: '2026-08-04T20:15:00+04:00', closesAt: '2026-08-04T20:45:00+04:00', checkedInAt: scenario === 'room-ready' ? '2026-08-04T20:36:00+04:00' : undefined };
   const base = { currentTeam, publicTeams: publicTeamSummaries(), participations: teamTournamentParticipations, checkIn, currentRoom: scenario === 'room-ready' ? releasedRoomAvailability : syntheticRoom, tournaments, leaderboard, leaderboardTeams, matchHistory, matchSchedule, notifications, adminMessages, teamAnnouncements, teamAchievements, teamLegacyStats, careerSummary, teamComparisonRecords };
   if (scenario === 'no-active-tournament') return { ...base, participations: [], tournaments: [], matchSchedule: [], checkIn: undefined, currentRoom: undefined };

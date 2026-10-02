@@ -1,8 +1,9 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '../helpers/api-fixture-test';
+import type {Page} from '@playwright/test';
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 
 const primary = ['/', '/tournaments', '/teams', '/matches'];
-const footer = [...primary, '/regulations', '/leaderboard', '/support', '/privacy', '/terms', '/contact'];
+const footer = [...primary, '/contact', '/privacy', '/terms'];
 const evidence = 'work/public-shell-fix-2026-08-31';
 const hrefs = (page: Page, selector: string) => page.locator(selector).evaluateAll((links) => links.map((link) => link.getAttribute('href')));
 
@@ -37,7 +38,15 @@ test('public navigation and footer contract across modes, session states and vie
   const targets = await page.locator('.site-footer a').evaluateAll((links) => links.map((link) => ({ width: link.getBoundingClientRect().width, height: link.getBoundingClientRect().height })));
   for (const target of targets) { expect(target.height).toBeGreaterThanOrEqual(44); expect(target.width).toBeGreaterThanOrEqual(44); }
   const height = await page.locator('.site-footer').evaluate((el) => el.getBoundingClientRect().height);
-  if (!mobile) { expect(height).toBeGreaterThanOrEqual(250); expect(height).toBeLessThanOrEqual(380); }
+  if (!mobile) {
+    // The current footer has five 44px links in one column plus its legal row.
+    expect(height).toBeGreaterThanOrEqual(250);
+    const columns = await page.locator('.site-footer__main > *').evaluateAll(items => items.map(item => item.getBoundingClientRect().top));
+    expect(Math.max(...columns) - Math.min(...columns)).toBeLessThanOrEqual(1);
+    const main = await page.locator('.site-footer__main').boundingBox();
+    const bottom = await page.locator('.site-footer__bottom').boundingBox();
+    expect(bottom!.y).toBeGreaterThanOrEqual(main!.y + main!.height);
+  }
   await page.locator('.site-footer__primary a').first().focus();
   await page.keyboard.press('Tab');
   expect(await page.evaluate(() => getComputedStyle(document.activeElement!).outlineStyle)).toBe('solid');

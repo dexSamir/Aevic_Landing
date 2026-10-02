@@ -1,0 +1,8 @@
+{
+  "scope": "Emitted dist/assets files; excludes source masters and production uploads. Approximately 15% headroom over the 2026-10-01 baseline, rounded to avoid noisy tiny-change failures.",
+  "javascriptBytes": 1400000,
+  "cssBytes": 560000,
+  "imageBytes": 11400000,
+  "largestJavascriptBytes": 280000,
+  "largestEmittedAssetBytes": 500000
+}

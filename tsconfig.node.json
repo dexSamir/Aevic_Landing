@@ -12,6 +12,8 @@
   "include": [
     "vite.config.ts",
     "server",
+    "src/app/routeManifest.ts",
+    "src/services/capabilities.ts",
     "src/types/domain.ts",
     "src/utils/wrapped.ts",
     "src/utils/competitionAnalytics.ts",

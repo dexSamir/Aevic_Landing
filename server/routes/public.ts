@@ -38,7 +38,18 @@ app.get('/matches/:id/calendar',async c=>{const id=paramId(c),r=repo(c),m=(await
 app.get('/leaderboards/:id',async c=>{const id=paramId(c),r=repo(c);await r.tournament(id);return c.json(await r.standings(id));});
 app.get('/leaderboards/:id/snapshots',async c=>c.json(await repo(c).standingSnapshots(paramId(c))));
 app.get('/leaderboards/:id/movement',async c=>{const snapshots=await repo(c).standingSnapshots(paramId(c));const current=snapshots.at(-1),previous=snapshots.at(-2);return c.json(current?.standings.map(row=>{const before=previous?.standings.find(r=>r.teamId===row.teamId);const delta=before?before.rank-row.rank:undefined;return {teamId:row.teamId,currentRank:row.rank,previousRank:before?.rank,delta:delta===undefined?undefined:Math.abs(delta),kind:delta===undefined?'new':delta===0?'unchanged':delta>0?'up':'down',previousSnapshotId:previous?.id};})??[]);});
-app.get('/search',async c=>{const q=text(0,100).parse(c.req.query('q')??''),r=repo(c),[teams,tournaments]=await Promise.all([r.teams(),r.tournaments()]);const includes=(v:string)=>v.toLocaleLowerCase('az-AZ').includes(q.toLocaleLowerCase('az-AZ'));return c.json({query:q,groups:{team:teams.filter(t=>includes(t.name)).slice(0,30).map(t=>({id:t.id,type:'team',title:t.name,href:`/teams/${t.slug}`})),tournament:tournaments.filter(t=>includes(t.name)).slice(0,30).map(t=>({id:t.id,type:'tournament',title:t.name,href:`/tournaments/${t.id}`}))}});});
+app.get('/search',async c=>{
+ const q=text(0,100).parse(c.req.query('q')??'').trim(),r=repo(c);
+ if(q.length<2)return c.json({query:q,groups:{}});
+ const [teams,tournaments,orgs]=await Promise.all([r.teams(),r.tournaments(),organizations(r)]);
+ const includes=(v:string)=>v.toLocaleLowerCase('az-AZ').includes(q.toLocaleLowerCase('az-AZ'));
+ return c.json({query:q,groups:{
+  team:teams.filter(t=>includes(t.name)).slice(0,30).map(t=>({id:t.id,type:'team',title:t.name,href:`/teams/${t.slug}`})),
+  player:teams.flatMap(t=>t.roster.filter(p=>includes(p.ign)).map(p=>({id:p.id,type:'player',title:p.ign,subtitle:t.name,href:`/teams/${t.slug}`}))).slice(0,30),
+  tournament:tournaments.filter(t=>includes(t.name)).slice(0,30).map(t=>({id:t.id,type:'tournament',title:t.name,href:`/tournaments/${t.id}`})),
+  organization:orgs.filter(o=>includes(o.name)).slice(0,30).map(o=>({id:o.id,type:'organization',title:o.name,href:`/organizations/${o.slug}`})),
+ }});
+});
 app.get('/archive',async c=>{const ts=(await repo(c).tournaments()).filter(t=>t.status==='completed');return c.json([...new Set(ts.map(t=>new Date(t.endsAt).getUTCFullYear()))].map(year=>({id:String(year),year,label:String(year),tournaments:ts.filter(t=>new Date(t.endsAt).getUTCFullYear()===year)})));});
 app.get('/registrations/team-name',async c=>{await rateLimit(c,'name-read',30);const name=text(2,60).parse(c.req.query('name'));const {data,error}=await client(c.get('config'),undefined,true).from('teams').select('id').ilike('name',name.replace(/[%_\\]/g,'\\$&')).limit(1);dbError(error);return c.json({available:!data?.length,normalizedName:name,scope:'platform',source:'backend'});});
 app.get('/registrations/player-eligibility',async c=>{await rateLimit(c,'player-read',30);const pubgId=z.string().regex(/^\d{5,20}$/).parse(c.req.query('pubgId'));const {data,error}=await client(c.get('config'),undefined,true).from('player_identities').select('player_id').eq('pubg_id',pubgId).maybeSingle();dbError(error);return c.json({eligible:!data,pubgId,source:'backend',reason:data?'registered-to-another-team':undefined});});

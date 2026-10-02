@@ -36,6 +36,15 @@
 .tournament-calendar button[data-event-status='registration-closed'] > i { background: var(--color-text-muted); }
 
 .tournament-calendar__strip { display: none; }
+/* Seven 44px dates need 308px. Use the existing adjacent-day picker when
+   the actual panel is narrower, including when text scaling adds padding. */
+@container (width < 308px) {
+  .tournament-calendar__month { display: none; }
+  .tournament-calendar__strip { display: grid; grid-template-columns: repeat(3, minmax(44px, 1fr)); gap: 8px; }
+  .tournament-calendar__strip > button { position: relative; min-height: 64px; display: grid; align-content: center; justify-items: center; padding: 8px; }
+  .tournament-calendar__strip > button:nth-child(-n + 2),
+  .tournament-calendar__strip > button:nth-child(n + 6) { display: none; }
+}
 .tournament-calendar__legend { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-lg); color: var(--color-text-soft); font-size: .7rem; }
 .tournament-calendar__legend span { display: inline-flex; align-items: center; gap: .3rem; }
 .tournament-calendar__legend svg { color: var(--color-gold-muted); }

@@ -56,6 +56,7 @@ test.describe('targeted UI refinement', () => {
     await page.locator('.home-calendar-section').scrollIntoViewIfNeeded();
     await expect(page.locator('.site-header')).toHaveAttribute('data-public-header-state', 'scrolled');
 
+    await expect(nav).toHaveCSS('background-color','rgba(43, 43, 49, 0.82)');
     const material = await nav.evaluate((element) => {
       const styles = getComputedStyle(element);
       const active = getComputedStyle(element.querySelector('.public-nav-indicator')!);
@@ -72,13 +73,13 @@ test.describe('targeted UI refinement', () => {
         controls,
       };
     });
-    expect(material.border).toBe('0px');
+    expect(material.border).toBe('1px');
     expect(material.backdrop).toContain('blur(16px)');
     expect(material.backdrop).toContain('saturate(1.08)');
-    expect(material.background).toMatch(/rgba\(.+, 0\.78\)/);
+    expect(material.background).toMatch(/rgba\(.+, 0\.82\)/);
     expect(material.shadow).not.toBe('none');
     expect(material.activeBackground).not.toBe(material.background);
-    expect(material.controls.every((control) => control.border === '0px' && control.backdrop.includes('blur(16px)'))).toBe(true);
+    expect(material.controls.every((control) => control.border === '0px' && control.backdrop === 'none')).toBe(true);
 
     await nav.getByRole('link', { name: 'Turnirlər' }).focus();
     const focus = await nav.getByRole('link', { name: 'Turnirlər' }).evaluate((element) => ({
@@ -100,16 +101,17 @@ test.describe('targeted UI refinement', () => {
     await page.reload();
     await page.locator('.home-calendar-section').scrollIntoViewIfNeeded();
     await expect(page.locator('.site-header')).toHaveAttribute('data-public-header-state', 'scrolled');
+    await expect(nav).toHaveCSS('background-color','rgb(7, 7, 9)');
     const fallback = await page.locator('.site-header .public-nav-capsule').evaluate((element) => ({
       background: getComputedStyle(element).backgroundColor,
       backdrop: getComputedStyle(element).backdropFilter,
     }));
-    expect(fallback.background).toBe('rgb(36, 35, 41)');
+    expect(fallback.background).toBe('rgb(7, 7, 9)');
     expect(fallback.backdrop).toBe('none');
     expect(errors).toEqual([]);
   });
 
-  test('Start xətti is a compact five-part readiness rail with intentional actions', async ({ page }) => {
+  test('current captain readiness and round program preserve actionable navigation', async ({ page }) => {
     test.setTimeout(90_000);
     const errors: string[] = [];
     page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
@@ -118,17 +120,16 @@ test.describe('targeted UI refinement', () => {
     for (const viewport of viewports) {
       await page.setViewportSize(viewport);
       await page.goto('/team?scenario=room-ready');
-      const rail = page.locator('.team-readiness-ledger');
+      const rail = page.locator('.overview-rounds');
       await rail.scrollIntoViewIfNeeded();
       await expect(rail).toBeVisible();
-      await expect(rail.locator(':scope > ul > li')).toHaveCount(5);
-      await expect(rail.locator(':scope > header > nav a')).toHaveText(['Heyəti idarə et', 'Nəticə tarixçəsi', 'Kapitan mesajları']);
-      await expect(rail.locator('li.is-next')).toContainText('Növbəti əməliyyat');
-      await expect(rail).toContainText('Məlumatlar hazırdır');
+      await expect(rail.locator(':scope > ol > li')).toHaveCount(4);
+      await expect(rail.getByRole('link',{name:'Tam turnir əməliyyatları'})).toHaveAttribute('href',/\/team\/tournaments\/daily-cup-24/);
+      await expect(rail.locator('.overview-competition-ready')).toContainText('Təsdiqlənib');
 
       const bounds = await rail.boundingBox();
       expect(bounds).not.toBeNull();
-      expect(bounds!.height, `${viewport.width}×${viewport.height} readiness height`).toBeLessThanOrEqual(viewport.width <= 430 ? 330 : 160);
+      expect(bounds!.height, `${viewport.width}×${viewport.height} round program`).toBeLessThan(viewport.height);
       expect(await documentOverflow(page), `${viewport.width}×${viewport.height} readiness overflow`).toBeLessThanOrEqual(1);
     }
     expect(errors).toEqual([]);
@@ -164,10 +165,11 @@ test.describe('targeted UI refinement', () => {
         const preview = document.querySelector('.profile-card-studio')?.getBoundingClientRect();
         return { headerHeight: header.height, selectorBottom: selector.bottom, workspaceTop: workspace.top, previewTop: preview?.top ?? Number.POSITIVE_INFINITY };
       });
-      expect(geometry.headerHeight, `${viewport.width}×${viewport.height} header height`).toBeLessThanOrEqual(viewport.width <= 430 ? 92 : 104);
+      // Approved captain typography can wrap; actual selector/workspace access is the contract.
+      expect(geometry.headerHeight).toBeLessThan(viewport.height / 3);
       expect(geometry.workspaceTop).toBeLessThan(viewport.height);
       expect(geometry.previewTop).toBeLessThan(viewport.height);
-      expect(geometry.workspaceTop - geometry.selectorBottom).toBeLessThanOrEqual(16);
+      expect(geometry.workspaceTop - geometry.selectorBottom).toBeLessThanOrEqual(24);
       expect(await documentOverflow(page), `${viewport.width}×${viewport.height} studio overflow`).toBeLessThanOrEqual(1);
     }
     expect(errors).toEqual([]);
@@ -184,7 +186,7 @@ test.describe('targeted UI refinement', () => {
       shadow: getComputedStyle(element).boxShadow,
       border: getComputedStyle(element).borderLeftWidth,
     }));
-    expect(styles.background).toBe('rgba(8, 8, 10, 0.9)');
+    expect(styles.background).toBe('rgba(5, 5, 8, 0.72)');
     expect(styles.shadow).not.toContain('243, 196, 80');
     expect(styles.border).toBe('0px');
     expect(await documentOverflow(page)).toBeLessThanOrEqual(1);

@@ -110,19 +110,17 @@ test('admin lifecycle: team, roster, disputes, verification, results, support, a
   await page.getByRole('combobox', { name: 'Turnir', exact: true }).selectOption('daily-cup-24');
   await page.getByRole('combobox', { name: 'Raund', exact: true }).selectOption('dc24-r1');
   await expect(page.getByRole('spinbutton', { name: 'Kill sayı' })).toBeEditable();
-  await expect(page.getByRole('button', { name: 'Bütün raund nəticələrini dərc et' })).toBeDisabled();
+  await page.route('**/api/admin/matches/*/publication',r=>r.fulfill({status:409,json:{code:'RESULTS_INCOMPLETE'}}));
+  await page.getByRole('button', { name: 'Bütün raund nəticələrini dərc et' }).click();
+  await expect(page.getByText('Dərc tamamlanmadı. Hər təsdiqlənmiş komandanın nəticəsi tələb olunur.',{exact:true})).toBeVisible();
   await page.goto('/admin/support');
   await expect(page.getByRole('heading', { name: /dəstək sorğuları/i })).toBeVisible();
   await page.goto('/admin/audit');
   await expect(page.getByRole('heading', { name: /audit jurnalı/i })).toBeVisible();
   await page.goto('/admin/blacklist');
-  await page.getByRole('textbox', { name: 'Qara siyahıda axtar' }).fill('Crimson');
-  await expect(page.locator('.blacklist-list article')).toHaveCount(1);
+  // Current moderation page shows blocked accounts and links to the authoritative team review.
   await expect(page.locator('.blacklist-list')).toContainText('Crimson Steppe');
-  await page.getByRole('textbox', { name: 'Qara siyahıda axtar' }).fill('');
-  await page.getByRole('combobox').selectOption('expired');
-  await expect(page.locator('.blacklist-list article')).toHaveCount(1);
-  await expect(page.locator('.blacklist-list')).toContainText('Old Guard');
-  await page.getByRole('textbox', { name: 'Qara siyahıda axtar' }).fill('no-matching-record');
-  await expect(page.getByRole('heading', { name: 'Uyğun qeyd tapılmadı' })).toBeVisible();
+  await page.locator('.blacklist-list article').filter({hasText:'Crimson Steppe'}).getByRole('link',{name:'Komandanı yoxla'}).click();
+  await expect(page).toHaveURL(/\/admin\/teams\/team-05$/);
+  await expect(page.getByRole('heading',{level:1,name:'Crimson Steppe'})).toBeVisible();
 });

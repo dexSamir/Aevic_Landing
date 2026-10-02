@@ -23,7 +23,7 @@ export const verificationConfig: Record<VerificationLevel, { label: string; deta
 export function VerificationCrest({ level = 'registered', showLabel = false }: { level?: VerificationLevel; showLabel?: boolean }) {
   const config = verificationConfig[level];
   const Icon = config.icon;
-  return <Tooltip label={`${config.label}: ${config.detail}`}><span className={`verification-crest verification-crest--${level}`} aria-label={`${config.label}: ${config.detail}`} tabIndex={0}><Icon size={16} strokeWidth={1.8} />{showLabel && <span>{config.label}</span>}</span></Tooltip>;
+  return <Tooltip label={`${config.label}: ${config.detail}`}><span className={`verification-crest verification-crest--${level}`} role="img" aria-label={`${config.label}: ${config.detail}`} tabIndex={0}><Icon size={16} strokeWidth={1.8} />{showLabel && <span>{config.label}</span>}</span></Tooltip>;
 }
 
 export function OrganizationBanner({ organization, children }: { organization: Organization; children?: React.ReactNode }) {

@@ -5,7 +5,7 @@ import '../../styles/auth.css';
 export function AccessStatePage({ state }: { state: 'unauthorized' | 'forbidden' | 'session-expired' | 'account-locked' | 'rate-limited' }) {
   const copy = {
     unauthorized: ['Giriş tələb olunur', 'Bu səhifəni açmaq üçün hesabınıza daxil olun.'],
-    forbidden: ['Bu əməliyyat üçün icazəniz yoxdur', 'Komanda rolu və ya admin səlahiyyəti backend tərəfindən yoxlanılır.'],
+    forbidden: ['Bu əməliyyat üçün icazəniz yoxdur', 'Hesabınızın bu əməliyyat üçün icazəsi yoxdur. Dəstək mərkəzinə müraciət edə bilərsiniz.'],
     'session-expired': ['Sessiyanın vaxtı bitib', 'Davam etmək üçün təhlükəsiz şəkildə yenidən daxil olun.'],
     'account-locked': ['Hesab müvəqqəti kilidlənib', 'Təhlükəsizlik səbəbi ilə giriş dayandırılıb. Dəstək xidməti ilə əlaqə saxlayın.'],
     'rate-limited': ['Çox sayda cəhd edildi', 'Bir neçə dəqiqə gözləyin və yenidən cəhd edin.'],

@@ -17,8 +17,11 @@ const privateTables:Record<string,string>={check_ins:'team_id',notifications:'re
 /** Request-scoped SQL repository; every read is explicitly scoped before aggregation. */
 export class PlatformRepository extends Repository {
  private cache=new Map<string,Promise<Row[]>>();
+ private teamCache=new Map<boolean,Promise<Team[]>>();
+ private capacityCache?:Promise<Array<{tournament_id:string;used_slots:number}>>;
+ readonly metrics={teamQueries:0,teamQueryMs:0,teamRows:0};
  constructor(db:DbClient,readonly sql:Sql,readonly actor:Actor={}){super(db);}
- protected async tournamentCapacity(){return normalize(await this.sql`select tournament_id::text,count(*)::int as used_slots from aevic_platform.tournament_registrations where status in ('pending','confirmed') group by tournament_id`) as Array<{tournament_id:string;used_slots:number}>;}
+ protected tournamentCapacity(){return this.capacityCache??=(async()=>normalize(await this.sql`select tournament_id::text,count(*)::int as used_slots from aevic_platform.tournament_registrations where status in ('pending','confirmed') group by tournament_id`) as Array<{tournament_id:string;used_slots:number}>)();}
  async rows(table:string):Promise<Row[]> {
   if(!this.cache.has(table))this.cache.set(table,this.read(table));
   return this.cache.get(table)!;
@@ -44,8 +47,16 @@ export class PlatformRepository extends Repository {
  }
  async teams(privateData=false):Promise<Team[]> {
   if(privateData&&!this.actor.teamId&&!this.actor.adminId)throw new ServiceError(401,'UNAUTHORIZED');
+  if(!this.teamCache.has(privateData))this.teamCache.set(privateData,this.readTeams(privateData));
+  return this.teamCache.get(privateData)!;
+ }
+ private async readTeams(privateData:boolean):Promise<Team[]> {
   const projection=publicColumns+(privateData?',captain_name,captain_contact,email,rejection_reason':'');
-  const rows=normalize(await this.sql.unsafe(`select ${projection} from public.teams where ($1::boolean or status='approved' or id=$2::bigint) order by id`,[Boolean(this.actor.adminId),this.actor.teamId??null]));
+  // Approval controls competition eligibility, not whether a public identity exists.
+  // Explicit moderation/archival still hides a team; account claiming is irrelevant.
+  const started=performance.now();
+  const rows=normalize(await this.sql.unsafe(`select ${projection} from public.teams where ($1::boolean or status in ('pending','approved') or id=$2::bigint) order by id`,[Boolean(this.actor.adminId),this.actor.teamId??null]));
+  this.metrics.teamQueries++;this.metrics.teamQueryMs+=performance.now()-started;this.metrics.teamRows=rows.length;
   const [details,links,players,verified]=await Promise.all([this.rows('team_details'),this.rows('organization_teams'),this.sql`select team_id::text,slot,pubg_id,role from aevic_platform.player_details`,this.sql`select team_id::text from aevic_platform.verification_requests where status='APPROVED'`]);
   return rows.map((r):Team=>{const team=privateData&&(this.actor.adminId||r.id===(this.actor.accountId??this.actor.teamId))?privateTeam(r as CaptainRow):mapProductionTeam(r);const d=details.find(x=>x.team_id===r.id)??{};
    return {...team,legacyHistoryIncomplete:Boolean(d.legacy_history_incomplete??true),verificationLevel:verified.some(v=>v.team_id===r.id)?'verified':team.verificationLevel,roster:team.roster.map(p=>{const meta=players.find(d=>`${d.team_id}:player${d.slot}`===p.id);return {...p,uid:meta?.pubg_id??undefined,role:meta?.role??p.role};}),description:String(d.description??''),tag:d.tag?String(d.tag):undefined,bannerUrl:d.banner_url?String(d.banner_url):undefined,bannerAlt:d.banner_alt?String(d.banner_alt):undefined,country:d.country?String(d.country):undefined,foundedAt:d.founded_at?String(d.founded_at).slice(0,10):undefined,socialLinks:d.social_links as Team['socialLinks']??{},archivedAt:d.archived_at?String(d.archived_at):undefined,gameKey:'pubg-mobile',organizationId:links.find(l=>l.team_id===r.id)?.organization_id as string|undefined,organizationRelationship:links.some(l=>l.team_id===r.id)?'owned':'independent'};

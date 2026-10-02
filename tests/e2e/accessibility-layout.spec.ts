@@ -7,7 +7,7 @@ test('critical workspaces reflow at 320px and 200% text', async ({ page }, testI
     await page.goto(path);
     await expect(page.locator('h1')).toBeVisible();
     if (path.endsWith('sharecards')) await expect(page.getByRole('button', { name: 'PNG yüklə' })).toBeVisible();
-    await page.evaluate(async () => { await document.fonts.ready; document.documentElement.style.fontSize = '200%'; });
+    await page.evaluate(async () => { document.documentElement.style.fontSize = '200%'; await document.fonts.ready; });
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth), { message: path }).toBeLessThanOrEqual(1);
   }
 });
@@ -229,12 +229,13 @@ test('captain overview answers now, next, changed, and readiness without legacy 
   const selection = await active.evaluate((element) => {
     const styles = getComputedStyle(element);
     const detail = getComputedStyle(element, '::after');
-    return { shadow: styles.boxShadow, borderLeft: styles.borderLeftWidth, detailWidth: detail.width, detailColor: detail.backgroundColor };
+    return { shadow: styles.boxShadow, borderLeft: styles.borderLeftWidth, detailWidth: detail.width, detailColor: detail.backgroundColor, detailDisplay:detail.display, background:styles.backgroundColor };
   });
   expect(selection.shadow).not.toContain('inset 2px 0px');
-  expect(selection.borderLeft).toBe('1px');
-  expect(parseFloat(selection.detailWidth)).toBeGreaterThan(0);
-  expect(selection.detailColor).not.toBe('rgba(0, 0, 0, 0)');
+  // The approved captain redesign uses tonal selection without the old accent stripe.
+  expect(selection.borderLeft).toBe('0px');
+  expect(selection.detailDisplay).toBe('none');
+  expect(selection.background).not.toBe('rgba(0, 0, 0, 0)');
   await expect(page.locator('.sidebar-note--interactive')).toContainText('Növbəti matç');
 });
 

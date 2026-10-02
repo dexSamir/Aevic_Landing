@@ -23,7 +23,16 @@ services.auth.getSession = async () => {
   catch (error) { if(revision===identityRevision){synchronizeSessionCache(null);clearQueryCache();} throw error; }
 };
 services.auth.login = async (...args) => { identityRevision++; const session = await auth.login(...args); synchronizeSessionCache(`${session.user.id}:${session.role}`); channel?.postMessage('changed'); notifyIdentity(); return session; };
-services.auth.logout = async () => { identityRevision++; clearQueryCache(); synchronizeSessionCache(null); try { await auth.logout(); channel?.postMessage('changed'); } finally { clearQueryCache(); notifyIdentity(); } };
+services.auth.logout = async () => {
+  await auth.logout();
+  // Invalidate only after revocation succeeds: early invalidation refetches with
+  // the still-valid cookie and can replace the pending logout with stale identity.
+  identityRevision++;
+  synchronizeSessionCache(null);
+  clearQueryCache();
+  channel?.postMessage('changed');
+  notifyIdentity();
+};
 export function competitionNow() { return new Date(); }
 
 const submitRegistration=services.registration.submit;

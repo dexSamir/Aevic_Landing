@@ -1,3 +1,73 @@
+# Final commit checkpoint — 2026-10-02
+
+**SOURCE COMMIT: READY. PRODUCTION DEPLOYMENT: UNVERIFIED.** Phase 2 feature, SEO, performance and route-completion work stopped at the user's request. Commit locally only; do not push, deploy, mutate production or send the first-admin email.
+
+- Current source unchanged since passing TypeScript and production build (75 static shells / 99 route definitions); those checks were not repeated. Diff check and candidate secret/artifact review passed.
+- Minimal compatibility check used the existing application role in a READ ONLY transaction: 43 source-required relations, 356 source-referenced contract columns, schema USAGE/read/write privileges and three required built-in functions passed. Actual account-store readiness check passed. No concrete missing-object/access blocker found within this scope; not a full database audit or end-to-end deployment certification.
+- Actual public-team repository read returned original IDs **2, 7, 8, 9, 10, 12, 16**, with private contacts absent. No originals or other production data changed.
+- Required local environment names present, including configured fallbacks. **Deployed Netlify environment names/values were not verified**, so deployment remains UNVERIFIED. Missing historical migration ledger entries alone are not evidence to replay or repair migrations; required objects checked above exist.
+- Raw catalog, Lighthouse and browser measurement reports remain local and excluded from the commit, along with all ignored screenshots, temporary artifacts, environment files and dumps. Sanitized failure classification is retained as documentation. Minimal check result: `/tmp/aevic-minimal-compat-result.json` (local only).
+- Existing evidence: 26 focused regressions passed; previous persisted/accessibility tests passed; full browser run 77 passed / 19 failed / 32 skipped, with all 19 failures passing subsequent targeted reruns. No expensive suites repeated.
+- Non-blocking unfinished work: 88 PARTIAL route acceptances, dynamic entity SEO and performance improvements; legal pages remain PARTIAL pending approval. These do not prevent a source commit. Stop after the requested commit; no further work authorized.
+
+---
+
+# Resume checkpoint — 2026-10-02
+
+This checkpoint supersedes historical notes below. Preserve the entire working tree. No production mutation, migration execution/history repair, environment change, deployment or admin setup email occurred.
+
+## Exact verification state
+
+- Existing full 128-test result inspected without restarting: **77 passed / 19 failed / 32 skipped (3.2h)**. `/tmp/aevic-phase2-broad.log`; original traces remain in `test-results`.
+- **All 19 failures now pass targeted reruns**, not a new full-suite pass. Classification/evidence: `docs/quality/phase2-browser-failures.json`.
+- Mobile failed-case rerun: **13 passed (2.0m)**, `/tmp/aevic-resume-mobile.log`.
+- Final public-shell/logout/product journey rerun: **2 passed (14.7s)**, `/tmp/aevic-resume-public-final.log`.
+- Calendar matrix and both footer contracts: **3 passed / 1 intentionally skipped duplicate matrix (21.1s)**, `/tmp/aevic-resume-targets.log`.
+- Reduced-transparency navbar case passed in `/tmp/aevic-resume-public.log`. That intermediate run was **2 passed / 2 failed**; those two failures are resolved by the final public run above. Do not report the intermediate log as all green.
+- Focused component regressions: **26 passed / 3 files (1.92s)**, `/tmp/aevic-resume-logout.log`. Includes server-acknowledged logout, failed-revocation retry and request handling.
+- TypeScript: PASS, `/tmp/aevic-resume-types.log`. Production build: PASS, 75 static shells / 99 route definitions, `/tmp/aevic-resume-build.log`. `git diff --check`: PASS.
+- Previous persisted critical tests (12), accessibility quality (18), component (254), server (86) and other earlier passes were not needlessly rerun. No new persisted acceptance or full release-suite pass is claimed.
+
+## Changes in this continuation
+
+- Calendar: below 308px actual picker width, reuse adjacent-day strip with three visible dates ≥44px, preserving selected date, adjacent-date navigation, month controls, keyboard focus and AEVIC colors. Original eight-width × normal/200% text assertions remain. Normal/200% screenshots live in `/tmp/aevic-resume-targets/final-stabilization-cold-c-bbff0-t-eight-widths-and-200-text-desktop-chrome/`. At 200% the element screenshot includes sticky header/skip-link overlay; content geometry assertions pass. No Home loading/CLS optimization was reintroduced.
+- Footer: enforce ≥44px width on short text links, retaining ≥44px height. Update old footer destination expectation to existing explicit primary/contact/legal structure. Replace obsolete height cap with column alignment and non-overlap assertions; target assertions intact.
+- Logout: wait for revocation acknowledgement before clearing identity caches; preserve identity on failed logout for retry. Finish HTTP 204 response before mutation callers navigate. Original network-failure assertion now passes, with no ignored request errors.
+- Fixtures: emit genuine bodyless 204 responses. Tests updated for current six linked Home team cards, actual captain standings/room markup and explicit reduced-transparency token. Keyboard profile navigation and room navigation assertions retained.
+
+## Production read-only result and release boundary
+
+One bounded catalog retry succeeded: **79 relations / 628 columns / 206 indexes**, zero private client table grants, no platform tables without RLS. `docs/quality/phase2-release-catalog.json` records sanitized catalog and local config presence only. Current connection role is non-superuser with BYPASSRLS. Local canonical origin remains demo. History lacks 20260919185453 and 20260924224615 although all 38 explicitly created platform relations from the latter are present. Presence alone does not verify columns, constraints, functions, effective schema grants, complete compatibility or deployed configuration. Do not replay/repair migrations. Production release readiness remains **UNVERIFIED**.
+
+Earlier proxy error did not recur; its exact previous error is not in retained logs. Recovery is consistent with transient failure but does not prove the underlying cause. No additional retry needed. No original-team mutation.
+
+## Acceptance and next action
+
+**99 routes: 11 COMPLETE / 88 PARTIAL.** Support FAQ retains its existing acceptance; legal pages remain PARTIAL pending approval. No promotions in this continuation.
+
+Next action: read `tests/platform-browser/` and `docs/completion/routes.json` to extend missing persisted account/captain/tournament/admin/public acceptance with isolated disposable data. Existing runner: `playwright.platform.config.ts`. Then finish supported crawlable dynamic entity HTML/metadata/JSON-LD and sitemap validation, keeping preview noindex. Measure remaining Lighthouse findings after functional stabilization. Run full release suites only near completion; broad suite must still prove one stable full pass. Do not deploy or send first-admin email while release readiness is uncertain.
+
+---
+
+# Current handoff — 2026-10-01 quality pass
+
+The latest user request resumed work in the current project and supersedes the historical stop instruction below. Work is preserved as uncommitted source changes; no deployment or production writes occurred. See [FINAL_QUALITY_AUDIT.md](FINAL_QUALITY_AUDIT.md) for current evidence and limitations, [CANONICAL_DATA_OWNERSHIP.md](CANONICAL_DATA_OWNERSHIP.md) for authoritative reads/writes, and [route acceptance](../performance/route-coverage.md).
+
+- 99 routes: 10 COMPLETE static system/access states, 89 PARTIAL workflows. No claim of production readiness.
+- Fixed pending-team visibility independently of account/claim identity. Read-only production-backed verification returns original IDs 2,7,8,9,10,12,16 with private contacts absent. The deployed demo still returned zero; source has not been deployed.
+- Added request-scoped team/capacity deduplication, sanitized operational timing, four-category search, dynamic sitemap, preview noindex, metadata and WebSite structured-data foundation.
+- Fixed actual ARIA/definition-list/animation contrast findings, meaningful errors/empty states, narrow/200% text reflow.
+- Final build/typecheck, 20 domain + 254 component + 86 server tests, 35 isolated platform tests, disposable DB contract and package/assets checks pass. Detailed browser/Lighthouse evidence and outstanding broad-suite results are in the final audit.
+- Production inspection found aevic_platform.accounts and team_details exist. The old statement below that the platform migration is wholly UNAPPLIED is historical and no longer reliable. Inspect the current complete migration/grant state before any release; this pass neither applied nor reconciled production migrations.
+- Temporary browser/Lighthouse tools are in /tmp/aevic-quality-tools. Quality browser tests accept AEVIC_AXE_SOURCE; Lighthouse accepts AEVIC_QUALITY_TOOLS. They are not new product dependencies. For the default local browser suite, explicitly blank AEVIC_DATABASE_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY and SUPABASE_ANON_KEY so local dev never accesses production.
+- The initial uncommitted routeManifest change was a stray syntax character; it was corrected. No legitimate changes were discarded. No credentials, screenshots, environment files or recovery dumps are added to the product package.
+
+Next work: finish persisted journey/state/permission acceptance on the 89 partial routes; resolve broad browser failures; validate real canonical origin and dynamic SEO content; independently verify safe release configuration, deploy, then confirm live directory and competition/account flows. Preserve the seven original teams throughout.
+
+---
+
+## Historical handoff (superseded status)
+
 # CODEX SAFE HANDOFF — 2026-09-25
 
 ## Stop condition and original goal

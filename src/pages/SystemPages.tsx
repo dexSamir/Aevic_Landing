@@ -6,7 +6,7 @@ import { Button } from '../components/common/primitives';
 type SystemState = 'forbidden' | 'not-found' | 'server-error' | 'maintenance' | 'offline';
 
 const copy: Record<SystemState, { code: string; title: string; body: string; icon: typeof ShieldAlert }> = {
-  forbidden: { code: '403', title: 'Bu səhifə üçün icazəniz yoxdur', body: 'Rol və ownership icazəsi backend tərəfindən rədd edildi. Başqa hesabla daxil olun və ya dəstəklə əlaqə saxlayın.', icon: ShieldAlert },
+  forbidden: { code: '403', title: 'Bu səhifə üçün icazəniz yoxdur', body: 'Hesabınızın bu səhifəyə giriş icazəsi yoxdur. Başqa hesabla daxil olun və ya dəstəklə əlaqə saxlayın.', icon: ShieldAlert },
   'not-found': { code: '404', title: 'Bu səhifə yarış cədvəlində yoxdur', body: 'Ünvan dəyişdirilmiş, arxivlənmiş və ya heç yaradılmamış ola bilər.', icon: House },
   'server-error': { code: '500', title: 'Platforma sorğunu tamamlaya bilmədi', body: 'Məlumatlarınız qorunub. Bir az sonra yenidən cəhd edin və problem davam edərsə request ID ilə dəstəyə yazın.', icon: ServerCrash },
   maintenance: { code: 'MAINTENANCE', title: 'Planlı texniki xidmət gedir', body: 'Yarış əməliyyatları müvəqqəti dayandırılıb. Backend status məlumatı təqdim etdikdə gözlənilən bərpa vaxtı burada görünəcək.', icon: Construction },
