@@ -10,7 +10,7 @@ function teamInitials(name: string) {
   return name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join('').toLocaleUpperCase('az');
 }
 
-export function TeamMark({ name, src, size = 'md', className = '' }: { name: string; src?: string; size?: TeamMarkSize; className?: string }) {
+export function TeamMark({ name, src, size = 'md', className = '', sizes }: { name: string; src?: string; size?: TeamMarkSize; className?: string; sizes?: string }) {
   const [failed, setFailed] = useState<string>();
   const [loaded, setLoaded] = useState<string>();
   const safeSrc = publicImageUrl(src);
@@ -20,7 +20,7 @@ export function TeamMark({ name, src, size = 'md', className = '' }: { name: str
   const visible = safeSrc && failed !== safeSrc;
   const loading=Boolean(visible&&loaded!==safeSrc);
   return <span aria-busy={loading||undefined} className={`team-logo team-mark team-logo--${size} ${visible ? 'team-mark--artwork' : 'team-mark--fallback'} ${loading?'team-mark--loading':''} ${className}`.trim()}>
-    {visible ? <img ref={imageRef} src={safeSrc} srcSet={publicImageSrcSet(safeSrc)} sizes={size === 'xl' ? '(max-width: 768px) 160px, 240px' : size === 'lg' ? '80px' : size === 'sm' ? '32px' : '48px'} width={256} height={256} onLoad={()=>setLoaded(safeSrc)} onError={event => { if (!restoreOriginalUpload(event.currentTarget)) setFailed(safeSrc); }} alt="" loading="lazy" decoding="async" /> : <span aria-hidden="true">{teamInitials(name)}</span>}
+    {visible ? <img ref={imageRef} src={safeSrc} srcSet={publicImageSrcSet(safeSrc)} sizes={sizes ?? (size === 'xl' ? '(max-width: 978px) 88px, (max-width: 1422px) 9vw, 128px' : size === 'lg' ? '68px' : size === 'sm' ? '34px' : '46px')} width={256} height={256} onLoad={()=>setLoaded(safeSrc)} onError={event => { if (!restoreOriginalUpload(event.currentTarget)) setFailed(safeSrc); }} alt="" loading="lazy" decoding="async" /> : <span aria-hidden="true">{teamInitials(name)}</span>}
   </span>;
 }
 
@@ -41,10 +41,10 @@ export function TeamRosterReveal({ name, tag, roster = [], profileHref, meta, va
   </div>;
 }
 
-export function TeamLogoTile({ id, name, tag, logoUrl, roster, profileHref, meta, selected = false, onSelect, ordinal, className = '', selectLabel, controlsId, revealVariant = 'default' }: { id: string; name: string; tag?: string; logoUrl?: string; roster?: string[]; profileHref: string; meta?: ReactNode; selected?: boolean; onSelect?: (id: string) => void; ordinal?: number; className?: string; selectLabel?: string; controlsId?: string; revealVariant?: 'default' | 'names-only' }) {
+export function TeamLogoTile({ id, name, tag, logoUrl, roster, profileHref, meta, selected = false, onSelect, ordinal, className = '', selectLabel, controlsId, revealVariant = 'default', logoSizes }: { logoSizes?: string; id: string; name: string; tag?: string; logoUrl?: string; roster?: string[]; profileHref: string; meta?: ReactNode; selected?: boolean; onSelect?: (id: string) => void; ordinal?: number; className?: string; selectLabel?: string; controlsId?: string; revealVariant?: 'default' | 'names-only' }) {
   return <article className={`team-logo-tile ${selected ? 'is-selected' : ''} ${className}`.trim()} data-team-id={id}>
     {typeof ordinal === 'number' && <span className="team-logo-tile__ordinal" aria-hidden="true">{String(ordinal).padStart(2, '0')}</span>}
-    {onSelect ? <button type="button" aria-label={selectLabel ?? `${name} komandasını seç`} aria-pressed={selected} aria-expanded={revealVariant === 'default' ? selected : undefined} aria-controls={revealVariant === 'default' ? controlsId : undefined} aria-describedby={revealVariant === 'names-only' ? controlsId : undefined} onClick={() => onSelect(id)}><TeamMark name={name} src={logoUrl} size="xl" /><span className="team-logo-tile__label"><strong>{name}</strong><small>{meta ?? tag ?? 'PUBG Mobile'}</small></span></button> : <Link className="team-logo-tile__destination" to={profileHref}><TeamMark name={name} src={logoUrl} size="xl" /><span className="team-logo-tile__label"><strong>{name}</strong><small>{meta ?? tag ?? 'PUBG Mobile'}</small></span></Link>}
+    {onSelect ? <button type="button" aria-label={selectLabel ?? `${name} komandasını seç`} aria-pressed={selected} aria-expanded={revealVariant === 'default' ? selected : undefined} aria-controls={revealVariant === 'default' ? controlsId : undefined} aria-describedby={revealVariant === 'names-only' ? controlsId : undefined} onClick={() => onSelect(id)}><TeamMark name={name} src={logoUrl} size="xl" sizes={logoSizes} /><span className="team-logo-tile__label"><strong>{name}</strong><small>{meta ?? tag ?? 'PUBG Mobile'}</small></span></button> : <Link className="team-logo-tile__destination" to={profileHref}><TeamMark name={name} src={logoUrl} size="xl" sizes={logoSizes} /><span className="team-logo-tile__label"><strong>{name}</strong><small>{meta ?? tag ?? 'PUBG Mobile'}</small></span></Link>}
     <TeamRosterReveal id={controlsId} name={name} tag={tag} roster={roster} profileHref={onSelect && revealVariant === 'default' ? profileHref : undefined} meta={meta} variant={revealVariant} />
   </article>;
 }

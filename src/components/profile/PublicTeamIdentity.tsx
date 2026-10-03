@@ -23,7 +23,7 @@ export function PublicTeamIdentity({ team, details, live, preview = false }: { t
         {details?.description && <p className="public-team-bio">{details.description}</p>}
         <div className="public-team-meta">{team.tier && <span>{team.tier}</span>}{team.sourceStatus && <span>{team.sourceStatus}</span>}{team.country && <span><Flag size={18} />{team.country}</span>}{founded && Number.isFinite(founded) && <span><CalendarDays size={18} />{founded}</span>}{team.verificationLevel && <VerificationCrest level={team.verificationLevel} showLabel />}</div>
       </div>
-      <div className="public-team-brand">{preview && team.logoUrl?.startsWith('blob:') ? <span className="team-logo"><img src={team.logoUrl} alt={`${team.name} lokal logo önbaxışı`} /></span> : <TeamLogo name={team.name} src={team.logoUrl} size="xl" />}<div className="public-team-social">{!preview && <ShareProfileAction teamName={team.name} />}<SocialLinkList links={details?.socialLinks} ownerName={team.name} compact /></div></div>
+      <div className="public-team-brand">{preview && team.logoUrl?.startsWith('blob:') ? <span className="team-logo"><img src={team.logoUrl} alt={`${team.name} lokal logo önbaxışı`} /></span> : <TeamLogo name={team.name} src={team.logoUrl} size="xl" sizes={preview ? "100px" : "(max-width: 520px) 160px, (max-width: 870px) 200px, (max-width: 1521px) 23vw, 350px"} />}<div className="public-team-social">{!preview && <ShareProfileAction teamName={team.name} />}<SocialLinkList links={details?.socialLinks} ownerName={team.name} compact /></div></div>
     </div>
   </header>;
 }

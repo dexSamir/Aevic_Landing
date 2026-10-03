@@ -24,7 +24,7 @@ TeamLogo
 import { TournamentJoinAction } from '../../components/competition/TournamentJoinAction';
 import { TournamentResults } from '../../components/competition/TournamentResults';
 import { services } from '../../services';
-import { usePublicPlatformData } from '../../services/PlatformDataContext';
+import { usePublicPlatformData } from '../../services/PublicPlatformDataContext';
 import { queryPolicy,usePlatformQuery } from '../../services/queryCache';
 import '../../styles/public-pages.css';
 import { formatEventDate } from '../../utils/calendar';

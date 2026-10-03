@@ -1,6 +1,7 @@
 import { ArrowRight, CalendarDays, CheckCircle2, Clock3, Crown, Swords, Users } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
+import { mapPortraitSources } from '../../assets/official/mapPortraits';
 import { officialAssets, officialRotation } from '../../assets/official';
 import { restoreLocalImageFallback, useLocalImageFallback } from '../../assets/imageDelivery';
 import type { Tournament } from '../../types/domain';
@@ -31,9 +32,10 @@ const tacticalTags = [
   ['Açıq ərazi', 'Qarışıq məsafə', 'Nəqliyyat'],
 ] as const;
 
-function OfficialMapImage({ index, sizes, alt, eager = false }: { index: number; sizes: string; alt: string; eager?: boolean }) {
+function OfficialMapImage({ index, sizes, alt, eager = false, portrait = false }: { index: number; sizes: string; alt: string; eager?: boolean; portrait?: boolean }) {
   const imageRef = useLocalImageFallback(officialAssets.maps[index]);
   return <picture>
+    {portrait && mapPortraitSources[index].map(source => <source key={source.type} type={source.type} srcSet={source.srcSet} sizes={sizes} />)}
     <img ref={imageRef} src={officialAssets.maps[index]} srcSet={officialAssets.mapSrcSets[index]} sizes={sizes} alt={alt} width={1600} height={900} loading={eager ? 'eager' : 'lazy'} decoding="async" onError={(event) => restoreLocalImageFallback(event, officialAssets.maps[index])} />
   </picture>;
 }
@@ -58,7 +60,7 @@ export function MapRotation({
         const status = statuses[index];
         return <li key={`${map}-${index}`} data-reveal data-reveal-variant="fade-up" style={{ '--map-index': index, transitionDelay: `${index * 50}ms` } as CSSProperties}>
           <div className="map-program__frame">
-            <div className="map-program__art"><OfficialMapImage eager index={index} sizes="(max-width: 640px) 46vw, (max-width: 1024px) 22vw, 18rem" alt="" /></div>
+            <div className="map-program__art"><OfficialMapImage portrait index={index} sizes="(max-width: 767px) 160px, (max-width: 1100px) 18vw, (max-width: 1440px) 17vw, 236px" alt="" /></div>
             <div className="map-program__scrim" aria-hidden="true" />
             <span className="map-program__ghost" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
             {status && <span className={`map-program__pill map-program__pill--${status}`}>{statusCopy[status]}</span>}

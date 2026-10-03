@@ -1,4 +1,3 @@
-import { TeamWorkspacePlaceholder } from './TeamWorkspaceFrame';
 import {
 ChevronRight,
 CircleUserRound,
@@ -6,17 +5,16 @@ FileText,
 LogOut,
 Menu
 } from 'lucide-react';
-import { useCallback,useEffect,useRef,useState,type CSSProperties,type KeyboardEvent as ReactKeyboardEvent,type ReactNode } from 'react';
-import { isRouteErrorResponse,Link,Navigate,NavLink,useLocation,useNavigate,useRouteError } from 'react-router-dom';
+import { useCallback,useEffect,useRef,useState,type CSSProperties,type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { isRouteErrorResponse,Link,NavLink,useLocation,useNavigate,useRouteError } from 'react-router-dom';
 import { publicNavigation } from '../app/publicNavigation';
-import { BrandEmblem,BrandMark } from '../components/brand/BrandMark';
-import { RouteSkeleton } from '../components/common/LoadingSkeleton';
+import { BrandMark } from '../components/brand/BrandMark';
 import { RouteTransitionOutlet } from '../components/common/Motion';
-import { EmptyState, Button,Drawer,IconButton,TeamLogo } from '../components/common/primitives';
+import { Drawer,IconButton,TeamLogo } from '../components/common/primitives';
 import { RouteSeo } from '../components/common/Seo';
 import { InstallAevic,OfflineNotice } from '../components/pwa/PwaExperience';
 import { serviceCapabilities,services } from '../services';
-import { PublicPlatformProvider } from '../services/PlatformDataContext';
+import { PublicPlatformProvider } from '../services/PublicPlatformDataContext';
 import '../styles/public-shell.css';
 import type { Team } from '../types/domain';
 import { activePublicRoute } from '../utils/routes';
@@ -180,37 +178,4 @@ export function RouteError() {
   const status = isRouteErrorResponse(error) ? error.status : 500;
   const forbidden = status === 401 || status === 403;
   return <main className="route-error"><BrandMark variant="signature" /><span>{status}</span><h1>{forbidden ? 'Bu səhifə üçün icazəniz yoxdur.' : status === 404 ? 'Bu səhifə yarış cədvəlində yoxdur.' : 'Platforma sorğunu tamamlaya bilmədi.'}</h1><p>{forbidden ? 'Hesab rolunuzu yoxlayın və ya dəstək xidməti ilə əlaqə saxlayın.' : status === 404 ? 'Ünvan dəyişdirilmiş və ya silinmiş ola bilər.' : 'Bir az sonra yenidən cəhd edin və ya ana səhifəyə qayıdın.'}</p><Link className="button button--primary" to={forbidden ? '/login' : '/'}><span>{forbidden ? 'Girişə keç' : 'Ana səhifəyə qayıt'}</span></Link></main>;
-}
-
-export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'account'; children: ReactNode }) {
-  const [checking, setChecking] = useState<boolean>(true);
-  const [allowed, setAllowed] = useState(false);
-  const [deniedPath, setDeniedPath] = useState(!serviceCapabilities.publicSession ? (area === 'admin' ? '/admin/login' : '/login') : '');
-  const [unavailable, setUnavailable] = useState(false);
-  const [attempt, setAttempt] = useState(0);
-  const [identity,setIdentity] = useState('');
-  useEffect(()=>{const refresh=()=>setAttempt(n=>n+1);window.addEventListener('focus',refresh);window.addEventListener('aevic:session-change',refresh);return()=>{window.removeEventListener('focus',refresh);window.removeEventListener('aevic:session-change',refresh);};},[]);
-  useEffect(() => {
-    let active = true;
-    if (!serviceCapabilities.publicSession) {
-      setAllowed(false);
-      setDeniedPath(area === 'admin' ? '/admin/login' : '/login');
-      setChecking(false);
-      return;
-    }
-    setUnavailable(false);
-    services.auth.getSession().then((session) => {
-      if (!active) return;
-      const accepted = area === 'admin' ? session?.role === 'admin' : area === 'account' ? Boolean(session) : Boolean(session && ['captain', 'team', 'admin'].includes(session.role));
-      setIdentity(session?.user.id??'');setAllowed(accepted);
-      if (!accepted) setDeniedPath(session ? '/forbidden' : area === 'admin' ? '/admin/login' : '/login');
-    }).catch(() => { if(active) { setAllowed(false); setUnavailable(true); } }).finally(() => { if(active)setChecking(false); });
-    return () => { active = false; };
-  }, [area, attempt]);
-  if (checking && area === 'team') return <TeamWorkspacePlaceholder phase="session" />;
-  if (checking) return <main className="route-loading"><div className="route-loading__identity"><BrandEmblem decorative={false} /><span>AEVIC secure access</span></div><RouteSkeleton path={window.location.pathname}/></main>;
-  if (unavailable && area === 'team') return <TeamWorkspacePlaceholder><EmptyState heading="h1" title="Bağlantını yoxlayın" body="Hesab sessiyasını yoxlamaq mümkün olmadı. Bir az sonra yenidən cəhd edin." action={<Button onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</Button>} /></TeamWorkspacePlaceholder>;
-  if (unavailable) return <main className="route-loading"><h1>Bağlantını yoxlayın</h1><p role="status">Hesab sessiyasını yoxlamaq mümkün olmadı. Bir az sonra yenidən cəhd edin.</p><Button onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</Button></main>;
-  if (!allowed) return <Navigate to={deniedPath || (area === 'admin' ? '/admin/login' : '/login')} replace />;
-  return <div key={identity} data-protected-area={area}>{children}</div>;
 }

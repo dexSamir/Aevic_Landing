@@ -8,7 +8,7 @@ import { MediaBackdrop } from '../components/common/MediaBackdrop';
 import { TournamentCalendar } from '../components/competition/TournamentCalendar';
 import { TournamentJoinAction } from '../components/competition/TournamentJoinAction';
 import { competitionNow, serviceCapabilities, services } from '../services';
-import { usePublicPlatformData } from '../services/PlatformDataContext';
+import { usePublicPlatformData } from '../services/PublicPlatformDataContext';
 import { eventDateKey, formatEventDate, formatEventTime } from '../utils/calendar';
 import { selectPrimaryCompetition } from '../utils/competitionSelectors';
 import { resolveTournamentTemporalPhase, type TournamentTemporalPhase } from '../utils/tournamentTime';

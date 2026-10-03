@@ -39,8 +39,7 @@ export class Repository {
   return this.loaded.get(table)!;
  }
  async tournaments():Promise<Tournament[]> {
-  const [rows,entries]=await Promise.all([this.rows('tournaments'),this.rows('tournament_registrations')]);
-  const counts=await this.tournamentCapacity();
+  const [rows,entries,counts]=await Promise.all([this.rows('tournaments'),this.rows('tournament_registrations'),this.tournamentCapacity()]);
   return rows.map(r=>({id:s(r,'id'),name:s(r,'name'),shortName:s(r,'short_name'),description:s(r,'description'),status:s(r,'status') as Tournament['status'],updatedAt:s(r,'updated_at'),startsAt:s(r,'starts_at'),endsAt:s(r,'ends_at'),registrationOpensAt:s(r,'registration_opens_at'),registrationDeadline:s(r,'registration_deadline'),checkInOpensAt:s(r,'check_in_opens_at'),checkInClosesAt:s(r,'check_in_closes_at'),maxSlots:n(r,'max_slots'),usedSlots:counts.find(c=>c.tournament_id===r.id)?.used_slots??entries.filter(e=>e.tournament_id===r.id&&['pending','confirmed'].includes(s(e,'status'))).length,days:n(r,'days'),roundsPerDay:n(r,'rounds_per_day'),mapRotation:{id:s(r,'id'),maps:r.map_rotation as string[]},pointFormula:r.point_formula as Tournament['pointFormula'],rules:r.rules as string[],featured:Boolean(r.featured),prizePool:0,prizeCurrency:'',prizeDistribution:[],disputeDurationMinutes:n(r,'dispute_duration_minutes')}));
  }
  async teams(privateData=false):Promise<Team[]> {

@@ -1,7 +1,7 @@
 import { Link,useParams } from 'react-router-dom';
 import { EmptyState } from '../../components/common/primitives';
 import { PublicTeamDetail } from '../../components/profile/PublicTeamDetail';
-import { usePublicPlatformData } from '../../services/PlatformDataContext';
+import { usePublicPlatformData } from '../../services/PublicPlatformDataContext';
 import '../../styles/public-pages.css';
 
 export const emptyDirectoryTournaments: import('../../types/domain').Tournament[] = [];

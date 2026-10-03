@@ -1,3 +1,6 @@
+import participation1600avif from './participation-1600.avif';
+import participation1600webp from './participation-1600.webp';
+import participation1600jpg from './participation-1600.jpg';
 import hero480jpg from './hero-480.jpg';
 import hero800jpg from './hero-800.jpg';
 import hero480webp from './hero-480.webp';
@@ -58,7 +61,7 @@ export const homeArtwork = {
   hero: { src: hero1672jpg, srcSet: `${hero480jpg} 480w, ${hero640jpg} 640w, ${hero800jpg} 800w, ${hero1120jpg} 1120w, ${hero1672jpg} 1672w`, sources: [{type: 'image/avif', srcSet: `${hero480avif} 480w, ${hero640avif} 640w, ${hero800avif} 800w, ${hero1120avif} 1120w, ${hero1672avif} 1672w`}, {type: 'image/webp', srcSet: `${hero480webp} 480w, ${hero640webp} 640w, ${hero800webp} 800w, ${hero1120webp} 1120w, ${hero1672webp} 1672w`}], width: 1672, height: 941 },
   tournament: { src: tournament1254jpg, srcSet: `${tournament480jpg} 480w, ${tournament800jpg} 800w, ${tournament1254jpg} 1254w`, sources: [{type: 'image/avif', srcSet: `${tournament480avif} 480w, ${tournament800avif} 800w, ${tournament1254avif} 1254w`}, {type: 'image/webp', srcSet: `${tournament480webp} 480w, ${tournament800webp} 800w, ${tournament1254webp} 1254w`}], width: 1254, height: 1254 },
   record: { src: record1672jpg, srcSet: `${record480jpg} 480w, ${record640jpg} 640w, ${record800jpg} 800w, ${record1120jpg} 1120w, ${record1672jpg} 1672w`, sources: [{type: 'image/avif', srcSet: `${record480avif} 480w, ${record640avif} 640w, ${record800avif} 800w, ${record1120avif} 1120w, ${record1672avif} 1672w`}, {type: 'image/webp', srcSet: `${record480webp} 480w, ${record640webp} 640w, ${record800webp} 800w, ${record1120webp} 1120w, ${record1672webp} 1672w`}], width: 1672, height: 941 },
-  participation: { src: participation2048jpg, srcSet: `${participation480jpg} 480w, ${participation640jpg} 640w, ${participation800jpg} 800w, ${participation1280jpg} 1280w, ${participation2048jpg} 2048w`, sources: [{type: 'image/avif', srcSet: `${participation480avif} 480w, ${participation640avif} 640w, ${participation800avif} 800w, ${participation1280avif} 1280w, ${participation2048avif} 2048w`}, {type: 'image/webp', srcSet: `${participation480webp} 480w, ${participation640webp} 640w, ${participation800webp} 800w, ${participation1280webp} 1280w, ${participation2048webp} 2048w`}], width: 2048, height: 768 }
+  participation: { src: participation2048jpg, srcSet: `${participation480jpg} 480w, ${participation640jpg} 640w, ${participation800jpg} 800w, ${participation1280jpg} 1280w, ${participation1600jpg} 1600w, ${participation2048jpg} 2048w`, sources: [{type: 'image/avif', srcSet: `${participation480avif} 480w, ${participation640avif} 640w, ${participation800avif} 800w, ${participation1280avif} 1280w, ${participation1600avif} 1600w, ${participation2048avif} 2048w`}, {type: 'image/webp', srcSet: `${participation480webp} 480w, ${participation640webp} 640w, ${participation800webp} 800w, ${participation1280webp} 1280w, ${participation1600webp} 1600w, ${participation2048webp} 2048w`}], width: 2048, height: 768 }
 } as const;
 
 export type HomeArtwork = (typeof homeArtwork)[keyof typeof homeArtwork];

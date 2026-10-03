@@ -3,7 +3,7 @@ import { useMemo,useState } from 'react';
 import { Link } from 'react-router-dom';
 import { EmptyState,PageHeader,Select,TeamLogo } from '../../components/common/primitives';
 import { VerificationCrest } from '../../components/profile/ProfileElements';
-import { usePublicPlatformData } from '../../services/PlatformDataContext';
+import { usePublicPlatformData } from '../../services/PublicPlatformDataContext';
 import '../../styles/public-pages.css';
 
 export function OrganizationsDirectoryPage() {

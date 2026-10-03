@@ -1,4 +1,4 @@
-import { ProtectedRoute, PublicLayout, RouteError } from '../layouts/layouts';
+import { PublicLayout, RouteError } from '../layouts/layouts';
 import { HomePage } from '../pages/HomePage';
 import { AevicHydrationFallback } from '../components/common/AevicHydrationFallback';
 import { routePath } from './routeManifest';
@@ -134,7 +134,7 @@ export const routes = applyRouteCapabilities([
   {
     path: routePath('account'),
     lazy: async () => {
-      const { AccountLayout } = await import('../pages/routes/AccountLayout');
+      const [{ AccountLayout }, { ProtectedRoute }] = await Promise.all([import('../pages/routes/AccountLayout'), import('../layouts/ProtectedRoute')]);
       return { Component: () => <ProtectedRoute area="account"><AccountLayout /></ProtectedRoute> };
     },
     children: [

@@ -6,18 +6,28 @@ import { captain } from '../../server/platform/context';
 import { Repository } from '../../server/services/data';
 import { mapProductionTeam } from '../../server/services/productionTeams';
 import type { DbClient } from '../../server/db';
+import { officialRecords } from '../../server/services/records';
 const config={supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'fixture-key',siteUrl:'https://fixture.test',secureCookies:true};
 // Isolated transport fixtures: no database or production calls.
 function fixture(){
  const sql=Object.assign(vi.fn(async()=>{throw new Error('private-session-secret');}),{begin:vi.fn(async()=>{throw new Error('optional-maintenance-secret');})});
  const app=createHttpApp(config,{});app.route('/',platformMiddleware(sql as unknown as Sql));
  app.get('/public/context',c=>c.json({actor:c.get('platform')!.actor}));
+ app.get('/me/session',c=>c.json({actor:c.get('platform')!.actor}));
  app.get('/matches',c=>c.json([]));
  app.post('/auth/login',c=>c.json({reached:true}));
  app.get('/me/private',c=>c.json({id:captain(c)}));
  return {sql,app};
 }
 describe('shared request dependency isolation',()=>{
+ it('does not load teams or tournament data when no published records can exist',async()=>{
+  const repo = { results: vi.fn(async () => []), rows: vi.fn(), teams: vi.fn(), tournaments: vi.fn() };
+  expect(await officialRecords(repo as unknown as Repository)).toEqual({current:[],progression:[]});
+  expect(repo.results).toHaveBeenCalledTimes(1);
+  expect(repo.rows).not.toHaveBeenCalled();
+  expect(repo.teams).not.toHaveBeenCalled();
+  expect(repo.tournaments).not.toHaveBeenCalled();
+ });
  it('logs safe runtime diagnostics without leaking exception messages or database credentials',async()=>{
   const log=vi.spyOn(console,'error').mockImplementation(()=>{});
   try{
@@ -40,6 +50,18 @@ describe('shared request dependency isolation',()=>{
    expect(response.status).toBe(200);
   }
   expect(sql).not.toHaveBeenCalled();expect(sql.begin).not.toHaveBeenCalled();
+ });
+ it('resolves guest session probes without maintenance or database work',async()=>{
+  const {app,sql}=fixture();
+  const response=await app.request('/api/me/session');
+  expect(response.status).toBe(200);expect(await response.json()).toEqual({actor:{}});
+  expect(response.headers.get('cache-control')).toBe('private, no-store');
+  expect(sql).not.toHaveBeenCalled();expect(sql.begin).not.toHaveBeenCalled();
+ });
+ it('does not bypass authorization for a cookie-bearing session probe',async()=>{
+  const {app,sql}=fixture();
+  const response=await app.request('/api/me/session',{headers:{cookie:'__Host-aevic-admin=broken'}});
+  expect(response.status).toBe(503);expect(sql).toHaveBeenCalled();
  });
  it('allows login handler through failed optional maintenance without processing old admin cookies',async()=>{
   const warning=vi.spyOn(console,'warn').mockImplementation(()=>{});

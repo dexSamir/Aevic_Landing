@@ -1,3 +1,4 @@
+import '../../styles/share-controls.css';
 import { useState } from 'react';
 import { FileUpload } from './FileUpload';
 import { ImageEditor } from './ImageEditor';

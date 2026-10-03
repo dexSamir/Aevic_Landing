@@ -1139,3 +1139,6 @@ export function routeIsAccessible(
     route.unavailableBehavior === "render"
   );
 }
+
+/** Public entity shells must allow rendering; loaded/missing states decide final indexing. */
+export const crawlableEntityRouteIds = new Set(['teams_teamSlug', 'tournaments_tournamentId', 'organizations_organizationSlug']);

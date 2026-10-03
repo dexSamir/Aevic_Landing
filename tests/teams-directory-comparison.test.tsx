@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { TeamsDirectoryPage } from '../src/pages/ProfilePages';
-vi.mock('../src/services/PlatformDataContext', () => ({ usePublicPlatformData: () => ({ teams: [
+vi.mock('../src/services/PublicPlatformDataContext', () => ({ usePublicPlatformData: () => ({ teams: [
   { id: 'a', slug: 'caspian-wolves', name: 'Caspian Wolves', rosterSize: 5, verificationLevel: 'verified' },
   { id: 'b', slug: 'baku-sentinels', name: 'Baku Sentinels', rosterSize: 4, verificationLevel: 'approved' },
   { id: 'c', slug: 'atlas-five', name: 'Atlas Five', rosterSize: 5, verificationLevel: 'verified' },

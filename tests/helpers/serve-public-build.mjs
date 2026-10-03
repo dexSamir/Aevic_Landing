@@ -18,6 +18,13 @@ createServer(async (req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1:4176');
     res.setHeader('Content-Security-Policy', csp);
     res.setHeader('X-Content-Type-Options', 'nosniff');
+    const reportOnly = headers.match(/Content-Security-Policy-Report-Only: (.+)/)?.[1];
+    if (reportOnly) res.setHeader('Content-Security-Policy-Report-Only', reportOnly);
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    if (headers.includes('/*\n  Content-Security-Policy:') && headers.split('/sw.js')[0].includes('X-Robots-Tag: noindex')) res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    if (/^\/(team|admin|account)(\/|$)/.test(url.pathname)) res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     if (url.pathname.startsWith('/api/') && process.env.AEVIC_TEST_API_FIXTURES) {
       const fixtures = JSON.parse(await readFile(process.env.AEVIC_TEST_API_FIXTURES, 'utf8'));
       const fixture = fixtures[url.pathname + url.search] ?? fixtures[url.pathname];
@@ -37,6 +44,11 @@ createServer(async (req, res) => {
     if (url.pathname === '/api/records') {
       res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end('[]'); return;
     }
+    // Explicit anonymous/empty settings fixtures for isolated public build checks.
+    if (url.pathname === '/api/me/session' || url.pathname === '/api/public/settings') {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store' });
+      res.end(JSON.stringify(url.pathname === '/api/me/session' ? null : { registrationEnabled: true, maintenanceMessage: '' })); return;
+    }
     if (url.pathname.startsWith('/api/')) {
       res.writeHead(404, { 'Content-Type': 'application/json' }); res.end('{"code":"API_ROUTE_NOT_FOUND"}'); return;
     }
@@ -50,8 +62,8 @@ createServer(async (req, res) => {
     let status = 200;
     try { if ((await stat(file)).isDirectory()) file = resolve(file, 'index.html'); await stat(file); }
     catch {
-      const known = routes.some(route => route.path !== '*' && route.path.split('/').length === url.pathname.split('/').length && route.path.split('/').every((part,index) => part.startsWith(':') ? Boolean(url.pathname.split('/')[index]) : part === url.pathname.split('/')[index]));
-      status = known ? 200 : 404; file = resolve(root, known ? 'index.html' : '404.html');
+      const known = routes.find(route => route.path !== '*' && route.path.split('/').length === url.pathname.split('/').length && route.path.split('/').every((part,index) => part.startsWith(':') ? Boolean(url.pathname.split('/')[index]) : part === url.pathname.split('/')[index]));
+      status = known ? 200 : 404; file = resolve(root, known ? known.path.includes(':') ? '_route-shells/' + known.id + '.html' : 'index.html' : '404.html');
     }
     res.setHeader('Cache-Control', url.pathname.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache');
     const type=mime[extname(file)] || 'application/octet-stream';

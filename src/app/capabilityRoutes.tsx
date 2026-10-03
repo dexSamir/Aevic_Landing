@@ -8,6 +8,15 @@ export function applyRouteCapabilities(routes: RouteObject[], parent = ''): Rout
     const path = route.path?.startsWith('/') ? route.path : `${parent}${route.path ? `/${route.path}` : ''}`;
     const definition = matchRoute(path);
     const mapped: RouteObject = { ...route };
+    if (typeof route.lazy === 'function') {
+      const loadRoute = route.lazy;
+      // Vite inserts the shared CSS link before each feature's own styles. Both
+      // downloads run together, and the router renders only after both finish.
+      mapped.lazy = async (...args) => {
+        const [, result] = await Promise.all([import('../styles/route-components.css'), loadRoute(...args)]);
+        return result;
+      };
+    }
     if (!mapped.index && mapped.children) mapped.children = applyRouteCapabilities(mapped.children, path);
     if (definition && !routeIsAccessible(definition, serviceCapabilities)) {
       mapped.lazy = undefined;

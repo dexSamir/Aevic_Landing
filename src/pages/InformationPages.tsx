@@ -1,3 +1,4 @@
+import '../styles/regulations.css';
 import '../styles/public-pages.css';
 import { PageHeader } from '../components/common/primitives';
 export function RegulationsPage() {

@@ -10,10 +10,11 @@ import { client } from '../db';
 import { organizations,achievements } from '../services/identity';
 import { officialRecords } from '../services/records';
 import { rateLimit } from './auth';
+import { PublicContextRepository } from '../platform/public-context';
 const app=new Hono<Env>();
 const repo=(c:ApiContext)=>c.get('platform')??new Repository(c.get('db'));
 const paramId=(c:ApiContext)=>z.union([z.uuid(),z.string().regex(/^[1-9]\d{0,18}$/)]).parse(c.req.param('id'));
-app.get('/public/context',async c=>{const r=repo(c);const [tournaments,teams,leaderboard]=await Promise.all([r.tournaments(),r.teams(),r.standings()]);return c.json({tournaments,teams:teams.map(summary),organizations:await organizations(r),leaderboard,leaderboardTeams:leaderboard.map(row=>teams.find(t=>t.id===row.teamId)?.name??''),playerPerformances:[],teamComparisonRecords:await r.comparisons(),teamAchievements:[]});});
+app.get('/public/context',async c=>{const platform=c.get('platform');const r=platform?new PublicContextRepository(c.get('db'),platform.sql):repo(c);if(r instanceof PublicContextRepository)c.set('platform',r);const [tournaments,teams,leaderboard,publicOrganizations,teamComparisonRecords]=await Promise.all([r.tournaments(),r.teams(),r.standings(),organizations(r),r.comparisons()]);return c.json({tournaments,teams:teams.map(summary),organizations:publicOrganizations,leaderboard,leaderboardTeams:leaderboard.map(row=>teams.find(t=>t.id===row.teamId)?.name??''),playerPerformances:[],teamComparisonRecords,teamAchievements:[]});});
 app.get('/tournaments',async c=>c.json(await repo(c).tournaments()));
 app.get('/tournaments/:id',async c=>c.json(await repo(c).tournament(paramId(c))));
 app.get('/tournaments/:id/participants',async c=>{

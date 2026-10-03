@@ -7,7 +7,7 @@ import { PublicFooter } from '../src/layouts/PublicFooter';
 import { services } from '../src/services';
 import { currentTeam, tournaments } from './fixtures/platform-data';
 
-vi.mock('../src/services/PlatformDataContext', () => ({ usePublicPlatformData: () => ({ tournaments }) }));
+vi.mock('../src/services/PublicPlatformDataContext', () => ({ usePublicPlatformData: () => ({ tournaments }) }));
 vi.mock('../src/services', async importOriginal => ({ ...await importOriginal<typeof import('../src/services')>(), competitionNow: () => new Date('2026-08-04T12:00:00+04:00') }));
 function mount() { return render(<MemoryRouter initialEntries={['/tournaments']}><TournamentsPage /><PublicFooter showCta={false} /></MemoryRouter>); }
 beforeEach(() => {

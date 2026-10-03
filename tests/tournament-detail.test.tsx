@@ -7,7 +7,7 @@ import { fixtureServices } from './fixtures/component-services';
 import { clearQueryCache } from '../src/services/queryCache';
 import { currentTeam, tournaments, teams, matchSchedule } from './fixtures/platform-data';
 
-vi.mock('../src/services/PlatformDataContext', () => ({ usePublicPlatformData: () => ({ tournaments, teams, leaderboardTeams: [] }) }));
+vi.mock('../src/services/PublicPlatformDataContext', () => ({ usePublicPlatformData: () => ({ tournaments, teams, leaderboardTeams: [] }) }));
 const mount = () => render(<MemoryRouter initialEntries={['/tournaments/daily-cup-24']}><Routes><Route path="/tournaments/:tournamentId" element={<TournamentDetailPage />} /></Routes></MemoryRouter>);
 beforeEach(async () => {
  clearQueryCache('all');

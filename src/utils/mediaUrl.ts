@@ -7,7 +7,7 @@ export const publicMediaOrigins = safe ? [new URL(safe).origin] : [];
 export const publicImageUrl = (value: unknown) => sanitizeImageUrl(value, publicMediaOrigins);
 
 /** Resize public uploads at the edge; originals and storage permissions stay intact. */
-export function publicImageSrcSet(value: unknown, widths: readonly number[] = [64, 128, 256, 512]) {
+export function publicImageSrcSet(value: unknown, widths: readonly number[] = [32, 48, 64, 96, 128, 160, 256, 384, 512, 768]) {
   const source = publicImageUrl(value);
   if (!import.meta.env.PROD || !source) return undefined;
   const legacy = /^\/api\/media\/[0-9a-f-]{36}$/i.test(source);

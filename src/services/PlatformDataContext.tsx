@@ -4,13 +4,12 @@ import { createContext, lazy, Suspense, type ReactNode, useContext, useEffect } 
 import { Button, EmptyState } from '../components/common/primitives';
 import { RouteSkeleton, RefreshIndicator } from '../components/common/LoadingSkeleton';
 import type { ApiError } from './apiError';
-import type { AdminPlatformSnapshot, PublicPlatformSnapshot, TeamPlatformSnapshot } from '../types/domain';
+import type { AdminPlatformSnapshot, TeamPlatformSnapshot } from '../types/domain';
 import { competitionNow, services } from '.';
 import { queryPolicy, usePlatformQuery, invalidateQuery } from './queryCache';
 import { deriveTeamCompetitionContexts } from '../utils/teamCompetitionContext';
 
 const InvitationsWithoutWorkspace=lazy(()=>import('../pages/routes/TeamInvitationsPage').then(m=>({default:m.TeamInvitationsPage})));
-const PublicContext = createContext<PublicPlatformSnapshot | null>(null);
 const TeamContext = createContext<TeamPlatformSnapshot | null>(null);
 const AdminContext = createContext<AdminPlatformSnapshot | null>(null);
 
@@ -26,13 +25,6 @@ function QueryBoundary<T>({ query, children, workspace = false }: { workspace?: 
   return <><RefreshIndicator active={query.refreshing}/>{query.error && <p role="status" className="connectivity-status">Yenilənmə alınmadı. Son yüklənmiş məlumat göstərilir. <Button variant="ghost" onClick={query.refetch}>Yenidən yoxla</Button></p>}{children(query.data)}</>;
 }
 
-export function PublicPlatformProvider({ children }: { children: ReactNode }) {
-  const { pathname } = useLocation();
-  useEffect(()=>{const timer=setInterval(()=>{if(navigator.onLine&&document.visibilityState==='visible')invalidateQuery('snapshot:public');},60_000);return()=>clearInterval(timer);},[]);
-  const query = usePlatformQuery({ key: 'snapshot:public', scope: 'public', query: (signal) => services.snapshots.public(signal), staleTime: queryPolicy.publicCompetition, refetchOnFocus:true });
-  return <QueryBoundary query={query}>{(value) => <PublicContext.Provider value={value}>{value.unavailable && /^\/(tournaments|leaderboard|matches|archive|records|organizations)(\/|$)|^\/teams\/compare$/.test(pathname) ? <div className="page-section container"><EmptyState heading="h1" title="Yarış məlumatları hələ əlçatan deyil" body="Komanda profilləri əlçatandır. Turnir, matç və sıralama məlumatlarının bağlantısı hələ tamamlanmayıb." /></div> : <>{children}{value.unavailable && <p role="status" className="container public-team-note">Komanda məlumatları mövcud bazadan göstərilir. Yarış məlumatlarının bağlantısı hələ tamamlanmayıb.</p>}</>}</PublicContext.Provider>}</QueryBoundary>;
-}
-
 export function TeamPlatformProvider({ children }: { children: ReactNode }) {
   const {pathname}=useLocation();
   const query = usePlatformQuery({ key: 'snapshot:team', query: (signal) => services.snapshots.team(signal), staleTime: queryPolicy.account, refetchOnFocus:true });
@@ -45,9 +37,6 @@ export function AdminPlatformProvider({ children }: { children: ReactNode }) {
   return <QueryBoundary query={query}>{(value) => <AdminContext.Provider value={value}>{children}</AdminContext.Provider>}</QueryBoundary>;
 }
 
-export function usePublicPlatformData() {
-  const value = useContext(PublicContext); if (!value) throw new Error('usePublicPlatformData must be used inside PublicPlatformProvider'); return value;
-}
 export function useTeamPlatformData() {
   const value = useContext(TeamContext); if (!value) throw new Error('useTeamPlatformData must be used inside TeamPlatformProvider'); return value;
 }
@@ -61,3 +50,5 @@ export function useAdminPlatformData() {
 function TeamRealtime({teamId,original}:{teamId:string;original?:boolean}) {
  useEffect(()=>{const controller=new AbortController();const refresh=()=>{if(navigator.onLine&&document.visibilityState==='visible')invalidateQuery('snapshot:team');};const polling=setInterval(refresh,60_000);window.addEventListener('online',refresh);if(!original)void import('./realtime').then(m=>m.subscribeTeam(teamId,controller.signal)).catch(()=>{ /* Reads still work if Realtime cannot connect. */ });return()=>{controller.abort();clearInterval(polling);window.removeEventListener('online',refresh);};},[teamId,original]);return null;
 }
+
+export { PublicPlatformProvider, usePublicPlatformData } from './PublicPlatformDataContext';

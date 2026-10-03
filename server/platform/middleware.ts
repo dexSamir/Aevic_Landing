@@ -34,7 +34,10 @@ export function platformMiddleware(testSql?:Sql){
   const sql=testSql??store!.sql;
   // Public reads must not depend on session state or maintenance writes.
   const publicRead=['GET','HEAD'].includes(c.req.method)&&/^\/api\/(public(?:\/|$)|tournaments(?:\/|$)|matches(?:\/|$)|leaderboards(?:\/|$)|records(?:\/|$)|archive$|search$|sitemap)/.test(c.req.path);
-  if(publicRead){c.set('platform',new PlatformRepository(c.get('db'),sql,{}));return next();}
+  // An anonymous session probe has no identity to resolve or sanctions to expire.
+  // Keep cookie-bearing requests on the full authorization path.
+  const guestSession = ['GET','HEAD'].includes(c.req.method) && c.req.path === '/api/me/session' && !getCookie(c,adminCookieName(c)) && !currentCaptainCookie(c);
+  if(publicRead || guestSession){c.set('platform',new PlatformRepository(c.get('db'),sql,{}));return next();}
   // Expiry maintenance is optional. Coalesce it per warm runtime; a failure
   // leaves bans in force, but must not take login/media/session endpoints down.
   await maintainSanctions(sql);

@@ -146,3 +146,45 @@
   .home-team-stage { scroll-behavior: auto; }
   .home-team-stage .team-logo-tile .team-mark, .home-live-hero .button svg, .home-section-intro > a svg, .home-record-spotlight .button svg, .home-brand-statement .button svg, .home-competition-rail__action svg { transition: none; transform: none; }
 }
+
+/* The pending, empty, failed and populated rails share their real content envelope. */
+.home-competition-slot { min-width: 0; min-height: 8rem; display: grid; }
+.home-competition-slot > .home-competition-rail { min-height: 8rem; }
+.home-competition-slot .loading-skeleton__rail { min-height: 8rem; height: 100%; padding: 1.25rem 1.5rem; grid-template-columns: minmax(15rem,1.1fr) minmax(0,1.7fr) auto; gap: 1.5rem; border: 0; background: rgba(8,8,10,.65); }
+.home-competition-slot .loading-skeleton__stats { margin: 0; gap: .75rem; grid-template-columns: repeat(4,minmax(0,1fr)); }
+.home-competition-slot .loading-skeleton__panel { padding: 0; background: transparent; }
+.home-competition-slot .loading-skeleton__heading { height: 24px; margin: 8px 0; }
+.home-competition-slot .loading-skeleton__value { height: 20px; margin-top: 8px; }
+.home-competition-slot .loading-skeleton__button { width: 6rem; height: 44px; margin: 0; }
+.home-team-placeholder { padding-top: calc(36px + .5rem); }
+.loading-skeleton__team-rail { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 3rem) / 5); gap: .75rem; overflow: hidden; padding-block: 2px; }
+.loading-skeleton__team-card { min-width: 0; min-height: 15rem; padding: 2.5rem .75rem 1rem; display: flex; flex-direction: column; align-items: center; border: var(--module-divider); border-radius: 3px; background: var(--surface-command); }
+.loading-skeleton__team-card .loading-skeleton__avatar { width: 4.5rem; height: 4.5rem; }
+@media (max-width: 1100px) {
+  .home-competition-slot, .home-competition-slot > .home-competition-rail { min-height: 10rem; }
+  .home-competition-slot .loading-skeleton__rail { min-height: 10rem; grid-template-columns: minmax(0,1fr) auto; gap: 1rem; }
+  .home-competition-slot .loading-skeleton__stats { grid-column: 1 / -1; grid-row: 2; }
+  .home-competition-slot .loading-skeleton__rail > .loading-skeleton__button { grid-column: 2; grid-row: 1; }
+  .loading-skeleton__team-rail { grid-auto-columns: 25%; }
+}
+@media (max-width: 767px) {
+  .home-competition-slot .loading-skeleton__rail { padding: 1rem var(--page-gutter); margin-inline: calc(var(--page-gutter) * -1); }
+  .home-team-placeholder { padding-top: calc(44px + .5rem); }
+  .loading-skeleton__team-rail { grid-auto-columns: 46%; }
+  .loading-skeleton__team-card { min-height: 14rem; }
+}
+@media (max-width: 380px) {
+  .home-competition-slot, .home-competition-slot > .home-competition-rail { min-height: 13rem; }
+  .home-competition-slot .loading-skeleton__rail { min-height: 13rem; grid-template-columns: minmax(0,1fr); gap: .65rem; }
+  .home-competition-slot .loading-skeleton__rail > .loading-skeleton__button { grid-column: 1; grid-row: 3; }
+}
+.home-competition-slot .loading-skeleton__rail .loading-skeleton__panel { padding: 0; }
+.home-competition-slot .loading-skeleton__short { margin-block: 6px; }
+
+/* Reserve the existing feature card geometry while its real data resolves. */
+.home-program-placeholder { min-height: 31rem; }
+.home-program-placeholder .loading-skeleton__media { min-height: 31rem; }
+.home-program-empty { grid-column: 1 / -1; }
+@media (max-width: 767px) {
+  .home-program-placeholder, .home-program-placeholder .loading-skeleton__media { min-height: 29rem; }
+}

@@ -1,0 +1,40 @@
+/* Component-owned rules retain their original order and media conditions. */
+
+.share-format-selector { display: grid; gap: var(--space-xs); }
+.share-format-selector button { min-height: 4.6rem; display: grid; grid-template-columns: 3.3rem minmax(0,1fr) auto; align-items: center; gap: var(--space-xs); padding: var(--space-xs) var(--space-sm); color: var(--color-text-muted); text-align: left; background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-sm); transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out); }
+.share-format-selector button:hover { color: var(--color-text-primary); border-color: var(--color-border-strong); }
+.share-format-selector button:active { transform: translateY(1px) scale(var(--press-scale)); }
+.share-format-selector button.is-active { color: var(--color-text-primary); background: var(--color-bg-elevated); border-color: var(--color-brand-primary); }
+.share-format-selector button strong { color: var(--color-brand-primary); font-family: var(--font-ui); font-size: var(--text-sm); }
+.share-format-selector button span { min-width: 0; font-size: var(--text-xs); }
+.share-format-selector button small { color: var(--color-text-soft); font-size: .68rem; font-variant-numeric: tabular-nums; }
+.share-template-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; overflow: hidden; background: var(--color-border); border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+.share-template-selector button { min-width: 0; min-height: 4.2rem; display: grid; align-content: center; gap: .15rem; padding: var(--space-xs); color: var(--color-text-muted); text-align: left; background: var(--color-bg-secondary); border: 0; cursor: pointer; }
+.share-template-selector button:hover, .share-template-selector button:focus-visible { color: var(--color-text-primary); background: var(--color-surface-hover); }
+.share-template-selector button.is-active { color: var(--color-text-primary); box-shadow: inset 0 -2px var(--color-brand-primary); }
+.share-template-selector strong { color: var(--color-brand-primary); font-size: var(--text-sm); }
+.share-template-selector span { overflow-wrap: anywhere; font-size: .68rem; }
+.share-card-options { display: grid; gap: var(--space-xs); padding-block: var(--space-xs); }
+.share-card-options .check { min-height: 44px; }
+
+@media (max-width: 900px) {
+  .share-format-selector { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .share-format-selector button { min-width: 0; min-height: 5rem; grid-template-columns: minmax(0, 1fr); align-content: center; gap: .2rem; padding-inline: 6px; text-align: center; }
+}
+
+@media (max-width: 900px) {
+  .share-format-selector button small { display: none; }
+}
+
+@media (max-width: 640px) {
+  .share-template-selector { grid-template-columns: 1fr 1fr; }
+}
+.share-template-selector { grid-template-columns: 1fr; background: transparent; border-inline: 0; border-radius: 0; }
+.share-template-selector button { min-height: 4.5rem; padding-inline: 0; background: transparent; border-bottom: 1px solid var(--color-border); }
+.share-template-selector button.is-active { box-shadow: inset 3px 0 var(--color-brand-primary); padding-left: var(--space-sm); }
+.share-template-selector, .share-format-selector { gap: 1px; background: var(--border-hairline); }
+.share-template-selector > button, .share-format-selector > button { border-radius: 0; background: var(--surface-command); }
+.share-template-selector > button.is-active, .share-format-selector > button.is-active { background: var(--surface-1); border-color: var(--gold-primary); }

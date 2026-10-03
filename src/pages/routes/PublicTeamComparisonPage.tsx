@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '../../components/common/primitives';
 import { TeamComparison } from '../../components/team/TeamExperience';
-import { usePublicPlatformData } from '../../services/PlatformDataContext';
+import { usePublicPlatformData } from '../../services/PublicPlatformDataContext';
 import '../../styles/public-pages.css';
 
 export function PublicTeamComparisonPage() {

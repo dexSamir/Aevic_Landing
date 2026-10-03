@@ -6,7 +6,7 @@ import { Button,EmptyState,LoadingSkeleton,SectionHeading,StatusBadge } from '..
 import { OrganizationBanner,OrganizationIdentity,SocialLinkList,VerificationCrest } from '../../components/profile/ProfileElements';
 import { BadgeCollectionDrawer,FeaturedBadgeCabinet } from '../../components/team/BadgeCabinet';
 import { services } from '../../services';
-import { usePublicPlatformData } from '../../services/PlatformDataContext';
+import { usePublicPlatformData } from '../../services/PublicPlatformDataContext';
 import { usePlatformQuery } from '../../services/queryCache';
 import '../../styles/public-pages.css';
 import { sanitizeOutboundUrl } from '../../utils/outboundUrl';

@@ -3,8 +3,12 @@ import type { Repository } from './data';
 
 /** Record holders and their captured tournament roster, derived from published results. */
 export async function officialRecords(repo: Repository) {
- const [results, matches, teams, tournaments, registrations, rosters] = await Promise.all([
-  repo.results(), repo.rows('matches'), repo.teams(), repo.tournaments(),
+ // With no published results there can be no records. Avoid loading every
+ // team, roster and tournament for the common pre-competition state.
+ const results = await repo.results();
+ if (!results.length) return { current: [], progression: [] };
+ const [matches, teams, tournaments, registrations, rosters] = await Promise.all([
+  repo.rows('matches'), repo.teams(), repo.tournaments(),
   repo.rows('tournament_registrations'), repo.rows('tournament_rosters'),
  ]);
  const categories: Array<{type: RecordType; label: string; unit: string; metric: 'finishes' | 'totalPoints'}> = [

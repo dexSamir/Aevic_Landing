@@ -1,3 +1,4 @@
+import '../../styles/share-controls.css';
 import '../../styles/share-studio.css';
 import { ShareBackgroundPicker } from '../common/ShareBackgroundPicker';
 import { Check, Copy, Download, Share2 } from 'lucide-react';

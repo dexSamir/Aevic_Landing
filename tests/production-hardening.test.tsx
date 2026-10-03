@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ProtectedRoute, PublicHeader } from '../src/layouts/layouts';
+import { PublicHeader } from '../src/layouts/layouts';
+import { ProtectedRoute } from '../src/layouts/ProtectedRoute';
 import { createServiceCapabilities } from '../src/services/capabilities';
 import { services, serviceCapabilities } from '../src/services';
 import { ApiError } from '../src/services/apiError';

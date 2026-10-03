@@ -1,8 +1,9 @@
 import './loading-skeleton.css';
 
-export type SkeletonVariant = 'list'|'table'|'cards'|'stats'|'roster'|'form'|'profile'|'dashboard'|'media'|'tournament'|'rail';
+export type SkeletonVariant = 'list'|'table'|'cards'|'stats'|'roster'|'form'|'profile'|'dashboard'|'media'|'tournament'|'rail'|'team-rail';
 const Bar = ({kind='line'}:{kind?:string}) => <span className={`loading-skeleton__block loading-skeleton__${kind}`} />;
 function Shape({variant,rows}:{variant:SkeletonVariant;rows:number}) {
+ if(variant==='team-rail')return <div className="loading-skeleton__team-rail">{Array.from({length:rows},(_,i)=><div className="loading-skeleton__team-card" key={i}><Bar kind="avatar"/><Bar kind="title"/><Bar kind="short"/></div>)}</div>;
  if(variant==='media')return <Bar kind="media"/>;
  if(variant==='stats')return <div className="loading-skeleton__stats">{Array.from({length:4},(_,i)=><div className="loading-skeleton__panel" key={i}><Bar kind="short"/><Bar kind="value"/></div>)}</div>;
  if(variant==='cards'||variant==='roster')return <div className={`loading-skeleton__grid loading-skeleton__grid--${variant}`}>{Array.from({length:rows},(_,i)=><div className="loading-skeleton__panel" key={i}><Bar kind={variant==='roster'?'portrait':'artwork'}/><Bar kind="title"/><Bar kind="short"/>{variant==='cards'&&<Bar/>}</div>)}</div>;

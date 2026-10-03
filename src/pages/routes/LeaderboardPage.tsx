@@ -12,7 +12,7 @@ TeamLogo
 } from '../../components/common/primitives';
 import { LeaderboardMovementCell } from '../../components/competition/CompetitionIntelligence';
 import { competitionNow,services } from '../../services';
-import { usePublicPlatformData } from '../../services/PlatformDataContext';
+import { usePublicPlatformData } from '../../services/PublicPlatformDataContext';
 import '../../styles/public-pages.css';
 import type { RankMovementData } from '../../types/domain';
 import { selectLeaderboardTournament } from '../../utils/competitionSelectors';

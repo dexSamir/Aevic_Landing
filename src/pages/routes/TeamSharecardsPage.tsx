@@ -1,3 +1,4 @@
+import '../../styles/share-controls.css';
 import {
 ArrowRight,
 Check,

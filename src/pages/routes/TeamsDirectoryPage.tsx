@@ -6,7 +6,7 @@ import { MediaBackdrop } from '../../components/common/MediaBackdrop';
 import { Button,EmptyState,Select } from '../../components/common/primitives';
 import { DirectoryTeamCard } from '../../components/profile/DirectoryTeamCard';
 import { competitionNow,serviceCapabilities,services } from '../../services';
-import { usePublicPlatformData } from '../../services/PlatformDataContext';
+import { usePublicPlatformData } from '../../services/PublicPlatformDataContext';
 import '../../styles/public-pages.css';
 import { resolveTournamentTemporalPhase } from '../../utils/tournamentTime';
 import { emptyDirectoryTournaments } from './ProfilePagesShared';

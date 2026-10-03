@@ -1,3 +1,4 @@
+import '../../styles/global-search.css';
 import { Search, X } from 'lucide-react';
 import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
