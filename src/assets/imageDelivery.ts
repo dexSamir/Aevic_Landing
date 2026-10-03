@@ -36,11 +36,11 @@ export function restoreLocalImageFallback(event: SyntheticEvent<HTMLImageElement
 }
 
 /** A prerendered image can fail before React attaches its error listener. */
-export function useLocalImageFallback(fallbackSource: string) {
+export function useLocalImageFallback(fallbackSource: string, enabled = true) {
   const ref = useRef<HTMLImageElement>(null);
   useEffect(() => {
     const image = ref.current;
-    if (image?.complete && image.naturalWidth === 0) applyLocalImageFallback(image, fallbackSource);
-  }, [fallbackSource]);
+    if (enabled && image?.getAttribute('src') && image.complete && image.naturalWidth === 0) applyLocalImageFallback(image, fallbackSource);
+  }, [fallbackSource, enabled]);
   return ref;
 }

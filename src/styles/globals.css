@@ -19,7 +19,6 @@ body {
   font-size: var(--text-base);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
 }
 
 /* Server-rendered public fallback remains readable before application startup. */

@@ -1,3 +1,4 @@
+import { useImageApproach } from '../../assets/useImageApproach';
 import { ArrowRight, CalendarDays, CheckCircle2, Clock3, Crown, Swords, Users } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
@@ -33,10 +34,11 @@ const tacticalTags = [
 ] as const;
 
 function OfficialMapImage({ index, sizes, alt, eager = false, portrait = false }: { index: number; sizes: string; alt: string; eager?: boolean; portrait?: boolean }) {
-  const imageRef = useLocalImageFallback(officialAssets.maps[index]);
-  return <picture>
-    {portrait && mapPortraitSources[index].map(source => <source key={source.type} type={source.type} srcSet={source.srcSet} sizes={sizes} />)}
-    <img ref={imageRef} src={officialAssets.maps[index]} srcSet={officialAssets.mapSrcSets[index]} sizes={sizes} alt={alt} width={1600} height={900} loading={eager ? 'eager' : 'lazy'} decoding="async" onError={(event) => restoreLocalImageFallback(event, officialAssets.maps[index])} />
+  const { pictureRef, ready } = useImageApproach(portrait && !eager);
+  const imageRef = useLocalImageFallback(officialAssets.maps[index], ready);
+  return <picture ref={pictureRef}>
+    {ready && portrait && mapPortraitSources[index].map(source => <source key={source.type} type={source.type} srcSet={source.srcSet} sizes={sizes} />)}
+    <img ref={imageRef} src={ready ? officialAssets.maps[index] : undefined} srcSet={ready ? officialAssets.mapSrcSets[index] : undefined} sizes={sizes} alt={alt} width={1600} height={900} loading={eager ? 'eager' : 'lazy'} decoding="async" onError={(event) => restoreLocalImageFallback(event, officialAssets.maps[index])} />
   </picture>;
 }
 
