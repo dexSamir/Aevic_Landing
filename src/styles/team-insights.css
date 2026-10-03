@@ -68,3 +68,7 @@
 .intelligence-card strong,.intelligence-card p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .intelligence-card .intelligence-card-action { margin-top: auto; color: var(--team-text-secondary); }
 .intelligence-rail:focus-visible { outline: 2px solid var(--color-brand-primary); outline-offset: 3px; }
+
+.insight-chart--empty { min-height: 190px; display: flex; flex-direction: column; }
+.insight-chart--empty .insight-empty { margin-block: auto; }
+.team-intelligence, .team-insights, .insight-charts { min-width: 0; }

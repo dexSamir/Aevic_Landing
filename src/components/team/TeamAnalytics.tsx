@@ -40,8 +40,17 @@ function MonthlyKills({ data }: { data: ReturnType<typeof teamAnalytics> }) {
 export function TeamAnalytics({ history, unavailable = false, incomplete = false }: { history: MatchHistoryEntry[]; unavailable?: boolean; incomplete?: boolean }) {
   const data = teamAnalytics(history, competitionNow());
   const [metric, setMetric] = useState<'finishes' | 'points'>('finishes');
-  if (unavailable) return <section className="team-insights" aria-label="Rəsmi matç analitikası"><h2>Performans</h2><p role="status">Matç tarixçəsi hazırda əlçatan deyil. Analitika hesablana bilmir.</p></section>;
-  if (!data.matches.length) return <section className="team-insights"><header><h2>Performans</h2><p>{history.length ? 'Matç məlumatlarında tarix və ya nəticə çatışmır. Analitika hesablana bilmir.' : 'İlk rəsmi matç nəticəsi dərc edildikdə qrafiklər burada görünəcək.'}</p></header></section>;
+  if (unavailable || !data.matches.length) {
+    const message = unavailable ? 'Matç tarixçəsi hazırda əlçatan deyil. Analitika hesablana bilmir.' : history.length ? 'Matç məlumatlarında tarix və ya nəticə çatışmır. Analitika hesablana bilmir.' : 'İlk rəsmi matç nəticəsi dərc edildikdə qrafiklər burada görünəcək.';
+    return <section className="team-insights" aria-label="Rəsmi matç analitikası"><header><h2>Performans</h2><p role="status">{message}</p></header>
+      <div className="insight-charts">{[
+        ['Bu ay · gündəlik kill', 'Cari ayın dərc edilmiş matçları və əvvəlki ayla müqayisə.'],
+        ['Kill və xal dinamikası', 'Zaman üzrə irəliləyiş üçün ən azı 4 rəsmi matç lazımdır.'],
+        ['Yerləşmə dinamikası', 'Rəsmi matçlardakı yerlər əsasında komandanın forması.'],
+        ['Xəritə performansı', 'Xəritələr üzrə orta kill, xal və yerləşmə göstəriciləri.'],
+      ].map(([title, detail]) => <article className="insight-chart insight-chart--empty" key={title}><header><h3>{title}</h3></header><p className="insight-empty">{unavailable ? 'Məlumat əlçatan deyil' : 'Nəticə gözlənilir'}</p><small>{detail}</small></article>)}</div>
+    </section>;
+  }
   const strongest = data.maps.find(m => m.matches >= 3);
   const comparison = data.previousKills === undefined ? 'Əvvəlki ay üçün dərc edilmiş matç yoxdur' : !data.monthly.length ? 'Bu ay hələ nəticə yoxdur' : `Əvvəlki tam ay: ${data.previousKills} kill · fərq ${data.monthlyKills - data.previousKills >= 0 ? '+' : ''}${data.monthlyKills - data.previousKills}`;
   return <section className="team-insights" aria-label="Rəsmi matç analitikası"><header><h2>Performans</h2><p>Dərc edilmiş nəticələr · aylıq göstəricilər Bakı vaxtı ilə</p></header>

@@ -91,8 +91,8 @@ export function TeamOverview() {
     <NextActionCommand vm={vm} />
     <OperationalRail vm={vm} />
     <dl className="team-stat-ledger" aria-label="Rəsmi komanda statistikası">{([['matches', 'Matç'], ['wwcd', 'WWCD'], ['championships', 'Çempionluq'], ['podiums', 'Podium']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{data.careerSummary.metrics.find(metric => metric.key === key)?.value ?? '—'}</dd></div>)}<div><dt>Heyət hazırlığı</dt><dd><Link className="overview-status--roster" to="/team/roster">{vm.activeRosterCount}/4 <Users size={17} /></Link></dd></div></dl>
-    <RecentForm vm={vm} />
     <TeamAnalytics history={data.matchHistory} unavailable={data.historyAvailable === false || data.unavailable?.history === true} incomplete={data.currentTeam.legacyHistoryIncomplete} />
+    <RecentForm vm={vm} />
     <OperationsCanvas vm={vm} />
     <section className="overview-updates">
       <SectionTitle action={<Link to="/team/notifications">Hamısını göstər <ArrowRight size={16} aria-hidden="true" /></Link>}>SON YENİLİKLƏR</SectionTitle>
