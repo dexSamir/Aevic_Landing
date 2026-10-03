@@ -243,3 +243,6 @@
   .profile-card-studio > aside > * { grid-column: auto !important; }
   .profile-card-canvas { min-height: 34rem; padding: var(--space-md); }
 }
+.share-background-picker { display: grid; gap: 12px; margin-block: 20px; }
+.share-background-picker p,.share-background-picker small { margin: 0; color: var(--color-text-muted); font-size: 13px; line-height: 1.5; }
+.generated-poster__custom-background { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .38; }

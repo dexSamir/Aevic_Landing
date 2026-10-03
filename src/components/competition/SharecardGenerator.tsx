@@ -1,11 +1,13 @@
+import { ShareBackgroundPicker } from '../common/ShareBackgroundPicker';
 import '../../styles/share-studio.css';
 import { Download, Share2 } from 'lucide-react';
-import { type ReactNode, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { officialAssets } from '../../assets/official';
 import type { TournamentResultBreakdown } from '../../types/domain';
 import { BrandEmblem } from '../brand/BrandMark';
 import { Button, Select, Tabs, TeamLogo, Toast } from '../common/primitives';
 
+const POSTER_SIZE = 2400; // Existing square result/leaderboard export dimensions.
 type PosterFamily = 'result' | 'leaderboard';
 type LeaderboardLimit = '10' | '16' | 'all';
 
@@ -22,9 +24,10 @@ export interface SharecardGeneratorProps {
   compactDownload?: boolean;
 }
 
-function PosterFrame({ children, className, label }: { children: ReactNode; className: string; label: string }) {
+function PosterFrame({ children, className, label, background }: { children: ReactNode; className: string; label: string; background?: string }) {
   return <article className={`generated-poster ${className}`} aria-label={label}>
     <div className="generated-poster__atmosphere" aria-hidden="true" />
+    {background && <img className="generated-poster__custom-background" src={background} alt="" />}
     <div className="generated-poster__content">{children}</div>
   </article>;
 }
@@ -49,9 +52,9 @@ function mapArtwork(map: string, roundIndex: number) {
   return officialAssets.mapsSmall[roundIndex % officialAssets.mapsSmall.length];
 }
 
-function TournamentResultPoster({ teamName, teamLogo, tournamentName, result, provenance }: Omit<SharecardGeneratorProps, 'standings'> & { result: TournamentResultBreakdown; provenance: NonNullable<SharecardGeneratorProps['provenance']> }) {
+function TournamentResultPoster({ teamName, teamLogo, tournamentName, result, provenance, background }: Omit<SharecardGeneratorProps, 'standings'> & { background?: string; result: TournamentResultBreakdown; provenance: NonNullable<SharecardGeneratorProps['provenance']> }) {
   const initials = teamName.split(' ').map((part) => part[0]).slice(0, 2).join('').toLocaleUpperCase('az');
-  return <PosterFrame className="generated-poster--result" label={`${teamName} turnir nəticəsi`}>
+  return <PosterFrame className="generated-poster--result" background={background} label={`${teamName} turnir nəticəsi`}>
     <PosterBrandline provenance={provenance} title={tournamentName} />
     <section className="poster-result__hero"><div className="poster-result__team">{teamLogo ? <TeamLogo name={teamName} src={teamLogo} size="lg" /> : <span className="poster-result__team-fallback" aria-label={`${teamName} üçün standart komanda işarəsi`}>{initials}</span>}<div><span>{provenance.stageLabel}</span><h2>{teamName}</h2></div></div><div className="poster-result__placement"><span>Final placement</span><strong>#{String(result.placement).padStart(2, '0')}</strong></div></section>
     <div className="poster-result__ledger"><dl><div><dt>Matches</dt><dd>{result.matches}</dd></div><div><dt>WWCD</dt><dd>{result.wwcd}</dd></div><div><dt>Total kills</dt><dd>{result.kills}</dd></div><div><dt>Placement points</dt><dd>{result.placementPoints}</dd></div><div className="is-total"><dt>Total points</dt><dd>{result.totalPoints}</dd></div></dl>{result.penalties > 0 && <p>Penalty <strong>−{result.penalties}</strong></p>}</div>
@@ -61,9 +64,9 @@ function TournamentResultPoster({ teamName, teamLogo, tournamentName, result, pr
   </PosterFrame>;
 }
 
-function LeaderboardPoster({ tournamentName, standings, provenance, limit }: Pick<SharecardGeneratorProps, 'tournamentName' | 'standings'> & { provenance: NonNullable<SharecardGeneratorProps['provenance']>; limit: LeaderboardLimit }) {
+function LeaderboardPoster({ tournamentName, standings, provenance, limit, background }: Pick<SharecardGeneratorProps, 'tournamentName' | 'standings'> & { background?: string; provenance: NonNullable<SharecardGeneratorProps['provenance']>; limit: LeaderboardLimit }) {
   const rows = limit === 'all' ? standings : standings.slice(0, Number(limit));
-  return <PosterFrame className="generated-poster--leaderboard" label={`${tournamentName} liderlik cədvəli`}>
+  return <PosterFrame className="generated-poster--leaderboard" background={background} label={`${tournamentName} liderlik cədvəli`}>
     <PosterBrandline provenance={provenance} title={tournamentName} />
     <div className="poster-leaderboard__stage"><span>{tournamentName} · {provenance.stageLabel}</span><strong>{rows.length} teams</strong></div>
     <div className="poster-leaderboard__head"><span>#</span><span>Komanda</span><span>WWCD</span><span>Place</span><span>Kills</span><span>Total</span></div>
@@ -83,13 +86,29 @@ async function waitForPreviewAssets(node: HTMLElement) {
 
 export function SharecardGenerator(props: SharecardGeneratorProps) {
   const [family, setFamily] = useState<PosterFamily>(props.initialFamily ?? 'result');
+  const [backgrounds, setBackgrounds] = useState<Partial<Record<PosterFamily, File>>>({});
+  const [backgroundFailed, setBackgroundFailed] = useState(false);
+  const [backgroundPreview, setBackgroundPreview] = useState<{ file: File; url: string }>();
+  const selectedBackground = backgrounds[family];
+  useEffect(() => {
+    setBackgroundFailed(false);
+    if (!selectedBackground) { setBackgroundPreview(undefined); return; }
+    // html-to-image cache-busts fetched URLs; embed local crops to preserve them in PNGs.
+    const reader = new FileReader();
+    reader.onload = () => { if (typeof reader.result === 'string') setBackgroundPreview({ file: selectedBackground, url: reader.result }); };
+    reader.onerror = () => setBackgroundFailed(true);
+    reader.readAsDataURL(selectedBackground);
+    return () => { reader.onload = null; reader.onerror = null; if (reader.readyState === FileReader.LOADING) reader.abort(); };
+  }, [selectedBackground]);
+  const background = backgroundPreview?.file === selectedBackground ? backgroundPreview?.url : undefined;
   const [leaderboardLimit, setLeaderboardLimit] = useState<LeaderboardLimit>('10');
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState('');
   const previewRef = useRef<HTMLDivElement>(null);
   const provenance = validProvenance(props.provenance) && props.provenance.tournamentId === props.tournamentId ? props.provenance : undefined;
   const provenanceReady = Boolean(provenance);
-  const exportReady = provenanceReady && (family === 'leaderboard' ? props.standings.length > 0 && props.standings.every((row) => row.tournamentId === props.tournamentId) : Boolean(props.result?.maps.length && props.result.tournamentId === props.tournamentId));
+  const sourceReady = provenanceReady && (family === 'leaderboard' ? props.standings.length > 0 && props.standings.every((row) => row.tournamentId === props.tournamentId) : Boolean(props.result?.maps.length && props.result.tournamentId === props.tournamentId));
+  const exportReady = sourceReady && (!selectedBackground || Boolean(background));
 
   const render = async () => {
     if (!previewRef.current || exporting || !exportReady) return;
@@ -98,7 +117,7 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
     await waitForPreviewAssets(poster);
     const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--color-bg-deep').trim();
     const { toPng } = await import('html-to-image');
-    return toPng(poster, { cacheBust: true, pixelRatio: Math.max(1, 2400 / poster.offsetWidth), backgroundColor });
+    return toPng(poster, { cacheBust: true, pixelRatio: Math.max(1, POSTER_SIZE / poster.offsetWidth), backgroundColor });
   };
 
   const download = async () => {
@@ -137,11 +156,13 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
       <aside>
         {props.showFamilySelector !== false && <Tabs active={family} onChange={(value) => setFamily(value as PosterFamily)} items={[{ id: 'result', label: 'Nəticə' }, { id: 'leaderboard', label: 'Leaderboard' }]} />}
         {family === 'leaderboard' && props.standings.length > 10 && <Select label="Komanda sayı" value={leaderboardLimit} onChange={(event) => setLeaderboardLimit(event.target.value as LeaderboardLimit)}><option value="10">Top 10</option><option value="16">Top 16</option><option value="all">Bütün sıralama</option></Select>}
-        {!exportReady && <p className="sharecard-integrity-state" role="alert"><strong>İxrac əlçatan deyil.</strong> Turnir tarixi, mərhələsi və dərc edilmiş nəticə mənbəyi təsdiqlənməyib.</p>}
+        {!sourceReady && <p className="sharecard-integrity-state" role="alert"><strong>İxrac əlçatan deyil.</strong> Turnir tarixi, mərhələsi və dərc edilmiş nəticə mənbəyi təsdiqlənməyib.</p>}
         {props.compactDownload && <div className="sharecard-studio__compact-copy"><strong>Rəsmi nəticə sharecardı</strong><span>Mövcud dərc edilmiş sıralamadan eyni AEVIC renderer-i ilə 2400 px PNG.</span></div>}
+        {selectedBackground && !background && <p role={backgroundFailed ? "alert" : "status"}>{backgroundFailed ? "Kart fonu açıla bilmədi. Başqa şəkil seçin və ya AEVIC fonuna qayıdın." : "Kart fonu hazırlanır. Hazır olduqda ixrac açılacaq."}</p>}
+        {!props.compactDownload && sourceReady && <ShareBackgroundPicker key={family} width={POSTER_SIZE} height={POSTER_SIZE} value={selectedBackground} disabled={exporting} onChange={file => setBackgrounds(value => ({ ...value, [family]: file }))} />}
         <div className="studio-actions"><Button icon={<Download size={17} />} loading={exporting} disabled={!exportReady} onClick={download}>PNG yüklə</Button>{!props.compactDownload && <Button variant="secondary" icon={<Share2 size={17} />} disabled={exporting || !exportReady} onClick={share}>Paylaş</Button>}</div>
       </aside>
-      <div className="sharecard-canvas"><div ref={previewRef}>{exportReady && provenance ? family === 'result' ? props.result ? <TournamentResultPoster {...props} result={props.result} provenance={provenance} /> : <div className="sharecard-integrity-placeholder">Komanda üzrə dərc edilmiş nəticə olmadan rəsmi poster yaradılmır.</div> : <LeaderboardPoster tournamentName={props.tournamentName} standings={props.standings} provenance={provenance} limit={leaderboardLimit} /> : <div className="sharecard-integrity-placeholder">Mənbə məlumatı olmadan rəsmi poster yaradılmır.</div>}</div></div>
+      <div className="sharecard-canvas"><div ref={previewRef}>{sourceReady && provenance ? family === 'result' ? props.result ? <TournamentResultPoster {...props} background={background} result={props.result} provenance={provenance} /> : <div className="sharecard-integrity-placeholder">Komanda üzrə dərc edilmiş nəticə olmadan rəsmi poster yaradılmır.</div> : <LeaderboardPoster background={background} tournamentName={props.tournamentName} standings={props.standings} provenance={provenance} limit={leaderboardLimit} /> : <div className="sharecard-integrity-placeholder">Mənbə məlumatı olmadan rəsmi poster yaradılmır.</div>}</div></div>
     </div>
   </>;
 }

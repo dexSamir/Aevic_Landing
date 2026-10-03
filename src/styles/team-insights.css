@@ -46,3 +46,25 @@
 :is(.team-intelligence,.team-insights) :is(a,button,summary):focus-visible { outline:2px solid var(--color-brand-primary); outline-offset:3px; }
 @media(max-width:700px) { .insight-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } .insight-charts { grid-template-columns:1fr; } .insight-chart,.insight-metrics>div { padding:16px; } .intelligence-card { flex-basis:240px; } }
 @media(prefers-reduced-motion:reduce) { .intelligence-card { transition:none; } }
+.insight-metrics small { display: block; margin-top: 6px; }
+.insight-note { color: var(--team-text-muted); line-height: 1.5; }
+.insight-empty { padding-block: 24px; color: var(--team-text-muted); }
+.daily-bars { display: flex; gap: 4px; overflow-x: auto; padding: 16px 4px 8px; scrollbar-width: thin; }
+.daily-bars button { display: grid; flex: 1 0 44px; gap: 8px; border: 0; padding: 4px; min-height: 44px; border-radius: 8px; background: transparent; color: var(--team-text-muted); cursor: pointer; }
+.daily-bar-track { height: 112px; display: flex; align-items: end; border-bottom: 1px solid var(--team-border-subtle); }
+.daily-bar-track i { display: block; width: 100%; min-height: 2px; border-radius: 4px 4px 0 0; background: var(--color-brand-primary); opacity: .65; }
+.daily-bars button[data-selected=true] { background: var(--team-surface-raised); }
+.daily-bars button[data-selected=true] i { opacity: 1; }
+.chart-detail { flex-wrap: wrap; }
+.insight-table :is(th,td) { white-space: nowrap; }
+.insight-table [role=region]:focus-visible { outline: 2px solid var(--color-brand-primary); outline-offset: 2px; }
+.intelligence-card>span { font-size: 12px; }
+.intelligence-card p { font-size: 14px; }
+.team-intelligence>header>span { font-size: 12px; }
+.intelligence-card:active,.team-intelligence button:active,.insight-toggle button:active { background: var(--team-surface-raised); }
+.team-intelligence>header { min-height: 44px; }
+.team-intelligence button:disabled { opacity: .4; cursor: default; }
+.intelligence-card { min-height: 228px; }
+.intelligence-card strong,.intelligence-card p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.intelligence-card .intelligence-card-action { margin-top: auto; color: var(--team-text-secondary); }
+.intelligence-rail:focus-visible { outline: 2px solid var(--color-brand-primary); outline-offset: 3px; }
