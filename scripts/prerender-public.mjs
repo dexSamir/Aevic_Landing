@@ -37,7 +37,10 @@ writeFileSync(resolve(dist, 'robots.txt'), 'User-agent: *\n' + (indexableDeploym
 const redirects = [
   '/api/* /.netlify/functions/api/:splat 200!',
   '/sitemap.xml /.netlify/functions/api/sitemap.xml 200!',
-  ...routeManifest.filter((route) => route.path !== '*').sort((a,b) => a.path.includes(':') - b.path.includes(':')).map((route) => route.path + (route.path.includes(':') ? ' /_route-shells/' + route.id + '.html' : route.path === '/' ? ' /index.html' : route.path + '/index.html') + ' 200'),
+  ...routes.slice().sort((a,b) => a.path.includes(':') - b.path.includes(':')).map((route) => {
+    const destination = route.path.includes(':') ? '/_route-shells/' + route.id + '.html' : route.path === '/' ? '/index.html' : route.path + '/index.html';
+    return [route.path, destination, '200'].join(' ');
+  }),
   '/* /404.html 404',
 ];
 writeFileSync(resolve(dist, '_redirects'), redirects.join('\n') + '\n');
