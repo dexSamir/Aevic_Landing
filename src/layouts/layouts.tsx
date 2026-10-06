@@ -16,7 +16,7 @@ import { InstallAevic,OfflineNotice } from '../components/pwa/PwaExperience';
 import { serviceCapabilities,services } from '../services';
 import { PublicPlatformProvider } from '../services/PublicPlatformDataContext';
 import '../styles/public-shell.css';
-import type { Team } from '../types/domain';
+import { PublicSessionProvider, usePublicSession } from '../services/PublicSessionContext';
 import { activePublicRoute } from '../utils/routes';
 import { PublicFooter } from './PublicFooter';
 import { usePlatformQuery } from '../services/queryCache';
@@ -65,29 +65,10 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [session, setSession] = useState<Awaited<ReturnType<typeof services.auth.getSession>> | undefined>();
-  const [team, setTeam] = useState<Team>();
+  const { session, team } = usePublicSession();
   const [open, setOpen] = useState(false);
   const [logoutError, setLogoutError] = useState('');
   const [loggingOut, setLoggingOut] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    if (!serviceCapabilities.publicSession) {
-      setSession(null);
-      setTeam(undefined);
-      return () => { active = false; };
-    }
-    services.auth.getSession().then(async (nextSession) => {
-      if (!active) return;
-      setSession(nextSession);
-      if (nextSession && ['captain', 'team'].includes(nextSession.role)) {
-        const nextTeam = await services.teams.current().catch(() => undefined);
-        if (active) setTeam(nextTeam);
-      } else setTeam(undefined);
-    }).catch(() => { if (active) setSession(null); });
-    return () => { active = false; };
-  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
@@ -111,7 +92,7 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
     setLoggingOut(true); setLogoutError('');
     try {
       await services.auth.logout();
-      setSession(null); close(); navigate('/');
+      close(); navigate('/');
     } catch { setLogoutError('Çıxış tamamlanmadı. Bağlantını yoxlayıb yenidən cəhd edin.'); }
     finally { setLoggingOut(false); }
   };
@@ -170,7 +151,7 @@ export function PublicLayout() {
   const { pathname } = useLocation();
   const independentTeamProfile = /^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname);
   const needsData = !independentTeamProfile && (pathname === '/leaderboard' || ['/teams', '/tournaments', '/organizations'].some((root) => pathname === root || pathname.startsWith(root + '/')));
-  return <div className={`site-shell${pathname === '/tournaments' ? ' public-shell--wide' : ''}`}><RouteSeo /><OfflineNotice /><a className="skip-link" href="#main-content">Əsas məzmuna keç</a><PublicHeader /><main id="main-content" tabIndex={-1}>{settings?.maintenanceMessage&&<aside className="platform-announcement container" role="status">{settings.maintenanceMessage}</aside>}{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter supportEmail={settings?.supportEmail} registrationEnabled={settings?.registrationEnabled} showCta={pathname !== '/matches' && pathname !== '/tournaments' && pathname !== '/teams' && !/^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname)} /></div>;
+  return <PublicSessionProvider><div className={`site-shell${pathname === '/tournaments' ? ' public-shell--wide' : ''}`}><RouteSeo /><OfflineNotice /><a className="skip-link" href="#main-content">Əsas məzmuna keç</a><PublicHeader /><main id="main-content" tabIndex={-1}>{settings?.maintenanceMessage&&<aside className="platform-announcement container" role="status">{settings.maintenanceMessage}</aside>}{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter supportEmail={settings?.supportEmail} registrationEnabled={settings?.registrationEnabled} showCta={pathname !== '/matches' && pathname !== '/tournaments' && pathname !== '/teams' && !/^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname)} /></div></PublicSessionProvider>;
 }
 
 export function RouteError() {

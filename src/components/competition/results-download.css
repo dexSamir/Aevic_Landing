@@ -1,0 +1,21 @@
+.results-download-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.results-download-options > button { display: grid; gap: 12px; min-width: 0; padding: 12px; border: 2px solid transparent; border-radius: 12px; color: var(--color-text-primary); background: var(--surface-1); cursor: pointer; text-align: center; }
+.results-download-options > button[aria-checked='true'] { border-color: var(--gold-primary); background: color-mix(in srgb, var(--gold-primary) 5%, var(--surface-1)); }
+.results-download-options > button:focus-visible { outline: 2px solid var(--gold-primary); outline-offset: 3px; }
+.results-download-options > button:disabled { opacity: .45; cursor: not-allowed; }
+.results-download-options > button:not(:disabled):hover { background: var(--color-bg-elevated); }
+.results-download-options strong { font: 600 .9rem/1.4 var(--font-ui); }
+.results-download-preview { aspect-ratio: 1.35; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 16px; background: var(--color-bg-deep); border-radius: 8px; }
+.results-download-preview i { display: block; min-height: 7px; border-radius: 3px; background: color-mix(in srgb, var(--color-text-primary) 18%, transparent); }
+.results-download-preview .preview-heading { width: 55%; margin-bottom: 8px; background: var(--gold-primary); opacity: .65; }
+.results-download-preview--leaderboard > span { display: grid; grid-template-columns: .4fr 2fr .7fr .7fr; gap: 6px; }
+.results-download-preview--result { align-items: center; }
+.results-download-preview .preview-logo { width: 28%; aspect-ratio: 1; background: color-mix(in srgb, var(--gold-primary) 40%, transparent); }
+.results-download-preview .preview-name { width: 65%; }
+.results-download-preview .preview-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; width: 85%; }
+.results-download-preview .preview-stats i { height: 20px; }
+.results-download-preview .preview-tournament { width: 45%; opacity: .5; }
+.results-download-help { margin-block: 16px 24px; color: var(--color-text-muted); font-size: .85rem; }
+.sharecard-studio.sharecard-studio--download-only > aside { display: block; padding: 0; background: transparent; box-shadow: none; }
+.sharecard-studio.sharecard-studio--download-only .studio-actions .button { width: 100%; }
+@media(max-width:420px) { .results-download-options { grid-template-columns: 1fr; } .results-download-preview { aspect-ratio: 1.6; } }

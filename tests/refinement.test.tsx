@@ -1,3 +1,4 @@
+import { PublicSessionProvider } from '../src/services/PublicSessionContext';
 import { readFileSync } from 'node:fs';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -25,7 +26,7 @@ const participantFixtures = (count: number): TournamentParticipant[] => Array.fr
 
 describe('public experience refinements', () => {
   it.each(['/login', '/register'])('%s uses the public navigation architecture', async (path) => {
-    const view = render(<MemoryRouter initialEntries={[path]}><PublicHeader /></MemoryRouter>);
+    const view = render(<MemoryRouter initialEntries={[path]}><PublicSessionProvider><PublicHeader /></PublicSessionProvider></MemoryRouter>);
     const scope = within(view.container);
     expect(scope.getByRole('navigation', { name: /əsas naviqasiya/i })).toBeInTheDocument();
     expect(scope.getByRole('link', { name: 'Turnirlər' })).toHaveAttribute('href', '/tournaments');
@@ -37,7 +38,7 @@ describe('public experience refinements', () => {
   });
 
   it('uses one shared desktop active layer without changing the four-link navbar structure', async () => {
-    const view = render(<MemoryRouter initialEntries={['/tournaments']}><PublicHeader /></MemoryRouter>);
+    const view = render(<MemoryRouter initialEntries={['/tournaments']}><PublicSessionProvider><PublicHeader /></PublicSessionProvider></MemoryRouter>);
     const nav = within(view.container).getByRole('navigation', { name: /əsas naviqasiya/i });
     expect(nav.querySelectorAll('.public-nav-indicator')).toHaveLength(1);
     expect(within(nav).getAllByRole('link')).toHaveLength(4);

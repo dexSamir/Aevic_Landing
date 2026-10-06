@@ -1,3 +1,4 @@
+import { PublicSessionProvider } from '../src/services/PublicSessionContext';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -18,7 +19,7 @@ describe('production account recovery', () => {
  it('keeps a failed logout visible and offers a retry without an unhandled rejection', async () => {
   vi.spyOn(services.auth,'getSession').mockResolvedValue(session);
   const logout=vi.spyOn(services.auth,'logout').mockRejectedValue(new ApiError({status:503,kind:'server'}));
-  render(<MemoryRouter><PublicHeader /></MemoryRouter>);
+  render(<MemoryRouter><PublicSessionProvider><PublicHeader /></PublicSessionProvider></MemoryRouter>);
   fireEvent.click(await screen.findByRole('button',{name:'Owner hesab menyusu'}));
   expect(screen.getByRole('menuitem',{name:'Ayarlar'})).toHaveAttribute('href','/account/security');
   fireEvent.click(screen.getByRole('menuitem',{name:'Çıxış'}));

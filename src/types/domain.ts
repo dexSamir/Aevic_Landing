@@ -251,6 +251,7 @@ export interface PublicTeamProfile {
 }
 
 export interface PublicTeamSummary {
+  roster?: Array<Pick<TeamMember, 'id' | 'ign' | 'role'>>;
   /** Optional directory preview avoids one full profile request per card. */
   form?: TeamFormEntry[];
   historyAvailable?: boolean;

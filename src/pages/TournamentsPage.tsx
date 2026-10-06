@@ -50,17 +50,15 @@ export function TournamentsPage() {
   const [selection, setSelection] = useState(() => ({ date: initialTournament ? eventDateKey(initialTournament.startsAt) : eventDateKey(now), tournamentId: initialTournament?.id ?? '' }));
   const [registeredIds, setRegisteredIds] = useState<string[]>([]);
   const [participationVersion, setParticipationVersion] = useState(0);
-  const [showCta, setShowCta] = useState(!serviceCapabilities.publicSession);
   useEffect(() => {
     let active = true;
     if (serviceCapabilities.publicSession) void services.auth.getSession().then(async session => {
       const team = session && ['captain', 'team', 'admin'].includes(session.role) ? await services.teams.current() : undefined;
-      if (active) setShowCta(!team);
       if (team) {
         const registrations = await Promise.allSettled(tournaments.map(async tournament => (await services.tournaments.slots(tournament.id)).some(slot => slot.teamId === team.id) ? tournament.id : undefined));
         if (active) setRegisteredIds(registrations.flatMap(result => result.status === 'fulfilled' && result.value ? [result.value] : []));
       }
-    }).catch(() => { if (active) setShowCta(false); });
+    }).catch(() => { /* Registration state remains unavailable. */ });
     return () => { active = false; };
   }, []);
   const featured = selectPrimaryCompetition(tournaments, now);
@@ -90,6 +88,6 @@ export function TournamentsPage() {
 
       </section></div> : <div className="planning-empty"><h2>Hazırda dərc edilmiş turnir yoxdur.</h2><Link to="/regulations">Yarış qaydaları <ArrowRight size={18} /></Link></div>}
     </div></section>
-    {showCta && <BrandJoinCta />}
+    <BrandJoinCta />
   </>;
 }

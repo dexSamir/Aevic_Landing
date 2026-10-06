@@ -246,3 +246,10 @@
 .share-background-picker { display: grid; gap: 12px; margin-block: 20px; }
 .share-background-picker p,.share-background-picker small { margin: 0; color: var(--color-text-muted); font-size: 13px; line-height: 1.5; }
 .generated-poster__custom-background { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .38; }
+
+/* Let full standings exports grow to include every published team. */
+.generated-poster--long { aspect-ratio: auto; }
+.generated-poster--long .generated-poster__content { position: relative; padding-top: 30cqw; padding-bottom: 12cqw; }
+.generated-poster--long ol { position: relative; inset: auto; margin: 0 6cqw; }
+
+.generated-poster--full-table :is(.poster-leaderboard__head, li) { grid-template-columns: 4cqw minmax(0, 1fr) repeat(6, 8cqw); }

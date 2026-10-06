@@ -1,3 +1,4 @@
+import { PublicSessionProvider } from '../src/services/PublicSessionContext';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -41,7 +42,7 @@ describe('public IA is independent of backend availability', () => {
   it.each(['mock', 'api'] as const)('renders anonymous desktop and mobile actions in %s mode', async (mode) => {
     Object.assign(serviceCapabilities, createServiceCapabilities(mode));
     const getSession = vi.spyOn(services.auth, 'getSession').mockResolvedValue(null);
-    render(<MemoryRouter><PublicHeader /><PublicFooter /></MemoryRouter>);
+    render(<MemoryRouter><PublicSessionProvider><PublicHeader /></PublicSessionProvider><PublicFooter /></MemoryRouter>);
     const nav = screen.getByRole('navigation', { name: 'Əsas naviqasiya' });
     expect(within(nav).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual(primary);
     const header = screen.getByRole('banner');
@@ -57,7 +58,7 @@ describe('public IA is independent of backend availability', () => {
   it('preserves authenticated mock identity without changing discovery destinations', async () => {
     const session = { user: { id: 'test-admin', firstName: 'Test admin' }, role: 'admin' } as Awaited<ReturnType<typeof services.auth.getSession>>;
     vi.spyOn(services.auth, 'getSession').mockResolvedValue(session);
-    render(<MemoryRouter><PublicHeader /></MemoryRouter>);
+    render(<MemoryRouter><PublicSessionProvider><PublicHeader /></PublicSessionProvider></MemoryRouter>);
     expect(await screen.findByRole('button', { name: 'Test admin hesab menyusu' })).toBeInTheDocument();
     expect(within(screen.getByRole('navigation', { name: 'Əsas naviqasiya' })).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual(primary);
     expect(screen.queryByRole('link', { name: 'Daxil ol' })).not.toBeInTheDocument();

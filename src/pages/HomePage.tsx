@@ -1,10 +1,11 @@
+import { RosterTeamCard } from '../components/common/RosterTeamCard';
 import { BrandJoinCta } from '../components/common/BrandJoinCta';
 import { ArrowRight, ChevronLeft, ChevronRight, Crown } from 'lucide-react';
 import { lazy, Suspense, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { homeArtwork } from '../assets/home';
 import { MediaBackdrop } from '../components/common/MediaBackdrop';
-import { Button, EmptyState, LoadingSkeleton, StatusBadge, TeamLogo } from '../components/common/primitives';
+import { Button, EmptyState, LoadingSkeleton, StatusBadge } from '../components/common/primitives';
 import { MapRotation } from '../components/competition/CompetitionVisuals';
 import { competitionNow, serviceCapabilities, services } from '../services';
 import { queryPolicy, usePlatformQuery } from '../services/queryCache';
@@ -61,14 +62,14 @@ export function HomePage() {
     <section className="home-rotation" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>XƏRİTƏLƏR</span><h2>Hər xəritə,<br />yeni hekayə.</h2></div><p>Dörd raund, bir məqsəd. Rəqabətin xəritəsi hər yarışda yenidən yazılır.</p></header><MapRotation variant="program" statuses={[]} ariaLabel="Xəritə formatı nümunəsi" /></div></section>
 
     <section className="home-teams-section" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>TOP KOMANDALAR</span><h2>Səhnədəki güclər.</h2></div><Link to="/teams">Bütün komandalar <ArrowRight size={16} /></Link></header>{publicQuery.loading ? <div className="home-team-placeholder"><LoadingSkeleton variant="team-rail" rows={5}/></div> : !publicQuery.data ? <p role="status">{publicQuery.error ? 'Komanda kataloqu yüklənmədi. Yarış məlumatı bölməsində yenidən yoxlaya bilərsiniz.' : 'Təsdiqlənmiş komanda kataloqu yüklənir…'}</p> : featuredPublicTeams.length > 0 ? <><div className="home-team-controls"><button type="button" aria-label="Əvvəlki komandalar" onClick={() => moveTeams(-1)}><ChevronLeft size={17} /></button><button type="button" aria-label="Növbəti komandalar" onClick={() => moveTeams(1)}><ChevronRight size={17} /></button></div><div ref={teamRail} tabIndex={0} className="home-team-stage" role="list" aria-label="AEVIC komanda işarələri">{featuredPublicTeams.map((team, index) => <div role="listitem" key={team.id}>
-          <Link className={`home-ranked-team ${index === 0 && team.resultCount ? 'home-ranked-team--leader' : ''}`} to={`/teams/${team.slug}`}>
+          <RosterTeamCard name={team.name} logoUrl={team.logoUrl} roster={team.roster} className={`home-ranked-team ${index === 0 && team.resultCount ? 'home-ranked-team--leader' : ''}`} href={`/teams/${team.slug}`} context={<>
             <span className="home-ranked-team__rank">{team.resultCount ? `#${index + 1}` : '—'}</span>
             {index === 0 && team.resultCount > 0 && <Crown className="home-ranked-team__crown" size={15} aria-hidden="true" />}
-            <TeamLogo name={team.name} src={team.logoUrl} size="lg" sizes="72px" />
+            </>}>
             <strong>{team.name}</strong>
             <span>{team.resultCount ? `${team.points} xal` : 'Nəticə gözlənilir'}</span>
             <small>{team.resultCount ? `${team.resultCount} turnir · dərc edilmiş nəticələr` : `${team.rosterSize} oyunçu`}</small>
-          </Link>
+          </RosterTeamCard>
         </div>)}</div></> : <EmptyState title="Komandanızla səhnəyə çıxın" body="Hazırda ictimai komanda profili yoxdur. Komandanızı yaradın və PUBG Mobile icmasına qoşulun." action={<Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/regulations#rule-1'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'İştirak şərtlərinə bax'}</span><ArrowRight size={17} /></Link>} />}</div></section>
 
     {featuredRecord && <section className="home-record-spotlight"><MediaBackdrop {...homeArtwork.record} sizes="100vw" className="home-record-spotlight__media" focalDesktop="65% 0%" focalMobile="70% 40%" /><div className="container" data-reveal data-reveal-variant="fade-up"><div><span>REKORDLARDA AEVIC</span><strong>{featuredRecord.value}<small>{featuredRecord.unit}</small></strong><h2>{featuredRecord.label}</h2><p>{featuredRecord.teamName} · {featuredRecord.map || featuredRecord.tournamentName} · {'rəsmi rekord'}</p></div><Link className="button button--secondary" to="/records"><span>Statistikaları araşdır</span><ArrowRight size={17} /></Link></div></section>}

@@ -35,7 +35,7 @@ export function mapProductionTeam(row: Row): Team {
   };
 }
 export function productionSummary(team: Team): PublicTeamSummary {
-  return { id: team.id, slug: team.id, name: team.name, logoUrl: team.logoUrl, rosterSize: team.roster.length, tier: team.tier, sourceStatus: team.sourceStatus, legacyHistoryIncomplete: true };
+  return { id: team.id, slug: team.id, name: team.name, logoUrl: team.logoUrl, roster: team.roster.map(({ id, ign, role }) => ({ id, ign, role })), rosterSize: team.roster.length, tier: team.tier, sourceStatus: team.sourceStatus, legacyHistoryIncomplete: true };
 }
 export class ProductionTeams {
   private pending?: Promise<Row[]>;

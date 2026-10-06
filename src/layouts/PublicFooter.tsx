@@ -1,3 +1,4 @@
+import { GuestOnly } from '../services/PublicSessionContext';
 import { ArrowRight } from 'lucide-react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { publicNavigation } from '../app/publicNavigation';
@@ -10,7 +11,7 @@ export function PublicFooter({ showCta = true, supportEmail, registrationEnabled
   const { pathname } = useLocation();
   const operational = ['/team', '/admin', '/account'].some((root) => pathname === root || pathname.startsWith(root + '/'));
   if (operational) return null;
-  return <>{showCta && pathname !== '/' && <section className="participation-band" aria-label="Rəqabətə qoşul"><div className="container"><div><span>KOMANDANI QUR.</span><strong>RƏQABƏTƏ QOŞUL.</strong><em>İRSİNİ BAŞLAT.</em></div><Link to={serviceCapabilities.register && registrationEnabled!==false ? '/register' : '/regulations'}><span>{serviceCapabilities.register && registrationEnabled!==false ? 'Komanda yarat' : 'Yarışa hazırlaş'}</span><ArrowRight size={20} aria-hidden="true" /></Link></div></section>}<footer className="site-footer">
+  return <>{showCta && pathname !== '/' && <GuestOnly><section className="participation-band" aria-label="Rəqabətə qoşul"><div className="container"><div><span>KOMANDANI QUR.</span><strong>RƏQABƏTƏ QOŞUL.</strong><em>İRSİNİ BAŞLAT.</em></div><Link to={serviceCapabilities.register && registrationEnabled!==false ? '/register' : '/regulations'}><span>{serviceCapabilities.register && registrationEnabled!==false ? 'Komanda yarat' : 'Yarışa hazırlaş'}</span><ArrowRight size={20} aria-hidden="true" /></Link></div></section></GuestOnly>}<footer className="site-footer">
     <div className="container site-footer__inner">
       <div className="site-footer__main">
         <section className="site-footer__brand" aria-label="AEVIC Esports">

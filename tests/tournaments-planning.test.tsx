@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, within, act } from '@testing-library/react';
+import { PublicSessionProvider } from '../src/services/PublicSessionContext';
+import { fireEvent, render, screen, within, act, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -9,7 +10,7 @@ import { currentTeam, tournaments } from './fixtures/platform-data';
 
 vi.mock('../src/services/PublicPlatformDataContext', () => ({ usePublicPlatformData: () => ({ tournaments }) }));
 vi.mock('../src/services', async importOriginal => ({ ...await importOriginal<typeof import('../src/services')>(), competitionNow: () => new Date('2026-08-04T12:00:00+04:00') }));
-function mount() { return render(<MemoryRouter initialEntries={['/tournaments']}><TournamentsPage /><PublicFooter showCta={false} /></MemoryRouter>); }
+function mount() { return render(<MemoryRouter initialEntries={['/tournaments']}><PublicSessionProvider><TournamentsPage /><PublicFooter showCta={false} /></PublicSessionProvider></MemoryRouter>); }
 beforeEach(() => {
  vi.spyOn(services.auth, 'getSession').mockResolvedValue({ user: currentTeam.captain, role: 'team' });
  vi.spyOn(services.teams, 'current').mockResolvedValue(currentTeam);
@@ -55,9 +56,10 @@ describe('tournament reference planning page', () => {
   expect(await screen.findByRole('heading', { name: /Burada oyun.*daha böyükdür/i })).toBeInTheDocument();
   expect(screen.queryByText('Sizin komandanız qeydiyyatdadır')).not.toBeInTheDocument();
  });
- it('shows the Home CTA for a signed-in account without a team', async () => {
+ it('hides the Home CTA for a signed-in account without a team', async () => {
   vi.mocked(services.teams.current).mockResolvedValue(undefined); mount();
-  expect(await screen.findByRole('heading', { name: /Burada oyun.*daha böyükdür/i })).toBeInTheDocument();
+  await waitFor(() => expect(services.auth.getSession).toHaveBeenCalled());
+  expect(screen.queryByRole('heading', { name: /Burada oyun.*daha böyükdür/i })).not.toBeInTheDocument();
  });
  it('pauses timer work while hidden and catches up when visible', async () => {
   vi.useFakeTimers(); const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(false); mount();

@@ -68,18 +68,12 @@ export function MatchCenterPage() {
   const [loading, setLoading] = useState<boolean>(serviceCapabilities.publicMatches);
   const [scheduleFailed,setScheduleFailed]=useState(false),[historyFailed,setHistoryFailed]=useState(false),[metadataFailed,setMetadataFailed]=useState(false);
   const [detailsFailed, setDetailsFailed] = useState(false);
-  const [guest, setGuest] = useState(!serviceCapabilities.publicSession);
   const [tab, setTab] = useState(0);
   const failed=tab===2?historyFailed:scheduleFailed;
   const [tournamentId, setTournamentId] = useState('');
   const [search, setSearch] = useState('');
   const [now, setNow] = useState(() => competitionNow().getTime());
   const [updatedAt, setUpdatedAt] = useState<number>();
-  useEffect(() => {
-    let active = true;
-    if (serviceCapabilities.publicSession) services.auth.getSession().then((session) => { if (active) setGuest(!session); }).catch(() => { /* Keep CTA hidden when session is unknown. */ });
-    return () => { active = false; };
-  }, []);
   useEffect(() => { const timer = window.setInterval(() => setNow(competitionNow().getTime()), 30000); return () => window.clearInterval(timer); }, []);
   const load = useCallback(() => {
     if (!serviceCapabilities.publicMatches) return;
@@ -124,5 +118,5 @@ export function MatchCenterPage() {
       </section>
       <div className="match-lower"><section><div className="match-section-heading"><div><h2>Növbəti</h2><p>Yaxınlaşan matçlar — bütün turnirlər üzrə</p></div><button className="match-text-link" onClick={() => selectTab(1, true)}>Hamısını göstər<ArrowRight size={16} aria-hidden="true" /></button></div><div className="match-ledger">{upcoming.length ? upcoming.slice(0, 5).map((match) => <UpcomingRow key={match.id} match={match} tournament={findTournament(match.tournamentId)} now={now} />) : <p className="match-empty">{scheduleFailed?'Matç proqramı yüklənmədi. Yenidən yoxlayın.':'Uyğun planlanmış matç yoxdur.'}</p>}</div></section><section><div className="match-section-heading"><div><h2>Son nəticələr</h2><p>Dərc edilmiş matçlar — bütün turnirlər üzrə</p></div><button className="match-text-link" onClick={() => selectTab(2, true)}>Hamısını göstər<ArrowRight size={16} aria-hidden="true" /></button></div><div className="match-ledger">{recent.length ? recent.slice(0, 5).map((match) => <CompletedRow key={match.id} match={match} />) : <p className="match-empty">{historyFailed?'Nəticələr yüklənmədi. Yenidən yoxlayın.':'Dərc edilmiş nəticə yoxdur.'}</p>}</div></section></div>
     </>}
-  </div></section>{guest && <BrandJoinCta />}</>;
+  </div></section><BrandJoinCta /></>;
 }

@@ -17,11 +17,13 @@ export interface SharecardGeneratorProps {
   tournamentName: string;
   tournamentId: string;
   result?: TournamentResultBreakdown;
-  standings: { tournamentId: string; teamId: string; rank: number; team: string; wwcd: number; placementPoints: number; killPoints: number; totalPoints: number }[];
+  standings: { tournamentId: string; teamId: string; rank: number; team: string; matches?: number; penalties?: number; wwcd: number; placementPoints: number; killPoints: number; totalPoints: number }[];
   provenance: { tournamentId: string; occurredAt: string; stageLabel: string; sourceLabel: string } | null;
   initialFamily?: PosterFamily;
   showFamilySelector?: boolean;
   compactDownload?: boolean;
+  downloadOnly?: boolean;
+  initialLeaderboardLimit?: LeaderboardLimit;
 }
 
 function PosterFrame({ children, className, label, background }: { children: ReactNode; className: string; label: string; background?: string }) {
@@ -64,13 +66,13 @@ function TournamentResultPoster({ teamName, teamLogo, tournamentName, result, pr
   </PosterFrame>;
 }
 
-function LeaderboardPoster({ tournamentName, standings, provenance, limit, background }: Pick<SharecardGeneratorProps, 'tournamentName' | 'standings'> & { background?: string; provenance: NonNullable<SharecardGeneratorProps['provenance']>; limit: LeaderboardLimit }) {
+function LeaderboardPoster({ tournamentName, standings, provenance, limit, background, fullTable = false }: Pick<SharecardGeneratorProps, 'tournamentName' | 'standings'> & { background?: string; fullTable?: boolean; provenance: NonNullable<SharecardGeneratorProps['provenance']>; limit: LeaderboardLimit }) {
   const rows = limit === 'all' ? standings : standings.slice(0, Number(limit));
-  return <PosterFrame className="generated-poster--leaderboard" background={background} label={`${tournamentName} liderlik cədvəli`}>
+  return <PosterFrame className={`generated-poster--leaderboard ${rows.length > 9 ? 'generated-poster--long' : ''} ${fullTable ? 'generated-poster--full-table' : ''}`} background={background} label={`${tournamentName} liderlik cədvəli`}>
     <PosterBrandline provenance={provenance} title={tournamentName} />
     <div className="poster-leaderboard__stage"><span>{tournamentName} · {provenance.stageLabel}</span><strong>{rows.length} teams</strong></div>
-    <div className="poster-leaderboard__head"><span>#</span><span>Komanda</span><span>WWCD</span><span>Place</span><span>Kills</span><span>Total</span></div>
-    <ol>{rows.map((row) => <li key={row.teamId}><b>{String(row.rank).padStart(2, '0')}</b><span className="poster-leaderboard__team"><TeamLogo name={row.team} size="sm" /><strong>{row.team}</strong></span><span>{row.wwcd}</span><span>{row.placementPoints}</span><span>{row.killPoints}</span><em>{row.totalPoints}</em></li>)}</ol>
+    <div className="poster-leaderboard__head"><span>#</span><span>Komanda</span>{fullTable && <span>Raund</span>}<span>WWCD</span><span>{fullTable ? 'Yer xalı' : 'Place'}</span><span>{fullTable ? 'Kill xalı' : 'Kills'}</span>{fullTable && <span>Cərimə</span>}<span>{fullTable ? 'Cəmi' : 'Total'}</span></div>
+    <ol>{rows.map((row) => <li key={row.teamId}><b>{String(row.rank).padStart(2, '0')}</b><span className="poster-leaderboard__team"><TeamLogo name={row.team} size="sm" /><strong>{row.team}</strong></span>{fullTable && <span>{row.matches ?? '—'}</span>}<span>{row.wwcd}</span><span>{row.placementPoints}</span><span>{row.killPoints}</span>{fullTable && <span>{row.penalties ? `−${row.penalties}` : '—'}</span>}<em>{row.totalPoints}</em></li>)}</ol>
     <footer><span>{posterDate(provenance.occurredAt)} · {provenance.stageLabel.toLocaleUpperCase('en-GB')}</span><strong>RANKING · REPUTATION · LEGACY</strong></footer>
   </PosterFrame>;
 }
@@ -79,6 +81,7 @@ async function waitForPreviewAssets(node: HTMLElement) {
   await document.fonts.ready;
   const images = Array.from(node.querySelectorAll('img'));
   await Promise.all(images.map(async (image) => {
+    image.loading = 'eager';
     if (!image.complete) await new Promise<void>((resolve, reject) => { image.addEventListener('load', () => resolve(), { once: true }); image.addEventListener('error', () => reject(new Error('Image failed to load')), { once: true }); });
     if (image.decode) await image.decode().catch(() => undefined);
   }));
@@ -101,13 +104,13 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
     return () => { reader.onload = null; reader.onerror = null; if (reader.readyState === FileReader.LOADING) reader.abort(); };
   }, [selectedBackground]);
   const background = backgroundPreview?.file === selectedBackground ? backgroundPreview?.url : undefined;
-  const [leaderboardLimit, setLeaderboardLimit] = useState<LeaderboardLimit>('10');
+  const [leaderboardLimit, setLeaderboardLimit] = useState<LeaderboardLimit>(props.initialLeaderboardLimit ?? '10');
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState('');
   const previewRef = useRef<HTMLDivElement>(null);
   const provenance = validProvenance(props.provenance) && props.provenance.tournamentId === props.tournamentId ? props.provenance : undefined;
   const provenanceReady = Boolean(provenance);
-  const sourceReady = provenanceReady && (family === 'leaderboard' ? props.standings.length > 0 && props.standings.every((row) => row.tournamentId === props.tournamentId) : Boolean(props.result?.maps.length && props.result.tournamentId === props.tournamentId));
+  const sourceReady = provenanceReady && (family === 'leaderboard' ? props.standings.length > 0 && props.standings.every((row) => row.tournamentId === props.tournamentId) : Boolean(props.result && (props.result.maps.length > 0 || props.result.matches > 0) && props.result.tournamentId === props.tournamentId));
   const exportReady = sourceReady && (!selectedBackground || Boolean(background));
 
   const render = async () => {
@@ -152,17 +155,17 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
 
   return <>
     {error && <Toast tone="error" title="PNG export alınmadı" body={error} onClose={() => setError('')} />}
-    <div className={`sharecard-studio ${props.compactDownload ? 'sharecard-studio--compact-download' : ''}`}>
+    <div className={`sharecard-studio ${props.compactDownload ? 'sharecard-studio--compact-download' : ''} ${props.downloadOnly ? 'sharecard-studio--download-only' : ''}`}>
       <aside>
         {props.showFamilySelector !== false && <Tabs active={family} onChange={(value) => setFamily(value as PosterFamily)} items={[{ id: 'result', label: 'Nəticə' }, { id: 'leaderboard', label: 'Leaderboard' }]} />}
-        {family === 'leaderboard' && props.standings.length > 10 && <Select label="Komanda sayı" value={leaderboardLimit} onChange={(event) => setLeaderboardLimit(event.target.value as LeaderboardLimit)}><option value="10">Top 10</option><option value="16">Top 16</option><option value="all">Bütün sıralama</option></Select>}
+        {!props.downloadOnly && family === 'leaderboard' && props.standings.length > 10 && <Select label="Komanda sayı" value={leaderboardLimit} onChange={(event) => setLeaderboardLimit(event.target.value as LeaderboardLimit)}><option value="10">Top 10</option><option value="16">Top 16</option><option value="all">Bütün sıralama</option></Select>}
         {!sourceReady && <p className="sharecard-integrity-state" role="alert"><strong>İxrac əlçatan deyil.</strong> Turnir tarixi, mərhələsi və dərc edilmiş nəticə mənbəyi təsdiqlənməyib.</p>}
-        {props.compactDownload && <div className="sharecard-studio__compact-copy"><strong>Rəsmi nəticə sharecardı</strong><span>Mövcud dərc edilmiş sıralamadan eyni AEVIC renderer-i ilə 2400 px PNG.</span></div>}
+        {props.compactDownload && !props.downloadOnly && <div className="sharecard-studio__compact-copy"><strong>Rəsmi nəticə sharecardı</strong><span>Mövcud dərc edilmiş sıralamadan eyni AEVIC renderer-i ilə 2400 px PNG.</span></div>}
         {selectedBackground && !background && <p role={backgroundFailed ? "alert" : "status"}>{backgroundFailed ? "Kart fonu açıla bilmədi. Başqa şəkil seçin və ya AEVIC fonuna qayıdın." : "Kart fonu hazırlanır. Hazır olduqda ixrac açılacaq."}</p>}
         {!props.compactDownload && sourceReady && <ShareBackgroundPicker key={family} width={POSTER_SIZE} height={POSTER_SIZE} value={selectedBackground} disabled={exporting} onChange={file => setBackgrounds(value => ({ ...value, [family]: file }))} />}
-        <div className="studio-actions"><Button icon={<Download size={17} />} loading={exporting} disabled={!exportReady} onClick={download}>PNG yüklə</Button>{!props.compactDownload && <Button variant="secondary" icon={<Share2 size={17} />} disabled={exporting || !exportReady} onClick={share}>Paylaş</Button>}</div>
+        <div className="studio-actions"><Button icon={<Download size={17} />} loading={exporting} disabled={!exportReady} onClick={download}>{props.downloadOnly ? 'Yüklə' : 'PNG yüklə'}</Button>{!props.compactDownload && <Button variant="secondary" icon={<Share2 size={17} />} disabled={exporting || !exportReady} onClick={share}>Paylaş</Button>}</div>
       </aside>
-      <div className="sharecard-canvas"><div ref={previewRef}>{sourceReady && provenance ? family === 'result' ? props.result ? <TournamentResultPoster {...props} background={background} result={props.result} provenance={provenance} /> : <div className="sharecard-integrity-placeholder">Komanda üzrə dərc edilmiş nəticə olmadan rəsmi poster yaradılmır.</div> : <LeaderboardPoster background={background} tournamentName={props.tournamentName} standings={props.standings} provenance={provenance} limit={leaderboardLimit} /> : <div className="sharecard-integrity-placeholder">Mənbə məlumatı olmadan rəsmi poster yaradılmır.</div>}</div></div>
+      <div className="sharecard-canvas"><div ref={previewRef}>{sourceReady && provenance ? family === 'result' ? props.result ? <TournamentResultPoster {...props} background={background} result={props.result} provenance={provenance} /> : <div className="sharecard-integrity-placeholder">Komanda üzrə dərc edilmiş nəticə olmadan rəsmi poster yaradılmır.</div> : <LeaderboardPoster fullTable={props.downloadOnly} background={background} tournamentName={props.tournamentName} standings={props.standings} provenance={provenance} limit={leaderboardLimit} /> : <div className="sharecard-integrity-placeholder">Mənbə məlumatı olmadan rəsmi poster yaradılmır.</div>}</div></div>
     </div>
   </>;
 }

@@ -1,3 +1,4 @@
+import { PublicSessionProvider } from '../src/services/PublicSessionContext';
 import { readFileSync } from 'node:fs';
 import { useState } from 'react';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
@@ -98,7 +99,7 @@ describe('audit resolution navigation integrity', () => {
 
   it('renders role-first Admin identity in the public header', async () => {
     await fixtureServices.auth.login('admin@example.test', 'password');
-    const view = render(<MemoryRouter><PublicHeader /></MemoryRouter>);
+    const view = render(<MemoryRouter><PublicSessionProvider><PublicHeader /></PublicSessionProvider></MemoryRouter>);
     const trigger = await within(view.container).findByRole('button', { name: /hesab menyusu/i });
     expect(trigger).not.toHaveTextContent('Caspian Wolves');
     expect(trigger.querySelector('.team-logo')).not.toBeInTheDocument();
