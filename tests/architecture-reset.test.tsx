@@ -31,13 +31,13 @@ describe('UX architecture reset contracts', () => {
     await screen.findByRole('heading', { name: 'Caspian Wolves' });
     const command = view.container.querySelector('.overview-next-action')!;
     expect(command).toBeInTheDocument();
-    for (const selector of ['.overview-status--room', '.overview-status--roster', '.overview-operations', '.overview-recent']) {
+    for (const selector of ['.overview-operations', '.overview-recent']) {
       const later = view.container.querySelector(selector)!;
       expect(later).toBeInTheDocument();
       expect(command.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     }
     expect(view.container.querySelector('.overview-statistics, .overview-stat-grid, .dashboard-quick-links')).not.toBeInTheDocument();
-    expect(view.container.querySelectorAll('.overview-status-grid > a')).toHaveLength(4);
+    expect(view.container.querySelectorAll('.overview-status-grid > a')).toHaveLength(0);
     expect([...view.container.querySelectorAll('.overview-recent li')].map(el => el.textContent)).toEqual(matchHistory.slice(0, 5).map(match => match.placement === 1 ? 'WWCD' : String(match.placement)));
     expect(view.container.querySelector('.overview-standings table')).not.toBeInTheDocument();
     expect(screen.getByText('Komandanız üçün cari sıralama dərc edilməyib.')).toBeInTheDocument();
@@ -46,8 +46,6 @@ describe('UX architecture reset contracts', () => {
     expect(view.container.querySelectorAll('.overview-updates li')).toHaveLength(events.length);
     events.forEach(event => expect(within(view.container.querySelector('.overview-updates') as HTMLElement).getByRole('link', { name: new RegExp(event.title) })).toHaveAttribute('href', event.actionTarget));
     expect(within(command as HTMLElement).getByRole('link', { name: 'Matç detalı' })).toHaveAttribute('href', '/team/tournaments/daily-cup-24');
-    expect(view.container.querySelector('.overview-status--room')).toHaveAttribute('href', '/team/tournaments/daily-cup-24#room');
-    expect(view.container.querySelector('.overview-status--roster')).toHaveAttribute('href', '/team/roster');
     expect(screen.getByRole('link', { name: /Nəticə tarixçəsi/ })).toHaveAttribute('href', '/team/history');
     expect(view.container.textContent).not.toContain('AEVIC24');
     expect(view.container.textContent).not.toContain('1234567');

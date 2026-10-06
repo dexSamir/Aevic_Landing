@@ -38,15 +38,6 @@
 .overview-command-time small { color: var(--ov-muted); font-size: .6875rem; }
 
 /* One secondary operational rail, never KPI widgets. */
-.overview-status-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--ov-border); }
-.overview-status { min-width: 0; padding: 20px 24px; display: grid; align-content: start; gap: 9px; border-right: 1px solid var(--ov-border); }
-.overview-status:last-child { border: 0; }
-.overview-status:hover { background: var(--ov-surface); }
-.overview-status > span { color: var(--ov-muted); font-size: .6rem; font-weight: 700; letter-spacing: .12em; }
-.overview-status > strong { font: 500 1.5rem/1.2 var(--font-competition); letter-spacing: -.025em; }
-.overview-status p { display: flex; align-items: center; gap: 7px; font-size: .6875rem; color: var(--team-text-secondary); }
-.overview-status p svg { color: var(--ov-muted); }
-.overview-status p svg.is-ready { color: var(--ov-gold); }
 
 /* Asymmetric canvas: full round sequence beside contextual standings. */
 .overview-operations { display: grid; grid-template-columns: 1.3fr 1fr; margin-top: 24px; border-block: 1px solid var(--ov-border); background: var(--ov-surface); }
@@ -112,9 +103,6 @@
   .overview-identity nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
   .overview-next-action { padding: 24px; }
   .overview-command-time { min-width: 130px; padding-left: 18px; }
-  .overview-status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .overview-status:nth-child(2) { border-right: 0; }
-  .overview-status:nth-child(n+3) { border-top: 1px solid var(--ov-border); }
   .overview-operations { grid-template-columns: 1fr; }
   .overview-rounds { border-right: 0; }
   .overview-standings { border-top: 1px solid var(--ov-border); }
@@ -135,9 +123,6 @@
   .overview-primary-action { margin-top: 18px; width: 100%; }
   .overview-command-time { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; min-width: 0; border-left: 0; border-top: 1px solid var(--ov-border); padding: 14px 0 0; }
   .overview-command-time time { font-size: 1.5rem; }
-  .overview-status { padding: 16px 12px; }
-  .overview-status > strong { font-size: 1.3rem; }
-  .overview-status p { font-size: .625rem; align-items: flex-start; }
   .overview-operations { margin-top: 18px; }
   .overview-rounds :is(header, li), .overview-standings { padding-inline: 16px; }
   .overview-rounds li { grid-template-columns: 42px minmax(0, 1fr) auto; }
@@ -157,12 +142,6 @@
 
 .overview-current-tournament { display: grid !important; grid-template-columns: 1fr auto; padding: 12px 16px; border: 1px solid var(--ov-border); }
 .overview-current-tournament > span { grid-column: 1 / -1; color: var(--ov-muted); font-size: .625rem; letter-spacing: .12em; }
-.overview-status--room { background: var(--team-accent-wash); }
-.overview-status--room > strong { color: var(--ov-gold); }
-.overview-status--match { background: var(--team-purple-wash); }
-.overview-status--update { background: var(--team-surface-secondary); }
-.overview-status--update > strong { font: 600 1rem/1.4 var(--font-ui); }
-.overview-status--map > strong { font-family: var(--font-public-display); }
 .overview-competition-ready { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 24px; border-top: 1px solid var(--ov-border); font-size: .75rem; }
 .overview-competition-ready > span { color: var(--ov-muted); }
 .overview-identity h1 { text-transform: uppercase; }

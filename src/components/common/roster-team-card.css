@@ -1,11 +1,11 @@
-.roster-team-card { position: relative; isolation: isolate; display: grid; justify-items: center; align-content: center; min-width: 0; height: 100%; min-height: 185px; gap: 14px; padding: 20px 12px; border: 0; border-radius: 12px; background: var(--surface-1); text-align: center; overflow: hidden; }
-.roster-team-card__info { display: grid; justify-items: center; gap: .5rem; min-width: 0; transition: opacity 180ms ease-out; }
+.roster-team-card { container-type: inline-size; position: relative; isolation: isolate; display: grid; justify-items: center; align-content: center; min-width: 0; height: 100%; min-height: 185px; gap: 14px; padding: 20px 12px; border: 0; border-radius: 12px; background: var(--surface-1); text-align: center; overflow: hidden; }
+.roster-team-card__info { display: grid; justify-items: center; gap: .5rem; min-width: 0; transition: opacity 420ms cubic-bezier(.22, 1, .36, 1); }
 .roster-team-card__info > div { display: flex; justify-content: center; gap: 20px; }
-.roster-team-card > .team-mark { transition: transform 220ms ease-out, opacity 180ms ease-out; }
-.roster-team-card .roster-team-card__players { position: absolute; inset: 1rem; display: flex; flex-direction: column; justify-content: center; gap: .35rem; margin: 0; padding: 0; list-style: none; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 180ms ease-out, visibility 180ms; font: 600 clamp(.85rem, 1.2vw, 1rem)/1.35 var(--font-ui); overflow-wrap: anywhere; }
+.roster-team-card > .team-mark { max-width: 34cqw; max-height: 34cqw; transition: transform 460ms cubic-bezier(.22, 1, .36, 1), opacity 420ms cubic-bezier(.22, 1, .36, 1); }
+.roster-team-card .roster-team-card__players { position: absolute; z-index: 1; inset: 1rem; display: flex; flex-direction: column; justify-content: center; gap: .35rem; margin: 0; padding: 0; list-style: none; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 420ms cubic-bezier(.22, 1, .36, 1), visibility 420ms; font: 600 clamp(.85rem, 1.2vw, 1rem)/1.35 var(--font-ui); overflow-wrap: anywhere; }
 .roster-team-card:focus-visible { outline: 2px solid var(--gold-primary); outline-offset: 3px; }
 @media (hover: hover) and (pointer: fine) {
-  .roster-team-card--has-roster:is(:hover, :focus-visible) > .team-mark { transform: translateY(35px) scale(2); opacity: .12; }
+  .roster-team-card--has-roster:is(:hover, :focus-visible) > .team-mark { transform: translateY(35px) scale(2.5); opacity: .25; }
   .roster-team-card--has-roster:is(:hover, :focus-visible) .roster-team-card__info { opacity: 0; }
   .roster-team-card--has-roster:is(:hover, :focus-visible) .roster-team-card__players { opacity: 1; visibility: visible; }
 }

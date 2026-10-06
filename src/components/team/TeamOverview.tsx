@@ -1,6 +1,6 @@
 import { TeamAnalytics } from './TeamAnalytics';
 import { TeamIntelligence } from './TeamIntelligence';
-import { ArrowRight, CheckCircle2, Clock3, ExternalLink, KeyRound, ShieldCheck, Users } from 'lucide-react';
+import { ArrowRight, ExternalLink, ShieldCheck, Users } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTeamPlatformData, useTeamCompetitionContexts } from '../../services/PlatformDataContext';
@@ -21,22 +21,6 @@ function NextActionCommand({ vm }: { vm: TeamOverviewViewModel }) {
     </div>
     {action.startsAt && <div className="overview-command-time"><span>BAKI VAXTI</span><time dateTime={action.startsAt}>{bakuTime(action.startsAt)}</time><small>{overviewDate(action.startsAt)}</small></div>}
   </section>;
-}
-function OperationalRail({ vm }: { vm: TeamOverviewViewModel }) {
-  const context = vm.context;
-  if (!context || !vm.tournamentHref) return null;
-  const update = vm.updates[0];
-  const items = [
-    { key: 'room', label: 'OTAQ STATUSU', value: context.room?.status === 'released' ? 'Hazırdır' : context.room ? 'Bağlıdır' : 'Gözlənilir', detail: context.room ? `${bakuTime(context.room.releaseAt)} · uyğun komandalara açılır` : 'Buraxılış vaxtı yoxdur', href: `${vm.tournamentHref}#room`, icon: KeyRound, ready: context.room?.status === 'released' },
-    { key: 'match', label: 'NÖVBƏTİ MATÇ', value: context.nextMatch ? bakuTime(context.nextMatch.startsAt) : '—', detail: context.nextMatch ? `${overviewDate(context.nextMatch.startsAt)} · Raund ${context.nextMatch.round}` : 'Matç planlanmayıb', href: vm.tournamentHref, icon: Clock3, ready: false },
-    { key: 'update', label: 'SON VACİB YENİLİK', value: update?.title ?? 'Yeni hadisə yoxdur', detail: update ? `${overviewDate(update.occurredAt)} · ${bakuTime(update.occurredAt)}` : 'Əməliyyat xətti yenidir', href: update?.actionTarget ?? '/team/notifications', icon: CheckCircle2, ready: false },
-    { key: 'map', label: 'NÖVBƏTİ XƏRİTƏ', value: context.nextMatch?.map ?? '—', detail: context.nextMatch?.lobby ?? 'Lobbi paylaşılmayıb', href: vm.tournamentHref, icon: Users, ready: false },
-  ];
-  return <section className="overview-status-grid" aria-label="Əməliyyat vəziyyəti">{items.map(({ key, label, value, detail, href, icon: Icon, ready }) => (
-    <Link key={key} className={`overview-status overview-status--${key}`} to={href}>
-      <span>{label}</span><strong>{value}</strong><p><Icon size={12} aria-hidden="true" className={ready ? 'is-ready' : undefined} />{detail}</p>
-    </Link>
-  ))}</section>;
 }
 function OperationsCanvas({ vm }: { vm: TeamOverviewViewModel }) {
   if (!vm.context || !vm.tournamentHref) return null;
@@ -89,7 +73,6 @@ export function TeamOverview() {
     </header>
     {vm.team.rejectionReason && <p role="status" className="overview-empty">{vm.team.rejectionReason}</p>}
     <NextActionCommand vm={vm} />
-    <OperationalRail vm={vm} />
     <dl className="team-stat-ledger" aria-label="Rəsmi komanda statistikası">{([['matches', 'Matç'], ['wwcd', 'WWCD'], ['championships', 'Çempionluq'], ['podiums', 'Podium']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{data.careerSummary.metrics.find(metric => metric.key === key)?.value ?? '—'}</dd></div>)}<div><dt>Heyət hazırlığı</dt><dd><Link className="overview-status--roster" to="/team/roster">{vm.activeRosterCount}/4 <Users size={17} /></Link></dd></div></dl>
     <TeamAnalytics history={data.matchHistory} unavailable={data.historyAvailable === false || data.unavailable?.history === true} incomplete={data.currentTeam.legacyHistoryIncomplete} />
     <RecentForm vm={vm} />

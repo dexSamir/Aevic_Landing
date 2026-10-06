@@ -1,0 +1,35 @@
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { expect, it, vi } from 'vitest';
+import { TeamIntelligence } from '../src/components/team/TeamIntelligence';
+import { TeamAnalytics } from '../src/components/team/TeamAnalytics';
+import { fixtureServices } from './fixtures/component-services';
+import { deriveTeamCompetitionContexts } from '../src/utils/teamCompetitionContext';
+import type { TeamPlatformSnapshot } from '../src/types/domain';
+let source:TeamPlatformSnapshot;
+vi.mock('../src/services/PlatformDataContext', () => ({ useTeamPlatformData:()=>source, useTeamCompetitionContexts:()=>deriveTeamCompetitionContexts(source,new Date('2026-08-04T12:00:00+04:00')) }));
+it('keeps radar stationary until manual keyboard navigation and removes pause', async () => {
+ source=await fixtureServices.snapshots.team();
+ vi.stubGlobal('ResizeObserver',class {observe(){} disconnect(){}});
+ const view=render(<MemoryRouter><TeamIntelligence /></MemoryRouter>);
+ const rail=screen.getByRole('group',{name:/Kartları/});
+ const scroll=vi.fn(); Object.defineProperty(rail,'scrollBy',{value:scroll});
+ Object.defineProperty(rail,'clientWidth',{value:1000});
+ vi.useFakeTimers();
+ act(()=>vi.advanceTimersByTime(60000));
+ expect(scroll).not.toHaveBeenCalled();
+ expect(view.container.querySelector('.lucide-pause')).toBeNull();
+ fireEvent.keyDown(rail,{key:'ArrowRight'});
+ expect(scroll).toHaveBeenCalledWith(expect.objectContaining({left:800}));
+ view.unmount();vi.useRealTimers();vi.unstubAllGlobals();
+});
+it('names the actual metrics and updates title and unit with the chosen series', async () => {
+ source=await fixtureServices.snapshots.team();
+ render(<TeamAnalytics history={source.matchHistory} />);
+ expect(screen.getByRole('heading',{name:'Matçlar üzrə kill sayı'})).toBeInTheDocument();
+ fireEvent.click(screen.getByRole('button',{name:'Xal',exact:true}));
+ expect(screen.getByRole('heading',{name:'Matçlar üzrə ümumi xal'})).toBeInTheDocument();
+ expect(screen.getByText('Ümumi xal / matç')).toBeInTheDocument();
+ expect(screen.getByRole('heading',{name:'Xəritələr üzrə orta kill / matç'})).toBeInTheDocument();
+ expect(screen.getAllByRole('button',{name:/PNG yüklə/})).toHaveLength(4);
+});

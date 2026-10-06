@@ -60,3 +60,11 @@ it('keeps dates unpublished when the schedule has not been supplied', async () =
  expect(screen.getAllByText('Vaxt təsdiq gözləyir')).toHaveLength(4);
  expect(view.container.querySelector('.tournament-detail-schedule time')).toBeNull();
 });
+it('preserves a real service failure and allows recovery without reloading the page', async () => {
+ vi.mocked(platform.services.results.leaderboard).mockRejectedValueOnce(new Error('Unavailable'));
+ mount();
+ expect(await screen.findByRole('heading',{name:'Nəticələr yüklənmədi'})).toBeInTheDocument();
+ fireEvent.click(screen.getByRole('button',{name:'Yenidən cəhd et'}));
+ expect(await screen.findByRole('heading',{name:'Ümumi sıralama dərc edilməyib'})).toBeInTheDocument();
+ expect(platform.services.results.leaderboard).toHaveBeenLastCalledWith('daily-cup-24');
+});

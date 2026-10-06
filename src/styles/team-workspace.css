@@ -154,9 +154,6 @@
 .product-shell--team .overview-next-action p { font-size:.875rem; }
 .product-shell--team .overview-primary-action { border-radius:var(--team-control-radius); font-size:.8125rem; }
 .product-shell--team .overview-command-time { border:0; }
-.product-shell--team .overview-status-grid { border:0; }
-.product-shell--team .overview-status { border:0; gap:10px; }
-.product-shell--team .overview-status>span { font-size:.75rem; letter-spacing:.04em; }
 .product-shell--team .overview-operations { border:0; background:none; gap:var(--workspace-gap); }
 .product-shell--team :is(.overview-rounds,.overview-standings) { border:0; border-radius:var(--team-card-radius); background:var(--team-surface-primary); }
 .product-shell--team .overview-rounds li { border:0; margin:4px 12px; padding:14px 12px; border-radius:var(--team-control-radius); }
@@ -198,7 +195,6 @@
  .product-shell--team .team-identity__body>a { min-height:44px; }
  .product-shell--team .tournament-operation-identity { grid-template-columns:1fr auto; }
  .product-shell--team .tournament-operation-identity dl { grid-column:1/-1; }
- .product-shell--team .overview-status-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
  .product-shell--team .overview-operations { grid-template-columns:1fr; }
  .product-shell--team .overview-identity { align-items:flex-start; }
  .product-shell--team .overview-next-action { padding:var(--workspace-gap); }
@@ -362,12 +358,6 @@
 .product-shell--team .team-wrapped-entry { scroll-margin-top:6rem; }
 .product-shell--team .team-wrapped-entry > p { max-width:36ch; line-height:1.6; }
 .product-shell--team .overview-identity { padding-bottom:1.75rem; }
-.product-shell--team .overview-status-grid { gap:.75rem; margin-block:1.5rem; }
-.product-shell--team .overview-status { padding:1rem; background:var(--team-surface-primary); border-radius:10px; }
-.product-shell--team .overview-status:hover { background:var(--team-surface-hover); }
-.product-shell--team .overview-status > strong { font:600 1.125rem/1.4 var(--font-ui); }
-.product-shell--team .overview-status p { align-items:flex-start; font-size:.75rem; line-height:1.5; }
-.product-shell--team .overview-status p svg { margin-top:.2rem; }
 .product-shell--team .overview-command-time { min-width:0; }
 .product-shell--team .overview-command-time time { font-family:var(--font-ui); font-variant-numeric:tabular-nums; }
 .product-shell--team .overview-section-title a,.product-shell--team .overview-section-link { font-size:.8125rem; }
@@ -387,7 +377,6 @@
 .product-shell--team .drawer .team-identity { flex-shrink:0; }
 .product-shell--team .drawer-backdrop { background:#0009; backdrop-filter:none; }
 @container(max-width:48rem) {
- .product-shell--team .overview-status-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
  .product-shell--team .overview-identity { flex-wrap:wrap; }
  .product-shell--team .overview-operations { grid-template-columns:minmax(0,1fr); }
 }
@@ -405,7 +394,6 @@
  .product-shell--team .modal__body { padding:0 1.25rem 1.25rem; }
 }
 @media(max-width:430px) {
- .product-shell--team .overview-status-grid { grid-template-columns:minmax(0,1fr); }
  .product-shell--team .detail-ledger > div { grid-template-columns:minmax(0,1fr); gap:.25rem; }
  .product-shell--team .authority-ledger > article { grid-template-columns:auto minmax(0,1fr); }
  .product-shell--team .authority-ledger > article > .button { grid-column:2; justify-self:start; }

@@ -56,6 +56,7 @@ export class Repository {
  async tournament(id:string) {const t=(await this.tournaments()).find(t=>t.id===id);if(!t)throw new ServiceError(404,'TOURNAMENT_NOT_FOUND');return t;}
  async schedule():Promise<MatchScheduleItem[]> {return (await this.rows('matches')).map(m=>({id:s(m,'id'),tournamentId:s(m,'tournament_id'),stage:s(m,'stage') as MatchScheduleItem['stage'],day:n(m,'day'),round:n(m,'round'),map:s(m,'map'),lobby:s(m,'lobby'),startsAt:s(m,'scheduled_at'),status:s(m,'status') as MatchScheduleItem['status']})).sort((a,b)=>a.startsAt.localeCompare(b.startsAt));}
  async results():Promise<RoundResult[]> {return(await this.rows('team_match_results')).filter(r=>r.published).map(roundResult);}
+ async tournamentStandings(id:string) {await this.tournament(id);return this.standings(id);}
  async standings(tournamentId?:string):Promise<TeamTournamentResult[]> {
   return rankResults((await this.results()).filter(r=>!tournamentId||r.tournamentId===tournamentId));
  }

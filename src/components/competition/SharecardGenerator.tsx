@@ -1,3 +1,4 @@
+import { renderPng, downloadPng } from '../../utils/pngExport';
 import { ShareBackgroundPicker } from '../common/ShareBackgroundPicker';
 import '../../styles/share-studio.css';
 import { Download, Share2 } from 'lucide-react';
@@ -77,16 +78,6 @@ function LeaderboardPoster({ tournamentName, standings, provenance, limit, backg
   </PosterFrame>;
 }
 
-async function waitForPreviewAssets(node: HTMLElement) {
-  await document.fonts.ready;
-  const images = Array.from(node.querySelectorAll('img'));
-  await Promise.all(images.map(async (image) => {
-    image.loading = 'eager';
-    if (!image.complete) await new Promise<void>((resolve, reject) => { image.addEventListener('load', () => resolve(), { once: true }); image.addEventListener('error', () => reject(new Error('Image failed to load')), { once: true }); });
-    if (image.decode) await image.decode().catch(() => undefined);
-  }));
-}
-
 export function SharecardGenerator(props: SharecardGeneratorProps) {
   const [family, setFamily] = useState<PosterFamily>(props.initialFamily ?? 'result');
   const [backgrounds, setBackgrounds] = useState<Partial<Record<PosterFamily, File>>>({});
@@ -117,10 +108,8 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
     if (!previewRef.current || exporting || !exportReady) return;
     const poster = previewRef.current.querySelector<HTMLElement>('.generated-poster');
     if (!poster) return;
-    await waitForPreviewAssets(poster);
     const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--color-bg-deep').trim();
-    const { toPng } = await import('html-to-image');
-    return toPng(poster, { cacheBust: true, pixelRatio: Math.max(1, POSTER_SIZE / poster.offsetWidth), backgroundColor });
+    return renderPng(poster, { width: POSTER_SIZE, backgroundColor });
   };
 
   const download = async () => {
@@ -129,10 +118,7 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
     try {
       const dataUrl = await render();
       if (!dataUrl) return;
-      const link = document.createElement('a');
-      link.download = `aevic-${family}-poster.png`;
-      link.href = dataUrl;
-      link.click();
+      downloadPng(dataUrl, `aevic-${family}-poster.png`);
     } catch { setError('Poster hazırlanmadı. Şəkillərin yükləndiyini yoxlayıb yenidən cəhd edin.'); }
     finally { setExporting(false); }
   };
