@@ -102,7 +102,6 @@ export function AccountNotificationsPage() {
             })
           }
         />
-        <hr />
         <SectionHeading title="Hadisələr" />
         {[
           ["checkIn", "Check-in açıldıqda"],

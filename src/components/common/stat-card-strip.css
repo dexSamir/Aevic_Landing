@@ -1,5 +1,5 @@
 /* Compact facts share a single ruled surface. */
-.team-stat-slider { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(10rem, 1fr); overflow-x: auto; scrollbar-width: thin; gap: 0; margin: 0; padding: 0; list-style: none; border-block: var(--module-divider); }
+.team-stat-slider { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(10rem, 1fr); overflow-x: auto; scrollbar-width: thin; gap: 0; margin: 0; padding: 0; list-style: none; border-block: 0; }
 .team-stat-slider > li { min-width: 0; border-right: var(--module-divider); }
 .team-stat-slider > li:last-child { border-right: 0; }
 .team-stat-slider__card { height: 100%; min-width: 0; display: flex; flex-direction: column; gap: .35rem; padding: 1rem; color: var(--text-primary); background: transparent; }
@@ -12,5 +12,5 @@
 .team-stat-slider__card--gold strong { color: var(--gold-primary); }
 a.team-stat-slider__card { transition: background-color var(--motion-fast); }
 a.team-stat-slider__card:hover { background: var(--surface-2); }
-@media (max-width: 700px) { .team-stat-slider { grid-auto-flow: row; grid-template-columns: repeat(2,minmax(0,1fr)); } .team-stat-slider > li { border-bottom: var(--module-divider); } .team-stat-slider__card { padding: .85rem; } }
+@media (max-width: 700px) { .team-stat-slider { grid-auto-flow: row; grid-template-columns: repeat(2,minmax(0,1fr)); } .team-stat-slider > li { border-bottom: 0; } .team-stat-slider__card { padding: .85rem; } }
 @media (prefers-reduced-motion: reduce) { a.team-stat-slider__card { transition: none; } }

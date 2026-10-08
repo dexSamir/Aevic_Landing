@@ -57,8 +57,8 @@
 .team-workspace-frame { display:grid; min-height:100dvh; }
 .team-workspace-frame .product-main { min-width:0; background:var(--team-workspace); }
 .team-workspace-frame .product-sidebar { position:sticky; top:0; display:flex; flex-direction:column; width:var(--sidebar-width); height:100dvh; padding:1.5rem 1rem 1rem; gap:0; border:0; background:var(--team-chrome); }
-.team-workspace-frame .product-topbar { position:sticky; top:0; z-index:var(--z-header); display:flex; align-items:center; justify-content:space-between; gap:1rem; min-height:4.5rem; padding:.5rem var(--workspace-padding); border:0; background:var(--team-topbar); box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
-.team-workspace-frame .product-page { width:min(100%,var(--workspace-content)); margin-inline:auto; padding:2rem var(--workspace-padding) 3.5rem; min-width:0; container-type:inline-size; }
+.team-workspace-frame .product-topbar { position:sticky; top:0; z-index:var(--z-header); display:flex; align-items:center; justify-content:space-between; gap:1rem; min-height:3.5rem; padding:.25rem var(--workspace-padding); border:0; background:var(--team-topbar); box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+.team-workspace-frame .product-page { width:min(100%,var(--workspace-content)); margin-inline:auto; padding:1rem var(--workspace-padding) 3.5rem; min-width:0; container-type:inline-size; }
 .team-workspace-frame .workspace-brand { display:flex; align-items:center; gap:.75rem; margin:0 .5rem 1.5rem; min-height:3rem; color:var(--team-text-primary); }
 .workspace-brand .brand-emblem, .workspace-pending-header .brand-emblem { display:grid; place-items:center; width:44px; min-width:44px; height:48px; }
 .workspace-brand .brand-emblem img, .workspace-pending-header img { display:block; width:44px; height:48px; object-fit:contain; }
@@ -100,7 +100,7 @@
 }
 @media(max-width:768px) {
  .team-workspace-frame { --workspace-padding:1.25rem; --workspace-gap:1.25rem; }
- .team-workspace-frame .product-page { padding-block:1.5rem max(2rem,env(safe-area-inset-bottom)); }
+ .team-workspace-frame .product-page { padding-block:1rem max(2rem,env(safe-area-inset-bottom)); }
  .workspace-pending-columns { grid-template-columns:minmax(0,1fr); }
  .workspace-pending-stats { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }

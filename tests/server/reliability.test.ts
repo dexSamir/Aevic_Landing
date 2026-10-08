@@ -95,3 +95,28 @@ describe('real profile visibility contract',()=>{
   const repo=new FixtureRepository();repo.teams=async()=>{throw new Error('unavailable');};await expect(repo.profile('16')).rejects.toThrow('unavailable');
  });
 });
+
+it('includes visible pending teams in comparisons without exposing moderated teams', async () => {
+ const repo=new Repository({} as DbClient);
+ vi.spyOn(repo,'teams').mockResolvedValue(['pending','approved','banned','rejected'].map((status,index)=>mapProductionTeam({id:String(index+1),team_name:status,status,created_at:'2026-01-01T00:00:00Z'})));
+ vi.spyOn(repo,'results').mockResolvedValue([]);
+ vi.spyOn(repo,'standings').mockResolvedValue([]);
+ vi.spyOn(repo,'tournaments').mockResolvedValue([]);
+ expect((await repo.comparisons()).map(row=>row.teamId)).toEqual(['1','2']);
+});
+
+it('reuses only the captain identity verified in this request without repeating credential reads', async () => {
+ const {captainRoutes}=await import('../../server/routes/captain');
+ const {PlatformRepository}=await import('../../server/platform/repository');
+ const store={ready:vi.fn(),byId:vi.fn()};
+ const app=createHttpApp(config,{});
+ app.use('*',async(c,next)=>{
+  c.set('platform',new PlatformRepository({} as DbClient,{} as Sql,{accountId:'16',teamId:'12'}));
+  c.set('verifiedCaptain',{id:'16',captain_name:'Captain Account',email:'test@example.test',captain_contact:''} as import('../../server/captain/store').CaptainRow);
+  await next();
+ });
+ app.route('/',captainRoutes({store:store as unknown as import('../../server/captain/store').CaptainStore}));
+ const response=await app.request('/api/me/session',{headers:{cookie:'__Host-aevic-captain=opaque'}});
+ expect(response.status).toBe(200);expect(await response.json()).toMatchObject({role:'captain',user:{id:'16'}});
+ expect(store.ready).not.toHaveBeenCalled();expect(store.byId).not.toHaveBeenCalled();
+});

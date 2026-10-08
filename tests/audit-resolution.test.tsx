@@ -92,6 +92,8 @@ describe('audit resolution navigation integrity', () => {
   it('shows one exact current leaf in nested Team navigation', async () => {
     const view = render(<MemoryRouter initialEntries={['/team/settings/managers']}><Routes><Route path="/team" element={<TeamPlatformProvider><TeamLayout /></TeamPlatformProvider>}><Route path="settings/managers" element={<h1>Managers</h1>} /></Route></Routes></MemoryRouter>);
     await screen.findByRole('heading', { name: 'Managers' });
+    expect(view.container.querySelector('.product-topbar__route')).toBeNull();
+    expect(screen.getByRole('link', {name:'Bildirişlər'})).toBeInTheDocument();
     const nav = within(view.container).getByRole('navigation', { name: 'Məhsul naviqasiyası' });
     expect(nav.querySelectorAll('[aria-current="page"]')).toHaveLength(1);
     expect(within(nav).getByRole('link', { name: 'Menecerlər' })).toHaveAttribute('aria-current', 'page');
@@ -127,7 +129,7 @@ describe('audit resolution interaction and language contracts', () => {
   });
 
   it('keeps the mobile participant model while densifying only desktop', () => {
-    const css = readFileSync(`${process.cwd()}/src/styles/components.css`, 'utf8');
+    const css = readFileSync(`${process.cwd()}/src/styles/route-components.css`, 'utf8');
     expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr))');
     expect(css).toContain('.participant-field-grid { display: flex;');
     expect(css).toContain('.participant-field-grid > div { flex: 0 0 7.25rem;');

@@ -17,7 +17,7 @@
 .match-card__status.is-live { background: var(--color-danger); color: white; white-space: nowrap; }
 .match-card h3 { font: 700 32px/1.2 var(--font-public-display); letter-spacing: -.025em; margin-bottom: 5px; }
 .match-card__scene p { font-size: 14px; font-weight: 500; }
-.match-card__footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 14px; min-height: 48px; border-top: 1px solid var(--color-border); }
+.match-card__footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 14px; min-height: 48px; border-top: 0; }
 .match-card__footer > span, .match-card__footer > a { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; }
 .match-card__footer > span { color: var(--color-text-muted); }
 .match-card__footer > a { min-height: 44px; color: var(--color-brand-primary); font-weight: 700; white-space: nowrap; }

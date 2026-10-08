@@ -26,7 +26,7 @@ function PendingSidebar({ loading = true }: { loading?: boolean }) {
 
 export function TeamWorkspacePlaceholder({ children, phase = 'context' }: { children?: ReactNode; phase?: 'route' | 'session' | 'context' }) {
   return <TeamWorkspaceFrame busy={!children} sidebar={<PendingSidebar loading={!children} />} header={<header className="product-topbar">
-    <div className="workspace-pending-header"><BrandEmblem variant="compact" /><span>Komanda iş sahəsi</span></div>
+    <div className="workspace-pending-header"><BrandEmblem variant="compact" /></div>
     {children ? <Link className="workspace-recovery-link" to="/account/profile">Hesab ayarları</Link> : <div className="workspace-pending-actions" aria-hidden="true"><Placeholder kind="control" /><Placeholder kind="control" /><span className="workspace-pending-menu"><Placeholder kind="control" /></span></div>}
   </header>}>{children ?? <div className="workspace-loading" data-loading-phase={phase} role="status" aria-label="AEVIC komanda iş sahəsi yüklənir">
     <span className="sr-only">Komanda iş sahəsi hazırlanır.</span>

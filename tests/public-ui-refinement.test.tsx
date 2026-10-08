@@ -9,6 +9,7 @@ import { TournamentResults } from '../src/components/competition/TournamentResul
 import { RosterTeamCard } from '../src/components/common/RosterTeamCard';
 import { currentTeam } from './fixtures/platform-data';
 import type { TeamTournamentResult } from '../src/types/domain';
+import { ApiError } from '../src/services/apiError';
 import { toPng } from 'html-to-image';
 
 vi.mock('html-to-image', () => ({ toPng: vi.fn().mockResolvedValue('data:image/png;base64,test') }));
@@ -19,6 +20,7 @@ function mountResults() {
 }
 beforeEach(() => {
   vi.spyOn(services.auth, 'getSession').mockResolvedValue(null);
+  vi.spyOn(services.results, 'ownExport').mockResolvedValue({ teamId: currentTeam.id, result: rows[0] });
   vi.spyOn(services.teams, 'current').mockResolvedValue({ ...currentTeam, logoUrl: undefined });
   Object.defineProperty(document, 'fonts', { configurable: true, value: { ready: Promise.resolve() } });
   vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
@@ -70,6 +72,7 @@ it('selects the authenticated team result by keyboard and exports authoritative 
 it('keeps the team option disabled for an authenticated team without a result', async () => {
   vi.mocked(services.auth.getSession).mockResolvedValue({ user: currentTeam.captain, role: 'team' });
   vi.mocked(services.teams.current).mockResolvedValue({ ...currentTeam, id: 'no-result' });
+  vi.mocked(services.results.ownExport).mockResolvedValue({ teamId: 'no-result', reason: 'no-result' });
   mountResults(); fireEvent.click(screen.getByRole('button', { name: 'Nəticələri yüklə' }));
   expect(await screen.findByText('Komandanızın bu turnirdə dərc edilmiş nəticəsi yoxdur.')).toBeInTheDocument();
   expect(screen.getByRole('radio', { name: 'Komanda nəticəsi' })).toBeDisabled();
@@ -79,4 +82,41 @@ it('uses supplied roster names and a single logo while preserving profile naviga
   expect(screen.getByRole('link')).toHaveAttribute('href', '/teams/current');
   expect(view.container.querySelectorAll('.team-mark')).toHaveLength(1);
   expect(Array.from(view.container.querySelectorAll('.roster-team-card__players li')).map(node => node.textContent)).toEqual(currentTeam.roster.map(player => player.ign));
+});
+
+it('keeps public PNG available when participation verification fails and supports retry', async () => {
+  vi.mocked(services.auth.getSession).mockResolvedValue({ user: currentTeam.captain, role: 'team' });
+  vi.mocked(services.results.ownExport).mockRejectedValueOnce(new ApiError({status:503,kind:'server'}));
+  mountResults(); fireEvent.click(screen.getByRole('button', { name: 'Nəticələri yüklə' }));
+  await screen.findByRole('button', { name: 'Yenidən yoxla' });
+  expect(screen.getByRole('radio', { name: 'Komanda nəticəsi' })).toBeDisabled();
+  expect(await screen.findByRole('button', { name: 'Yüklə' })).toBeEnabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Yenidən yoxla' }));
+  await waitFor(() => expect(screen.getByRole('radio', { name: 'Komanda nəticəsi' })).toBeEnabled());
+});
+it('disables nonparticipants even if a public result exists', async () => {
+  vi.mocked(services.auth.getSession).mockResolvedValue({ user: currentTeam.captain, role: 'team' });
+  vi.mocked(services.results.ownExport).mockResolvedValue({ teamId: currentTeam.id, reason: 'not-participant' });
+  mountResults(); fireEvent.click(screen.getByRole('button', { name: 'Nəticələri yüklə' }));
+  await screen.findByText('Komandanız bu turnirin təsdiqlənmiş iştirakçısı deyil.');
+  expect(screen.getByRole('radio', { name: 'Komanda nəticəsi' })).toBeDisabled();
+});
+it('rechecks authorization before PNG capture and blocks a revoked participant', async () => {
+  vi.mocked(services.auth.getSession).mockResolvedValue({ user: currentTeam.captain, role: 'team' });
+  vi.mocked(services.results.ownExport).mockResolvedValueOnce({teamId:currentTeam.id,result:rows[0]}).mockResolvedValue({teamId:currentTeam.id,reason:'not-participant'});
+  mountResults(); fireEvent.click(screen.getByRole('button', { name: 'Nəticələri yüklə' }));
+  await waitFor(() => expect(screen.getByRole('radio', { name: 'Komanda nəticəsi' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('radio', { name: 'Komanda nəticəsi' }));
+  vi.mocked(toPng).mockClear();
+  fireEvent.click(await screen.findByRole('button', { name: 'Yüklə' }));
+  await screen.findByText('Komanda nəticəsi təsdiqlənmədi. Yenidən yoxlayın.');
+  expect(toPng).not.toHaveBeenCalled();
+});
+
+it('rejects a mismatched authenticated team in the export response', async () => {
+  vi.mocked(services.auth.getSession).mockResolvedValue({ user: currentTeam.captain, role: 'team' });
+  vi.mocked(services.results.ownExport).mockResolvedValue({teamId:'another-team',result:{...rows[0],teamId:'another-team'}});
+  mountResults(); fireEvent.click(screen.getByRole('button',{name:'Nəticələri yüklə'}));
+  await screen.findByText('Komandanızın bu turnirdə dərc edilmiş nəticəsi yoxdur.');
+  expect(screen.getByRole('radio',{name:'Komanda nəticəsi'})).toBeDisabled();
 });

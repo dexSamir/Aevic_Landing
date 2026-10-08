@@ -253,6 +253,7 @@ export interface RoomService {
 export interface ResultService {
   roundEntries(roundId:string):Promise<RoundResult[]>;
   leaderboard(tournamentId: string): Promise<TeamTournamentResult[]>;
+  ownExport(tournamentId: string): Promise<{ teamId: string; result?: TeamTournamentResult; reason?: 'not-participant' | 'no-result' }>;
   snapshots(tournamentId: string): Promise<LeaderboardSnapshot[]>;
   movement(tournamentId: string): Promise<RankMovementData[]>;
   saveRound(result: RoundResult): Promise<RoundResult>;

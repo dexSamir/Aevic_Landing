@@ -433,6 +433,7 @@ export const fixtureServices: PlatformServices = {
     async getForEligibleTeam() { await wait(80); return clone(new URLSearchParams(window.location.search).get('scenario') === 'room-ready' ? releasedSyntheticRoom : syntheticRoom); },
   },
   results: {
+    ownExport: async () => ({ teamId: currentTeam.id, reason: 'no-result' as const }),
     async roundEntries() { return []; },
     async leaderboard(tournamentId) { await wait(70); return clone(leaderboard.filter((result) => result.tournamentId === tournamentId)); },
     async snapshots() { await wait(40); return []; },

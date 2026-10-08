@@ -24,6 +24,7 @@ export interface SharecardGeneratorProps {
   showFamilySelector?: boolean;
   compactDownload?: boolean;
   downloadOnly?: boolean;
+  beforeExport?: () => Promise<void>;
   initialLeaderboardLimit?: LeaderboardLimit;
 }
 
@@ -108,6 +109,7 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
     if (!previewRef.current || exporting || !exportReady) return;
     const poster = previewRef.current.querySelector<HTMLElement>('.generated-poster');
     if (!poster) return;
+    await props.beforeExport?.();
     const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--color-bg-deep').trim();
     return renderPng(poster, { width: POSTER_SIZE, backgroundColor });
   };

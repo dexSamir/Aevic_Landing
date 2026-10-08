@@ -331,7 +331,7 @@
 .product-shell--team .data-table td { font-size:.875rem; }
 .product-shell--team .data-table tr:hover td { background:var(--team-surface-hover); }
 .product-shell--team .mobile-data-list > article { padding:1rem; border:0; gap:.75rem; }
-.product-shell--team .mobile-data-list > article + article { border-top:1px solid var(--color-border); }
+.product-shell--team .mobile-data-list > article + article { border-top: 0; }
 .product-shell--team .mobile-data-list__details { color:var(--team-text-muted); font-size:.8125rem; }
 .product-shell--team .notification-center-list { margin-bottom:1.5rem; }
 .product-shell--team .notification-item { padding:1.25rem 0; border:0; background:transparent; grid-template-columns:2rem minmax(0,1fr); gap:.75rem; }
@@ -342,7 +342,7 @@
 .product-shell--team .notification-item p { color:var(--team-text-muted); font-size:.875rem; line-height:1.65; }
 .product-shell--team .notification-item time { font-size:.75rem; white-space:nowrap; color:var(--team-text-muted); }
 .product-shell--team .notification-center-list > div { padding:.25rem 1.5rem; }
-.product-shell--team .notification-center-list > div + div,.product-shell--team .inbox-list > div + div { border-top:1px solid var(--color-border); }
+.product-shell--team .notification-center-list > div + div,.product-shell--team .inbox-list > div + div { border-top: 0; }
 .product-shell--team .inbox-list { padding:0 1.5rem; }
 .product-shell--team .inbox-list > div > .button { margin:0 0 1rem 2.75rem; }
 /* Statistics: value first, quiet labels, explicit low-sample annotation. */
@@ -354,7 +354,7 @@
 .product-shell--team .career-map-ledger dl { margin:0; }
 .product-shell--team .career-map-ledger dl > div { padding:.5rem 0; }
 .product-shell--team .career-map-ledger dd { font-weight:600; }
-.product-shell--team .career-map-ledger p { margin:1.25rem 0 0; padding-top:1rem; border-top:1px solid var(--color-border); line-height:1.6; }
+.product-shell--team .career-map-ledger p { margin:1.25rem 0 0; padding-top:1rem; border-top: 0; line-height:1.6; }
 .product-shell--team .team-wrapped-entry { scroll-margin-top:6rem; }
 .product-shell--team .team-wrapped-entry > p { max-width:36ch; line-height:1.6; }
 .product-shell--team .overview-identity { padding-bottom:1.75rem; }
@@ -362,7 +362,7 @@
 .product-shell--team .overview-command-time time { font-family:var(--font-ui); font-variant-numeric:tabular-nums; }
 .product-shell--team .overview-section-title a,.product-shell--team .overview-section-link { font-size:.8125rem; }
 .product-shell--team .overview-updates { margin-top:2rem; }
-.product-shell--team .overview-updates li { border-bottom:1px solid var(--color-border); }
+.product-shell--team .overview-updates li { border-bottom: 0; }
 .product-shell--team .overview-updates li > a { min-width:44px; min-height:44px; display:grid; place-items:center; border-radius:8px; }
 .product-shell--team .history-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr)); gap:1rem; margin-block:1.5rem 2rem; }
 .product-shell--team .history-summary > div { padding:1rem; border-radius:10px; background:var(--team-surface-primary); }
@@ -439,7 +439,7 @@
 .product-shell--team .profile-card-studio > aside { padding:1.5rem; }
 .product-shell--team .asset-type-selector > button:hover { background:var(--team-surface-hover); }
 .product-shell--team .profile-card-studio :is(.card-format-switch,.card-theme-switch) button { min-height:44px; }
-.product-shell--team .team-profile-preview__roster p + p { border-top:1px solid var(--color-border); }
+.product-shell--team .team-profile-preview__roster p + p { border-top: 0; }
 .product-shell--team .product-topbar .product-topbar__route > span { font:600 .6875rem/1.5 var(--font-ui); letter-spacing:.06em; }
 .product-shell--team .side-nav__section { margin-bottom:.25rem; }
 .product-shell--team .side-nav__group { margin-top:.5rem; }

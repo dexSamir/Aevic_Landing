@@ -44,6 +44,14 @@ app.post('/auth/logout',async(c,next)=>{
 app.post('/tournaments/:id/entries',async c=>{const input=await body(c,z.object({teamId:z.string()}).strict());ownTeam(c,input.teamId);return c.json(await joinTournament(platform(c).sql,input.teamId,uuid(c),actor(c)),201);});
 app.post('/tournaments/:id/check-in',async c=>c.json(await checkIn(platform(c).sql,captain(c),uuid(c),actor(c))));
 app.post('/tournaments/:id/withdraw',async c=>{const input=await body(c,z.object({reason:text(0,1000)}));await withdraw(platform(c).sql,captain(c),uuid(c),input.reason,actor(c));return c.body(null,204);});
+// The workspace comes from verified cookies/authority, never a caller-supplied team ID.
+app.get('/team/tournaments/:id/result-export',async c=>{
+ const id=uuid(c),owner=captain(c),r=platform(c);
+ const registrations=await r.sql`select r.id from aevic_platform.tournament_registrations r join aevic.tournaments t on t.id=r.tournament_id where r.tournament_id=${id} and r.team_id=${owner} and r.status='confirmed' and t.status<>'draft' and t.archived_at is null`;
+ if(!registrations.length)return c.json({teamId:owner,reason:'not-participant'});
+ const result=(await r.tournamentStandings(id)).find(row=>row.teamId===owner);
+ return c.json({teamId:owner,...(result?{result}:{reason:'no-result'})});
+});
 app.get('/team/tournaments/:id/rounds/:roundId/room',async c=>c.json(await room(platform(c).sql,captain(c),uuid(c),uuid(c,'roundId'))));
 app.post('/admin/tournaments',async c=>{admin(c,['tournament-manager']);const result=await createTournament(platform(c).sql,actor(c),await body(c,tournamentInput),c.req.header('idempotency-key'));return c.json(await platform(c).tournament(result.id),201);});
 app.patch('/admin/tournaments/:id',async c=>{admin(c,['tournament-manager']);const id=uuid(c);await editTournament(platform(c).sql,actor(c),id,await body(c,editTournamentInput));return c.json(await platform(c).tournament(id));});

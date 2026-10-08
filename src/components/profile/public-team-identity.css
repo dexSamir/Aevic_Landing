@@ -1,4 +1,4 @@
-.public-team-hero { background: linear-gradient(90deg, rgba(5,5,7,.8), rgba(5,5,7,.55) 36%, rgba(5,5,7,.08) 80%), linear-gradient(0deg, #080a0b 0%, transparent 38%), var(--public-team-hero-image) center / cover; border-bottom: 1px solid var(--team-line); }
+.public-team-hero { background: linear-gradient(90deg, rgba(5,5,7,.8), rgba(5,5,7,.55) 36%, rgba(5,5,7,.08) 80%), linear-gradient(0deg, #080a0b 0%, transparent 38%), var(--public-team-hero-image) center / cover; border-bottom: 0; }
 .public-team-hero__grid { min-height: clamp(480px, 44vw, 650px); padding-top: calc(var(--header-height) + 48px); padding-bottom: 32px; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr); align-items: center; gap: 36px; }
 .public-team-hero__copy { min-width: 0; }
 .public-team-eyebrow { display: block; color: var(--team-gold); font: 700 16px/1.4 var(--font-public-display); letter-spacing: .045em; margin-bottom: 10px; }

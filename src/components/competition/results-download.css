@@ -19,3 +19,5 @@
 .sharecard-studio.sharecard-studio--download-only > aside { display: block; padding: 0; background: transparent; box-shadow: none; }
 .sharecard-studio.sharecard-studio--download-only .studio-actions .button { width: 100%; }
 @media(max-width:420px) { .results-download-options { grid-template-columns: 1fr; } .results-download-preview { aspect-ratio: 1.6; } }
+
+.modal:has(.results-download-options) { border: 0; outline: none; }

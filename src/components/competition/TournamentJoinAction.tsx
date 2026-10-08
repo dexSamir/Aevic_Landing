@@ -2,6 +2,7 @@ import { Check, CheckCircle2, LoaderCircle, LockKeyhole, ShieldAlert, UserPlus, 
 import { useEffect, useId, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { competitionNow, serviceCapabilities, services } from '../../services';
+import { useOptionalPublicSession } from '../../services/PublicSessionContext';
 import { ApiError } from '../../services/apiError';
 import { invalidateQuery } from '../../services/queryCache';
 import type { Team, Tournament, TournamentCalendarParticipation, TournamentJoinFailureCode } from '../../types/domain';
@@ -30,6 +31,7 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
   onJoined?: () => void;
 }) {
   const actionId = useId();
+  const sharedIdentity = useOptionalPublicSession();
   const [checking, setChecking] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [team, setTeam] = useState<Team>();
@@ -44,11 +46,14 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
     let active = true;
     if (!serviceCapabilities.publicSession) { setChecking(false); return; }
     setChecking(true); setFailure(undefined); setSuccess(''); setParticipation(undefined); setTeam(undefined);
-    void services.auth.getSession().then(async (session) => {
+    if (sharedIdentity?.loading) return () => { active = false; };
+    if (sharedIdentity?.error) { setFailure(normalizeFailure(sharedIdentity.error)); setChecking(false); return; }
+    const sessionRead = sharedIdentity ? Promise.resolve(sharedIdentity.session) : services.auth.getSession();
+    void sessionRead.then(async (session) => {
       if (!active) return;
       if (!session || !['captain', 'team', 'admin'].includes(session.role)) { setAuthenticated(false); return; }
       setAuthenticated(true);
-      const currentTeam = await services.teams.current();
+      const currentTeam = sharedIdentity ? sharedIdentity.team : await services.teams.current();
       if (!active) return;
       setTeam(currentTeam);
       if (!currentTeam) return;
@@ -60,7 +65,7 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
       onStateChange?.(nextParticipation, currentTeam);
     }).catch((error) => { if (active) setFailure(normalizeFailure(error)); }).finally(() => { if (active) setChecking(false); });
     return () => { active = false; };
-  }, [attempt, tournament.id, refreshKey]);
+  }, [attempt, tournament.id, refreshKey, sharedIdentity?.session, sharedIdentity?.team, sharedIdentity?.loading, sharedIdentity?.error]);
 
   const state = resolveTournamentJoinState({ checking, authenticated, team, tournament, participation, registering, failureCode: failure?.code, now: currentTime ?? competitionNow() });
   const dateLabel = useMemo(() => new Date(tournament.startsAt).toLocaleDateString('az-AZ', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Baku' }), [tournament.startsAt]);
@@ -116,7 +121,7 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
     if (state === 'full') return <Button variant="secondary" disabled icon={<Users size={17} />}>Slot yoxdur</Button>;
     if (state === 'closed') return <Button variant="secondary" disabled icon={<LockKeyhole size={17} />}>Qeydiyyat bağlanıb</Button>;
     if (state === 'ineligible') return <Button variant="secondary" disabled icon={<ShieldAlert size={17} />}>Komanda uyğun deyil</Button>;
-    if (state === 'error') return <Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>Yenidən yoxla</Button>;
+    if (state === 'error') return <Button variant="secondary" onClick={() => { if (sharedIdentity?.error) sharedIdentity.refresh(); else setAttempt((value) => value + 1); }}>Yenidən yoxla</Button>;
     return <Button variant="secondary" disabled loading>Status yoxlanılır</Button>;
   })();
 

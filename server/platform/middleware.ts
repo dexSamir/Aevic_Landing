@@ -51,6 +51,7 @@ export function platformMiddleware(testSql?:Sql){
     if(revoked.length)throw new ServiceError(401,'SESSION_REVOKED');
     const [factor]=await sql`select f.enabled_at,s.mfa_verified_at from aevic_platform.mfa_factors f left join aevic_platform.sessions s on s.token_digest=${tokenDigest(captainToken)} where f.team_id=${row.id} and f.enabled_at is not null`;
     if(factor&&(!factor.mfa_verified_at||factor.mfa_verified_at<factor.enabled_at))throw new ServiceError(401,'MFA_REQUIRED');
+    c.set('verifiedCaptain',row);
     identity.accountId=row.id;identity.teamId=row.id;
     await sql`insert into aevic_platform.sessions(token_digest,team_id,expires_at,device) values(${tokenDigest(captainToken)},${row.id},to_timestamp(${Number(captainToken.split('.')[1])}),${(c.req.header('user-agent')??'Browser').slice(0,300)}) on conflict(token_digest) do update set last_active_at=case when aevic_platform.sessions.last_active_at<now()-interval '5 minutes' then now() else aevic_platform.sessions.last_active_at end`;
    }catch(error){if(error instanceof ServiceError&&['SESSION_REVOKED','MFA_REQUIRED'].includes(error.code)&&!c.req.path.startsWith('/api/auth/'))throw error;

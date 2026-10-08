@@ -32,7 +32,7 @@
   display: grid;
 }
 .faq-list details {
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 0;
 }
 .faq-list summary {
   min-height: 3.5rem;

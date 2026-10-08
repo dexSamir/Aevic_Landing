@@ -8,7 +8,7 @@
 .roster-groups > section { display: grid; gap: var(--space-sm); }
 .roster-groups > section > header { display: flex; justify-content: space-between; gap: var(--space-md); color: var(--color-text-muted); font-size: var(--text-xs); }
 .roster-groups > section > header strong { color: var(--color-text-soft); }
-.roster-group--substitute { padding-top: var(--space-md); border-top: 1px solid var(--color-border); }
+.roster-group--substitute { padding-top: var(--space-md); border-top: 0; }
 .roster-fields { display: grid; gap: var(--space-sm); }
 .roster-fields > div { display: grid; grid-template-columns: auto minmax(0, 1.2fr) minmax(0, 1fr); gap: var(--space-sm); align-items: end; padding: var(--space-md); background: var(--color-bg-secondary); border-radius: var(--radius-md); }
 .player-index { align-self: center; color: var(--color-brand-primary); font-family: var(--font-heading); font-size: var(--text-xs); }
@@ -46,7 +46,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-md);
   padding: var(--space-md);
-  border-top: 1px solid var(--border-hairline);
+  border-top: 0;
   animation: roster-fields-enter var(--motion-normal) var(--ease-enter) both;
 }
 .roster-player__fields > :is(.player-check-status, .player-lookup-result) { grid-column: 1 / -1; }

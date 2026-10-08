@@ -73,7 +73,7 @@ export class Repository {
  }
  async comparisons():Promise<TeamComparisonRecord[]> {
   const [teams,results,standings,tournaments]=await Promise.all([this.teams(),this.results(),this.standings(),this.tournaments()]);
-  return teams.filter(t=>t.approvalStatus==='approved'&&!t.archivedAt).map(team=>{
+  return teams.filter(t=>['approved','pending'].includes(t.approvalStatus)&&!t.archivedAt).map(team=>{
    const rows=results.filter(r=>r.teamId===team.id);
    return {teamId:team.id,teamName:team.name,legacyHistoryIncomplete:team.legacyHistoryIncomplete,matches:rows.length,finishes:rows.reduce((s,r)=>s+r.finishes,0),wwcd:rows.filter(r=>r.placement===1).length,podiums:rows.filter(r=>r.placement<=3).length,
     averagePlacement:rows.length?rows.reduce((s,r)=>s+r.placement,0)/rows.length:undefined,averagePoints:rows.length?rows.reduce((s,r)=>s+r.totalPoints,0)/rows.length:undefined,

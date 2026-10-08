@@ -193,6 +193,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
     },
     rooms: { getForEligibleTeam: (tournamentId, roundId) => request(`/team/tournaments/${encodeURIComponent(tournamentId)}/rounds/${encodeURIComponent(roundId)}/room`) },
     results: {
+      ownExport: (id) => request(`/team/tournaments/${encodeURIComponent(id)}/result-export`),
       roundEntries: (roundId) => request(`/admin/results?roundId=${encodeURIComponent(roundId)}`),
       leaderboard: (tournamentId) => request(`/leaderboards/${encodeURIComponent(tournamentId)}`),
       snapshots: (tournamentId) => request(`/leaderboards/${encodeURIComponent(tournamentId)}/snapshots`),

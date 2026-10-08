@@ -1,9 +1,9 @@
 /* Route-owned rules; source order retained, including responsive overrides. */
 
-.competition-awareness { --awareness-accent: var(--color-info); position: relative; display: grid; margin-bottom: var(--space-lg); overflow: hidden; color: var(--color-text-primary); background: color-mix(in srgb, var(--color-bg-deep) 92%, var(--awareness-accent)); border-block: 1px solid var(--color-border-strong); }
+.competition-awareness { --awareness-accent: var(--color-info); position: relative; display: grid; margin-bottom: var(--space-lg); overflow: hidden; color: var(--color-text-primary); background: color-mix(in srgb, var(--color-bg-deep) 92%, var(--awareness-accent)); border-block: 0; }
 .competition-awareness--critical { --awareness-accent: var(--color-danger); }
 .competition-awareness--important { --awareness-accent: var(--color-warning); }
-.competition-awareness__masthead { min-height: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); padding-inline: var(--space-lg); color: var(--color-text-soft); border-bottom: 1px solid var(--color-border); font-size: .68rem; font-weight: 700; letter-spacing: .08em; }
+.competition-awareness__masthead { min-height: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); padding-inline: var(--space-lg); color: var(--color-text-soft); border-bottom: 0; font-size: .68rem; font-weight: 700; letter-spacing: .08em; }
 .competition-awareness__masthead > span:first-child { color: var(--awareness-accent); }
 .competition-awareness__primary { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-md); padding: var(--space-lg); }
 .competition-awareness__icon { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; color: var(--awareness-accent); background: color-mix(in srgb, var(--awareness-accent) 12%, var(--color-bg-deep)); clip-path: polygon(14% 0, 100% 0, 86% 100%, 0 100%); }
@@ -17,8 +17,8 @@
 .competition-awareness__action, .competition-awareness__compact-action, .competition-awareness__all { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: .3rem; color: var(--color-text-primary); font-size: var(--text-sm); font-weight: 700; }
 .competition-awareness__action { padding-inline: var(--space-md); border: 1px solid color-mix(in srgb, var(--awareness-accent) 48%, var(--color-border)); border-radius: var(--radius-sm); }
 .competition-awareness__action:hover, .competition-awareness__action:focus-visible { color: var(--awareness-accent); background: color-mix(in srgb, var(--awareness-accent) 9%, transparent); }
-.competition-awareness__secondary { display: grid; margin: 0; padding: 0 var(--space-lg); list-style: none; border-top: 1px solid var(--color-border); }
-.competition-awareness__secondary li { min-width: 0; min-height: 3.25rem; display: grid; grid-template-columns: 5rem minmax(0, 1fr) auto 3.25rem; align-items: center; gap: var(--space-sm); border-bottom: 1px solid var(--color-border); }
+.competition-awareness__secondary { display: grid; margin: 0; padding: 0 var(--space-lg); list-style: none; border-top: 0; }
+.competition-awareness__secondary li { min-width: 0; min-height: 3.25rem; display: grid; grid-template-columns: 5rem minmax(0, 1fr) auto 3.25rem; align-items: center; gap: var(--space-sm); border-bottom: 0; }
 .competition-awareness__secondary li:last-child { border-bottom: 0; }
 .competition-awareness__secondary li[data-seen='true'] { color: var(--color-text-muted); }
 .competition-awareness__secondary li > span { color: var(--color-text-soft); font: 700 .62rem/1 var(--font-competition); letter-spacing: .06em; }
@@ -38,7 +38,7 @@
   .competition-awareness__primary { grid-template-columns: auto minmax(0, 1fr); padding: var(--space-md); }
   .competition-awareness__action { grid-column: 2; justify-self: start; }
   .competition-awareness__secondary, .competition-awareness__all { display: none; }
-  .competition-awareness__mobile-all { min-height: 44px; display: inline-flex; align-items: center; justify-self: end; gap: .3rem; padding-inline: var(--space-md); color: var(--color-text-muted); border-top: 1px solid var(--border-hairline); font-size: var(--text-sm); font-weight: 700; }
+  .competition-awareness__mobile-all { min-height: 44px; display: inline-flex; align-items: center; justify-self: end; gap: .3rem; padding-inline: var(--space-md); color: var(--color-text-muted); border-top: 0; font-size: var(--text-sm); font-weight: 700; }
   .competition-awareness--empty { grid-template-columns: 1fr; }
   .competition-awareness--empty > a { justify-self: start; }
 }

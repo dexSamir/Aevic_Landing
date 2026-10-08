@@ -61,7 +61,7 @@
 .wrapped-story--summary .wrapped-story__content > span { margin-top: .25rem; }
 .wrapped-story--summary .wrapped-story__content h1 { max-width: none; font-size: clamp(1.55rem, 5vw, 2.35rem); }
 .wrapped-story--summary .wrapped-story__content > p { margin-top: 0; font-size: .85rem; }
-.wrapped-summary-rail { width: 100%; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin: var(--space-sm) 0 0; border-block: 1px solid var(--color-border); }
+.wrapped-summary-rail { width: 100%; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin: var(--space-sm) 0 0; border-block: 0; }
 .wrapped-summary-rail > div { min-width: 0; display: grid; gap: .15rem; padding: .65rem .35rem; border-right: 1px solid var(--color-border); }
 .wrapped-summary-rail > div:last-child { border-right: 0; }
 .wrapped-summary-rail dt { color: var(--color-text-soft); font-size: .58rem; text-transform: uppercase; }

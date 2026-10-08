@@ -1,6 +1,6 @@
 
 
-.tournament-operation-identity { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(18rem, auto); align-items: center; gap: var(--space-xl); margin-bottom: var(--space-xl); padding-block: var(--space-lg); border-block: 1px solid var(--color-border); }
+.tournament-operation-identity { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(18rem, auto); align-items: center; gap: var(--space-xl); margin-bottom: var(--space-xl); padding-block: var(--space-lg); border-block: 0; }
 .tournament-operation-identity > div:first-child { display: grid; gap: .3rem; }
 .tournament-operation-identity > div:first-child > span { color: var(--color-brand-primary); font-size: var(--text-xs); font-weight: 700; }
 .tournament-operation-identity h2 { font-family: var(--font-heading); font-size: var(--text-lg); }
@@ -12,7 +12,7 @@
 .tournament-operations-console { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(18rem, .75fr); gap: 1px; margin-bottom: var(--space-xl); background: var(--color-border); }
 .tournament-operations-console > section { padding: var(--space-lg); background: var(--color-bg-secondary); }
 .tournament-briefing { display: grid; gap: var(--space-md); }
-.tournament-briefing > div { display: grid; grid-template-columns: auto 1fr; gap: var(--space-sm); align-items: start; padding-top: var(--space-sm); border-top: 1px solid var(--color-border); }
+.tournament-briefing > div { display: grid; grid-template-columns: auto 1fr; gap: var(--space-sm); align-items: start; padding-top: var(--space-sm); border-top: 0; }
 .tournament-briefing > div > svg { color: var(--color-brand-primary); }
 .tournament-briefing > div > span { display: grid; }
 .tournament-briefing small { color: var(--color-text-muted); }

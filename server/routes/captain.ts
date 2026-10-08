@@ -51,6 +51,11 @@ export function captainRoutes(deps:CaptainDependencies={}) {
  });
  app.get('/me/session',async c=>{
   if(!cookie(c))return c.json(null);
+  if(c.get('platform')){
+   const row=c.get('verifiedCaptain');
+   if(!row){clear(c);return c.json(null);}
+   return c.json({user:accountUser(row),role:'captain'});
+  }
   try{const auth=service(c);const row=await auth.authenticate(cookie(c));return c.json(c.get('platform')?{user:accountUser(row),role:'captain'}:auth.sessionView(row));}catch(error){if(error instanceof ServiceError&&error.status===401){clear(c);return c.json(null);}throw error;}
  });
  app.post('/auth/logout',async c=>{try{if(cookie(c))await service(c).logout(cookie(c));}finally{clear(c);}return c.body(null,204);});
