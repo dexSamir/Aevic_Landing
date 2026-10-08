@@ -19,6 +19,7 @@ import '../styles/public-shell.css';
 import { PublicSessionProvider, usePublicSession } from '../services/PublicSessionContext';
 import { activePublicRoute } from '../utils/routes';
 import { PublicFooter } from './PublicFooter';
+import { useFooterVisibility } from './useFooterVisibility';
 import { usePlatformQuery } from '../services/queryCache';
 
 function PublicNavLinks({ onNavigate, drawer = false }: { onNavigate?: () => void; drawer?: boolean }) {
@@ -129,6 +130,7 @@ export function PublicHeader() {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const footerVisible = useFooterVisibility(pathname);
   const transparentAtTop = pathname === '/' || pathname === '/teams' || /^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname);
 
   useEffect(() => {
@@ -142,7 +144,7 @@ export function PublicHeader() {
     return () => { window.cancelAnimationFrame(frame); window.removeEventListener('scroll', update); };
   }, [pathname]);
 
-  const mode = transparentAtTop && !scrolled ? 'hero-top' : scrolled ? 'scrolled' : 'standard-top';
+  const mode = footerVisible || (transparentAtTop && !scrolled) ? 'hero-top' : scrolled ? 'scrolled' : 'standard-top';
   return <><header className={`site-header site-header--${mode}`} data-public-header-state={mode}><div className="container site-header__inner"><BrandMark variant="navigation" /><div className="site-header__desktop"><PublicNavLinks /></div><div className="site-header__tools"><Link className="public-rules-link" aria-label="Yarış qaydaları" to={publicNavigation.rules.to} aria-current={pathname === '/regulations' ? 'page' : undefined}><FileText size={17} aria-hidden="true" /><span>{publicNavigation.rules.label}</span></Link><div className="site-header__auth"><PublicAuthActions /></div><IconButton className="site-header__menu" label="Menyunu aç" aria-expanded={menuOpen} aria-controls="public-mobile-menu" onClick={() => setMenuOpen(true)}><Menu size={21} /></IconButton></div></div></header><Drawer id="public-mobile-menu" open={menuOpen} title="AEVIC menyu" onClose={() => setMenuOpen(false)}><div className="drawer-public-nav"><PublicNavLinks drawer onNavigate={() => setMenuOpen(false)} /><Link className="public-rules-link" to={publicNavigation.rules.to} onClick={() => setMenuOpen(false)}>{publicNavigation.rules.label}</Link><PublicAuthActions onNavigate={() => setMenuOpen(false)} /></div><div className="drawer-install"><InstallAevic /></div></Drawer></>;
 }
 
@@ -151,7 +153,7 @@ export function PublicLayout() {
   const { pathname } = useLocation();
   const independentTeamProfile = /^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname);
   const needsData = !independentTeamProfile && (pathname === '/leaderboard' || ['/teams', '/tournaments', '/organizations'].some((root) => pathname === root || pathname.startsWith(root + '/')));
-  return <PublicSessionProvider><div className={`site-shell${pathname === '/tournaments' ? ' public-shell--wide' : ''}`}><RouteSeo /><OfflineNotice /><a className="skip-link" href="#main-content">Əsas məzmuna keç</a><PublicHeader /><main id="main-content" tabIndex={-1}>{settings?.maintenanceMessage&&<aside className="platform-announcement container" role="status">{settings.maintenanceMessage}</aside>}{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter supportEmail={settings?.supportEmail} registrationEnabled={settings?.registrationEnabled} showCta={pathname !== '/matches' && pathname !== '/tournaments' && pathname !== '/teams' && !/^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname)} /></div></PublicSessionProvider>;
+  return <PublicSessionProvider><div className={`site-shell${pathname === '/tournaments' ? ' public-shell--wide' : ''}`}><RouteSeo /><OfflineNotice /><a className="skip-link" href="#main-content">Əsas məzmuna keç</a><PublicHeader /><main id="main-content" tabIndex={-1}>{settings?.maintenanceMessage&&<aside className="platform-announcement container" role="status">{settings.maintenanceMessage}</aside>}{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter registrationEnabled={settings?.registrationEnabled} showCta={pathname !== '/matches' && pathname !== '/tournaments' && pathname !== '/teams' && !/^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname)} /></div></PublicSessionProvider>;
 }
 
 export function RouteError() {

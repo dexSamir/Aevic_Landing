@@ -30,8 +30,6 @@ export function HomePage() {
   }).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
   const teamRail = useRef<HTMLDivElement>(null);
   const moveTeams = (direction: number) => { const rail = teamRail.current; if (rail) rail.scrollBy({ left: direction * rail.clientWidth * .8, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }); };
-  const recordQuery = usePlatformQuery({ key: 'records', scope: 'public', query: () => services.records.list(), enabled: serviceCapabilities.publicRecords, staleTime: queryPolicy.historical });
-  const featuredRecord = recordQuery.data?.[0];
   const daysUntil = featured ? Math.max(0, Math.ceil((Date.parse(featured.startsAt) - new Date(competitionNow()).getTime()) / 86_400_000)) : 0;
   const startTime = featured ? formatEventTime(featured.startsAt, AEVIC_EVENT_TIMEZONE) : '';
   return <>
@@ -72,9 +70,7 @@ export function HomePage() {
           </RosterTeamCard>
         </div>)}</div></> : <EmptyState title="Komandanızla səhnəyə çıxın" body="Hazırda ictimai komanda profili yoxdur. Komandanızı yaradın və PUBG Mobile icmasına qoşulun." action={<Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/regulations#rule-1'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'İştirak şərtlərinə bax'}</span><ArrowRight size={17} /></Link>} />}</div></section>
 
-    {featuredRecord && <section className="home-record-spotlight"><MediaBackdrop {...homeArtwork.record} sizes="100vw" className="home-record-spotlight__media" focalDesktop="65% 0%" focalMobile="70% 40%" /><div className="container" data-reveal data-reveal-variant="fade-up"><div><span>REKORDLARDA AEVIC</span><strong>{featuredRecord.value}<small>{featuredRecord.unit}</small></strong><h2>{featuredRecord.label}</h2><p>{featuredRecord.teamName} · {featuredRecord.map || featuredRecord.tournamentName} · {'rəsmi rekord'}</p></div><Link className="button button--secondary" to="/records"><span>Statistikaları araşdır</span><ArrowRight size={17} /></Link></div></section>}
 
-    {recordQuery.error && <p className="container" role="status">Rekord məlumatı yenilənmədi. <Link className="text-link" to="/records">Rekord mərkəzinə keç</Link></p>}
     <BrandJoinCta />
   </>;
 }

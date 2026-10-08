@@ -1,4 +1,4 @@
-/* Home composition follows the supplied arena → competition → maps → teams → record → brand artwork. */
+/* Home composition follows the supplied arena → competition → maps → teams → brand artwork. */
 .home-live-hero { position: relative; isolation: isolate; min-height: clamp(42rem, 94svh, 58rem); display: grid; overflow: hidden; background: var(--surface-command); }
 .home-live-hero__media { z-index: -2; }
 .home-live-hero__media > picture > img { opacity: 1; transform: none; }
@@ -67,18 +67,6 @@
 .home-ranked-team strong { font: 700 .9rem/1.3 var(--font-ui); }
 .home-ranked-team .roster-team-card__info > span { font-size: .8rem; }
 .home-ranked-team small { font-size: .65rem; color: var(--text-muted); }
-.home-record-spotlight { position: relative; isolation: isolate; min-height: max(24rem, 43vw); display: grid; align-items: center; padding-block: 3.5rem; background: var(--surface-command); border-block: 0; }
-.home-record-spotlight__media { z-index: -1; }
-.home-record-spotlight__media > picture > img { object-position: center top; }
-.home-record-spotlight__media .media-backdrop__shade { background: linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.24) 42%,transparent 72%); }
-.home-record-spotlight > .container { display: flex; align-items: end; justify-content: space-between; gap: 2rem; }
-.home-record-spotlight > .container > div { display: grid; gap: .65rem; max-width: 33rem; }
-.home-record-spotlight span { color: var(--gold-primary); font: 700 .7rem/1.5 var(--font-ui); letter-spacing: .08em; }
-.home-record-spotlight strong { color: var(--gold-primary); font: 700 clamp(5.5rem,9vw,8rem)/1 var(--font-public-display); }
-.home-record-spotlight strong small { font: 700 1rem/1 var(--font-ui); margin-left: .75rem; text-transform: uppercase; }
-.home-record-spotlight h2 { font: 700 clamp(1.75rem,2.8vw,2.75rem)/1.1 var(--font-public-display); }
-.home-record-spotlight p { color: var(--text-secondary); font-size: .8rem; }
-.home-record-spotlight .button span { color: inherit; letter-spacing: 0; text-transform: none; }
 .home-brand-statement { position: relative; isolation: isolate; display: grid; align-items: center; min-height: clamp(22rem,30vw,32rem); background: var(--gold-primary); color: var(--text-on-gold); }
 .home-brand-statement__media { z-index: -1; }
 .home-brand-statement__media .media-backdrop__shade { background: none; }
@@ -87,8 +75,8 @@
 .home-brand-statement h2 { font: 700 clamp(2.25rem,3.7vw,4rem)/1.02 var(--font-public-display); text-transform: uppercase; }
 .home-brand-statement p { margin-block: 1rem; font-size: 1rem; line-height: 1.5; }
 .home-brand-statement .button { background: var(--surface-command); color: var(--text-primary); font-size: .8rem; }
-.home-live-hero .button svg, .home-section-intro > a svg, .home-record-spotlight .button svg, .home-brand-statement .button svg, .home-competition-rail__action svg { transition: transform 220ms ease; }
-.home-live-hero .button:hover svg, .home-section-intro > a:hover svg, .home-record-spotlight .button:hover svg, .home-brand-statement .button:hover svg, .home-competition-rail__action:hover svg { transform: translateX(4px); }
+.home-live-hero .button svg, .home-section-intro > a svg, .home-brand-statement .button svg, .home-competition-rail__action svg { transition: transform 220ms ease; }
+.home-live-hero .button:hover svg, .home-section-intro > a:hover svg, .home-brand-statement .button:hover svg, .home-competition-rail__action:hover svg { transform: translateX(4px); }
 @media (max-width: 1100px) {
   .home-competition-rail { grid-template-columns: minmax(0,1fr) auto; gap: 1rem; }
   .home-competition-rail dl { grid-column: 1 / -1; grid-row: 2; }
@@ -126,10 +114,6 @@
   .home-team-stage { grid-auto-columns: 46%; }
   .home-team-controls button { width: 44px; height: 44px; }
   .home-ranked-team { min-height: 14rem; }
-  .home-record-spotlight { min-height: 0; display: flex; flex-direction: column; align-items: stretch; padding: 0; }
-  .home-record-spotlight > .container { order: -1; flex-direction: column; align-items: start; padding-block: 2.5rem 1rem; gap: 1.25rem; }
-  .home-record-spotlight__media { position: relative; width: 100%; height: 16rem; z-index: 0; }
-  .home-record-spotlight__media .media-backdrop__shade { background: linear-gradient(180deg,var(--surface-command),transparent 35%); }
   .home-brand-statement { display: flex; flex-direction: column; align-items: stretch; }
   .home-brand-statement > .container { order: -1; padding-block: 2.5rem 0; }
   .home-brand-statement > .container > div { max-width: 100%; }
@@ -144,7 +128,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .home-team-stage { scroll-behavior: auto; }
-  .home-team-stage .team-logo-tile .team-mark, .home-live-hero .button svg, .home-section-intro > a svg, .home-record-spotlight .button svg, .home-brand-statement .button svg, .home-competition-rail__action svg { transition: none; transform: none; }
+  .home-team-stage .team-logo-tile .team-mark, .home-live-hero .button svg, .home-section-intro > a svg, .home-brand-statement .button svg, .home-competition-rail__action svg { transition: none; transform: none; }
 }
 
 /* The pending, empty, failed and populated rails share their real content envelope. */

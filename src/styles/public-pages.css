@@ -177,7 +177,7 @@
 /* Tournament planning: reference-led feature, calendar and event timeline. */
 .tournaments-calendar-page { --planning-live: #a93de0; --planning-scheduled: #77449c; --planning-completed: #85858c; padding: 112px 0 24px; background: var(--color-bg-primary); }
 .public-shell--wide { --tournament-gutter: clamp(32px, 4vw, 72px); }
-.public-shell--wide :is(.tournaments-calendar-page > .container, .site-header__inner, .home-brand-statement > .container, .site-footer__inner) { width: min(calc(100% - var(--tournament-gutter) * 2), 1776px); max-width: none; padding-inline: 0; }
+.public-shell--wide :is(.tournaments-calendar-page > .container, .site-header__inner, .home-brand-statement > .container) { width: min(calc(100% - var(--tournament-gutter) * 2), 1776px); max-width: none; padding-inline: 0; }
 @media (max-width: 1439px) { .public-shell--wide { --tournament-gutter: clamp(24px, 3vw, 48px); } }
 @media (max-width: 1023px) { .public-shell--wide { --tournament-gutter: 28px; } }
 @media (max-width: 767px) { .public-shell--wide { --tournament-gutter: 18px; } }
