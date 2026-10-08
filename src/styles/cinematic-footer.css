@@ -1,0 +1,93 @@
+.cinematic-footer {
+  position: relative;
+  isolation: isolate;
+  container-type: inline-size;
+  min-width: 0;
+  color: #eeeef0;
+  background: #050506;
+  font-family: var(--font-ui), sans-serif;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+.cinematic-footer__scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(1.5rem, 4cqi, 4.5rem);
+  background-image: linear-gradient(180deg, #0004 0%, #0001 32%, #0005 56%, #000b 83%, #000e 100%), url('../assets/brand/aevic-gamers-footer.webp');
+  background-size: cover;
+  background-position: center, center 42%;
+}
+.cinematic-footer__scene::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, transparent 0, transparent calc(12.5% - 1px), #ffffff0d calc(12.5% - 1px), #ffffff0d 12.5%);
+  mask-image: linear-gradient(#0009, #000, transparent);
+}
+.cinematic-footer__top { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr auto; align-items: start; gap: 2rem; }
+.cinematic-footer__top p { margin: 0; color: #c9c9cd; font-size: .875rem; line-height: 1.4; }
+.cinematic-footer__top .brand-mark { justify-self: start; }
+.cinematic-footer__top .brand-emblem, .cinematic-footer__top .brand-emblem img { width: 76px; height: 88px; object-fit: contain; }
+.cinematic-footer a { color: #d4d4d8; text-decoration: none; transition: color 300ms ease, background-color 300ms ease; }
+.cinematic-footer a:hover { color: #f0ca6e; }
+.cinematic-footer :is(a, nav):focus-visible { outline: 2px solid #f0ca6e; outline-offset: 5px; border-radius: 2px; }
+.cinematic-footer__follow { display: flex; align-items: center; gap: .75rem; min-height: 44px; font: 500 .75rem/1.5 var(--font-ui); letter-spacing: .1em; white-space: nowrap; }
+.cinematic-footer__follow svg, .cinematic-footer__email svg { color: #e8c66f; flex-shrink: 0; }
+.cinematic-footer__statement { display: grid; align-content: center; min-height: clamp(20rem, 31cqi, 35rem); margin: 0; padding-block: 4rem; text-align: center; color: #f5f5f5; font-size: clamp(1.5rem, 2.6cqi, 3rem); font-weight: 500; line-height: 1.16; letter-spacing: -.045em; text-wrap: balance; text-shadow: 0 2px 20px #000b; }
+.cinematic-footer__information { position: relative; z-index: 1; display: grid; grid-template-columns: 1.2fr 1.1fr 1fr .9fr; gap: clamp(1rem, 3cqi, 3.5rem); }
+.cinematic-footer .cinematic-footer__group { min-width: 0; scroll-margin-block: 5rem; }
+.cinematic-footer .cinematic-footer__group h2 { margin: 0 0 1rem; color: #dddde1; font: 500 .75rem/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
+.cinematic-footer__group a, .cinematic-footer__unavailable { display: flex; align-items: center; gap: .25rem; min-height: 44px; width: fit-content; max-width: 100%; font-size: .8125rem; line-height: 1.5; overflow-wrap: anywhere; }
+.cinematic-footer__links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 .75rem; }
+.cinematic-footer__unavailable { color: #aaaab2; cursor: default; }
+.cinematic-footer__email { gap: .75rem !important; }
+/* Transparent fill, refracted highlights and a fine lit edge give the letters depth.
+   The scene remains visible through the glyphs; no filters or animation are needed. */
+.cinematic-footer__wordmark {
+  position: relative;
+  z-index: 0;
+  margin: -0.025em -.025em -.055em;
+  pointer-events: none;
+  user-select: none;
+  font: 800 26cqi/.88 var(--font-ui), sans-serif;
+  letter-spacing: -.065em;
+  text-align: center;
+  white-space: nowrap;
+  color: #ffffff0d;
+  background: linear-gradient(166deg, #ffffff36 0%, #ffffff08 27%, #ffffff05 45%, #ffffff28 46%, #ffffff09 49%, #ffffff02 74%, #ffffff22 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px #ffffff30;
+  filter: drop-shadow(0 1px 0 #ffffff0d) drop-shadow(0 6px 8px #0006);
+}
+.cinematic-footer__bottom { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; padding-top: 1.5rem; color: #b9b9c1; font-size: .6875rem; letter-spacing: .09em; }
+.cinematic-footer__bottom small { font-size: inherit; }
+.cinematic-footer__bottom > span { letter-spacing: .25em; }
+@container (max-width: 1000px) {
+  .cinematic-footer__top { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.75rem; }
+  .cinematic-footer__follow { grid-column: 3; grid-row: 1; justify-self: end; }
+  .cinematic-footer__information { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
+  .cinematic-footer__statement { min-height: 23rem; }
+}
+@container (max-width: 600px) {
+  .cinematic-footer__scene { background-position: center, 51% top; }
+  .cinematic-footer__top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 1rem; }
+  .cinematic-footer__follow { grid-column: 2; }
+  .cinematic-footer__top p { font-size: .8125rem; }
+  .cinematic-footer__top p:nth-of-type(1) { grid-column: 1 / -1; }
+  .cinematic-footer__statement { min-height: 20rem; font-size: clamp(1.4rem, 5cqi, 1.875rem); }
+  .cinematic-footer__information { gap: 1.75rem 1rem; }
+  .cinematic-footer__links { grid-template-columns: 1fr; }
+  .cinematic-footer__bottom { align-items: flex-start; flex-direction: column; gap: .75rem; font-size: .625rem; }
+  .cinematic-footer__wordmark { margin-top: .12em; }
+}
+@container (max-width: 380px) {
+  .cinematic-footer__information { grid-template-columns: 1fr; }
+  .cinematic-footer__links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { .cinematic-footer a { transition: none; } }
+@media (prefers-contrast: more) { .cinematic-footer a, .cinematic-footer__top p, .cinematic-footer__bottom { color: #fff; } }

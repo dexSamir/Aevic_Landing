@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { BrandEmblem } from '../components/brand/BrandMark';
 import './team-workspace-frame.css';
+import { PublicFooter } from './PublicFooter';
 
 /** Shared geometry for session resolution, data resolution and the ready workspace. */
 export function TeamWorkspaceFrame({ sidebar, header, children, overlays, busy = false }: {
@@ -10,7 +11,7 @@ export function TeamWorkspaceFrame({ sidebar, header, children, overlays, busy =
   return <div className="product-shell product-shell--team team-workspace-frame" aria-busy={busy || undefined}>
     <a className="skip-link" href="#main-content">Əsas məzmuna keç</a>
     <aside className="product-sidebar">{sidebar}</aside>
-    <div className="product-main">{header}<main id="main-content" className="product-page" tabIndex={-1}>{children}</main></div>
+    <div className="product-main">{header}<main id="main-content" className="product-page" tabIndex={-1}>{children}</main>{!busy && <PublicFooter showCta={false} />}</div>
     {overlays}
   </div>;
 }
