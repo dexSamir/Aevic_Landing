@@ -1,5 +1,5 @@
 import { ChartSnapshot } from './ChartSnapshot';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { MatchHistoryEntry } from '../../types/domain';
 import { teamAnalytics } from '../../utils/teamAnalytics';
 import { competitionNow } from '../../services';
@@ -7,42 +7,61 @@ import '../../styles/team-insights.css';
 
 const date = (value: string) => new Date(value).toLocaleDateString('az-AZ', { timeZone: 'Asia/Baku', day: 'numeric', month: 'short' });
 const time = (value: string) => new Date(value).toLocaleTimeString('az-AZ', { timeZone: 'Asia/Baku', hour: '2-digit', minute: '2-digit' });
+// Keep chart text in readable SVG units instead of shrinking a desktop viewBox.
+function useChartWidth(desktopWidth: number) {
+  const [node, setNode] = useState<SVGSVGElement | null>(null);
+  const [width, setWidth] = useState(desktopWidth);
+  useEffect(() => {
+    if (!node || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0) setWidth(Math.max(1, Math.min(desktopWidth, entry.contentRect.width)));
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [node, desktopWidth]);
+  return { ref: setNode, width };
+}
 function Trend({ matches, metric, label }: { matches: MatchHistoryEntry[]; metric: 'finishes' | 'points' | 'placement'; label: string }) {
   const [selected, setSelected] = useState<string>();
+  const chart = useChartWidth(560);
+  const right = chart.width - 40;
   const rows = matches.slice(-12), max = Math.max(1, ...rows.map(m => m[metric])), min = Math.min(0, ...rows.map(m => m[metric]));
   const start = Date.parse(rows[0].playedAt), span = Date.parse(rows[rows.length - 1].playedAt) - start;
-  const x = (m: MatchHistoryEntry) => span ? 40 + (Date.parse(m.playedAt) - start) / span * 480 : 280;
+  const x = (m: MatchHistoryEntry) => span ? 40 + (Date.parse(m.playedAt) - start) / span * (right - 40) : (40 + right) / 2;
   const y = (m: MatchHistoryEntry) => metric === 'placement' ? 28 + (m[metric] - 1) / Math.max(1, max - 1) * 132 : 160 - (m[metric] - min) / (max - min) * 132;
   const current = rows.find(m => m.id === selected) ?? rows[rows.length - 1];
   const unit = metric === 'placement' ? 'yer' : metric === 'points' ? 'xal' : 'kill';
   return <ChartSnapshot title={label} subtitle={`Son ${rows.length} dərc edilmiş matç · ${metric === 'placement' ? '1-ci yer ən yaxşı nəticədir; yuxarı qalxmaq daha yaxşıdır' : 'hər nöqtə bir matçdır; yüksək göstərici daha çox ' + unit + ' deməkdir'}`} filename={`match-${metric}`} className={metric === 'placement' ? 'insight-chart--placement' : ''}>
     <p className="chart-axes"><span className="chart-legend">{metric === 'placement' ? 'Yerləşmə (yer)' : metric === 'points' ? 'Ümumi xal / matç' : 'Kill sayı / matç'}</span><span>X: Matç tarixi · Bakı vaxtı</span></p>
-    <svg viewBox="0 0 560 200" role="group" aria-label={`${label}. X: Bakı tarixi. Y: ${unit}.`}>
-      {[0, .5, 1].map(t => <g key={t}><line x1="40" x2="520" y1={28 + t * 132} y2={28 + t * 132} className="chart-grid" /><text x="4" y={32 + t * 132}>{metric === 'placement' ? (1 + t * (max - 1)).toFixed(0) : Math.round(max - t * (max - min))}</text></g>)}
+    <svg ref={chart.ref} viewBox={`0 0 ${chart.width} 200`} role="group" aria-label={`${label}. X: Bakı tarixi. Y: ${unit}.`}>
+      {[0, .5, 1].map(t => <g key={t}><line x1="40" x2={right} y1={28 + t * 132} y2={28 + t * 132} className="chart-grid" /><text x="4" y={32 + t * 132}>{metric === 'placement' ? (1 + t * (max - 1)).toFixed(0) : Math.round(max - t * (max - min))}</text></g>)}
       <polyline points={rows.map(m => `${x(m)},${y(m)}`).join(' ')} fill="none" className="chart-line" />
       {rows.map((m, index) => <g key={m.id} tabIndex={0} role="img" aria-label={`${date(m.playedAt)}, ${time(m.playedAt)}, ${m.map}, ${m.stageLabel}: ${m[metric]} ${unit}`} onFocus={() => setSelected(m.id)} onMouseEnter={() => setSelected(m.id)} onClick={() => setSelected(m.id)} onKeyDown={event => {
         const next = event.key === 'ArrowRight' ? index + 1 : event.key === 'ArrowLeft' ? index - 1 : -1;
         if (next >= 0 && next < rows.length) { event.preventDefault(); event.currentTarget.parentElement?.querySelectorAll<SVGGElement>('[tabindex]')[next]?.focus(); }
       }}><circle cx={x(m)} cy={y(m)} r="18" fill="transparent" /><circle cx={x(m)} cy={y(m)} r={current.id === m.id ? 5 : 3} className="chart-point" /><title>{m.tournamentName} · {m.stageLabel} · {date(m.playedAt)} {time(m.playedAt)} · {m.map}: {label} — {m[metric]} {unit}</title></g>)}
-      <text x="40" y="190">{date(rows[0].playedAt)}</text><text x="520" y="190" textAnchor="end">{date(rows[rows.length - 1].playedAt)}</text>
-    </svg><p className="chart-detail">{date(current.playedAt)} · {time(current.playedAt)} · {current.map}<strong>{label}: {current[metric]} {unit}</strong></p><small>{current.tournamentName} · {current.stageLabel}</small>
+      <text x="40" y="190">{date(rows[0].playedAt)}</text><text x={right} y="190" textAnchor="end">{date(rows[rows.length - 1].playedAt)}</text>
+    </svg><label className="chart-selection" data-export-exclude>Matç seçin<select value={current.id} onChange={event => setSelected(event.target.value)}>{rows.map(m => <option key={m.id} value={m.id}>{date(m.playedAt)} · {m.map} · {m.stageLabel}</option>)}</select></label><p className="chart-detail">{date(current.playedAt)} · {time(current.playedAt)} · {current.map}<strong>{label}: {current[metric]} {unit}</strong></p><small>{current.tournamentName} · {current.stageLabel}</small>
   </ChartSnapshot>;
 }
 function MonthlyKills({ data }: { data: ReturnType<typeof teamAnalytics> }) {
+  const chart = useChartWidth(720);
+  const right = chart.width - 16;
   const [selected, setSelected] = useState<string>();
   const max = Math.max(1, ...data.daily.map(day => day.kills));
   const active = data.daily.find(day => day.day === selected) ?? data.daily[data.daily.length - 1];
   return <ChartSnapshot title="Günlər üzrə ümumi kill" subtitle={`${data.month} · həmin günün dərc edilmiş matçlarının cəmi; matç sayı dəyişə bilər`} filename="daily-kills" className="monthly-kills" disabled={!data.monthly.length}>
     <p className="chart-axes"><span className="chart-legend">Y: Ümumi kill sayı</span><span>X: Ayın günü · Bakı vaxtı</span></p>
     {!data.monthly.length ? <p className="insight-empty">Bu ay üçün dərc edilmiş matç yoxdur.</p> : <>
-      <svg viewBox="0 0 720 210" role="group" aria-label={`${data.month}: günlər üzrə ümumi kill sayı`}>
-        {[0, .5, 1].map(t => <g key={t}><line x1="40" x2="704" y1={24 + t * 140} y2={24 + t * 140} className="chart-grid" /><text x="4" y={28 + t * 140}>{Math.round(max * (1 - t))}</text></g>)}
-        {data.daily.map((day, index) => { const width = 664 / data.daily.length; const x = 40 + index * width; const height = day.kills / max * 140; return <g key={day.day} tabIndex={0} role="img" aria-label={`${day.day}: ümumi ${day.kills} kill, ${day.matches} dərc edilmiş matç`} onFocus={() => setSelected(day.day)} onMouseEnter={() => setSelected(day.day)} onClick={() => setSelected(day.day)}>
+      <svg ref={chart.ref} viewBox={`0 0 ${chart.width} 210`} role="group" aria-label={`${data.month}: günlər üzrə ümumi kill sayı`}>
+        {[0, .5, 1].map(t => <g key={t}><line x1="40" x2={right} y1={24 + t * 140} y2={24 + t * 140} className="chart-grid" /><text x="4" y={28 + t * 140}>{Math.round(max * (1 - t))}</text></g>)}
+        {data.daily.map((day, index) => { const width = (right - 40) / data.daily.length; const x = 40 + index * width; const height = day.kills / max * 140; return <g key={day.day} tabIndex={0} role="img" aria-label={`${day.day}: ümumi ${day.kills} kill, ${day.matches} dərc edilmiş matç`} onFocus={() => setSelected(day.day)} onMouseEnter={() => setSelected(day.day)} onClick={() => setSelected(day.day)}>
           <rect x={x} y="24" width={width} height="140" fill="transparent" /><rect x={x + 2} y={164 - height} width={Math.max(1, width - 4)} height={height} className="chart-point" opacity={active.day === day.day ? 1 : .65} rx="2" />
-          {(data.daily.length <= 16 || index % 2 === 0 || index === data.daily.length - 1) && <text x={x + width / 2} y="188" textAnchor="middle">{index + 1}</text>}
+          {(index % Math.ceil(data.daily.length / Math.max(2, Math.floor((right - 40) / 32))) === 0 || index === data.daily.length - 1) && <text x={x + width / 2} y="188" textAnchor="middle">{index + 1}</text>}
           <title>{day.day} · Ümumi kill: {day.kills} · {day.matches} matç</title>
         </g>; })}
       </svg>
+      <label className="chart-selection" data-export-exclude>Gün seçin<select value={active.day} onChange={event => setSelected(event.target.value)}>{data.daily.map(day => <option key={day.day} value={day.day}>{day.day} · {day.kills} kill · {day.matches} matç</option>)}</select></label>
       <p className="chart-detail">{active.day} · {active.matches} dərc edilmiş matç<strong>Ümumi kill: {active.kills}</strong></p><small>Boş gün: dərc edilmiş matç yoxdur. Gələcək günlər göstərilmir.</small>
     </>}
   </ChartSnapshot>;

@@ -46,7 +46,8 @@ body {
 
 .skip-link:focus-visible { transform: translateY(0); }
 
-body.drawer-open {
+body.drawer-open,
+body:has(.modal-backdrop[data-state="open"]) {
   overflow: hidden;
 }
 
@@ -121,7 +122,8 @@ ol {
 .container {
   width: min(100%, calc(var(--content-max) + (var(--page-gutter) * 2)));
   margin-inline: auto;
-  padding-inline: var(--page-gutter);
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
 }
 
 .section {

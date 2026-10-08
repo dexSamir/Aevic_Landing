@@ -296,7 +296,7 @@ export function Pagination({ page, pages, onChange }: { page: number; pages: num
 }
 
 export function DataTable({ headers, rows, caption, cutAfterRow, cutLabel }: { headers: string[]; rows: ReactNode[][]; caption?: string; cutAfterRow?: number; cutLabel?: string }) {
-  return <div className="data-table-wrap"><table className="data-table">{caption && <caption>{caption}</caption>}<thead><tr>{headers.map((header, index) => <th key={`${header}-${index}`} scope="col">{header}</th>)}</tr></thead><tbody>{rows.map((row, rowIndex) => <Fragment key={rowIndex}><tr>{row.map((cell, cellIndex) => <td key={cellIndex}>{cell}</td>)}</tr>{cutAfterRow === rowIndex + 1 && cutLabel && <tr className="qualification-cut"><td colSpan={headers.length}><span>{cutLabel}</span></td></tr>}</Fragment>)}</tbody></table></div>;
+  return <div className="data-table-wrap" tabIndex={0} role="region" aria-label={caption ?? "Məlumat cədvəli"}><table className="data-table">{caption && <caption>{caption}</caption>}<thead><tr>{headers.map((header, index) => <th key={`${header}-${index}`} scope="col">{header}</th>)}</tr></thead><tbody>{rows.map((row, rowIndex) => <Fragment key={rowIndex}><tr>{row.map((cell, cellIndex) => <td key={cellIndex}>{cell}</td>)}</tr>{cutAfterRow === rowIndex + 1 && cutLabel && <tr className="qualification-cut"><td colSpan={headers.length}><span>{cutLabel}</span></td></tr>}</Fragment>)}</tbody></table></div>;
 }
 
 export function MobileDataList({ items }: { items: { title: ReactNode; meta?: ReactNode; value?: ReactNode; details?: ReactNode }[] }) {

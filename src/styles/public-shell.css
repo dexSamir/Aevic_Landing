@@ -3,7 +3,7 @@
 .site-shell > main > .motion-page > .page-section { padding-top: calc(var(--header-height) + var(--space-2xl)); }
 .site-shell :is(.page-header h1, .section-heading h2) { font-family: var(--font-public-display); }
 .site-shell .section-heading h2 { font-size: clamp(1.7rem,3vw,2.6rem); line-height: 1.15; }
-.site-header { position: sticky; top: var(--system-banner-height); z-index: var(--z-header); height: var(--header-height); margin-bottom: calc(var(--header-height) * -1); padding-block: .5rem; background: transparent; transition: background-color 220ms ease; }
+.site-header { position: sticky; top: var(--system-banner-height); z-index: var(--z-header); height: calc(var(--header-height) + env(safe-area-inset-top)); margin-bottom: calc(var(--header-height) * -1); padding-block: calc(.5rem + env(safe-area-inset-top)) .5rem; background: transparent; transition: background-color 220ms ease; }
 .site-header__inner {height: 100%; display: grid;  align-items: center; gap: var(--space-lg);  grid-template-columns: auto minmax(0,1fr) auto; }
 .site-header__desktop, .site-header__auth { display: contents; }
 .site-header__tools { margin-inline-start: auto; grid-column: 3; display: flex; justify-self: end; align-items: center; gap: .75rem; }

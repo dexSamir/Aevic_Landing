@@ -6,7 +6,7 @@
 .insight-metrics>div,.insight-chart { padding:20px; border-radius:16px; background:var(--team-surface-secondary,var(--color-bg-secondary)); min-width:0; }
 .insight-metrics dt { font-size:13px; color:var(--color-text-muted); }
 .insight-metrics dd { font-size:30px; font-weight:650; letter-spacing:-.04em; font-variant-numeric:tabular-nums; margin-block:8px; }
-.insight-charts { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.insight-charts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
 .insight-chart header { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px; }
 .insight-chart h3 { font-size:15px; }
 .insight-chart svg { width:100%; overflow:visible; margin-top:16px; }
@@ -85,3 +85,9 @@
 .map-bar-track i { display:block; height:100%; border-radius:inherit; background:var(--color-brand-primary); }
 .map-bars > div:focus-visible { outline:2px solid var(--color-brand-primary); outline-offset:4px; }
 @media(max-width:420px) { .map-bars > div { grid-template-columns:minmax(80px,1fr) 1fr 32px; gap:8px; } }
+
+.chart-selection { display: none; }
+@media (pointer: coarse), (max-width: 700px) {
+  .chart-selection { display: grid; gap: 6px; margin-block: 12px; font-size: 13px; color: var(--color-text-muted); }
+  .chart-selection select { width: 100%; min-width: 0; min-height: 44px; padding: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg-secondary); color: var(--color-text-primary); font-size: 16px; }
+}
