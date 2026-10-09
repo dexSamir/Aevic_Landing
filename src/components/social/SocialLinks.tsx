@@ -1,3 +1,4 @@
+import { publicSocialLinks } from '../../config/publicSocial';
 import { Globe2, RadioTower } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import type { SocialLinks as SocialLinkMap, SocialPlatform } from '../../types/domain';
@@ -46,13 +47,4 @@ export function SocialLinks({ links, ownerName, compact = false }: { links?: Soc
   return <nav className={`social-links ${compact ? 'social-links--compact' : ''}`} aria-label={`${ownerName} sosial keçidləri`}>{configured.map(([platform, url]) => <SocialIconButton key={platform} platform={platform} url={url} ownerName={ownerName} showLabel={!compact} />)}</nav>;
 }
 
-export const officialPlatformSocialLinks: SocialLinkMap = {
-  instagram: import.meta.env.VITE_AEVIC_INSTAGRAM_URL || undefined,
-  tiktok: import.meta.env.VITE_AEVIC_TIKTOK_URL || undefined,
-  youtube: import.meta.env.VITE_AEVIC_YOUTUBE_URL || undefined,
-  x: import.meta.env.VITE_AEVIC_X_URL || undefined,
-  linkedin: import.meta.env.VITE_AEVIC_LINKEDIN_URL || undefined,
-  discord: import.meta.env.VITE_AEVIC_DISCORD_URL || undefined,
-  twitch: import.meta.env.VITE_AEVIC_TWITCH_URL || undefined,
-  website: import.meta.env.VITE_AEVIC_WEBSITE_URL || undefined,
-};
+export const officialPlatformSocialLinks: SocialLinkMap = publicSocialLinks(import.meta.env);

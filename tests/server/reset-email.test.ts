@@ -1,6 +1,7 @@
-import {describe,it,expect,vi,afterEach} from 'vitest';
+import {describe,it,expect,vi,afterEach,beforeEach} from 'vitest';
 import {passwordResetEmail} from '../../server/captain/reset-email';
 describe('AEVIC reset email',()=>{
+ beforeEach(()=>{for(const key of ['INSTAGRAM','TIKTOK','LINKEDIN','X','WEBSITE','YOUTUBE','DISCORD','TWITCH'])vi.stubEnv(`VITE_AEVIC_${key}_URL`,undefined);});
  afterEach(()=>vi.unstubAllEnvs());
  it('rejects local links in production and hosted deployments',()=>{
   for(const env of ['NODE_ENV','CONTEXT']){

@@ -17,6 +17,9 @@
     "src/types/domain.ts",
     "src/utils/wrapped.ts",
     "src/utils/competitionAnalytics.ts",
-    "src/services/brandAssetValidation.ts"
+    "src/services/brandAssetValidation.ts",
+    "src/config/publicSocial.ts",
+    "src/utils/lifecycle.ts",
+    "src/utils/outboundUrl.ts"
   ]
 }

@@ -8,7 +8,7 @@
   },
   "scripts": {
     "prebuild": "node scripts/generate-sitemap.mjs",
-    "postbuild": "node scripts/prerender-public.mjs",
+    "postbuild": "node scripts/prerender-public.mjs && node scripts/check-public-secrets.mjs",
     "dev": "vite",
     "build": "tsc -b && tsc -p tsconfig.server.json && vite build",
     "preview": "vite preview",

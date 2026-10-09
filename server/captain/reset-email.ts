@@ -1,3 +1,5 @@
+import { publicSocialLinks, emailSocialDefaults } from '../../src/config/publicSocial';
+
 const escapeHtml = (value:string) => value.replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]!));
 
 /** No trackers, external fonts, or token-bearing assets. Only the two reset links contain the token. */
@@ -6,6 +8,9 @@ export function passwordResetEmail(link:string) {
  if(url.protocol!=='https:' && !(url.protocol==='http:' && ['localhost','127.0.0.1'].includes(url.hostname)))throw new Error('INVALID_RESET_ORIGIN');
  if((process.env.NODE_ENV==='production'||process.env.CONTEXT) && ['localhost','127.0.0.1','[::1]'].includes(url.hostname))throw new Error('INVALID_RESET_ORIGIN');
  const href=escapeHtml(url.href);
+ const socials=publicSocialLinks(process.env, emailSocialDefaults);
+ const labels: Record<string,string>={instagram:'Instagram',tiktok:'TikTok',linkedin:'LinkedIn',x:'X',website:'Website',youtube:'YouTube',discord:'Discord',twitch:'Twitch'};
+ const socialHtml=Object.entries(socials).map(([key,value])=>`<a href="${escapeHtml(value!)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 7px;color:#BFC0C8;font-size:12px;line-height:28px;text-decoration:none;white-space:nowrap">${labels[key]}</a>`).join('\n');
  const subject='AEVIC — şifrənizi yeniləyin';
  const text=`AEVIC ESPORTS\n// HESAB TƏHLÜKƏSİZLİYİ\n\nŞifrənizi təhlükəsiz yeniləyin.\n\nHesabınız üçün şifrə sıfırlama sorğusu aldıq. Aşağıdakı keçidi açıb yeni şifrənizi özünüz təyin edin. Keçid 30 dəqiqə etibarlıdır və yalnız bir dəfə istifadə edilə bilər.\n\nŞifrəni yenilə:\n${url.href}\n\nBu sorğunu siz göndərməmisinizsə, emaili nəzərə almayın. Keçidi istifadə etmədikcə şifrəniz dəyişməyəcək. Bu keçidi heç kimlə paylaşmayın.\n\nAEVIC Esports\nAd Aeternam Victoriam.`;
  // Decorative icons use email-safe text/HTML, with no additional remote assets.
@@ -54,10 +59,7 @@ ${panel('◷','#BF64E8','#241C30','<strong style="color:#F7F6F2;font-size:14px">
 ${panel('↗','#BFC0C8','#252529',`<p style="margin:0 0 8px">Düymə açılmırsa, bu keçidi brauzerə köçürün:</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="table-layout:fixed"><tr><td style="padding:8px 10px;background-color:#1B1B1F;border-radius:10px;word-break:break-all;overflow-wrap:anywhere"><a href="${href}" rel="noreferrer" style="color:#F3C450;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:20px;text-decoration:underline;word-break:break-all;overflow-wrap:anywhere;word-wrap:break-word">${href}</a></td></tr></table>`)}
 ${panel('<span style="display:inline-block;width:21px;height:21px;border:2px solid #F3C450;border-radius:50%;font-size:18px;line-height:21px;font-weight:700">!</span>','#F3C450','#252529','<strong style="color:#F7F6F2;font-size:14px">Bu sorğunu siz göndərməmisinizsə</strong><p style="margin:4px 0 0">bu e-maili nəzərə almayın. Keçidi istifadə etmədikcə şifrəniz dəyişməyəcək. Təhlükəsizliyiniz üçün keçidi heç kimlə paylaşmayın.</p>')}
 </td></tr>
-<tr><td align="center" style="padding:18px 14px 0;color:#BFC0C8"><p style="margin:0;font-size:11px;line-height:19px;font-weight:700;letter-spacing:3px">AEVIC ESPORTS</p><p style="margin:3px 0 0;font-size:11px;line-height:19px;letter-spacing:2px">Ad Aeternam Victoriam.</p><p class="email-socials" style="margin:10px 0 0;font-size:12px;line-height:24px;text-align:center"><a href="https://www.instagram.com/aevicesports" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 7px;color:#BFC0C8;font-size:12px;line-height:28px;text-decoration:none;white-space:nowrap">Instagram</a>
-<a href="https://www.tiktok.com/@aevicesports" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 7px;color:#BFC0C8;font-size:12px;line-height:28px;text-decoration:none;white-space:nowrap">TikTok</a>
-<a href="https://www.linkedin.com/company/109203444/" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 7px;color:#BFC0C8;font-size:12px;line-height:28px;text-decoration:none;white-space:nowrap">LinkedIn</a>
-<a href="https://x.com/aevicesports" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 7px;color:#BFC0C8;font-size:12px;line-height:28px;text-decoration:none;white-space:nowrap">X</a></p></td></tr>
+<tr><td align="center" style="padding:18px 14px 0;color:#BFC0C8"><p style="margin:0;font-size:11px;line-height:19px;font-weight:700;letter-spacing:3px">AEVIC ESPORTS</p><p style="margin:3px 0 0;font-size:11px;line-height:19px;letter-spacing:2px">Ad Aeternam Victoriam.</p><p class="email-socials" style="margin:10px 0 0;font-size:12px;line-height:24px;text-align:center">${socialHtml}</p></td></tr>
 </table><!--[if mso]></td></tr></table><![endif]-->
 </td></tr></table></body></html>`;
  return {subject,text,html};

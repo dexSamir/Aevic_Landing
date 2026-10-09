@@ -4,6 +4,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # Keep secrets scanning enabled. Public URL variables must not be marked secret.
+  # See docs/netlify-secrets.md for scopes and a narrowly scoped fallback.
 
 [functions]
   directory = "netlify/functions"

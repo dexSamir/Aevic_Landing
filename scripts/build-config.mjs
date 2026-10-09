@@ -10,6 +10,9 @@ export async function loadRouteManifest() {
 }
 export function buildConfiguration(mode = 'production', development = false) {
   const env = { ...loadEnv(mode, process.cwd(), ''), ...process.env };
+  const allowedPublicKeys = new Set(['VITE_API_BASE_URL', 'VITE_PUBLIC_SITE_URL', 'VITE_PUBLIC_MEDIA_ORIGIN', 'VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY', 'VITE_INDEXABLE_DEPLOYMENT', ...['INSTAGRAM','TIKTOK','YOUTUBE','X','LINKEDIN','DISCORD','TWITCH','WEBSITE'].map(name => `VITE_AEVIC_${name}_URL`)]);
+  const unexpected = Object.keys(env).filter(key => key.startsWith('VITE_') && !allowedPublicKeys.has(key));
+  if (unexpected.length) throw new Error('Unreviewed browser environment keys: ' + unexpected.join(', '));
   const localServerOrigin = development && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(env.PUBLIC_SITE_URL || '');
   const canonicalValue = localServerOrigin ? env.VITE_PUBLIC_SITE_URL : env.PUBLIC_SITE_URL || env.VITE_PUBLIC_SITE_URL;
   const origin = (value, label) => {
