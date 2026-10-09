@@ -22,7 +22,7 @@ export function FooterLinks({ socialId }: { socialId: string }) {
                 const url = sanitizeOutboundUrl(officialPlatformSocialLinks[platform] ?? '');
                 return url && normalizeSocialUrl(platform, url).ok
                   ? <a className="cinematic-footer__social-link" key={platform} href={url} target="_blank" rel="noopener noreferrer">{label}<ArrowUpRight size={13} aria-hidden="true" /><span className="sr-only"> (yeni pəncərədə açılır)</span></a>
-                  : <span key={platform} className="cinematic-footer__unavailable" title="Rəsmi keçid hələ əlavə edilməyib">{label}<ArrowUpRight size={13} aria-hidden="true" /><span className="sr-only"> — rəsmi keçid hələ əlavə edilməyib</span></span>;
+                  : <span key={platform} className="cinematic-footer__unavailable" tabIndex={0} data-tooltip="Rəsmi keçid hələ əlavə edilməyib">{label}<ArrowUpRight size={13} aria-hidden="true" /><span className="sr-only"> — rəsmi keçid hələ əlavə edilməyib</span></span>;
               })}
             </div>
           </nav>

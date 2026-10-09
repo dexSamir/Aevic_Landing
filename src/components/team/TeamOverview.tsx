@@ -61,11 +61,16 @@ export function TeamOverview() {
     document.addEventListener('visibilitychange', tick);
     return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', tick); };
   }, [data.dataSource]);
-  const context = useTeamCompetitionContexts().current;
+  const contexts = useTeamCompetitionContexts();
+  const context = contexts.current;
+  const [selectedTournament, setSelectedTournament] = useState('');
+  const manageable = contexts.all.filter(item => ['current', 'upcoming'].includes(item.lifecycle) && ['pending', 'confirmed', 'waitlisted'].includes(item.participation.status) && !['ongoing', 'completed', 'cancelled'].includes(item.tournament.status) && Date.now() < Date.parse(item.tournament.startsAt));
+  const management = manageable.find(item => item.tournament.id === selectedTournament) ?? manageable[0];
   const vm = buildTeamOverview(data, context);
   const verified = vm.team.approvalStatus === 'approved';
   const contextLine = data.unavailable?.competition ? `Tier: ${vm.team.tier??'—'} · Status: ${vm.team.sourceStatus??'—'} · Yarış və otaq məlumatları hələ əlçatan deyil.` : context ? [context.tournament.name, context.participation.groupLabel, context.participation.slotNumber ? `Slot #${context.participation.slotNumber}` : undefined].filter(Boolean).join(' · ') : 'Aktiv yarış iştirakı yoxdur.';
   return <div className="team-overview">
+    {management && <section className="overview-participation" aria-label="Turnir iştirakının idarəsi"><div><strong>{management.tournament.name}</strong><p>İştirak vəziyyəti və geri çəkilmə seçimləri.</p></div>{manageable.length > 1 && <label>Turnir<select value={management.tournament.id} onChange={event => setSelectedTournament(event.target.value)}>{manageable.map(item => <option key={item.tournament.id} value={item.tournament.id}>{item.tournament.name}</option>)}</select></label>}<Link className="button button--secondary" to={`/team/tournaments/${management.tournament.id}#withdrawal`}>Turnir iştirakını idarə et<ArrowRight size={16} /></Link></section>}
     <TeamIntelligence />
     <header className="overview-identity">
       <div><span className="overview-eyebrow">// KAPİTAN XƏTTİ</span><h1 aria-label={vm.team.name}>{vm.team.name}{verified && <ShieldCheck aria-label="Təsdiqlənmiş komanda" />}</h1><p>{contextLine}</p></div>

@@ -109,7 +109,7 @@ export function TeamIntelligence() {
       if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); scroll(event.key === 'ArrowLeft' ? -1 : 1); }
       if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); rail.current?.scrollTo({ left: event.key === 'Home' ? 0 : rail.current.scrollWidth, behavior: reduced ? 'instant' : 'smooth' }); }
     }}>
-      {cards.map(({ id, label, value, detail, href, icon: Icon }) => <Link className="intelligence-card" key={id} to={href}><span><Icon size={17} aria-hidden="true" />{label}</span><strong title={value}>{value}</strong><p title={detail}>{detail}</p><span className="intelligence-card-action">Ətraflı <ArrowRight size={14} aria-hidden="true" /></span></Link>)}
+      {cards.map(({ id, label, value, detail, href, icon: Icon }) => <Link className="intelligence-card" key={id} to={href}><span><Icon size={17} aria-hidden="true" />{label}</span><strong data-tooltip={value}>{value}</strong><p data-tooltip={detail}>{detail}</p><span className="intelligence-card-action">Ətraflı <ArrowRight size={14} aria-hidden="true" /></span></Link>)}
     </div>
   </section>;
 }

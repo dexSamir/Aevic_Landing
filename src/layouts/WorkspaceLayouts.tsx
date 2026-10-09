@@ -75,7 +75,7 @@ export function productRouteTitle(pathname: string, area: ProductArea) {
 }
 
 function ProductTopbar({ metadata, admin = false, onMenu, menuOpen = false }: { menuOpen?: boolean; metadata?: ReturnType<typeof productRouteMetadata>; team?: Team; admin?: boolean; onMenu: () => void }) {
-  return <header className="product-topbar"><div className="product-topbar__mobile-identity"><BrandMark variant="compact" /></div>{admin && <div className="product-topbar__route"><span>{metadata?.parentLabel ?? (admin ? 'Admin' : 'Komanda iş sahəsi')}</span><strong>{metadata?.title ?? (admin ? 'Admin əməliyyatları' : 'Komanda iş sahəsi')}</strong></div>}<div className="product-topbar__actions">{!admin && <Link className="icon-button" aria-label="Bildirişlər" to="/team/notifications"><Bell size={19} /></Link>}<Link className="icon-button" aria-label={admin ? 'Admin hesabı' : 'Hesab ayarları'} title={admin ? 'Admin hesabı' : 'Hesab ayarları'} to={admin ? '/admin/users' : '/account/profile'}><CircleUserRound size={20} /></Link><IconButton className="product-topbar__menu" label="Naviqasiyanı aç" aria-expanded={admin ? undefined : menuOpen} aria-controls={admin ? undefined : "team-navigation-drawer"} onClick={onMenu}><PanelLeft size={20} /></IconButton></div></header>;
+  return <header className="product-topbar"><div className="product-topbar__mobile-identity"><BrandMark variant="compact" /></div>{admin && <div className="product-topbar__route"><span>{metadata?.parentLabel ?? (admin ? 'Admin' : 'Komanda iş sahəsi')}</span><strong>{metadata?.title ?? (admin ? 'Admin əməliyyatları' : 'Komanda iş sahəsi')}</strong></div>}<div className="product-topbar__actions">{!admin && <Link className="icon-button" aria-label="Bildirişlər" to="/team/notifications"><Bell size={19} /></Link>}<Link className="icon-button" aria-label={admin ? 'Admin hesabı' : 'Hesab ayarları'} data-tooltip={admin ? 'Admin hesabı' : 'Hesab ayarları'} to={admin ? '/admin/users' : '/account/profile'}><CircleUserRound size={20} /></Link><IconButton className="product-topbar__menu" label="Naviqasiyanı aç" aria-expanded={admin ? undefined : menuOpen} aria-controls={admin ? undefined : "team-navigation-drawer"} onClick={onMenu}><PanelLeft size={20} /></IconButton></div></header>;
 }
 
 function WorkspacePicker({currentId}:{currentId:string}) {
@@ -87,7 +87,7 @@ function WorkspacePicker({currentId}:{currentId:string}) {
 
 function TeamIdentityBlock({ team, compact = false, onNavigate }: { team: Team; compact?: boolean; onNavigate?: () => void }) {
   const profilePath = `/teams/${encodeURIComponent(team.slug ?? team.id)}`;
-  return <div className={compact ? 'team-identity team-identity--drawer drawer-identity' : 'team-identity'}><TeamLogo name={team.name} src={team.logoUrl} /><div className="team-identity__body"><strong title={team.name}>{team.name}</strong>{!compact && <StatusBadge status={team.approvalStatus} />}<Link to={profilePath} onClick={onNavigate}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link></div></div>;
+  return <div className={compact ? 'team-identity team-identity--drawer drawer-identity' : 'team-identity'}><TeamLogo name={team.name} src={team.logoUrl} /><div className="team-identity__body"><strong tabIndex={0} data-tooltip={team.name}>{team.name}</strong>{!compact && <StatusBadge status={team.approvalStatus} />}<Link to={profilePath} onClick={onNavigate}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link></div></div>;
 }
 
 export function TeamLayout() {

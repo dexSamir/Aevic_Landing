@@ -14,18 +14,7 @@
   isolation: isolate;
   overflow: hidden;
   padding: clamp(1.5rem, 4cqi, 4.5rem);
-  background-image: linear-gradient(180deg, #0007 0%, #0005 32%, #0008 56%, #000c 83%, #000e 100%), url('../assets/brand/aevic-gamers-footer.webp');
-  background-size: cover;
-  background-position: center, center 42%;
-}
-.cinematic-footer__scene::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(90deg, transparent 0, transparent calc(12.5% - 1px), #ffffff0d calc(12.5% - 1px), #ffffff0d 12.5%);
-  mask-image: linear-gradient(#0009, #000, transparent);
+  background: #101114;
 }
 .cinematic-footer__top { display: grid; grid-template-columns: 1fr 1fr 1fr auto; align-items: start; gap: 2rem; }
 .cinematic-footer__top p { margin: 0; color: #c9c9cd; font-size: .875rem; line-height: 1.4; }
@@ -72,7 +61,6 @@
   .cinematic-footer__statement { min-height: 23rem; }
 }
 @container (max-width: 600px) {
-  .cinematic-footer__scene { background-position: center, 51% top; }
   .cinematic-footer__top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 1rem; }
   .cinematic-footer__top p { font-size: .8125rem; }
   .cinematic-footer__statement { min-height: 20rem; font-size: clamp(1.0625rem, 3.8cqi, 1.4375rem); }

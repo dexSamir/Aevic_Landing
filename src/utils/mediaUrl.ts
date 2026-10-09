@@ -3,13 +3,17 @@ import { sanitizeImageUrl, sanitizeOutboundUrl } from './outboundUrl';
 // Public config only. This is the same origin consumed by the build-time CSP.
 const configured = import.meta.env.VITE_PUBLIC_MEDIA_ORIGIN || import.meta.env.VITE_SUPABASE_URL;
 const safe = sanitizeOutboundUrl(configured);
-export const publicMediaOrigins = safe ? [new URL(safe).origin] : [];
+export const publicMediaOrigins = [...(safe ? [new URL(safe).origin] : []), 'https://res.cloudinary.com'];
 export const publicImageUrl = (value: unknown) => sanitizeImageUrl(value, publicMediaOrigins);
 
 /** Resize public uploads at the edge; originals and storage permissions stay intact. */
 export function publicImageSrcSet(value: unknown, widths: readonly number[] = [32, 48, 64, 96, 128, 160, 256, 384, 512, 768]) {
   const source = publicImageUrl(value);
-  if (!import.meta.env.PROD || !source) return undefined;
+  if (!source) return undefined;
+  if (/^https:\/\/res\.cloudinary\.com\/[a-zA-Z0-9_-]+\/image\/upload\/v\d+\//.test(source)) {
+    return widths.map(width => `${source.replace('/image/upload/', `/image/upload/f_auto,q_auto,c_limit,w_${width}/`)} ${width}w`).join(', ');
+  }
+  if (!import.meta.env.PROD) return undefined;
   const legacy = /^\/api\/media\/[0-9a-f-]{36}$/i.test(source);
   const storage = /^https:\/\/nmjjibifcuzjlsvfcaaz\.supabase\.co\/storage\/v1\/object\/public\//.test(source);
   if (!legacy && !storage) return undefined;

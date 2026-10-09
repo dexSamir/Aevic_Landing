@@ -37,7 +37,7 @@ export function SocialIconButton({ platform, url, ownerName, showLabel = false }
   if (!safeUrl || !normalizeSocialUrl(platform, safeUrl).ok) return null;
   const item = socialConfig[platform];
   const Icon = item.icon;
-  return <a className="social-icon-button" href={safeUrl} target="_blank" rel="noopener noreferrer" aria-label={`${ownerName} — ${item.label}`} title={`${ownerName} — ${item.label}`}><Icon size={19} /><span className={showLabel ? '' : 'sr-only'}>{item.label}</span></a>;
+  return <a className="social-icon-button" href={safeUrl} target="_blank" rel="noopener noreferrer" aria-label={`${ownerName} — ${item.label}`} data-tooltip={`${ownerName} — ${item.label}`}><Icon size={19} /><span className={showLabel ? '' : 'sr-only'}>{item.label}</span></a>;
 }
 
 export function SocialLinks({ links, ownerName, compact = false }: { links?: SocialLinkMap; ownerName: string; compact?: boolean }) {

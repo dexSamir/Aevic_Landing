@@ -46,7 +46,7 @@ export function RecentMatchList({ matches }: { matches: MatchHistoryEntry[] }) {
 export function PerformanceTrend({ matches }: { matches: MatchHistoryEntry[] }) {
   if (matches.length < 2) return null;
   const max = Math.max(...matches.map((match) => match.points), 1);
-  return <div className="performance-trend" aria-label="Son matçların xal trendi"><header><span>Son matç trendi</span><strong>{matches.reduce((sum, match) => sum + match.points, 0)} xal</strong></header><div>{[...matches].reverse().map((match) => <span key={match.id} style={{ height: `${Math.max(18, (match.points / max) * 100)}%` }} title={`${match.map}: ${match.points} xal`} />)}</div></div>;
+  return <div className="performance-trend" aria-label="Son matçların xal trendi"><header><span>Son matç trendi</span><strong>{matches.reduce((sum, match) => sum + match.points, 0)} xal</strong></header><div>{[...matches].reverse().map((match) => <span key={match.id} style={{ height: `${Math.max(18, (match.points / max) * 100)}%` }} tabIndex={0} data-tooltip={`${match.map}: ${match.points} xal`} />)}</div></div>;
 }
 
 export function ComparisonLink({ teamSlug }: { teamSlug: string }) {

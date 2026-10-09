@@ -1,3 +1,4 @@
+import {uploadCloudinaryImage} from '../services/cloudinary';
 import {validateBrandAssetRequest} from '../../src/services/brandAssetValidation';
 import {body} from '../validation/input';
 import {Hono} from 'hono';
@@ -17,19 +18,22 @@ app.post('/media/uploads',async c=>{
  const form=await c.req.formData(),id=ownTeam(c,z.string().parse(form.get('ownerId'))),kind=z.enum(['logo','banner','player-photo','evidence']).parse(form.get('assetType'));
  limit('media-owner',id,20);
  const slot=kind==='player-photo'?z.coerce.number().int().min(1).max(5).parse(form.get('slot')):undefined;
- const file=form.get('file');if(!(file instanceof File)||file.size>4_000_000||!file.size)throw new ServiceError(422,'INVALID_IMAGE');
+ const file=form.get('file');if(!(file instanceof File)||!file.size)throw new ServiceError(422,'INVALID_IMAGE');
+ if(file.size>4_000_000)throw new ServiceError(413,'FILE_TOO_LARGE');
  const raw=Buffer.from(await file.arrayBuffer());await validateImage(raw,file.type);
  const {default:sharp}=await import('sharp');
  // Decode and re-encode to strip EXIF/location data and trailing payloads.
  const bytes=await sharp(raw,{limitInputPixels:20_000_000}).rotate().webp({quality:88}).toBuffer();
  if(bytes.length>4_000_000)throw new ServiceError(413,'FILE_TOO_LARGE');
- const mediaId=crypto.randomUUID(),url=`/api/media/${mediaId}`;
+ const mediaId=crypto.randomUUID();
+ const cloud=c.get('config').cloudinary&&kind!=='evidence' ? await uploadCloudinaryImage(c.get('config'),id,bytes,mediaId) : undefined;
+ const url=cloud?.url??`/api/media/${mediaId}`;
  await transaction(platform(c).sql,async tx=>{
   await tx`select id from public.teams where id=${id} for update`;
-  await tx`insert into aevic_platform.media(id,team_id,file_name,mime_type,bytes,asset_type) values(${mediaId},${id},${file.name.slice(0,200)},'image/webp',${bytes},${kind})`;
+  if(!cloud)await tx`insert into aevic_platform.media(id,team_id,file_name,mime_type,bytes,asset_type) values(${mediaId},${id},${file.name.slice(0,200)},'image/webp',${bytes},${kind})`;
   if(kind==='banner')await tx`insert into aevic_platform.team_details(team_id,banner_url) values(${id},${url}) on conflict(team_id) do update set banner_url=excluded.banner_url,updated_at=now()`;
   else if(kind!=='evidence')await tx`update public.teams set ${tx(kind==='logo'?'logo_url':`player${slot}_photo_url`)}=${url} where id=${id}`;
-  await audit(tx,actor(c),'media.upload','media',mediaId,{kind});
+  await audit(tx,actor(c),'media.upload','media',mediaId,{kind,...(cloud?{provider:'cloudinary',url}: {})});
  });return c.json({id:mediaId,previewUrl:url,status:'uploaded',fileName:file.name.slice(0,200)},201);
 });
 app.get('/media/:id/access',async c=>{

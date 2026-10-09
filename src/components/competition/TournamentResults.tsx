@@ -1,3 +1,4 @@
+import { usePublicSession } from '../../services/PublicSessionContext';
 import { ArrowRight, BarChart3, Download, Trophy } from 'lucide-react';
 import { lazy, Suspense, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -7,24 +8,28 @@ import { DataTable, EmptyState, MobileDataList, SectionHeading, TeamLogo } from 
 const ResultsDownloadModal = lazy(async () => ({ default: (await import('./ResultsDownloadModal')).ResultsDownloadModal }));
 
 export function TournamentResults({ standings, teamNames, teams, publishedRoundCount = 0, tournamentName, tournamentId, publishedAt }: { standings: TeamTournamentResult[]; teamNames: string[]; teams: PublicTeamSummary[]; publishedRoundCount?: number; tournamentName?: string; tournamentId: string; publishedAt?: string }) {
+  const { team: ownTeam } = usePublicSession();
   const [downloadOpen, setDownloadOpen] = useState(false);
   const closeDownload = useCallback(() => setDownloadOpen(false), []);
   const ordered = standings.filter((row) => row.tournamentId === tournamentId).sort((left, right) => left.placement - right.placement);
   const nameFor = (row: TeamTournamentResult) => teams.find((team) => team.id === row.teamId)?.name ?? 'Komanda adı dərc edilməyib';
-  const teamFor = (name: string) => teams.find((team) => team.name === name);
-  const identity = (name: string) => {
-    const team = teamFor(name);
-    const content = <><TeamLogo name={name} src={team?.logoUrl} size="sm" /><strong>{name}</strong></>;
+  const identity = (row: TeamTournamentResult) => {
+    const team = teams.find(team => team.id === row.teamId);
+    const name = nameFor(row);
+    const content = <><TeamLogo name={name} src={team?.logoUrl} size="sm" /><strong>{name}</strong>{row.teamId === ownTeam?.id && <small>Komandanız</small>}</>;
     return team ? <Link className="team-cell" to={`/teams/${team.slug}`}>{content}</Link> : <span className="team-cell">{content}</span>;
   };
+  // A published standing ties this exact server-verified team ID to this tournament.
+  const ownRow = (row: TeamTournamentResult) => Boolean(ownTeam && row.teamId === ownTeam.id && row.tournamentId === tournamentId);
+
 
   return <section id="results" className="tournament-results" aria-labelledby="tournament-results-title">
     <SectionHeading headingId="tournament-results-title" title="Rəsmi nəticələr" action={ordered.length ? <button type="button" className="button button--secondary" onClick={() => setDownloadOpen(true)}><Download size={17} aria-hidden="true" />Nəticələri yüklə</button> : undefined} description={ordered.length ? `${ordered.length} komanda · dərc edilmiş ümumi sıralama` : 'Yalnız rəsmi olaraq dərc edilmiş standings burada göstərilir'} />
     {ordered.length ? <>
       <div className="tournament-results__summary"><span><Trophy size={18} aria-hidden="true" /><strong>{nameFor(ordered[0])}</strong><small>Lider</small></span><span><BarChart3 size={18} aria-hidden="true" /><strong>{Math.max(...ordered.map((result) => result.matches))}</strong><small>raund üzrə hesabat</small></span><span><strong>{ordered.reduce((sum, result) => sum + result.wwcd, 0)}</strong><small>ümumi WWCD</small></span>{publishedRoundCount > 0 && <span><strong>{publishedRoundCount}</strong><small>public raund qeydi</small></span>}</div>
       {downloadOpen && <Suspense fallback={<p role="status">Yükləmə pəncərəsi açılır…</p>}><ResultsDownloadModal open={downloadOpen} onClose={closeDownload} standings={ordered} teams={teams} tournamentId={tournamentId} tournamentName={tournamentName} publishedAt={publishedAt} /></Suspense>}
-      <DataTable caption="Turnir üzrə rəsmi ümumi sıralama" headers={['Yer', 'Komanda', 'Raund', 'WWCD', 'Yer xalı', 'Kill xalı', 'Cərimə', 'Cəmi']} rows={ordered.map((result, index) => [<b className="result-rank">#{result.placement}</b>, identity(nameFor(result)), result.matches, result.wwcd, result.placementPoints, result.finishPoints, result.penalties ? `−${result.penalties}` : '—', <strong>{result.totalPoints}</strong>])} />
-      <MobileDataList items={ordered.map((result, index) => { const name = nameFor(result); const team = teamFor(name); return { title: <><span className="mobile-rank">#{result.placement}</span>{team ? <Link to={`/teams/${team.slug}`}>{name}</Link> : name}</>, meta: `${result.matches} raund · ${result.wwcd} WWCD`, value: `${result.totalPoints} xal`, details: <span>Yer {result.placementPoints} · Kill {result.finishPoints}{result.penalties ? ` · Cərimə −${result.penalties}` : ''}</span> }; })} />
+      <DataTable rowClassName={index => ownRow(ordered[index]) ? 'is-own-team' : undefined} caption="Turnir üzrə rəsmi ümumi sıralama" headers={['Yer', 'Komanda', 'Raund', 'WWCD', 'Yer xalı', 'Kill xalı', 'Cərimə', 'Cəmi']} rows={ordered.map((result, index) => [<b className="result-rank">#{result.placement}</b>, identity(result), result.matches, result.wwcd, result.placementPoints, result.finishPoints, result.penalties ? `−${result.penalties}` : '—', <strong>{result.totalPoints}</strong>])} />
+      <MobileDataList items={ordered.map((result, index) => { const name = nameFor(result); const team = teams.find(team => team.id === result.teamId); return { className: ownRow(result) ? 'is-own-team' : undefined, title: <><span className="mobile-rank">#{result.placement}</span>{team ? <Link to={`/teams/${team.slug}`}>{name}</Link> : name}</>, meta: `${ownRow(result) ? 'Komandanız · ' : ''}${result.matches} raund · ${result.wwcd} WWCD`, value: `${result.totalPoints} xal`, details: <span>Yer {result.placementPoints} · Kill {result.finishPoints}{result.penalties ? ` · Cərimə −${result.penalties}` : ''}</span> }; })} />
     </> : <EmptyState icon={<BarChart3 size={27} />} title="Ümumi sıralama dərc edilməyib" body="Bu turnirin yekun komanda sıralaması hələ təsdiqlənməyib. Dərc edilmiş raundları matç mərkəzindən yoxlaya bilərsiniz; qismən nəticələr final kimi göstərilmir." action={<Link className="button button--secondary" to="/matches"><span>Matç Mərkəzi</span><ArrowRight size={16} /></Link>} />}
   </section>;
 }

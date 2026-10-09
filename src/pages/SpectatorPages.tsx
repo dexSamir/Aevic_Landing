@@ -54,10 +54,10 @@ function MatchCard({ match, tournament, detail, now }: { match: MatchScheduleIte
   </article>;
 }
 function UpcomingRow({ match, tournament, now }: { match: MatchScheduleItem; tournament?: Tournament; now: number }) {
-  return <article className="match-ledger__row"><time dateTime={match.startsAt} title={formatEventDate(match.startsAt)}>{matchTime(match.startsAt)}</time><div><span>{tournament?.name ?? match.lobby}</span><p>{match.map} · R{match.round}</p></div><small>{startsIn(match.startsAt, now)}</small><Link to={`/tournaments/${match.tournamentId}#matches`} state={{ roundId: match.id }}>Detallar<ArrowRight size={16} aria-hidden="true" /></Link></article>;
+  return <article className="match-ledger__row"><time dateTime={match.startsAt} tabIndex={0} data-tooltip={formatEventDate(match.startsAt)}>{matchTime(match.startsAt)}</time><div><span>{tournament?.name ?? match.lobby}</span><p>{match.map} · R{match.round}</p></div><small>{startsIn(match.startsAt, now)}</small><Link to={`/tournaments/${match.tournamentId}#matches`} state={{ roundId: match.id }}>Detallar<ArrowRight size={16} aria-hidden="true" /></Link></article>;
 }
 function CompletedRow({ match }: { match: MatchHistoryEntry }) {
-  return <article className="match-ledger__row"><time dateTime={match.playedAt} title={formatEventDate(match.playedAt)}>{matchTime(match.playedAt)}</time><div><span>{match.tournamentName}</span><p>{match.map} · {match.stageLabel}</p></div><strong>#{match.placement}</strong><Link to={`/tournaments/${match.tournamentId}#results`} state={{ roundId: match.id }}>Nəticələr<ArrowRight size={16} aria-hidden="true" /></Link></article>;
+  return <article className="match-ledger__row"><time dateTime={match.playedAt} tabIndex={0} data-tooltip={formatEventDate(match.playedAt)}>{matchTime(match.playedAt)}</time><div><span>{match.tournamentName}</span><p>{match.map} · {match.stageLabel}</p></div><strong>#{match.placement}</strong><Link to={`/tournaments/${match.tournamentId}#results`} state={{ roundId: match.id }}>Nəticələr<ArrowRight size={16} aria-hidden="true" /></Link></article>;
 }
 const tabs = ['İndi', 'Növbəti', 'Son nəticələr'] as const;
 export function MatchCenterPage() {

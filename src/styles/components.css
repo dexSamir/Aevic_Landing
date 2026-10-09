@@ -339,7 +339,6 @@
 
 .pagination { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-xs); margin-top: var(--space-lg); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
 .tooltip { position: relative; }
-.tooltip:hover::after { content: attr(data-tooltip); position: absolute; left: 50%; bottom: calc(100% + 0.5rem); transform: translateX(-50%); z-index: var(--z-toast); padding: 0.4rem 0.55rem; color: var(--color-text-primary); background: var(--color-bg-deep); border-radius: var(--radius-xs); white-space: nowrap; font-size: var(--text-xs); box-shadow: var(--shadow-raised); }
 
 @media (prefers-reduced-motion: reduce) {
   .modal-backdrop, .drawer-backdrop { transition: opacity 120ms linear !important; }

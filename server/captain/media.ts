@@ -1,3 +1,4 @@
+import {uploadCloudinaryImage} from '../services/cloudinary';
 import {createClient} from '@supabase/supabase-js';
 import type {ServerConfig} from '../config';
 import {ServiceError} from '../errors';
@@ -20,6 +21,13 @@ export async function validateImage(bytes:Uint8Array, claimed?:string) {
 export class SupabaseCaptainMedia implements CaptainMedia {
  constructor(private config:ServerConfig){}
  async upload(teamId:string,file:File) {
+  if(this.config.cloudinary){
+   const raw=Buffer.from(await file.arrayBuffer());await validateImage(raw,file.type);
+   const {default:sharp}=await import('sharp');
+   const bytes=await sharp(raw,{limitInputPixels:20_000_000}).rotate().webp({quality:88}).toBuffer();
+   if(bytes.length>4_000_000)throw new ServiceError(413,'FILE_TOO_LARGE');
+   return uploadCloudinaryImage(this.config,teamId,bytes);
+  }
   const {storageKey,mediaBucket,supabaseUrl}=this.config;
   let serviceKey=storageKey?.startsWith('sb_secret_');
   if(storageKey?.startsWith('eyJ')){try{serviceKey=JSON.parse(Buffer.from(storageKey.split('.')[1],'base64url').toString()).role==='service_role';}catch{}}

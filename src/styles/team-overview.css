@@ -145,3 +145,9 @@
 .overview-competition-ready { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 24px; border-top: 0; font-size: .75rem; }
 .overview-competition-ready > span { color: var(--ov-muted); }
 .overview-identity h1 { text-transform: uppercase; }
+
+.overview-participation { display:flex; align-items:center; flex-wrap:wrap; gap:16px; padding:18px; margin-bottom:20px; border-radius:12px; background:var(--team-surface-primary); }
+.overview-participation > div { flex:1; min-width:180px; }
+.overview-participation p { margin:4px 0 0; color:var(--color-text-soft); font-size:13px; }
+.overview-participation label { display:grid; gap:4px; max-width:100%; font-size:12px; }
+.overview-participation select { max-width:100%; min-height:44px; }

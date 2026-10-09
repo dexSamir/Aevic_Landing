@@ -18,7 +18,7 @@ export function ChartSnapshot({ title, subtitle, filename, children, disabled = 
     finally { busy.current = false; setExporting(false); }
   };
   return <article ref={ref} className={`insight-chart ${className}`} aria-labelledby={titleId}>
-    <header><div><h3 id={titleId}>{title}</h3><p>{subtitle}</p></div><button data-export-exclude type="button" className="chart-download" aria-label={`${title} — PNG yüklə`} title="PNG yüklə" disabled={disabled || exporting} aria-busy={exporting} onClick={() => void exportChart()}><Download size={17} aria-hidden="true" /></button></header>
+    <header><div><h3 id={titleId}>{title}</h3><p>{subtitle}</p></div><button data-export-exclude type="button" className="chart-download" aria-label={`${title} — PNG yüklə`} data-tooltip="PNG yüklə" disabled={disabled || exporting} aria-busy={exporting} onClick={() => void exportChart()}><Download size={17} aria-hidden="true" /></button></header>
     {error && <p data-export-exclude role="alert">{error}</p>}
     {exporting && <span data-export-exclude role="status" className="sr-only">PNG hazırlanır…</span>}
     {children}

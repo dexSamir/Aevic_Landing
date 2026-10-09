@@ -44,17 +44,17 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode;
 }
 
-export function Button({ variant = 'primary', size = 'md', loading, icon, children, className = '', disabled, type = 'button', ...props }: ButtonProps) {
+export function Button({ variant = 'primary', size = 'md', loading, icon, children, className = '', disabled, title, type = 'button', ...props }: ButtonProps) {
   return (
-    <button type={type} className={`button button--${variant} button--${size} ${className}`} disabled={disabled || loading} {...props}>
+    <button type={type} className={`button button--${variant} button--${size} ${className}`} disabled={disabled || loading} data-tooltip={title} {...props}>
       {loading ? <LoaderCircle aria-hidden="true" className="spin" size={18} /> : icon}
       <span>{loading ? 'Gözləyin…' : children}</span>
     </button>
   );
 }
 
-export function IconButton({ label, children, className = '', type = 'button', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string; children: ReactNode }) {
-  return <button type={type} className={`icon-button ${className}`} aria-label={label} title={label} {...props}>{children}</button>;
+export function IconButton({ label, children, className = '', title, type = 'button', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string; children: ReactNode }) {
+  return <button type={type} className={`icon-button ${className}`} aria-label={label} data-tooltip={title ?? label} {...props}>{children}</button>;
 }
 
 interface FieldProps {
@@ -295,12 +295,12 @@ export function Pagination({ page, pages, onChange }: { page: number; pages: num
   return <nav className="pagination" aria-label="Səhifələmə"><IconButton label="Əvvəlki səhifə" disabled={page <= 1} onClick={() => onChange(page - 1)}><ChevronLeft size={18} /></IconButton><span>{page} / {pages}</span><IconButton label="Növbəti səhifə" disabled={page >= pages} onClick={() => onChange(page + 1)}><ChevronRight size={18} /></IconButton></nav>;
 }
 
-export function DataTable({ headers, rows, caption, cutAfterRow, cutLabel }: { headers: string[]; rows: ReactNode[][]; caption?: string; cutAfterRow?: number; cutLabel?: string }) {
-  return <div className="data-table-wrap" tabIndex={0} role="region" aria-label={caption ?? "Məlumat cədvəli"}><table className="data-table">{caption && <caption>{caption}</caption>}<thead><tr>{headers.map((header, index) => <th key={`${header}-${index}`} scope="col">{header}</th>)}</tr></thead><tbody>{rows.map((row, rowIndex) => <Fragment key={rowIndex}><tr>{row.map((cell, cellIndex) => <td key={cellIndex}>{cell}</td>)}</tr>{cutAfterRow === rowIndex + 1 && cutLabel && <tr className="qualification-cut"><td colSpan={headers.length}><span>{cutLabel}</span></td></tr>}</Fragment>)}</tbody></table></div>;
+export function DataTable({ headers, rows, caption, cutAfterRow, cutLabel, rowClassName }: { headers: string[]; rows: ReactNode[][]; caption?: string; cutAfterRow?: number; cutLabel?: string; rowClassName?: (index: number) => string | undefined }) {
+  return <div className="data-table-wrap" tabIndex={0} role="region" aria-label={caption ?? "Məlumat cədvəli"}><table className="data-table">{caption && <caption>{caption}</caption>}<thead><tr>{headers.map((header, index) => <th key={`${header}-${index}`} scope="col">{header}</th>)}</tr></thead><tbody>{rows.map((row, rowIndex) => <Fragment key={rowIndex}><tr className={rowClassName?.(rowIndex)}>{row.map((cell, cellIndex) => <td key={cellIndex}>{cell}</td>)}</tr>{cutAfterRow === rowIndex + 1 && cutLabel && <tr className="qualification-cut"><td colSpan={headers.length}><span>{cutLabel}</span></td></tr>}</Fragment>)}</tbody></table></div>;
 }
 
-export function MobileDataList({ items }: { items: { title: ReactNode; meta?: ReactNode; value?: ReactNode; details?: ReactNode }[] }) {
-  return <div className="mobile-data-list">{items.map((item, index) => <article key={index}><div><strong>{item.title}</strong>{item.meta && <span>{item.meta}</span>}</div>{item.value && <b>{item.value}</b>}{item.details && <div className="mobile-data-list__details">{item.details}</div>}</article>)}</div>;
+export function MobileDataList({ items }: { items: { title: ReactNode; meta?: ReactNode; value?: ReactNode; details?: ReactNode; className?: string }[] }) {
+  return <div className="mobile-data-list">{items.map((item, index) => <article key={index} className={item.className}><div><strong>{item.title}</strong>{item.meta && <span>{item.meta}</span>}</div>{item.value && <b>{item.value}</b>}{item.details && <div className="mobile-data-list__details">{item.details}</div>}</article>)}</div>;
 }
 
 export function NotificationItem({ item }: { item: Notification }) {

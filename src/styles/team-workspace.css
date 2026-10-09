@@ -462,3 +462,13 @@
 /* Locked achievements still communicate requirements; only the emblem recedes. */
 .product-shell--team .achievement-medal--locked { opacity:1; filter:none; }
 .product-shell--team .achievement-medal--locked .achievement-medal__insignia { color:var(--team-text-muted); }
+
+/* Explicit grid areas keep badges independent from the round marker. */
+.product-shell--team .operational-timeline ol { grid-auto-flow: row; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 12px; padding: 12px; overflow: visible; }
+.product-shell--team .operational-timeline li { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "round status" "time time" "detail detail"; gap: 12px; padding: 12px; align-items: center; }
+.product-shell--team .operational-timeline li > .timeline-round { grid-area: round; }
+.product-shell--team .operational-timeline li > .status { grid-area: status; width: auto; height: auto; max-width: 100%; margin: 0; white-space: nowrap; }
+.product-shell--team .operational-timeline li > time { grid-area: time; }
+.product-shell--team .operational-timeline li > div { grid-area: detail; margin: 0; }
+.product-shell--team #withdrawal { scroll-margin-top: 100px; }
+@media (max-width: 600px) { .product-shell--team .operational-timeline ol { grid-template-columns: 1fr; } .product-shell--team .operational-timeline > header { grid-template-columns: 1fr; } }
