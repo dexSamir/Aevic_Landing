@@ -1,5 +1,5 @@
-import { CalendarClock, Crown, GitCompareArrows, Share2, Swords, Trophy } from 'lucide-react';
-import { useState } from 'react';
+import { CalendarClock, Copy, Crown, GitCompareArrows, Share2, Swords, Trophy } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './public-roster.css';
 import { TeamFollowButton } from './TeamFollowButton';
@@ -12,19 +12,29 @@ export function FollowTeamEntry({ teamId }: { teamId: string }) {
 }
 
 export function ShareProfileAction({ teamName }: { teamName: string }) {
-  const [shared, setShared] = useState(false);
-  const [shareError, setShareError] = useState(false);
-  const share = async () => {
-    const data = { title: `${teamName} · AEVIC`, text: `${teamName} komandasının public profilinə bax.`, url: window.location.href };
-    setShareError(false);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<'copy' | 'share'>();
+  const [busy, setBusy] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const copy = async () => {
+    if (busy) return;
+    setBusy(true); setCopied(false); setError(undefined); clearTimeout(timer.current);
     try {
-      if (navigator.share) await navigator.share(data); else await navigator.clipboard.writeText(window.location.href);
-      setShared(true); window.setTimeout(() => setShared(false), 1800);
-    } catch (error) {
-      if (!(error instanceof DOMException && error.name === 'AbortError')) setShareError(true);
-    }
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true); timer.current = setTimeout(() => setCopied(false), 3500);
+    } catch { setError('copy'); }
+    finally { setBusy(false); }
   };
-  return <>{shareError && <Toast title="Keçid paylaşılmadı" body="Yenidən cəhd edin və ya ünvan sətrindən profil keçidini kopyalayın." onClose={() => setShareError(false)} />}{shared && <Toast title="Profil keçidi hazırdır" body="Keçid paylaşma panelinə göndərildi və ya panoya kopyalandı." onClose={() => setShared(false)} />}<Button variant="ghost" onClick={() => void share()} icon={<Share2 size={17} />}>Paylaş</Button></>;
+  const share = async () => {
+    if (busy) return;
+    setBusy(true); setError(undefined); setCopied(false); clearTimeout(timer.current);
+    try { await navigator.share({title:`${teamName} · AEVIC`,url:window.location.href}); }
+    catch (failure) { if (!(failure instanceof DOMException && failure.name === 'AbortError')) setError('share'); }
+    finally { setBusy(false); }
+  };
+  return <>{error && <Toast tone="error" title={error === 'copy' ? 'Link kopyalanmadı' : 'Paylaşım tamamlanmadı'} body="Yenidən cəhd edin və ya ünvan sətrindən keçidi kopyalayın." onClose={() => setError(undefined)} />}{copied && <Toast title="Link kopyalandı" body="Komanda profilinin keçidi mübadilə buferinə köçürüldü." onClose={() => setCopied(false)} />}<Button variant="ghost" disabled={busy} aria-label={`${teamName}: linki kopyala`} onClick={() => void copy()} icon={<Copy size={17} />}>Linki kopyala</Button>{typeof navigator.share === 'function' && <Button variant="ghost" disabled={busy} icon={<Share2 size={17} />} onClick={() => void share()}>Paylaş</Button>}</>;
+
 }
 
 export function PublicRoster({ roster }: { roster: TeamMember[] }) {
@@ -46,7 +56,7 @@ export function RecentMatchList({ matches }: { matches: MatchHistoryEntry[] }) {
 export function PerformanceTrend({ matches }: { matches: MatchHistoryEntry[] }) {
   if (matches.length < 2) return null;
   const max = Math.max(...matches.map((match) => match.points), 1);
-  return <div className="performance-trend" aria-label="Son matçların xal trendi"><header><span>Son matç trendi</span><strong>{matches.reduce((sum, match) => sum + match.points, 0)} xal</strong></header><div>{[...matches].reverse().map((match) => <span key={match.id} style={{ height: `${Math.max(18, (match.points / max) * 100)}%` }} tabIndex={0} data-tooltip={`${match.map}: ${match.points} xal`} />)}</div></div>;
+  return <div className="performance-trend" aria-label="Son matçların xal trendi"><header><span>Son matç trendi</span><strong>{matches.reduce((sum, match) => sum + match.points, 0)} xal</strong></header><div>{[...matches].reverse().map((match) => <span key={match.id} style={{ height: `${Math.max(0, (match.points / max) * 100)}%` }} tabIndex={0} role="img" aria-label={`${match.map}: ${match.points} xal`} data-tooltip={`${match.map}: ${match.points} xal`} />)}</div></div>;
 }
 
 export function ComparisonLink({ teamSlug }: { teamSlug: string }) {

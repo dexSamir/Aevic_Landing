@@ -1,3 +1,4 @@
+import googleRoutes from './auth/google-routes';
 import tokenRoutes from './auth/token-routes';
 import type { ServerConfig } from './config';
 import { createHttpApp } from './http';
@@ -31,6 +32,7 @@ export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process
  const platformEnabled=Boolean(config?.databaseUrl??env.AEVIC_DATABASE_URL);
  if(platformEnabled){
   app.route('/',platformMiddleware());
+  app.route('/',googleRoutes);
   app.route('/',tokenRoutes);
   app.route('/',activationRoutes);
   app.route('/',legacyClaimRoutes);

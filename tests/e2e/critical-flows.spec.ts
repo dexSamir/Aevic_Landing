@@ -42,7 +42,9 @@ test('public competition graph: tournament, participant team, results, match cen
 
   await page.goto('/matches');
   await expect(page.getByRole('heading', { name: 'İndi', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: 'Növbəti', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Növbəti' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Son nəticələr', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Son nəticələr' })).toBeVisible();
 
   await expect(page.locator('.public-rules-link')).toHaveAttribute('href', '/regulations');

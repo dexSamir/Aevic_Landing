@@ -15,3 +15,16 @@
 .image-editor-adjustments { border: 0; padding: 0; margin: 0; min-width: 0; }
 .image-editor-adjustments:disabled { opacity: .55; }
 .team-logo-editor canvas { box-sizing: content-box; max-width: 100%; }
+
+/* The crop is the focal point; output resolution remains independent of preview size. */
+.team-logo-editor { width:min(800px,calc(100vw - 32px)); padding:24px; border-radius:18px; }
+.image-editor-preview { display:grid; place-items:center; margin-block:24px 12px; padding:20px; min-height:160px; background:var(--color-bg-secondary); border-radius:12px; }
+.team-logo-editor canvas { margin:0; border:1px solid var(--color-border-strong); }
+.image-editor-hint { color:var(--color-text-muted); font-size:13px; line-height:1.5; margin-bottom:20px; text-align:center; }
+.logo-editor-controls label { flex:1 1 180px; font-size:13px; }
+.logo-editor-controls input { flex:1; min-width:60px; width:100%; }
+.image-editor-zoom { font-size:13px; font-variant-numeric:tabular-nums; min-width:42px; }
+.logo-editor-position { padding-top:12px; }
+.team-logo-editor footer { border-top:1px solid var(--color-border); padding-top:20px; margin-top:24px; }
+.team-logo-editor footer .button { min-width:110px; }
+@media(max-width:540px) { .team-logo-editor { padding:16px; } .image-editor-preview { padding:8px; } .logo-editor-controls label { flex-basis:calc(100% - 110px); } }

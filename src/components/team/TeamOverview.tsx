@@ -82,7 +82,7 @@ export function TeamOverview() {
     </header>
     {vm.team.rejectionReason && <p role="status" className="overview-empty">{vm.team.rejectionReason}</p>}
     <NextActionCommand vm={vm} />
-    <dl className="team-stat-ledger" aria-label="Rəsmi komanda statistikası">{([['matches', 'Matç'], ['wwcd', 'Matç qələbəsi'], ['championships', 'Çempionluq'], ['podiums', 'İlk 3 yer']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{data.careerSummary.metrics.find(metric => metric.key === key)?.value ?? '—'}</dd></div>)}<div><dt>Heyət hazırlığı</dt><dd><Link className="overview-status--roster" to="/team/roster">{vm.activeRosterCount}/4 <Users size={17} /></Link></dd></div></dl>
+    <dl className="team-stat-ledger" aria-label="Rəsmi komanda statistikası">{([['matches', 'Oynanmış matç'], ['wwcd', 'Matç qələbəsi'], ['championships', 'Çempionluq'], ['podiums', 'İlk 3 yer']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{data.careerSummary.metrics.find(metric => metric.key === key)?.value ?? '—'}</dd></div>)}<div><dt>Əsas heyət · 4 oyunçu</dt><dd><Link className="overview-status--roster" to="/team/roster">{vm.activeRosterCount}/4 <Users size={17} /></Link></dd></div></dl>
     <TeamAnalytics history={data.matchHistory} unavailable={data.historyAvailable === false || data.unavailable?.history === true} incomplete={data.currentTeam.legacyHistoryIncomplete} />
     <RecentForm vm={vm} />
     <OperationsCanvas vm={vm} />

@@ -711,3 +711,29 @@
 .teams-directory__count strong small { color: var(--text-secondary); font: 500 13px/1.4 var(--font-ui); }
 @media (hover: hover) { .team-directory-card:hover { transform: translateY(-2px); background: var(--surface-2); } }
 @media (prefers-reduced-motion: reduce) { .team-directory-card { transition: none; } .team-directory-card:hover { transform: none; } }
+
+/* A compact overview with directly comparable, unscaled map metrics. */
+.public-team-overview__main { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:28px; min-width:0; align-items:start; }
+.public-team-overview__main > .public-team-section { padding-top:0; border-top:0; min-width:0; }
+.public-team-overview__main h2 { font-size:24px; }
+.public-team-stats { grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px 12px; margin-top:24px; }
+.public-team-stats > div { padding-left:0; border:0; }
+.public-team-stats dd { font-size:36px; color:var(--color-text-primary); }
+.public-team-stats > div:nth-child(even) dd { color:var(--color-text-primary); }
+.public-team-stats dt { font:500 13px/1.4 var(--font-ui); color:var(--color-text-muted); }
+.public-team-form { gap:8px; }
+.public-team-form > div { min-width:0; flex:1; height:auto; min-height:76px; display:flex; flex-direction:column; justify-content:center; }
+.public-team-form > div small { font:500 11px/1.5 var(--font-ui); color:var(--color-text-muted); }
+.public-team-maps { margin-top:20px; }
+.public-team-maps article { background:var(--color-bg-secondary); border:0; border-radius:12px; }
+.public-team-map-body { display:grid; grid-template-columns:64px minmax(0,1fr); gap:16px; }
+.public-team-map-body img { width:64px; height:100%; max-height:140px; object-fit:cover; border-radius:6px; }
+.public-map-metrics { display:grid; gap:12px; margin:0; }
+.public-map-metrics > div { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+.public-map-metrics dt { font-size:13px; color:var(--color-text-muted); }
+.public-map-metrics dd { margin:0; font-size:20px; font-weight:600; font-variant-numeric:tabular-nums; }
+.public-team-matches { font-variant-numeric:tabular-nums; }
+.public-team-matches tbody th { width:42%; }
+.public-team-matches small { font-size:12px; line-height:1.5; }
+@media(max-width:1100px) { .public-team-overview__main { grid-template-columns:1fr; } }
+@media(max-width:600px) { .public-team-stats { grid-template-columns:repeat(3,minmax(0,1fr)); } .public-team-matches th:first-child { width:40%; } .public-team-matches th:nth-child(2) { width:22%; } .public-team-matches small { font-size:11px; } }

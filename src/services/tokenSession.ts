@@ -28,9 +28,9 @@ export function createTokenTransport(root:string){
     if(protectedRequest&&error instanceof ApiError&&['SESSION_REVOKED','MFA_REQUIRED','UNAUTHORIZED'].includes(error.code)&&access){clear();negotiated=true;if(typeof window!=='undefined')window.dispatchEvent(new Event('aevic:session-change'));}
     if(error instanceof ApiError&&nullStatuses.includes(error.status))return undefined as T;throw error;}
   }
-  if(['/auth/login','/auth/admin/login','/registrations'].includes(path))generation++;
+  if(['/auth/login','/auth/admin/login','/auth/google/complete','/registrations'].includes(path))generation++;
   receive(result);
-  if(['/auth/login','/auth/admin/login','/registrations'].includes(path))channel?.postMessage('identity-changed');
+  if(['/auth/login','/auth/admin/login','/auth/google/complete','/registrations'].includes(path))channel?.postMessage('identity-changed');
   if(path==='/auth/logout'||path==='/me/account/password'||path==='/auth/password-reset/confirm'){clear();channel?.postMessage('identity-changed');}
   return result;
  }

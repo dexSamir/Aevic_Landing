@@ -1,3 +1,4 @@
+import {attachGoogleRegistration,googleBrowser,clearGoogle} from '../auth/google-continuation';
 import {issueTokens,saveTokens,tokensEnabled} from '../auth/platform-tokens';
 import {lockAccount} from './account-store';
 import {randomBytes} from 'node:crypto';
@@ -14,17 +15,18 @@ import {createAttemptLimiter} from '../captain/limit';
 import {ServiceError} from '../errors';
 import {platform,captainCookieName} from './context';
 import {idempotent,audit} from './competition';
-export const registrationInput=z.object({draft:z.object({teamName:text(2,60),tag:text(0,12).default(''),firstName:text(1,80),lastName:text(1,80),phone:text(6,30),email,players:z.array(z.object({ign:text(0,40),uid:z.string().regex(/^\d{5,20}$/).or(z.literal('')).default(''),role:z.enum(['captain','starter','substitute'])}).strict()).length(5)}).strict(),password:z.string().min(8).max(128).regex(/[A-ZƏÖÜĞÇŞİ]/).regex(/[0-9]/),idempotencyKey:text(8,128)}).strict().superRefine(({draft},ctx)=>{
+export const registrationInput=z.object({draft:z.object({teamName:text(2,60),tag:text(0,12).default(''),firstName:text(1,80),lastName:text(1,80),phone:text(6,30),email,players:z.array(z.object({ign:text(0,40),uid:z.string().regex(/^\d{5,20}$/).or(z.literal('')).default(''),role:z.enum(['captain','starter','substitute'])}).strict()).length(5)}).strict(),password:z.string().min(8).max(128).regex(/[A-ZƏÖÜĞÇŞİ]/).regex(/[0-9]/),idempotencyKey:text(8,128),googleContinuation:z.boolean().optional()}).strict().superRefine(({draft},ctx)=>{
  const used=draft.players.filter(p=>p.ign||p.uid),uids=used.map(p=>p.uid);
  if(draft.players.slice(0,4).some(p=>p.ign.length<2||!p.uid)||used.some(p=>p.ign.length<2||!p.uid)||new Set(uids).size!==uids.length||used.filter(p=>p.role==='captain').length!==1||used.filter(p=>p.role==='starter').length!==3||used.filter(p=>p.role==='substitute').length!==used.length-4)ctx.addIssue({code:'custom',message:'Complete unique roster required',path:['draft','players']});
 });
-export async function registerOriginalTeam(sql:Sql,secret:string,input:z.infer<typeof registrationInput>){
+export async function registerOriginalTeam(sql:Sql,secret:string,input:z.infer<typeof registrationInput>,googleBrowserToken?:string){
  input=registrationInput.parse(input);
  if(secret.length<32)throw new ServiceError(503,'CAPTAIN_AUTH_NOT_CONFIGURED');
  const {draft}=input,passwordHash=await hashPassword(input.password);
  // HMAC keeps the idempotency record from becoming an offline password oracle.
  const fingerprint=digest(secret,'registration-payload',JSON.stringify(input));
  const receipt=await idempotent(sql,{teamId:'registration:'+digest(secret,'registration-email',draft.email)},input.idempotencyKey,'registration.create',fingerprint,async tx=>{
+  if(input.googleContinuation&&!googleBrowserToken)throw new ServiceError(401,'GOOGLE_CONTINUATION_EXPIRED');
   await tx`select pg_advisory_xact_lock(184621,1)`;await tx`select pg_advisory_xact_lock(184621,2)`;
   const [setting]=await tx`select value from aevic_platform.settings where key='platform'`;if(setting?.value.registrationEnabled===false)throw new ServiceError(409,'REGISTRATION_CLOSED');
   const duplicate=await tx`select id from aevic_platform.account_identity where lower(btrim(email))=${draft.email} union all select id from public.teams where lower(btrim(team_name))=lower(${draft.teamName}) limit 1`;if(duplicate.length)throw new ServiceError(409,'REGISTRATION_CONFLICT');
@@ -36,6 +38,7 @@ export async function registerOriginalTeam(sql:Sql,secret:string,input:z.infer<t
   await tx`insert into aevic_platform.team_authority(team_id,account_id,role) values(${row.id},${row.id},'OWNER')`;
   await tx`insert into aevic_platform.team_details(team_id,tag,legacy_history_incomplete) values(${row.id},${draft.tag},false)`;
   for(const [i,p]of draft.players.entries())if(p.ign)await tx`insert into aevic_platform.player_details(team_id,slot,pubg_id,role) values(${row.id},${i+1},${p.uid},${p.role})`;
+  if(input.googleContinuation)await attachGoogleRegistration(tx,googleBrowserToken!,row.id,draft.email);
   await audit(tx,{teamId:row.id},'registration.create','team',row.id);
   return{registrationId:row.id,status:'submitted',source:'backend'};
  });
@@ -48,7 +51,8 @@ app.post('/registrations',async c=>{
  limit('registration-ip',c.req.header('x-nf-client-connection-ip')??'local',5);
  const input=await body(c,registrationInput),config=c.get('config');
  if(!config.emailFrom||!(config.smtp||config.resendKey))throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
- const result=await registerOriginalTeam(platform(c).sql,config.sessionSecret??'',input);
+ if(input.googleContinuation&&!config.google)throw new ServiceError(503,'GOOGLE_NOT_CONFIGURED');
+ const result=await registerOriginalTeam(platform(c).sql,config.sessionSecret??'',input,googleBrowser(c));
  // Replayed registration must never bypass a subsequently enabled second factor.
  if(result.receipt.duplicate){const [factor]=await platform(c).sql`select enabled_at from aevic_platform.mfa_factors where team_id=${result.receipt.registrationId} and enabled_at is not null`;if(factor)throw new ServiceError(401,'LOGIN_REQUIRED');}
  // Issue on the server, including idempotent retries after a delivery failure.
@@ -58,6 +62,7 @@ app.post('/registrations',async c=>{
  let legacyCookie=result.cookie;
  const issued=await platform(c).sql.begin(async tx=>{const row=await lockAccount(tx,result.receipt.registrationId);if(!await verifyPassword(input.password,row.password_hash)||row.status==='banned')throw new ServiceError(401,'LOGIN_REQUIRED');const [factor]=await tx`select enabled_at from aevic_platform.mfa_factors where team_id=${row.id} and enabled_at is not null`;if(factor)throw new ServiceError(401,'LOGIN_REQUIRED');if(tokensEnabled(c))return issueTokens(c,tx,{accountId:row.id},row.password_hash,false,false);legacyCookie=makeSession(row.id,row.password_hash,config.sessionSecret??'',8*3600);});
  if(issued)saveTokens(c,issued);else setCookie(c,captainCookieName(c),legacyCookie,{path:'/',httpOnly:true,secure:config.secureCookies,sameSite:'Strict'});
+ if(input.googleContinuation)clearGoogle(c);
  return c.json({...result.receipt,...(issued?{accessToken:issued.accessToken,accessExpiresAt:issued.accessExpiresAt,sessionMode:'tokens'}:{})},201);
 });
 export default app;

@@ -77,7 +77,7 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
       if (!menuRef.current?.contains(event.target as Node) && !buttonRef.current?.contains(event.target as Node)) setOpen(false);
     };
     document.addEventListener('pointerdown', closeFromOutside);
-    window.requestAnimationFrame(() => menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus());
+    menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
     return () => document.removeEventListener('pointerdown', closeFromOutside);
   }, [open]);
 
@@ -99,12 +99,12 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
   };
   const handleMenuKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') { event.preventDefault(); close(true); return; }
-    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
     const items = [...(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
     const current = items.indexOf(document.activeElement as HTMLElement);
     const delta = event.key === 'ArrowDown' ? 1 : -1;
-    items[(current + delta + items.length) % items.length]?.focus();
+    items[event.key === 'Home' ? 0 : event.key === 'End' ? items.length - 1 : (current + delta + items.length) % items.length]?.focus();
   };
   const isAdmin = session.role === 'admin';
   const hasTeamArea = !isAdmin && ['captain', 'team'].includes(session.role);
@@ -115,12 +115,12 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
       <span className="public-identity-label">{identity}</span><ChevronRight size={15} aria-hidden="true" />
     </button>
     {open && <div ref={menuRef} id="public-identity-menu" className="public-identity-menu" role="menu" aria-label="Hesab əməliyyatları" onKeyDown={handleMenuKeyDown}>
-      <header><span>{isAdmin ? 'ADMIN ACCESS' : team?.tag || 'AEVIC TEAM'}</span><strong>{identity}</strong></header>
+      <header><span>{isAdmin ? 'Administrator' : team?.tag || 'AEVIC hesabı'}</span><strong>{identity}</strong><small>{session.user.email}</small></header>
       {isAdmin && <Link role="menuitem" tabIndex={-1} to="/admin" onClick={() => close()}>Admin paneli <ChevronRight size={16} /></Link>}
       {hasTeamArea && <Link role="menuitem" tabIndex={-1} to="/team" onClick={() => close()}>Komanda paneli <ChevronRight size={16} /></Link>}
       <Link role="menuitem" tabIndex={-1} to="/account/profile" onClick={() => close()}>Hesab <ChevronRight size={16} /></Link>
       <Link role="menuitem" tabIndex={-1} to={isAdmin ? '/admin/settings' : hasTeamArea ? '/team/settings' : '/account/security'} onClick={() => close()}>Ayarlar <ChevronRight size={16} /></Link>
-      <button role="menuitem" tabIndex={-1} type="button" disabled={loggingOut} onClick={() => void logout()}><LogOut size={16} /> {loggingOut ? 'Çıxış edilir…' : 'Çıxış'}</button>
+      <div role="separator" className="identity-menu-divider" /><button role="menuitem" tabIndex={-1} type="button" disabled={loggingOut} onClick={() => void logout()}><LogOut size={16} /> {loggingOut ? 'Çıxış edilir…' : 'Çıxış'}</button>
       {logoutError && <p role="alert">{logoutError}</p>}
     </div>}
   </div>;

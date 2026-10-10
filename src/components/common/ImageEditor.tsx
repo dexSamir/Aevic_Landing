@@ -164,11 +164,12 @@ export function ImageEditor({
         <h2 id={titleId}>{title}</h2>
         <p>{width} × {height} px · Çərçivədə görünən hissə saxlanılır. Sürüşdürün və ölçünü seçin.</p>
       </header>
+      <div className="image-editor-preview">
       <canvas
         ref={canvas}
         width={width}
         height={height}
-        style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, 360px, ${48*width/height}dvh)` }}
+        style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, 720px, ${48*width/height}dvh)` }}
         tabIndex={0}
         aria-label="Şəkil kəsimi. Mövqeyi dəyişmək üçün ox düymələrindən istifadə edin."
         onKeyDown={(event) => {
@@ -206,6 +207,8 @@ export function ImageEditor({
           drag.current = null;
         }}
       />
+      </div>
+      <p className="image-editor-hint">Mövqeyi dəyişmək üçün şəkli sürüşdürün və ya ox düymələrindən istifadə edin.</p>
       <fieldset disabled={saving || !source} className="image-editor-adjustments"><legend className="sr-only">Şəkil düzəlişləri</legend><div className="logo-editor-controls">
         <button
           type="button"
@@ -216,7 +219,7 @@ export function ImageEditor({
           <ZoomOut size={18} />
         </button>
         <label>
-          Ölçü{" "}
+          Yaxınlaşdırma{" "}
           <input
             aria-label="Şəkil ölçüsü"
             type="range"
@@ -227,6 +230,7 @@ export function ImageEditor({
             onChange={(event) => setZoom(Number(event.target.value))}
           />
         </label>
+        <output className="image-editor-zoom">{Math.round(zoom * 100)}%</output>
         <button
           type="button"
           aria-label="Böyüt"

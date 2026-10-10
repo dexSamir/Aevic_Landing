@@ -14,7 +14,9 @@ export async function installApiFixtures(page:Page){
    let body:any={};try{body=request.postDataJSON()??{};}catch{/* no body */}
    const key=`${method} ${path}`;let value:unknown;let found=true;
    try{
-    if(key==='GET /public/context')value=await s.snapshots.public();
+    if(key==='POST /auth/refresh')value={sessionMode:'legacy'};
+    else if(key==='GET /auth/google/status')value={enabled:false};
+    else if(key==='GET /public/context')value=await s.snapshots.public();
     else if(key==='GET /public/settings')value={supportEmail:'support@example.invalid',registrationEnabled:true,maintenanceMessage:''};
     else if(key==='GET /me/session'&&loggedOut)value=null;
     else if(key==='GET /me/session'){await s.auth.login(page.url().includes('/admin')?'admin@example.test':'team@example.test','test-fixture');value=await s.auth.getSession();}

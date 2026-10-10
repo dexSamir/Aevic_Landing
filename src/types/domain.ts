@@ -142,6 +142,7 @@ export interface KnownPlayerLookup {
 }
 
 export interface TeamRegistrationSubmission {
+  googleContinuation?: boolean;
   draft: TeamRegistrationDraft;
   password: string;
   idempotencyKey: string;

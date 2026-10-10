@@ -5,6 +5,11 @@ import type {Env} from '../../server/types';
 import {readConfig} from '../../server/config';
 import {issueTokens,saveTokens} from '../../server/auth/platform-tokens';
 const env={SUPABASE_URL:'https://nmjjibifcuzjlsvfcaaz.supabase.co',SUPABASE_PUBLISHABLE_KEY:'fixture',PUBLIC_SITE_URL:'https://fixture.test',AEVIC_DATABASE_URL:'postgres://fixture:fixture@localhost/fixture',AEVIC_SESSION_SECRET:'isolated-session-secret-at-least-32-characters'};
+it('keeps configured Google credentials dormant without changing legacy authentication settings',()=>{
+ const config=readConfig({...env,AEVIC_GOOGLE_ENABLED:'false',AEVIC_SESSION_MODE:'legacy',GOOGLE_CLIENT_ID:'configured-client',GOOGLE_CLIENT_SECRET:'configured-secret'});
+ expect(config.google).toBeUndefined();expect(config.sessionMode).toBe('legacy');
+ expect(config.databaseUrl).toBe(env.AEVIC_DATABASE_URL);expect(config.sessionSecret).toBe(env.AEVIC_SESSION_SECRET);
+});
 it('defaults to compatibility and requires an explicit transition cutoff and signing configuration',()=>{
  expect(readConfig(env).sessionMode).toBe('legacy');
  expect(()=>readConfig({...env,AEVIC_SESSION_MODE:'transition'})).toThrow();

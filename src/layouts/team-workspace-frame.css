@@ -126,3 +126,14 @@
 }
 
 .workspace-recovery-link { display:inline-flex; align-items:center; min-height:44px; color:var(--team-text-secondary); font-size:.8125rem; }
+
+.workspace-analytics-loading { display:flex; align-items:center; gap:20px; min-height:140px; padding:24px; background:var(--team-surface-secondary); border-radius:12px; }
+.workspace-analytics-loading .brand-emblem { width:48px; flex:0 0 48px; }
+.workspace-analytics-loading img { width:48px; height:56px; object-fit:contain; }
+.workspace-analytics-loading strong { font-size:18px; }
+.workspace-analytics-loading p { margin-top:8px; font-size:14px; line-height:1.5; color:var(--team-text-muted); }
+.workspace-pending-charts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:24px; }
+.workspace-pending-chart { padding:20px; background:var(--team-surface-secondary); border-radius:16px; min-height:300px; }
+.workspace-chart-placeholder { height:200px; display:grid; align-content:space-evenly; margin-top:20px; border-left:1px solid var(--team-line); border-bottom:1px solid var(--team-line); padding:16px; }
+.workspace-chart-placeholder .workspace-placeholder { width:100%; height:1px; }
+@media(max-width:700px) { .workspace-pending-charts { grid-template-columns:1fr; } }

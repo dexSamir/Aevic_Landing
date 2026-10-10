@@ -848,3 +848,8 @@ html:has(.auth-identity)::-webkit-scrollbar, body:has(.auth-identity)::-webkit-s
   .auth-recovery__heading h1 { font-size: 40px; }
 }
 .auth-recovery .button--primary > svg { order: 1; flex-shrink: 0; }
+
+.google-auth { display:grid; gap:12px; padding-block:16px; margin-bottom:16px; border-bottom:1px solid var(--color-border); }
+.google-auth p { color:var(--color-text-muted); font-size:14px; line-height:1.5; overflow-wrap:anywhere; }
+.google-auth > button:not(.button) { background:transparent; color:var(--color-text-primary); min-height:44px; cursor:pointer; }
+.google-auth [role=alert] { color:var(--color-text-danger); }

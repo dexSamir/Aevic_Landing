@@ -106,7 +106,7 @@ describe('audit resolution navigation integrity', () => {
     expect(trigger).not.toHaveTextContent('Caspian Wolves');
     expect(trigger.querySelector('.team-logo')).not.toBeInTheDocument();
     fireEvent.click(trigger);
-    expect(await within(view.container).findByText('ADMIN ACCESS')).toBeInTheDocument();
+    expect(await within(view.container).findByText('Administrator')).toBeInTheDocument();
     await fixtureServices.auth.login('team@example.test', 'password');
   });
 });

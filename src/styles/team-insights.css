@@ -107,3 +107,13 @@
 /* A details element is a grid item: constrain its min-content table width. */
 .insight-table { min-width:0; max-width:100%; }
 .insight-table > [role=region] { max-width:100%; overscroll-behavior-inline:contain; }
+
+.intelligence-card { flex-basis:clamp(230px,22vw,290px); padding:20px; gap:12px; }
+.intelligence-card > span:first-child { font-size:12px; line-height:1.5; letter-spacing:.025em; }
+.intelligence-card strong { font-size:22px; letter-spacing:-.025em; }
+.intelligence-card strong,.intelligence-card p { display:block; overflow:visible; }
+.insight-chart > svg { min-height:180px; max-height:260px; }
+.insight-chart--points .chart-line { stroke:var(--color-text-primary); }
+.insight-chart--points .chart-point { fill:var(--color-text-primary); }
+.insight-chart--points .chart-legend::before { background:var(--color-text-primary); }
+@media(max-width:700px) { .intelligence-card { padding:14px; } .intelligence-card strong { font-size:18px; } }
