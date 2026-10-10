@@ -31,8 +31,8 @@ function Trend({ matches, metric, label }: { matches: MatchHistoryEntry[]; metri
   const y = (m: MatchHistoryEntry) => metric === 'placement' ? 28 + (m[metric] - 1) / Math.max(1, max - 1) * 132 : 160 - (m[metric] - min) / (max - min) * 132;
   const current = rows.find(m => m.id === selected) ?? rows[rows.length - 1];
   const unit = metric === 'placement' ? 'yer' : metric === 'points' ? 'xal' : 'kill';
-  return <ChartSnapshot title={label} subtitle={`Son ${rows.length} matç${metric === 'placement' ? ' · 1-ci yer ən yaxşıdır' : ''}`} filename={`match-${metric}`} className={metric === 'placement' ? 'insight-chart--placement' : ''}>
-    <p className="chart-axes"><span className="chart-legend">{unit}</span><span>Tarix</span></p>
+  return <ChartSnapshot title={label} subtitle={`Son ${rows.length} matç · ${metric === 'placement' ? 'Hər matçda tutulan yer; 1-ci yer ən yaxşıdır' : metric === 'points' ? 'Hər matçın kill və yerləşmə xallarının cəmi' : 'Hər matçda komandanın ümumi kill sayı'}`} filename={`match-${metric}`} className={metric === 'placement' ? 'insight-chart--placement' : ''}>
+    <p className="chart-axes"><span className="chart-legend">{metric === 'points' ? 'Ümumi xal / matç' : metric === 'finishes' ? 'Kill / matç' : 'Tutulan yer'}</span><span>Tarix · Bakı vaxtı</span></p>
     <svg ref={chart.ref} viewBox={`0 0 ${chart.width} 200`} role="group" aria-label={`${label}. X: Bakı tarixi. Y: ${unit}.`}>
       {[0, .5, 1].map(t => <g key={t}><line x1="40" x2={right} y1={28 + t * 132} y2={28 + t * 132} className="chart-grid" /><text x="4" y={32 + t * 132}>{metric === 'placement' ? (1 + t * (max - 1)).toFixed(0) : Math.round(max - t * (max - min))}</text></g>)}
       <polyline points={rows.map(m => `${x(m)},${y(m)}`).join(' ')} fill="none" className="chart-line" />
@@ -50,7 +50,7 @@ function MonthlyKills({ data }: { data: ReturnType<typeof teamAnalytics> }) {
   const [selected, setSelected] = useState<string>();
   const max = Math.max(1, ...data.daily.map(day => day.kills));
   const active = data.daily.find(day => day.day === selected) ?? data.daily[data.daily.length - 1];
-  return <ChartSnapshot title="Günlər üzrə ümumi kill" subtitle={data.month} filename="daily-kills" className="monthly-kills" disabled={!data.monthly.length}>
+  return <ChartSnapshot title="Günlər üzrə ümumi kill" subtitle={`${data.month} · Eyni gündə oynanmış bütün rəsmi matçların kill cəmi`} filename="daily-kills" className="monthly-kills" disabled={!data.monthly.length}>
     <p className="chart-axes"><span className="chart-legend">Kill</span><span>Gün</span></p>
     {!data.monthly.length ? <p className="insight-empty">Bu ay üçün dərc edilmiş matç yoxdur.</p> : <>
       <svg ref={chart.ref} viewBox={`0 0 ${chart.width} 210`} role="group" aria-label={`${data.month}: günlər üzrə ümumi kill sayı`}>
@@ -63,6 +63,7 @@ function MonthlyKills({ data }: { data: ReturnType<typeof teamAnalytics> }) {
       </svg>
       <label className="chart-selection" data-export-exclude>Gün seçin<select value={active.day} onChange={event => setSelected(event.target.value)}>{data.daily.map(day => <option key={day.day} value={day.day}>{day.day} · {day.kills} kill · {day.matches} matç</option>)}</select></label>
       <p className="chart-detail">{active.day} · {active.matches} dərc edilmiş matç<strong>Ümumi kill: {active.kills}</strong></p><small>Boş gün: dərc edilmiş matç yoxdur. Gələcək günlər göstərilmir.</small>
+      <details className="insight-table" data-export-exclude><summary>Günlük rəqəmləri göstər</summary><div tabIndex={0} role="region" aria-label="Günlük kill cədvəli"><table><caption>{data.month} · yalnız bu günə qədər dərc edilmiş nəticələr</caption><thead><tr><th scope="col">Gün</th><th scope="col">Matç</th><th scope="col">Kill</th></tr></thead><tbody>{data.daily.map(day=><tr key={day.day}><th scope="row">{day.day}</th><td>{day.matches}</td><td>{day.kills}</td></tr>)}</tbody></table></div></details>
     </>}
   </ChartSnapshot>;
 }
@@ -81,7 +82,7 @@ export function TeamAnalytics({ history, unavailable = false, incomplete = false
     </section>;
   }
   const strongest = data.maps.find(m => m.matches >= 3);
-  const comparison = data.previousKills === undefined ? 'Əvvəlki ay üçün dərc edilmiş matç yoxdur' : !data.monthly.length ? 'Bu ay hələ nəticə yoxdur' : `Əvvəlki tam ay: ${data.previousKills} kill · fərq ${data.monthlyKills - data.previousKills >= 0 ? '+' : ''}${data.monthlyKills - data.previousKills}`;
+  const comparison = data.previousKills === undefined ? 'Əvvəlki ay üçün dərc edilmiş matç yoxdur' : !data.monthly.length ? 'Bu ay hələ nəticə yoxdur' : `Əvvəlki tam ay: ${data.previousKills} kill · cari ay hələ tamamlanmayıb`;
   return <section className="team-insights" aria-label="Rəsmi matç analitikası"><header><h2>Performans</h2><p>Dərc edilmiş nəticələr · aylıq göstəricilər Bakı vaxtı ilə</p></header>
     {incomplete && <p className="insight-note">Əvvəlki tarixçə tam deyil. Yalnız sistemdə dərc edilmiş matçlar hesablanır.</p>}
     {data.omitted > 0 && <p role="status">{data.omitted} matçın tarix və ya nəticəsi uyğun deyil; hesablamaya daxil edilməyib.</p>}

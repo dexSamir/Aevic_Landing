@@ -1,11 +1,11 @@
 import { createClient, type RealtimeChannel } from '@supabase/supabase-js';
-import { requestJson } from './requestJson';
+import {sessionTransport} from './tokenSession';
 import { invalidateQuery } from './queryCache';
 
 /** Loaded only inside an authenticated workspace. Tokens remain in memory. */
 export async function subscribeTeam(teamId:string,signal:AbortSignal) {
  const root=(import.meta.env.VITE_API_BASE_URL||'/api').replace(/\/$/,'');
- const credentials=await requestJson<{url:string;key:string;accessToken:string;userId:string}>(`${root}/me/realtime`,{credentials:'include',signal});
+ const credentials=await sessionTransport(root).request<{url:string;key:string;accessToken:string;userId:string}>('/me/realtime',{credentials:'include',signal});
  if(signal.aborted)return;
  const db=createClient(credentials.url,credentials.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
  await db.realtime.setAuth(credentials.accessToken);
@@ -18,7 +18,7 @@ export async function subscribeTeam(teamId:string,signal:AbortSignal) {
  .on('postgres_changes',{event:'UPDATE',schema:'aevic',table:'matches'},()=>{refresh();invalidateQuery('snapshot:public');})
  .subscribe(status=>{if(status==='SUBSCRIBED')refresh();});
  // Safe read recovery for timed room release, missed events, global announcements and reconnect.
- const refreshAuth=setInterval(()=>{void requestJson<typeof credentials>(`${root}/me/realtime`,{credentials:'include',signal}).then(c=>{if(c.userId!==credentials.userId){cleanup();window.dispatchEvent(new Event('aevic:session-change'));return;}if(!signal.aborted)void db.realtime.setAuth(c.accessToken);}).catch(()=>{/* Keep read polling; session expiry is handled by the next API response. */});},4*60_000);
+ const refreshAuth=setInterval(()=>{void sessionTransport(root).request<typeof credentials>('/me/realtime',{credentials:'include',signal}).then(c=>{if(c.userId!==credentials.userId){cleanup();window.dispatchEvent(new Event('aevic:session-change'));return;}if(!signal.aborted)void db.realtime.setAuth(c.accessToken);}).catch(()=>{/* Keep read polling; session expiry is handled by the next API response. */});},4*60_000);
  const onOnline=()=>refresh();window.addEventListener('online',onOnline);
  const cleanup=()=>{clearTimeout(debounce);clearInterval(refreshAuth);window.removeEventListener('online',onOnline);void db.removeChannel(channel);void db.removeAllChannels();db.realtime.disconnect();};
  if(signal.aborted)cleanup();else signal.addEventListener('abort',cleanup,{once:true});

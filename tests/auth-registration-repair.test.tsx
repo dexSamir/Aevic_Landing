@@ -54,3 +54,14 @@ describe('registration repair', () => {
     expect(screen.getByLabelText('Komanda adı')).toHaveValue('Test team');
   });
 });
+
+
+it('preserves MFA challenges and verification errors across the actual HTTP adapter', async () => {
+  const { apiErrorFromResponse } = await import('../src/services/apiError');
+  for (const code of ['MFA_REQUIRED', 'MFA_INVALID', 'EMAIL_VERIFICATION_REQUIRED']) {
+    const error = await apiErrorFromResponse(Response.json({ code, message: 'private diagnostic' }, { status: code.startsWith('MFA') ? 401 : 403 }));
+    expect(error.code).toBe(code);
+    expect(error.retryable).toBe(false);
+    expect(error.message).not.toContain('private diagnostic');
+  }
+});

@@ -1,3 +1,4 @@
+import tokenRoutes from './auth/token-routes';
 import type { ServerConfig } from './config';
 import { createHttpApp } from './http';
 import production from './routes/production';
@@ -30,6 +31,7 @@ export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process
  const platformEnabled=Boolean(config?.databaseUrl??env.AEVIC_DATABASE_URL);
  if(platformEnabled){
   app.route('/',platformMiddleware());
+  app.route('/',tokenRoutes);
   app.route('/',activationRoutes);
   app.route('/',legacyClaimRoutes);
   app.route('/',authorityRoutes);

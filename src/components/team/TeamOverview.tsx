@@ -1,3 +1,4 @@
+import { services } from '../../services';
 import { TeamAnalytics } from './TeamAnalytics';
 import { TeamIntelligence } from './TeamIntelligence';
 import { ArrowRight, ExternalLink, ShieldCheck, Users } from 'lucide-react';
@@ -26,11 +27,11 @@ function OperationsCanvas({ vm }: { vm: TeamOverviewViewModel }) {
   if (!vm.context || !vm.tournamentHref) return null;
   return <section className="overview-operations" aria-label="Raund proqramı və cari sıra">
     <section className="overview-rounds">
-      <header><h2>CARİ TURNİR · RAUND PROQRAMI</h2><span>Bakı vaxtı</span></header><div className="overview-competition-ready"><span>CHECK-IN</span><strong>{vm.context.checkIn?.status === 'checked-in' ? 'Təsdiqlənib' : vm.context.checkIn?.status === 'open' ? 'Açıqdır · iştirakınızı təsdiqləyin' : vm.context.checkIn?.status === 'missed' ? 'Müddət bitib' : 'Gözlənilir'}</strong></div>
+      <header><h2>CARİ TURNİR · RAUND PROQRAMI</h2><span>Bakı vaxtı</span></header><div className="overview-competition-ready"><span>İŞTİRAK TƏSDİQİ</span><strong>{vm.context.checkIn?.status === 'checked-in' ? 'Təsdiqlənib' : vm.context.checkIn?.status === 'open' ? 'Açıqdır · iştirakınızı təsdiqləyin' : vm.context.checkIn?.status === 'missed' ? 'Müddət bitib' : 'Gözlənilir'}</strong></div>
       {vm.rounds.length ? <ol>{vm.rounds.map(round => <li key={round.id} className={round.id === vm.context?.nextMatch?.id ? 'is-current' : undefined}>
         <span>R{String(round.round).padStart(2, '0')}</span><div><strong>{round.map}</strong><small>{round.lobby} · {round.stage === 'final' ? 'Final' : 'Qrup mərhələsi'}</small></div><time dateTime={round.startsAt}>{bakuTime(round.startsAt)}</time>
       </li>)}</ol> : <p className="overview-empty">Raund proqramı hələ dərc edilməyib.</p>}
-      <Link className="overview-section-link" to={vm.tournamentHref}>Tam turnir əməliyyatları <ArrowRight size={16} aria-hidden="true" /></Link>
+      <Link className="overview-section-link" to={vm.tournamentHref}>Turniri idarə et <ArrowRight size={16} aria-hidden="true" /></Link>
     </section>
     <section className="overview-standings">
       <h2>CARİ SIRA</h2>
@@ -51,6 +52,8 @@ function RecentForm({ vm }: { vm: TeamOverviewViewModel }) {
 }
 export function TeamOverview() {
   const data = useTeamPlatformData();
+  const [emailVerified, setEmailVerified] = useState<boolean>();
+  useEffect(() => { let active = true; services.account.profile().then(profile => { if (active) setEmailVerified(profile.emailVerified); }).catch(() => {}); return () => { active = false; }; }, []);
   // Refresh temporal selectors while the captain leaves the console open.
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -71,14 +74,15 @@ export function TeamOverview() {
   const contextLine = data.unavailable?.competition ? `Tier: ${vm.team.tier??'—'} · Status: ${vm.team.sourceStatus??'—'} · Yarış və otaq məlumatları hələ əlçatan deyil.` : context ? [context.tournament.name, context.participation.groupLabel, context.participation.slotNumber ? `Slot #${context.participation.slotNumber}` : undefined].filter(Boolean).join(' · ') : 'Aktiv yarış iştirakı yoxdur.';
   return <div className="team-overview">
     {management && <section className="overview-participation" aria-label="Turnir iştirakının idarəsi"><div><strong>{management.tournament.name}</strong><p>İştirak vəziyyəti və geri çəkilmə seçimləri.</p></div>{manageable.length > 1 && <label>Turnir<select value={management.tournament.id} onChange={event => setSelectedTournament(event.target.value)}>{manageable.map(item => <option key={item.tournament.id} value={item.tournament.id}>{item.tournament.name}</option>)}</select></label>}<Link className="button button--secondary" to={`/team/tournaments/${management.tournament.id}#withdrawal`}>Turnir iştirakını idarə et<ArrowRight size={16} /></Link></section>}
+    {emailVerified === false && <section className="overview-participation" aria-label="E-poçt təsdiqi"><div><strong>E-poçt ünvanınızı təsdiqləyin</strong><p>Yeni hesablarla komanda dəyişiklikləri üçün e-poçt təsdiqi lazımdır.</p></div><Link className="button button--secondary" to="/verify-email">Təsdiq məktubu istə</Link></section>}
     <TeamIntelligence />
     <header className="overview-identity">
-      <div><span className="overview-eyebrow">// KAPİTAN XƏTTİ</span><h1 aria-label={vm.team.name}>{vm.team.name}{verified && <ShieldCheck aria-label="Təsdiqlənmiş komanda" />}</h1><p>{contextLine}</p></div>
+      <div><span className="overview-eyebrow">KOMANDA PANELİ</span><h1 aria-label={vm.team.name}>{vm.team.name}{verified && <ShieldCheck aria-label="Təsdiqlənmiş komanda" />}</h1><p>{contextLine}</p></div>
       <nav aria-label="Komanda kontekst keçidləri"><Link to={`/teams/${encodeURIComponent(vm.team.slug ?? vm.team.id)}`}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link>{context && vm.tournamentHref && <Link className="overview-current-tournament" to={vm.tournamentHref}><span>AKTİV TURNİR</span>{context.tournament.shortName || context.tournament.name}<ArrowRight size={14} aria-hidden="true" /></Link>}</nav>
     </header>
     {vm.team.rejectionReason && <p role="status" className="overview-empty">{vm.team.rejectionReason}</p>}
     <NextActionCommand vm={vm} />
-    <dl className="team-stat-ledger" aria-label="Rəsmi komanda statistikası">{([['matches', 'Matç'], ['wwcd', 'WWCD'], ['championships', 'Çempionluq'], ['podiums', 'Podium']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{data.careerSummary.metrics.find(metric => metric.key === key)?.value ?? '—'}</dd></div>)}<div><dt>Heyət hazırlığı</dt><dd><Link className="overview-status--roster" to="/team/roster">{vm.activeRosterCount}/4 <Users size={17} /></Link></dd></div></dl>
+    <dl className="team-stat-ledger" aria-label="Rəsmi komanda statistikası">{([['matches', 'Matç'], ['wwcd', 'Matç qələbəsi'], ['championships', 'Çempionluq'], ['podiums', 'İlk 3 yer']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{data.careerSummary.metrics.find(metric => metric.key === key)?.value ?? '—'}</dd></div>)}<div><dt>Heyət hazırlığı</dt><dd><Link className="overview-status--roster" to="/team/roster">{vm.activeRosterCount}/4 <Users size={17} /></Link></dd></div></dl>
     <TeamAnalytics history={data.matchHistory} unavailable={data.historyAvailable === false || data.unavailable?.history === true} incomplete={data.currentTeam.legacyHistoryIncomplete} />
     <RecentForm vm={vm} />
     <OperationsCanvas vm={vm} />

@@ -1,3 +1,5 @@
+import {persistentLimit} from '../auth/persistent-limit';
+import {issueTokens,saveTokens,tokensEnabled} from '../auth/platform-tokens';
 import {Hono} from 'hono';
 import {z} from 'zod';
 import {getCookie,setCookie,deleteCookie} from 'hono/cookie';
@@ -20,17 +22,19 @@ const teamId=(c:ApiContext,key='id')=>z.string().regex(/^[1-9]\d{0,18}$/).parse(
 app.post('/auth/admin/login',async c=>{
  const input=await body(c,z.object({email,password:z.string().min(1).max(128),remember:z.boolean().default(false),otp:z.string().max(40).optional()}).strict());
  limit('admin-login',c.req.header('x-nf-client-connection-ip')??'local',10);limit('admin-account',input.email,10);
+ await persistentLimit(c,platform(c).sql,'admin-login',input.email,10);
  const sql=platform(c).sql,[a]=await sql`select * from aevic_platform.admin_accounts where email=${input.email} and active`;
  if(!await verifyPassword(input.password,a?.password_hash??'')||!a)throw new ServiceError(401,'LOGIN_FAILED');
  const token=randomBytes(32).toString('base64url'),seconds=input.remember?30*86400:8*3600;
- await transaction(sql,async tx=>{
+ const issued=await transaction(sql,async tx=>{
   const [current]=await tx`select password_hash,active from aevic_platform.admin_accounts where id=${a.id} for update`;
   if(!current?.active||current.password_hash!==a.password_hash)throw new ServiceError(401,'LOGIN_FAILED');
   const verified=await consumeFactor(tx,{adminId:a.id},c.get('config').sessionSecret??'',input.otp);
+  if(tokensEnabled(c))return issueTokens(c,tx,{adminId:a.id},current.password_hash,input.remember,verified);
   await tx`insert into aevic_platform.sessions(token_digest,admin_id,expires_at,device,mfa_verified_at) values(${tokenDigest(token)},${a.id},now()+${seconds}*interval '1 second',${(c.req.header('user-agent')??'Browser').slice(0,300)},case when ${verified} then clock_timestamp() else null end)`;
  });
- setCookie(c,adminCookieName(c),token,{path:'/',httpOnly:true,secure:c.get('config').secureCookies,sameSite:'Strict',...(input.remember?{maxAge:seconds}:{})});
- return c.json({role:'admin',user:{id:a.id,firstName:a.first_name,lastName:a.last_name,email:a.email,role:'admin'}});
+ if(issued)saveTokens(c,issued);else setCookie(c,adminCookieName(c),token,{path:'/',httpOnly:true,secure:c.get('config').secureCookies,sameSite:'Strict',...(input.remember?{maxAge:seconds}:{})});
+ return c.json({...(issued?{accessToken:issued.accessToken,accessExpiresAt:issued.accessExpiresAt,sessionMode:'tokens'}:{}),role:'admin',user:{id:a.id,firstName:a.first_name,lastName:a.last_name,email:a.email,role:'admin'}});
 });
 app.get('/me/session',async(c,next)=>{
  const a=c.get('platform')?.actor;if(!a?.adminId)return next();

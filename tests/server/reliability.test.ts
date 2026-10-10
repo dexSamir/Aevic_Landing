@@ -34,9 +34,9 @@ describe('shared request dependency isolation',()=>{
    const app=createHttpApp({...config,databaseUrl:'postgres://private-user:private-password@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres'},{AWS_LAMBDA_FUNCTION_NAME:'api'});
    app.get('/public/teams',()=>{throw Object.assign(new Error('private-session-token'),{code:'CONNECT_TIMEOUT'});});
    const response=await app.request('/api/public/teams');
-   expect(response.status).toBe(503);
+   expect(response.status).toBe(504);
    const body=await response.json();
-   expect(body.code).toBe('SERVICE_UNAVAILABLE');
+   expect(body.code).toBe('REQUEST_TIMEOUT');
    const event=JSON.parse(log.mock.calls[0][0]);
    expect(event).toMatchObject({event:'api_failure',requestId:body.requestId,route:'/api/public/teams',errorType:'Error',errorCode:'CONNECT_TIMEOUT',database:{endpoint:'supavisor',port:'5432'},runtime:'lambda'});
    expect(JSON.stringify(log.mock.calls)).not.toContain('private-');

@@ -29,14 +29,14 @@ it('does not rerender a tournament page each second between lifecycle boundaries
 it('deduplicates concurrent session reads but revalidates subsequent reads', async () => {
   const actual = await vi.importActual<typeof import('../src/services')>('../src/services');
   let resolve!: (response: Response) => void;
-  const fetcher = vi.fn(() => new Promise<Response>(done => { resolve = done; }));
+  const fetcher = vi.fn((url:string) => url.endsWith('/auth/refresh')?Promise.resolve(Response.json({sessionMode:'legacy'})):new Promise<Response>(done => { resolve = done; }));
   vi.stubGlobal('fetch', fetcher);
   const reads = [actual.services.auth.getSession(), actual.services.auth.getSession(), actual.services.auth.getSession()];
-  expect(fetcher).toHaveBeenCalledTimes(1);
+  await vi.waitFor(()=>expect(fetcher).toHaveBeenCalledTimes(2));
   resolve(new Response('null', { headers: { 'content-type': 'application/json' } }));
   await expect(Promise.all(reads)).resolves.toEqual([null, null, null]);
   const next = actual.services.auth.getSession();
-  expect(fetcher).toHaveBeenCalledTimes(2);
+  expect(fetcher).toHaveBeenCalledTimes(3);
   resolve(new Response('null', { headers: { 'content-type': 'application/json' } }));
   await next;
 });

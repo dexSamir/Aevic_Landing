@@ -1,3 +1,6 @@
+import {persistentLimit} from '../auth/persistent-limit';
+import {authenticateAccess,tokenMode} from '../auth/platform-tokens';
+import {requireVerifiedEmail} from './email-requirement';
 import {workspaceRequest,selectWorkspace,requireWorkspaceWrite} from './workspace';
 import {Hono} from 'hono';
 import {getCookie} from 'hono/cookie';
@@ -32,23 +35,27 @@ export function platformMiddleware(testSql?:Sql){
   let store:PostgresCaptainStore|undefined;
   if(config.databaseUrl){store=stores.get(config.databaseUrl);if(!store){store=new PostgresCaptainStore(config.databaseUrl,!config.secureCookies);stores.set(config.databaseUrl,store);}}
   const sql=testSql??store!.sql;
+  if(!['GET','HEAD','OPTIONS'].includes(c.req.method)&&/^\/api\/(auth|registrations|me\/2fa)(\/|$)/.test(c.req.path))await persistentLimit(c,sql,'security-ip',c.req.header('x-nf-client-connection-ip')??'local',60);
   // Public reads must not depend on session state or maintenance writes.
   const publicRead=['GET','HEAD'].includes(c.req.method)&&/^\/api\/(public(?:\/|$)|tournaments(?:\/|$)|matches(?:\/|$)|leaderboards(?:\/|$)|records(?:\/|$)|archive$|search$|sitemap)/.test(c.req.path);
   // An anonymous session probe has no identity to resolve or sanctions to expire.
   // Keep cookie-bearing requests on the full authorization path.
-  const guestSession = ['GET','HEAD'].includes(c.req.method) && c.req.path === '/api/me/session' && !getCookie(c,adminCookieName(c)) && !currentCaptainCookie(c);
+  const guestSession = ['GET','HEAD'].includes(c.req.method) && c.req.path === '/api/me/session' && !c.req.header('authorization') && !getCookie(c,adminCookieName(c)) && !currentCaptainCookie(c);
   if(publicRead || guestSession){c.set('platform',new PlatformRepository(c.get('db'),sql,{}));return next();}
   // Expiry maintenance is optional. Coalesce it per warm runtime; a failure
   // leaves bans in force, but must not take login/media/session endpoints down.
   await maintainSanctions(sql);
-  const identity:Actor={};
+  const skipIdentity=c.req.path.startsWith('/api/auth/')&&c.req.path!=='/api/auth/email-verification/resend'||['/api/auth/login','/api/auth/admin/login','/api/auth/refresh','/api/auth/logout','/api/registrations'].includes(c.req.path);
+  const bearer=c.req.header('authorization');
+  const identity:Actor=bearer&&!skipIdentity?await authenticateAccess(c,sql,bearer):{};
+  const legacyAllowed=!bearer&&!skipIdentity&&(tokenMode(c)==='legacy'||tokenMode(c)==='transition'&&Date.parse(config.legacySessionUntil??'')>Date.now());
   const adminToken=getCookie(c,adminCookieName(c));
-  if(adminToken&&c.req.path!=='/api/auth/login'){const rows=await sql`select a.id,a.role from aevic_platform.sessions s join aevic_platform.admin_accounts a on a.id=s.admin_id where s.token_digest=${tokenDigest(adminToken)} and s.expires_at>now() and s.revoked_at is null and a.active and not exists(select 1 from aevic_platform.mfa_factors f where f.admin_id=a.id and f.enabled_at is not null and (s.mfa_verified_at is null or s.mfa_verified_at<f.enabled_at))`;if(rows[0]){identity.adminId=String(rows[0].id);identity.role=String(rows[0].role);}}
+  if(legacyAllowed&&adminToken&&c.req.path!=='/api/auth/login'){const rows=await sql`select a.id,a.role from aevic_platform.sessions s join aevic_platform.admin_accounts a on a.id=s.admin_id where s.token_digest=${tokenDigest(adminToken)} and s.expires_at>now() and s.revoked_at is null and a.active and not exists(select 1 from aevic_platform.mfa_factors f where f.admin_id=a.id and f.enabled_at is not null and (s.mfa_verified_at is null or s.mfa_verified_at<f.enabled_at))`;if(rows[0]){identity.adminId=String(rows[0].id);identity.role=String(rows[0].role);}}
   const captainToken=currentCaptainCookie(c);
-  if(captainToken&&store&&!identity.adminId&&c.req.path!=='/api/auth/login'){
+  if(legacyAllowed&&captainToken&&store&&!identity.adminId&&c.req.path!=='/api/auth/login'){
    try{const auth=new CaptainService(store,config.sessionSecret??'',config.siteUrl,resetMailer(config));const row=await auth.authenticate(captainToken);
-    const revoked=await sql`select id from aevic_platform.sessions where token_digest=${tokenDigest(captainToken)} and (revoked_at is not null or expires_at<=now())`;
-    if(revoked.length)throw new ServiceError(401,'SESSION_REVOKED');
+    const registry=await sql`select id,revoked_at,expires_at from aevic_platform.sessions where token_digest=${tokenDigest(captainToken)}`;
+    if(registry.some(r=>r.revoked_at||new Date(r.expires_at).getTime()<=Date.now())||tokenMode(c)==='transition'&&!registry.length)throw new ServiceError(401,'SESSION_REVOKED');
     const [factor]=await sql`select f.enabled_at,s.mfa_verified_at from aevic_platform.mfa_factors f left join aevic_platform.sessions s on s.token_digest=${tokenDigest(captainToken)} where f.team_id=${row.id} and f.enabled_at is not null`;
     if(factor&&(!factor.mfa_verified_at||factor.mfa_verified_at<factor.enabled_at))throw new ServiceError(401,'MFA_REQUIRED');
     c.set('verifiedCaptain',row);
@@ -57,6 +64,7 @@ export function platformMiddleware(testSql?:Sql){
    }catch(error){if(error instanceof ServiceError&&['SESSION_REVOKED','MFA_REQUIRED'].includes(error.code)&&!c.req.path.startsWith('/api/auth/'))throw error;
     if(!(error instanceof ServiceError&&error.status===401))throw error;}
   }
+  if(identity.accountId&&!['GET','HEAD','OPTIONS'].includes(c.req.method)&&(workspaceRequest(c.req.path)||/^\/api\/(team-invitations|organizations|organization-invitations|players|me\/legacy-claims)(\/|$)/.test(c.req.path)))await requireVerifiedEmail(sql,identity.accountId);
   if(identity.accountId&&workspaceRequest(c.req.path)){await selectWorkspace(sql,identity,getCookie(c,'aevic-workspace'));if(!['GET','HEAD','OPTIONS'].includes(c.req.method)&&!/^\/api\/teams\/[^/]+\/(authority|invitations|ownership|leave|archive)(\/|$)/.test(c.req.path))requireWorkspaceWrite(identity);}
   c.set('platform',new PlatformRepository(c.get('db'),sql,identity));
   await next();

@@ -1,14 +1,15 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MatchCenterPage, matchCenterMaps } from '../src/pages/SpectatorPages';
 import { PublicFooter } from '../src/layouts/PublicFooter';
+import { PublicSessionProvider } from '../src/services/PublicSessionContext';
 import { services } from '../src/services';
 import { currentTeam, matchHistory, matchSchedule, tournaments } from './fixtures/platform-data';
 import type { PublicMatchDetail } from '../src/types/domain';
 
 const schedule = [{ ...matchSchedule[0], status: 'live' as const }, ...matchSchedule.slice(1)];
-function mount() { return render(<MemoryRouter initialEntries={['/matches']}><MatchCenterPage /><PublicFooter showCta={false} /></MemoryRouter>); }
+function mount() { return render(<MemoryRouter initialEntries={['/matches']}><PublicSessionProvider><MatchCenterPage /><PublicFooter showCta={false} /></PublicSessionProvider></MemoryRouter>); }
 beforeEach(() => {
   vi.spyOn(services.auth, 'getSession').mockResolvedValue(null);
   vi.spyOn(services.publicMatches, 'schedule').mockResolvedValue(schedule);
@@ -69,4 +70,22 @@ describe('reference Match Center', () => {
     expect(await screen.findByText(/Hazırda canlı matç yoxdur/)).toBeInTheDocument();
     expect(within(screen.getByRole('tabpanel')).getAllByRole('article')).toHaveLength(4);
   });
+});
+
+
+it('renders the schedule while slow detail requests remain bounded', async () => {
+  vi.mocked(services.publicMatches.get).mockImplementation(() => new Promise(() => {}));
+  mount();
+  expect(await screen.findByText('● CANLI')).toBeInTheDocument();
+  await waitFor(() => expect(services.publicMatches.get).toHaveBeenCalledTimes(3));
+  expect(screen.getByRole('tabpanel')).toBeInTheDocument();
+});
+
+it('shows missing scores honestly and retains long team identities without a logo',async()=>{
+ const name='Azərbaycan International Champions — çox uzun komanda adı';
+ vi.mocked(services.publicMatches.get).mockResolvedValue({match:matchHistory[0],tournament:tournaments[0],published:true,teamResults:[{teamId:'long-team',teamName:name,placement:1,finishes:undefined,totalPoints:undefined}]} as unknown as PublicMatchDetail);
+ mount();await screen.findByText('● CANLI');fireEvent.click(screen.getByRole('tab',{name:'Son nəticələr'}));
+ expect((await screen.findAllByText(name)).length).toBeGreaterThan(0);
+ expect(screen.getAllByText('— xal · — kill · #1').length).toBeGreaterThan(0);
+ expect(screen.getByRole('tabpanel')).not.toHaveTextContent('undefined');
 });

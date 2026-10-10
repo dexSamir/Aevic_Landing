@@ -33,7 +33,9 @@ export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=proces
  app.use('*',bodyLimit({maxSize:4_100_000,onError:c=>c.json({code:'FILE_TOO_LARGE',requestId:c.get('requestId')},413)}));
  app.notFound(c=>c.json({code:'NOT_FOUND',message:'Məlumat tapılmadı.',requestId:c.get('requestId')},404));
  app.onError((error,c)=>{
-  const e=error instanceof ZodError?new ServiceError(422,'VALIDATION_ERROR',Object.fromEntries(error.issues.map(i=>[i.path.join('.'),'Dəyəri yoxlayın.']))):error instanceof ServiceError?error:new ServiceError(503,'SERVICE_UNAVAILABLE');
+  const databaseCode=error&&typeof error==='object'&&'code' in error?String(error.code):'';
+  const timedOut=['CONNECT_TIMEOUT','ETIMEDOUT','57014'].includes(databaseCode);
+  const e=error instanceof ZodError?new ServiceError(422,'VALIDATION_ERROR',Object.fromEntries(error.issues.map(i=>[i.path.join('.'),'Dəyəri yoxlayın.']))):error instanceof ServiceError?error:new ServiceError(timedOut?504:503,timedOut?'REQUEST_TIMEOUT':'SERVICE_UNAVAILABLE');
   c.set('operationalError',e.code);
   // Allowlisted error codes only: never exception messages, SQL or connection URLs.
   const cause=error&&typeof error==='object'&&'code' in error?String(error.code):'';
@@ -46,6 +48,7 @@ export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=proces
    console.error(JSON.stringify({event:'api_failure',requestId:c.get('requestId'),route:c.req.routePath??'unmatched',method:c.req.method,errorType,errorCode,code:e.code,database,runtime:env.AWS_LAMBDA_FUNCTION_NAME?'lambda':env.NETLIFY?'netlify':'node'}));
   }
   if(e.status===503)c.header('Retry-After','3');
+  if(/(?:NOT_CONFIGURED|CONTRACT_UNAVAILABLE|PERMISSIONS_UNSAFE)$/.test(e.code)||['42501','42P01','42703'].includes(cause))c.header('X-Retryable','false');
   // Deliberately no request body/error logging: auth, room and private fields can occur in errors.
   return c.json({code:e.code,message:e.status>=500?'Xidmət müvəqqəti əlçatan deyil.':'Sorğu tamamlanmadı.',fieldErrors:e.fieldErrors,requestId:c.get('requestId')},e.status);
  });

@@ -30,7 +30,7 @@ describe('tournament reference planning page', () => {
   expect(screen.getByRole('timer')).toHaveAttribute('aria-live', 'off');
   expect(screen.getByRole('button', { name: 'Hamısı (3)' })).toHaveAttribute('aria-pressed', 'true');
   expect(screen.getByRole('button', { name: 'Canlı (0)' })).toBeInTheDocument();
-  expect(screen.getAllByRole('button', { name: /Qeydiyyatdan keçib/ }).every(button => button.hasAttribute('disabled'))).toBe(true);
+  const registered=await screen.findAllByRole('button', {name:/Qeydiyyatdan keçib/});expect(registered.every(button=>button.hasAttribute('disabled'))).toBe(true);
   expect(view.container.querySelector('.home-brand-statement')).not.toBeInTheDocument();
   expect(screen.getByRole('contentinfo')).toBeInTheDocument();
  });

@@ -15,7 +15,7 @@ it('retains public identity, precise IDs and authoritative capacity without load
  const repo=new PublicContextRepository(undefined as unknown as DbClient,sql as unknown as Sql);
  const [teams,tournaments,again]=await Promise.all([repo.teams(),repo.tournaments(),repo.teams()]);
  expect(again).toBe(teams);
- expect(teams.map(summary)).toEqual([{id,slug:id,name:'Public team',tag:'PUB',logoUrl:undefined,country:'AZ',verificationLevel:'verified',rosterSize:5,legacyHistoryIncomplete:false,gameKey:'pubg-mobile'}]);
+ expect(teams.map(summary)).toEqual([{id,slug:id,name:'Public team',tag:'PUB',logoUrl:undefined,country:'AZ',verificationLevel:'verified',rosterSize:5,legacyHistoryIncomplete:false,gameKey:'pubg-mobile',roster:['A','B','C','D','E'].map((ign,index)=>({id:`${id}:player${index+1}`,ign,role:index===4?'substitute':'starter'}))}]);
  expect(tournaments[0]).toMatchObject({id:'tournament',usedSlots:8,maxSlots:16});
  expect(sql).toHaveBeenCalledTimes(2);
  const queries=sql.mock.calls.map(([parts])=>parts.join('?')).join('\n');

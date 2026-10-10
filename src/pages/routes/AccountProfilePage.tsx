@@ -1,3 +1,4 @@
+import {downloadPrivateFile} from '../../services/tokenSession';
 import {
 Database,
 Trash2
@@ -161,6 +162,7 @@ export function AccountProfilePage() {
               <a
                 className="button button--secondary"
                 href={exportJob.downloadUrl}
+                onClick={async event=>{event.preventDefault();try{await downloadPrivateFile(exportJob.downloadUrl!,'aevic-account.json');}catch{window.alert('Yükləmə alınmadı. Yenidən cəhd edin.');}}}
               >
                 <span>Yüklə</span>
               </a>

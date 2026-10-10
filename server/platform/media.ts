@@ -26,15 +26,17 @@ app.post('/media/uploads',async c=>{
  const bytes=await sharp(raw,{limitInputPixels:20_000_000}).rotate().webp({quality:88}).toBuffer();
  if(bytes.length>4_000_000)throw new ServiceError(413,'FILE_TOO_LARGE');
  const mediaId=crypto.randomUUID();
- const cloud=c.get('config').cloudinary&&kind!=='evidence' ? await uploadCloudinaryImage(c.get('config'),id,bytes,mediaId) : undefined;
+ const cloud=c.get('config').cloudinary&&kind!=='evidence' ? await uploadCloudinaryImage(c.get('config'),id,bytes,mediaId,c.req.raw.signal) : undefined;
  const url=cloud?.url??`/api/media/${mediaId}`;
+ try{
+ if(c.req.raw.signal.aborted)throw new ServiceError(408,'REQUEST_CANCELLED');
  await transaction(platform(c).sql,async tx=>{
-  await tx`select id from public.teams where id=${id} for update`;
+  const eligible=await tx`select t.id from public.teams t join aevic_platform.team_authority a on a.team_id=t.id where t.id=${id} and t.status<>'banned' and a.account_id=${actor(c).accountId??actor(c).teamId!} and a.role in ('OWNER','CAPTAIN','MANAGER','CO_CAPTAIN') for update of t`;if(!eligible.length)throw new ServiceError(403,'FORBIDDEN');
   if(!cloud)await tx`insert into aevic_platform.media(id,team_id,file_name,mime_type,bytes,asset_type) values(${mediaId},${id},${file.name.slice(0,200)},'image/webp',${bytes},${kind})`;
   if(kind==='banner')await tx`insert into aevic_platform.team_details(team_id,banner_url) values(${id},${url}) on conflict(team_id) do update set banner_url=excluded.banner_url,updated_at=now()`;
   else if(kind!=='evidence')await tx`update public.teams set ${tx(kind==='logo'?'logo_url':`player${slot}_photo_url`)}=${url} where id=${id}`;
   await audit(tx,actor(c),'media.upload','media',mediaId,{kind,...(cloud?{provider:'cloudinary',url}: {})});
- });return c.json({id:mediaId,previewUrl:url,status:'uploaded',fileName:file.name.slice(0,200)},201);
+ });}catch(error){if(cloud)console.warn(JSON.stringify({event:'media_reference_not_saved',mediaId,requestId:c.get('requestId')}));throw error;}return c.json({id:mediaId,previewUrl:url,status:'uploaded',fileName:file.name.slice(0,200)},201);
 });
 app.get('/media/:id/access',async c=>{
  const id=z.uuid().parse(c.req.param('id')),a=actor(c);

@@ -96,14 +96,15 @@ export function TeamIntelligence() {
       setEdges(previous => previous.start === next.start && previous.end === next.end ? previous : next);
     };
     measure();
-    const observer = new ResizeObserver(measure); observer.observe(node);
+    const observer = typeof ResizeObserver==='undefined'?undefined:new ResizeObserver(measure); observer?.observe(node);
+    window.addEventListener('resize',measure);
     node.addEventListener('scroll', measure, { passive: true });
-    return () => { observer.disconnect(); node.removeEventListener('scroll', measure); };
+    return () => { observer?.disconnect(); window.removeEventListener('resize',measure); node.removeEventListener('scroll', measure); };
   }, [cardKeys]);
   const scroll = (direction: number) => { rail.current?.scrollBy({ left: direction * (rail.current.clientWidth * .8), behavior: reduced ? 'instant' : 'smooth' }); };
   const overflow = !(edges.start && edges.end);
   return <section className="team-intelligence" aria-label="Komandanın vacib məlumatları">
-    <header><span>KOMANDA RADARI</span>{overflow && <div><button type="button" aria-label="Əvvəlki kartlar" disabled={edges.start} onClick={() => scroll(-1)}><ArrowLeft size={16} /></button><button type="button" aria-label="Növbəti kartlar" disabled={edges.end} onClick={() => scroll(1)}><ArrowRight size={16} /></button></div>}</header>
+    <header><span>VACİB MƏLUMATLAR</span>{overflow && <div><button type="button" aria-label="Əvvəlki kartlar" disabled={edges.start} onClick={() => scroll(-1)}><ArrowLeft size={16} /></button><button type="button" aria-label="Növbəti kartlar" disabled={edges.end} onClick={() => scroll(1)}><ArrowRight size={16} /></button></div>}</header>
     <div ref={rail} className="intelligence-rail" tabIndex={0} role="group" aria-label="Kartları ox düymələri ilə üfüqi sürüşdürün" onKeyDown={event => {
       if (event.target !== event.currentTarget) return;
       if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); scroll(event.key === 'ArrowLeft' ? -1 : 1); }

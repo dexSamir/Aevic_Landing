@@ -1,3 +1,4 @@
+import {currentSessionDigest} from './context';
 import {accountRecord,accountUser,lockAccount} from './account-store';
 import {Hono} from 'hono';
 import {z} from 'zod';
@@ -9,13 +10,14 @@ import {body,text} from '../validation/input';
 import {transaction,audit} from './competition';
 const app=new Hono<Env>();
 app.get('/me/sessions',async c=>{
- const owner=captain(c),current=tokenDigest(currentCaptainCookie(c)!);
+ const owner=captain(c),current=currentSessionDigest(c);
  const rows=normalize(await platform(c).sql`select id,device,last_active_at,token_digest,revoked_at from aevic_platform.sessions where team_id=${owner} and expires_at>now() order by last_active_at desc limit 100`);
  return c.json(rows.map(r=>({id:r.id,device:r.device,lastActiveAt:r.last_active_at,status:r.revoked_at?'revoked':r.token_digest===current?'current':'active'})));
 });
 app.delete('/me/sessions/others',async(c,next)=>{
- if(!c.get('platform'))return next();const owner=captain(c),current=tokenDigest(currentCaptainCookie(c)!);
+ if(!c.get('platform'))return next();const owner=captain(c),current=currentSessionDigest(c);
  await platform(c).sql`update aevic_platform.sessions set revoked_at=now() where team_id=${owner} and token_digest<>${current} and revoked_at is null`;
+ if(c.get('sessionId'))return c.body(null,204);
  // Legacy signed cookies not yet seen in the session registry are invalidated by
  // the original hash-epoch rotation, which also returns a fresh current cookie.
  return next();

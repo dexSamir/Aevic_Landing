@@ -8,14 +8,14 @@ import { createApiServices } from '../../src/services/apiAdapter';
 
 const config = { supabaseUrl: 'https://nmjjibifcuzjlsvfcaaz.supabase.co', publishableKey: 'fixture', siteUrl: 'http://localhost:8888', secureCookies: false, cloudinary: { cloudName: 'fixture', apiKey: 'fixture', apiSecret: 'fixture' } };
 afterEach(() => vi.unstubAllGlobals());
-function harness({ actor = 'fixture-team', failUpload = false } = {}) {
+function harness({ actor = 'fixture-team', failUpload = false, failPersistence=false } = {}) {
   const writes: { query: string; values: unknown[] }[] = [];
   const sql = Object.assign((strings: TemplateStringsArray | string, ...values: unknown[]) => {
     if (typeof strings === 'string') return strings;
     const query = strings.join('?');
     if (/^(insert|update)/.test(query.trim())) writes.push({ query, values });
     return Promise.resolve([{ id: 'fixture-team' }]);
-  }, { json: (value: unknown) => value, begin: vi.fn(async (work: (tx: unknown) => Promise<unknown>) => work(sql)) });
+  }, { json: (value: unknown) => value, begin: vi.fn(async (work: (tx: unknown) => Promise<unknown>) =>{if(failPersistence)throw new Error('isolated persistence failure');return work(sql);}) });
   const app = createHttpApp(config, {});
   app.use('*', async (c, next) => { c.set('platform', { actor: actor ? { teamId: actor } : {}, sql: sql as unknown as Sql } as PlatformRepository); await next(); });
   app.route('/', mediaRoutes);
@@ -74,4 +74,30 @@ describe('frontend upload contract through the platform API, with an isolated SQ
     expect(h.vendorCalls).toEqual([]);
     expect(h.writes.some(write => write.query.includes('aevic_platform.media'))).toBe(true);
   });
+  it('replaces artwork with a distinct immutable URL while retaining the old asset', async () => {
+    const h = harness();
+    const first = await upload(h, 'logo', await file());
+    const second = await upload(h, 'logo', await file());
+    expect(second.previewUrl).not.toBe(first.previewUrl);
+    const updates = h.writes.filter(write => write.query.includes('update public.teams'));
+    expect(updates).toHaveLength(2);
+    expect(updates[1].values).toContain(second.previewUrl);
+    expect(h.vendorCalls.every(url => !url.includes('destroy'))).toBe(true);
+  });
+
+});
+
+it('rejects corrupted image bytes and a cancelled upload without saving a reference',async()=>{
+ const h=harness();await expect(upload(h,'logo',new File(['not-image'],'corrupt.png',{type:'image/png'}))).rejects.toMatchObject({status:422});expect(h.writes).toEqual([]);
+ const controller=new AbortController();controller.abort();const image=await file();
+ await expect(h.services.media.uploadBrandAsset({ownerType:'team',ownerId:'fixture-team',assetType:'logo',fileName:image.name,mimeType:image.type,sizeBytes:image.size,width:960,height:512},image,controller.signal)).rejects.toMatchObject({kind:'abort'});
+ expect(h.writes).toEqual([]);
+});
+
+it('reports an unreferenced immutable asset when persistence fails, without deletion or sensitive logging',async()=>{
+ const warning=vi.spyOn(console,'warn').mockImplementation(()=>{});const h=harness({failPersistence:true});
+ await expect(upload(h,'logo',await file())).rejects.toMatchObject({status:503});
+ expect(h.writes).toEqual([]);expect(h.vendorCalls).toHaveLength(2);
+ expect(warning.mock.calls.some(([value])=>JSON.parse(String(value)).event==='media_reference_not_saved')).toBe(true);
+ expect(JSON.stringify(warning.mock.calls)).not.toMatch(/apiSecret|signature|password|Bearer/);
 });

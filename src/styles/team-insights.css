@@ -91,3 +91,19 @@
   .chart-selection { display: grid; gap: 6px; margin-block: 12px; font-size: 13px; color: var(--color-text-muted); }
   .chart-selection select { width: 100%; min-width: 0; min-height: 44px; padding: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg-secondary); color: var(--color-text-primary); font-size: 16px; }
 }
+
+@media(max-width:700px) {
+ .team-insights { margin-block:20px; }
+ .insight-metrics { gap:10px; }
+ .insight-chart,.insight-metrics > div { padding:12px; }
+ .insight-chart--empty { min-height:120px; }
+ .insight-chart--empty .insight-empty { padding-block:12px; }
+ .intelligence-rail { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); overflow:visible; gap:10px; }
+ .intelligence-card { min-width:0; min-height:0; padding:12px; gap:6px; }
+ .intelligence-card strong { font-size:16px; }
+ .intelligence-card strong,.intelligence-card p { display:block; overflow:visible; }
+ .team-intelligence > header > div { display:none; }
+}
+/* A details element is a grid item: constrain its min-content table width. */
+.insight-table { min-width:0; max-width:100%; }
+.insight-table > [role=region] { max-width:100%; overscroll-behavior-inline:contain; }

@@ -287,6 +287,7 @@ export interface PublicPlayerProfile {
 }
 
 export interface PublicMatchTeamResult {
+  teamLogo?: string;
   teamId: ID;
   teamName: string;
   teamSlug?: string;

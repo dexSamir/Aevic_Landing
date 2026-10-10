@@ -47,3 +47,227 @@ The read-only check still returned the same seven team IDs. All 35 player-photo 
 Three additional component tests pass (`npx vitest run tests/captain-ui.test.tsx`): reset-token fragment removal/no browser storage, fail-closed reset form on inspection failure, and unsupported registration field state. Browser registration rendered with the existing design and disabled unsupported tag field; the unavailable reset state was also verified. No browser registration or real reset was submitted. The historical normalized-schema test suites are not evidence for this integration.
 
 Read-only inspection can be repeated with `node --env-file=.env scripts/inspect-captain-contract.mjs`; it prints only response statuses, config-presence booleans, visible bucket metadata and public image references. It never prints secrets or authentication-column values.
+
+
+## Registration verification rollout (2026-10-10, not deployed)
+
+Apply `20261010121243_registration_verification_requirement.sql` before deploying this change. It adds a private account flag: existing accounts keep their access, while new accounts require email verification for team-management writes. It does not mark old emails verified or modify team/media records. Configure `EMAIL_FROM` with either `RESEND_API_KEY` or `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`; `PUBLIC_SITE_URL` must match the HTTPS origin. Registration checks sender configuration before creating records, sends a 30-minute random verification token in a URL fragment, and stores only its digest. Confirmation atomically consumes it and verifies the account. Delivery failure preserves registration and permits resending; monitor the privacy-safe `verification_delivery_failed` event. Resend has a database-enforced 60-second per-account cooldown; Legacy mode retains per-runtime IP limits; transition/token mode adds shared database counters. Verify Netlify edge limits for distributed abuse protection.
+
+Login checks the password, then an optional enabled TOTP/recovery factor before issuing the HttpOnly cookie. The frontend now preserves MFA challenges instead of treating them as generic login failures. TOTP secrets are encrypted; recovery codes are digested and consumed once. Enrollment requires password and a confirming code. MFA stays optional. Registration replay cannot bypass an enabled second factor. Logout revokes the current platform session; other sessions remain usable. Password changes and explicit other-session revocation retain their existing broader invalidation behavior.
+
+### Previous architecture
+
+Before this follow-up, the active custom captain/admin BFF used HttpOnly, Secure,
+SameSite=Strict cookies scoped to `/`, with registry revocation. It had no short-lived
+access/rotating-refresh protocol. That remaining work is implemented below; the
+unused Supabase Auth routes remain unmounted.
+
+## Completed local session protocol — 2026-10-10 follow-up
+
+The earlier “session-v2 plan” is superseded by implemented custom session tokens.
+There is no additional Supabase Auth identity provider. Login uses the existing
+scrypt credentials and existing optional MFA, then creates a session family.
+
+- Access: signed, versioned, family-bound token, 600 seconds, browser memory only.
+  Protected requests send `Authorization: Bearer`. Every backend use checks the
+  registry, current credential digest, active account and MFA epoch.
+- Refresh: 32 random bytes, opaque, digest-only database storage. Cookie uses
+  `__Secure-aevic-refresh-v2`, Secure/HttpOnly/SameSite=Strict, `/api/auth` path,
+  no Domain. Local HTTP uses an unprefixed non-Secure development cookie only.
+  Without “remember”, expiry is 8 hours and the cookie is browser-session scoped;
+  remembered sessions have 30-day absolute and 24-hour rolling idle limits.
+- Family row locking serializes rotation. Concurrent use within five seconds
+  returns `409 REFRESH_BUSY`, without minting another token or clearing a cookie.
+  Reuse after that window revokes the entire family in a committed transaction.
+  Frontend single-flight plus Web Locks prevents ordinary cross-tab collisions;
+  BroadcastChannel carries invalidation only, never tokens. Three bounded refresh
+  attempts handle a busy response. Lost refresh responses can require login;
+  plaintext successor tokens are deliberately not retained for replay.
+- Refresh restores memory on reload. GET/HEAD can refresh/retry once on expired
+  access; POST/PUT/PATCH/DELETE are never replayed. Uploads and private JSON/image
+  downloads use the same transport. Logout revokes the cookie's family; other-device
+  revocation preserves the current family. Password changes/resets invalidate all
+  access/refresh tokens through the credential digest. MFA enable/remove/recovery
+  replacement revokes other sessions. Exact Origin checks remain mandatory.
+- Persistent digest-keyed rate limits supplement warm-runtime limits for token
+  authentication/security requests. Netlify edge limits still need verification.
+  These counters are shared across instances and are not rolled back with a failed
+  login. Old counters receive bounded cleanup; retain consumed refresh digests for
+  the whole family lifetime so replay detection survives restart/deployment.
+
+### Deployment order and rollback (approval required)
+
+Read-only production catalog inspection confirmed original account/session/MFA
+contracts, no anonymous/authenticated grants on the inspected private auth tables,
+and original IDs 2, 7, 8, 9, 10, 12, 16 present. Neither new migration is applied.
+
+1. Verify backup/recovery and existing migration history; do not replay historical
+   migrations or media migration scripts. Apply
+   `20261010121243_registration_verification_requirement.sql` transactionally.
+   Existing rows receive false; only new rows default true. No identities move.
+2. Apply `20261010134759_rotating_platform_sessions.sql` transactionally. It adds
+   family metadata, digest-only refresh history and persistent attempt counters;
+   client roles receive no access. Confirm the deployed server role has required
+   privileges and that its session insert grants were propagated to new tables.
+3. Deploy the matching server + frontend together, initially `AEVIC_SESSION_MODE=legacy`.
+   The verification migration must already exist even in legacy mode. Check mail
+   delivery before allowing new registration; the API rejects missing sender setup.
+4. Set `AEVIC_SESSION_MODE=transition` and a short explicit UTC
+   `AEVIC_LEGACY_SESSION_UNTIL`. New logins use tokens. Existing registered cookies continue
+   only to this deadline; cookies missing from the registry require login immediately; users then log in again. There is no silent MFA bypass or
+   automatic conversion of an old cookie into a refresh family.
+5. Validate the canary matrix below, then set `AEVIC_SESSION_MODE=tokens` to reject
+   all legacy cookies. Keep secret and database endpoint/port unchanged.
+
+Rollback: retain additive schema and all verification flags; roll back application
+and mode together only with a reviewed security decision. Switching to legacy
+requires v2 users to log in again after access expiry. Do not unset verification
+requirements or drop token tables as a quick rollback. Revoked legacy cookies
+stay revoked; no team/player/media records need restoration or alteration.
+
+### Production acceptance checklist (not executed)
+
+- Verify Netlify matrix/scopes and same-origin HTTPS cookies through a real browser.
+  Test captain/admin, optional MFA/recovery, reload, two tabs, idle/absolute expiry,
+  current/other logout, password/reset invalidation, rejected cross-origin refresh.
+- Use an explicitly approved test account for registration, real mail delivery,
+  expired/resend/reused verification links and blocked alternate team mutations.
+- With explicit permission, upload logo/banner on a designated test team; reload
+  and inspect saved immutable URLs, replacement, cancellation, failed upload and
+  old-reference preservation. Never use original IDs for destructive smoke tests.
+  No real upload, historical migration, asset deletion or production write was run.
+- Query Netlify request/failure logs by request ID and deploy version. Compare cold
+  vs warm p50/p95/p99, database timeout/connection/permission codes, pool counts and
+  slow-query evidence. Current code provides correlation, route templates, durations,
+  safe error classification and bounded pool settings; no incident root cause is
+  asserted without these logs. Do not rewrite port 5432 to 6543.
+- Verify deployed secrets scanning, CSP/CDN delivery, stale bundle/offline recovery,
+  unverified-account guidance, private downloads and all responsive interactions.
+- Monitor `media_upload_unconfirmed` and `media_reference_not_saved` events by random
+  media ID. Cancellation or persistence failure can leave an unreferenced immutable
+  asset; reconciliation is a manual read-only review followed by separately approved
+  cleanup. The application never deletes historical assets or blindly retries uploads.
+
+## Final local validation and priority status
+
+| Priority | Status | Evidence / remaining gate |
+|---|---|---|
+| 1. Access/refresh sessions | Implemented and locally tested; awaiting activation | Memory access, rotation/reuse, expiry, MFA, revocation, cross-tab browser checks; new migration and flag activation require approval |
+| 2. Registration verification | Implemented and locally tested; awaiting production verification | Atomic token consumption, 30-minute expiry, resend cooldown, sensitive-write gate; production migration and real delivery pending |
+| 3. Optional TOTP | Implemented and locally tested; awaiting production verification | Enrollment, encrypted storage, concurrent recovery consumption, replay, removal/regeneration, session invalidation |
+| 4. Cloudinary | Implemented and locally tested; awaiting production verification | Isolated vendor + real SQL persistence, reload reads, replacement, failures, cancellation, ownership and orphan diagnostics; real uploads not run |
+| 5. Reliability | Local improvements tested; incident diagnosis blocked by production evidence | Correlation/structured logs, timeout/config classification, shared bounded pools, cancellation and bounded match requests; hosted cold-start/pool/slow-query cause remains unproven |
+| 6. Mobile UX | Implemented and locally tested | Six widths; page, roster-dialog, analytics-table and match-state checks; expanded-table overflow fixed |
+| 7. Matches/team UX | Implemented and locally tested | Progressive bounded detail reads, compact rows, live/upcoming/completed/empty/error states, long names and missing scores, account verification guidance |
+| 8. Analytics | Implemented and locally tested | Units, labels, summaries, touch/keyboard selection, daily/map/match tables, Baku boundaries, deterministic fixtures, explicit partial-month limitation |
+| 9. Netlify readiness | Local preparation complete; hosted configuration blocked/unverified | Variable matrix in netlify-secrets.md, defaults and secret guards tested; no remote values/scopes changed |
+| 10. Regression validation | Completed locally | Exact results below; opt-in live demo tests intentionally not executed |
+
+No mandatory production prerequisite is represented as completed. Real mail/upload
+acceptance, migration activation, hosted configuration review and production log
+analysis remain unperformed. They require approval/access; no unrelated feature
+or second identity provider was introduced.
+
+### Test results
+
+- Frontend: **310 passed, 0 failed** (49 files).
+- Server/API/security/media transport: **159 passed, 0 failed** (22 files).
+- Isolated PostgreSQL platform + TOTP: **49 passed, 0 failed, 2 skipped** (3 files).
+- Domain calculations/contracts: **20 passed, 0 failed**.
+- Total automated unit/integration tests: **538 passed, 0 failed, 2 skipped**.
+- Responsive browser checks: **102 passed, 0 failed**, widths 320, 375, 390, 430,
+  768, 1440. Eleven primary routes plus roster dialogs, expanded analytics tables,
+  completed matches, empty/error schedules, long names and missing media/scores.
+- Browser token checks: **6 passed**: single-flight, real two-tab Web Locks,
+  reload restoration, no unsafe replay, HttpOnly isolation, no token in storage.
+- TypeScript/repository lint, production build and `git diff --check`: passed.
+  This repository's lint command is TypeScript checking, not an ESLint ruleset.
+- Build secret scan: passed against **8 configured sensitive values**; hosted
+  Netlify scanning and remote secret classification remain unverified.
+
+Skipped tests are the opt-in installed production demo repository read and demo
+apply/remove lifecycle. The latter performs writes even when rehearsed/rolled back;
+they were not enabled as part of this task. Existing CDN checks observed seven
+logos and one banner returning image HTTP 200; no real upload was performed.
+
+### Regression classification
+
+- `architecture-reset`: browser API/environment defect (`ResizeObserver` absent);
+  added a resize fallback, preserving the action-order assertions.
+- `public-shell-contract` (2) and `route-recovery` (4): outdated footer contract;
+  current shared brand footer is intentional, operational participation CTA stays
+  absent. Assertions now inspect actual primary/legal navigation boundaries.
+- `teams-reference`: real missing whitespace between team count and label; fixed.
+- `tournaments-planning`: asynchronous state race in the test; wait for the actual
+  registration button before asserting that it is disabled.
+- `uxscan-remediation`: stale source-location assertions after session handling
+  moved into its provider and homepage record requests were removed.
+- Server `public-context`: outdated expected projection; explicit safe public IGN
+  roster is now asserted, while private columns remain forbidden.
+- New transport integration required the performance fixture to distinguish refresh
+  negotiation from session reads; concurrent session-read deduplication is retained.
+- Security tests use independent admin accounts/IPs so accumulated fixture attempts
+  do not bypass or force relaxation of real rate limits.
+
+### Files changed in this worktree
+
+The inventory includes preserved changes from the preceding implementation and
+this follow-up. No commit, push, deployment or production write was performed.
+
+- `.env.example`
+- `docs/CAPTAIN_IMPLEMENTATION.md`
+- `docs/netlify-secrets.md`
+- `server/app.ts`
+- `server/config.ts`
+- `server/http.ts`
+- `server/platform/account.ts`
+- `server/platform/admin-account.ts`
+- `server/platform/context.ts`
+- `server/platform/media.ts`
+- `server/platform/mfa.ts`
+- `server/platform/middleware.ts`
+- `server/platform/registration.ts`
+- `server/platform/routes.ts`
+- `server/routes/captain.ts`
+- `server/routes/public.ts`
+- `server/services/cloudinary.ts`
+- `server/types.ts`
+- `src/components/team/TeamAnalytics.tsx`
+- `src/components/team/TeamIntelligence.tsx`
+- `src/components/team/TeamMediaPreview.tsx`
+- `src/components/team/TeamOverview.tsx`
+- `src/pages/SpectatorPages.tsx`
+- `src/pages/routes/AccountProfilePage.tsx`
+- `src/pages/routes/DisputeDetailPage.tsx`
+- `src/pages/routes/SupportTicketDetailPage.tsx`
+- `src/pages/routes/TeamsDirectoryPage.tsx`
+- `src/pages/routes/VerifyEmailPage.tsx`
+- `src/services/apiAdapter.ts`
+- `src/services/apiError.ts`
+- `src/services/contracts.ts`
+- `src/services/realtime.ts`
+- `src/services/requestJson.ts`
+- `src/styles/match-center.css`
+- `src/styles/team-insights.css`
+- `src/types/domain.ts`
+- `tests/auth-registration-repair.test.tsx`
+- `tests/match-center.test.tsx`
+- `tests/performance-optimization.test.tsx`
+- `tests/platform/competition.test.ts`
+- `tests/public-shell-contract.test.tsx`
+- `tests/route-recovery.test.tsx`
+- `tests/server/cloudinary-flow.test.ts`
+- `tests/server/public-context.test.ts`
+- `tests/server/reliability.test.ts`
+- `tests/tournaments-planning.test.tsx`
+- `tests/uxscan-remediation.test.tsx`
+- `server/auth/persistent-limit.ts`
+- `server/auth/platform-tokens.ts`
+- `server/auth/token-routes.ts`
+- `server/platform/email-requirement.ts`
+- `src/services/tokenSession.ts`
+- `supabase/migrations/20261010121243_registration_verification_requirement.sql`
+- `supabase/migrations/20261010134759_rotating_platform_sessions.sql`
+- `tests/server/email-requirement.test.ts`
+- `tests/server/token-config.test.ts`
+- `tests/server/token-transport.test.ts`

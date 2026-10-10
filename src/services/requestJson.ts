@@ -1,6 +1,6 @@
 import { ApiError, apiErrorFromResponse, networkApiError } from './apiError';
 
-export async function requestJson<T>(url: string, options: RequestInit = {}, nullStatuses: number[] = [], timeoutMs = 10_000): Promise<T> {
+export async function requestJson<T>(url: string, options: RequestInit = {}, nullStatuses: number[] = [], timeoutMs = 10_000, format:'json'|'blob'='json'): Promise<T> {
   const controller = new AbortController();
   let timedOut = false;
   const cancel = () => controller.abort();
@@ -16,6 +16,7 @@ export async function requestJson<T>(url: string, options: RequestInit = {}, nul
       await response.text();
       return undefined as T;
     }
+    if(format==='blob')return await response.blob() as T;
     const type = response.headers.get('content-type')?.toLowerCase() ?? '';
     if (!type.includes('application/json') && !type.includes('+json')) throw new ApiError({ status: response.status, kind: 'server', code: 'UNEXPECTED_CONTENT_TYPE', message: 'Məlumat servisi etibarsız cavab qaytardı.' });
     try { return await response.json() as T; }

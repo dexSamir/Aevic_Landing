@@ -1,3 +1,4 @@
+import {currentSessionDigest} from './context';
 import {Hono} from 'hono';
 import {getCookie,deleteCookie} from 'hono/cookie';
 import {z} from 'zod';
@@ -26,12 +27,12 @@ app.put('/me/account/password',async(c,next)=>{
  deleteCookie(c,adminCookieName(c),{path:'/',secure:c.get('config').secureCookies});return c.body(null,204);
 });
 app.get('/me/sessions',async(c,next)=>{
- const id=adminId(c);if(!id)return next();const current=tokenDigest(getCookie(c,adminCookieName(c))??'');
+ const id=adminId(c);if(!id)return next();const current=currentSessionDigest(c);
  const rows=await platform(c).sql`select id,device,last_active_at,token_digest,revoked_at from aevic_platform.sessions where admin_id=${id} and expires_at>now() order by last_active_at desc limit 100`;
  return c.json(rows.map(r=>({id:r.id,device:r.device,lastActiveAt:r.last_active_at,status:r.revoked_at?'revoked':r.token_digest===current?'current':'active'})));
 });
 app.delete('/me/sessions/others',async(c,next)=>{
- const id=adminId(c);if(!id)return next();const current=tokenDigest(getCookie(c,adminCookieName(c))??'');await platform(c).sql`update aevic_platform.sessions set revoked_at=now() where admin_id=${id} and token_digest<>${current} and revoked_at is null`;return c.body(null,204);
+ const id=adminId(c);if(!id)return next();const current=currentSessionDigest(c);await platform(c).sql`update aevic_platform.sessions set revoked_at=now() where admin_id=${id} and token_digest<>${current} and revoked_at is null`;return c.body(null,204);
 });
 app.delete('/me/sessions/:id',async(c,next)=>{
  const owner=adminId(c);if(!owner)return next();const id=z.uuid().parse(c.req.param('id'));const rows=await platform(c).sql`update aevic_platform.sessions set revoked_at=now() where id=${id} and admin_id=${owner} returning id`;if(!rows.length)throw new ServiceError(404,'SESSION_NOT_FOUND');return c.body(null,204);

@@ -14,3 +14,5 @@ export function admin(c:ApiContext,roles:string[]=[]){const a=actor(c);if(!a.adm
 export function ownTeam(c:ApiContext,id:string){if(captain(c)!==id)throw new ServiceError(403,'FORBIDDEN');return id;}
 
 export function account(c:ApiContext){const a=actor(c);const id=a.accountId??a.teamId;if(!id)throw new ServiceError(403,'ACCOUNT_REQUIRED');return id;}
+
+export const currentSessionDigest=(c:ApiContext)=>c.get('sessionDigest')??tokenDigest(getCookie(c,c.get('platform')?.actor.adminId?adminCookieName(c):captainCookieName(c))??'');

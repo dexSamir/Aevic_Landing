@@ -1,5 +1,5 @@
 import type { PlatformServices } from './contracts';
-import { requestJson } from './requestJson';
+import {sessionTransport} from './tokenSession';
 import { invalidateQuery } from './queryCache';
 import { validatePublicSnapshot } from './snapshotValidation';
 
@@ -7,10 +7,11 @@ type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; nullStatuses
 
 export function createApiServices(baseUrl: string): PlatformServices {
   const root = baseUrl.replace(/\/$/, '');
+  const transport=sessionTransport(root);
   const request = async <T,>(path: string, options: RequestOptions = {}): Promise<T> => {
     const { nullStatuses = [], timeoutMs, body, ...fetchOptions } = options;
     const csrfToken = typeof document === 'undefined' ? undefined : document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-    const result = await requestJson<T>(`${root}${path}`, {
+    const result = await transport.request<T>(path, {
       ...fetchOptions, credentials: 'include',
       headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}), ...(csrfToken && fetchOptions.method && fetchOptions.method !== 'GET' ? { 'X-CSRF-Token': csrfToken } : {}), ...options.headers },
       body: body ? JSON.stringify(body) : undefined,
@@ -18,6 +19,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
     if (fetchOptions.method && !['GET','HEAD'].includes(fetchOptions.method) && !path.endsWith('/inspect') && path !== '/media/validate') invalidateQuery('');
     return result;
   };
+  const uploadRequest=async<T,>(path:string,options:RequestInit,nullStatuses:number[]=[],timeoutMs=30_000):Promise<T>=>{const result=await transport.request<T>(path,options,nullStatuses,timeoutMs);invalidateQuery('');return result;};
   const query = (values: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
     Object.entries(values).forEach(([key, value]) => value && params.set(key, value));
@@ -148,9 +150,9 @@ export function createApiServices(baseUrl: string): PlatformServices {
       mapSpecialization: (teamId) => request(`/public/teams/${encodeURIComponent(teamId)}/map-specialization`),
     },
     publicMatches: {
-      schedule: () => request('/matches?status=scheduled'),
-      history: () => request('/matches?status=completed'),
-      get: (id) => request(`/matches/${encodeURIComponent(id)}`, { nullStatuses: [404] }),
+      schedule: (signal) => request('/matches?status=scheduled', { signal }),
+      history: (signal) => request('/matches?status=completed', { signal }),
+      get: (id, signal) => request(`/matches/${encodeURIComponent(id)}`, { nullStatuses: [404], signal }),
       calendarEvent: (id) => request(`/matches/${encodeURIComponent(id)}/calendar`, { nullStatuses: [404] }),
     },
     search: { public: (value, cursor) => request(`/search${query({ q: value, cursor })}`) },
@@ -177,17 +179,17 @@ export function createApiServices(baseUrl: string): PlatformServices {
       history: (id) => request(`/records/${encodeURIComponent(id)}/history`),
     },
     media: {
-      uploadPlayerPhoto: (teamId, slot, file) => { const form=new FormData();form.set('file',file);form.set('ownerId',teamId);form.set('assetType','player-photo');form.set('slot',String(slot));return requestJson(`${root}/media/uploads`,{method:'POST',credentials:'include',body:form},[],30_000); },
+      uploadPlayerPhoto: (teamId, slot, file, signal) => { const form=new FormData();form.set('file',file);form.set('ownerId',teamId);form.set('assetType','player-photo');form.set('slot',String(slot));return uploadRequest('/media/uploads',{method:'POST',credentials:'include',body:form,signal},[],30_000); },
       validateBrandAsset: (body) => request('/media/validate', { method: 'POST', body }),
-      uploadBrandAsset: async (metadata, file) => {
+      uploadBrandAsset: async (metadata, file, signal) => {
         if (!file) throw new Error('An image file is required.');
         const form = new FormData(); form.set('file', file); form.set('ownerId', metadata.ownerId); form.set('assetType', metadata.assetType);
-        return requestJson(`${root}/media/uploads`, { method: 'POST', credentials: 'include', body: form }, [], 30_000);
+        return uploadRequest('/media/uploads', { method: 'POST', credentials: 'include', body: form, signal }, [], 30_000);
       },
       deleteBrandAsset: (teamId, kind) => request(`/media/teams/${encodeURIComponent(teamId)}/${kind}`, { method: 'DELETE' }),
       uploadEvidence: async (teamId, file) => {
         const form = new FormData(); form.set('file', file); form.set('ownerId', teamId); form.set('assetType', 'evidence');
-        return requestJson(`${root}/media/uploads`, { method: 'POST', credentials: 'include', body: form }, [], 30_000);
+        return uploadRequest('/media/uploads', { method: 'POST', credentials: 'include', body: form }, [], 30_000);
       },
       evidenceAccess: (id) => request(`/media/${encodeURIComponent(id)}/access`),
     },
@@ -225,7 +227,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       review: (id, status, note) => request(`/admin/disputes/${encodeURIComponent(id)}`, { method: 'PATCH', body: { status, note } }),
     },
     support: {
-      uploadAttachment:async(id,file)=>{const form=new FormData();form.append('file',file);const result=await requestJson<{id:string;fileName:string;url:string}>(`${root}/me/support/tickets/${encodeURIComponent(id)}/attachments`,{method:'POST',credentials:'include',body:form});invalidateQuery('support:');return result;},
+      uploadAttachment:async(id,file)=>{const form=new FormData();form.append('file',file);const result=await transport.request<{id:string;fileName:string;url:string}>(`/me/support/tickets/${encodeURIComponent(id)}/attachments`,{method:'POST',credentials:'include',body:form});invalidateQuery('support:');return result;},
       adminTicket: id => request(`/admin/support/tickets/${encodeURIComponent(id)}`,{nullStatuses:[404]}),
       adminReply: (id,body) => request(`/admin/support/tickets/${encodeURIComponent(id)}/messages`,{method:'POST',body}),
       listTickets: () => request('/me/support/tickets'),

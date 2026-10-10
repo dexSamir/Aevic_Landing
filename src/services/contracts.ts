@@ -192,9 +192,9 @@ export interface PublicProfileService {
 }
 
 export interface PublicMatchService {
-  schedule(): Promise<MatchScheduleItem[]>;
-  history(): Promise<MatchHistoryEntry[]>;
-  get(id: string): Promise<PublicMatchDetail | undefined>;
+  schedule(signal?: AbortSignal): Promise<MatchScheduleItem[]>;
+  history(signal?: AbortSignal): Promise<MatchHistoryEntry[]>;
+  get(id: string, signal?: AbortSignal): Promise<PublicMatchDetail | undefined>;
   calendarEvent(matchId: string): Promise<CalendarEventData | undefined>;
 }
 
@@ -238,9 +238,9 @@ export interface RecordsService {
 }
 
 export interface MediaService {
-  uploadPlayerPhoto(teamId: string, slot: number, file: File): Promise<BrandUploadResult>;
+  uploadPlayerPhoto(teamId: string, slot: number, file: File, signal?: AbortSignal): Promise<BrandUploadResult>;
   validateBrandAsset(request: BrandUploadRequest): Promise<BrandAssetValidationResult>;
-  uploadBrandAsset(request: BrandUploadRequest, file?: File): Promise<BrandUploadResult>;
+  uploadBrandAsset(request: BrandUploadRequest, file?: File, signal?: AbortSignal): Promise<BrandUploadResult>;
   deleteBrandAsset(teamId: string, kind: 'logo' | 'banner'): Promise<void>;
   uploadEvidence(teamId: string, file: File): Promise<{ id: string; fileName: string }>;
   evidenceAccess(id: string): Promise<{ url: string }>;

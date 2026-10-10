@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export interface ServerConfig { cloudinary?: { cloudName: string; apiKey: string; apiSecret: string }; supabaseUrl: string; publishableKey: string; siteUrl: string; secureCookies: boolean; indexableDeployment?: boolean; databaseUrl?: string; sessionSecret?: string; resendKey?: string; emailFrom?: string; storageKey?: string; mediaBucket?: string; smtp?: {host:string;port:number;user:string;pass:string} }
+export interface ServerConfig { sessionMode?: 'legacy' | 'transition' | 'tokens'; legacySessionUntil?: string; cloudinary?: { cloudName: string; apiKey: string; apiSecret: string }; supabaseUrl: string; publishableKey: string; siteUrl: string; secureCookies: boolean; indexableDeployment?: boolean; databaseUrl?: string; sessionSecret?: string; resendKey?: string; emailFrom?: string; storageKey?: string; mediaBucket?: string; smtp?: {host:string;port:number;user:string;pass:string} }
 export function readConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   const site = z.url().parse(env.PUBLIC_SITE_URL || (env.CONTEXT ? undefined : 'http://localhost:8888'));
   const url = z.url().parse(env.SUPABASE_URL);
@@ -16,5 +16,8 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     apiKey: z.string().min(1).parse(env.CLOUDINARY_API_KEY),
     apiSecret: z.string().min(1).parse(env.CLOUDINARY_API_SECRET),
   } : undefined;
-  return { cloudinary, indexableDeployment: !local && (!env.CONTEXT || env.CONTEXT==='production'), supabaseUrl: url, publishableKey: z.string().min(1).parse(env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY), siteUrl: new URL(site).origin, secureCookies: !local, databaseUrl: env.AEVIC_DATABASE_URL, sessionSecret: env.AEVIC_SESSION_SECRET || env.ADMIN_SERVER_KEY, resendKey: env.RESEND_API_KEY, emailFrom: env.EMAIL_FROM || env.SMTP_USER, storageKey: env.SUPABASE_SERVICE_ROLE_KEY, mediaBucket: env.TEAM_MEDIA_BUCKET, smtp };
+  const sessionMode=z.enum(['legacy','transition','tokens']).parse(env.AEVIC_SESSION_MODE||'legacy');
+  const legacySessionUntil=sessionMode==='transition'?z.iso.datetime().parse(env.AEVIC_LEGACY_SESSION_UNTIL):undefined;
+  if(sessionMode!=='legacy'&&(!env.AEVIC_DATABASE_URL||(env.AEVIC_SESSION_SECRET||env.ADMIN_SERVER_KEY||'').length<32))throw new Error('Session configuration incomplete');
+  return { sessionMode, legacySessionUntil, cloudinary, indexableDeployment: !local && (!env.CONTEXT || env.CONTEXT==='production'), supabaseUrl: url, publishableKey: z.string().min(1).parse(env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY), siteUrl: new URL(site).origin, secureCookies: !local, databaseUrl: env.AEVIC_DATABASE_URL, sessionSecret: env.AEVIC_SESSION_SECRET || env.ADMIN_SERVER_KEY, resendKey: env.RESEND_API_KEY, emailFrom: env.EMAIL_FROM || env.SMTP_USER, storageKey: env.SUPABASE_SERVICE_ROLE_KEY, mediaBucket: env.TEAM_MEDIA_BUCKET, smtp };
 }

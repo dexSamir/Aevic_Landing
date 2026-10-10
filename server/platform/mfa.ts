@@ -1,3 +1,5 @@
+import {persistentLimit} from '../auth/persistent-limit';
+import {currentSessionDigest} from './context';
 import {lockAccount} from './account-store';
 import {Hono} from 'hono';
 import {getCookie} from 'hono/cookie';
@@ -29,11 +31,11 @@ async function lockCredential(tx:TransactionSql,a:Actor,expected:string){
  if(!row||row.password_hash!==expected)throw new ServiceError(409,'ACCOUNT_CHANGED');
 }
 const app=new Hono<Env>(),limit=createAttemptLimiter();
-const currentDigest=(c:ApiContext)=>tokenDigest(getCookie(c,platform(c).actor.adminId?adminCookieName(c):captainCookieName(c))??'');
+const currentDigest=(c:ApiContext)=>currentSessionDigest(c);
 const master=(c:ApiContext)=>c.get('config').sessionSecret??'';
 app.get('/me/2fa',async c=>{const key=actorKey(actor(c)),[f]=await platform(c).sql`select enabled_at,cardinality(recovery_digests) as remaining from aevic_platform.mfa_factors where actor_key=${key}`;return c.json({enabled:Boolean(f?.enabled_at),required:false,setupAvailable:true,backupCodesRemaining:f?.remaining??0});});
 app.post('/me/2fa/setup',async c=>{
- const a=actor(c),key=actorKey(a),sql=platform(c).sql;limit('mfa-setup',key,3);
+ const a=actor(c),key=actorKey(a),sql=platform(c).sql;limit('mfa-setup',key,3);await persistentLimit(c,sql,'mfa-setup',key,3);
  const input=await body(c,z.object({password:z.string().min(1).max(128)}).strict());
  const [credential]=a.adminId?await sql`select password_hash from aevic_platform.admin_accounts where id=${a.adminId}`:await sql`select password_hash from aevic_platform.account_identity where id=${a.teamId!}`;
  if(!await verifyPassword(input.password,credential?.password_hash))throw new ServiceError(401,'PASSWORD_CHANGE_FAILED');
@@ -45,7 +47,7 @@ app.post('/me/2fa/setup',async c=>{
  const {toString}=await import('qrcode');return c.json({setupId:id,otpauthUri:uri,qrSvg:await toString(uri,{type:'svg'}),expiresAt:result[0].setup_expires_at});
 });
 app.post('/me/2fa/setup/verification',async c=>{
- const a=actor(c),key=actorKey(a);limit('mfa-confirm',key,10);const input=await body(c,z.object({setupId:z.uuid(),code:z.string().regex(/^\d{6}$/)}).strict());
+ const a=actor(c),key=actorKey(a);limit('mfa-confirm',key,10);await persistentLimit(c,platform(c).sql,'mfa-confirm',key,10);const input=await body(c,z.object({setupId:z.uuid(),code:z.string().regex(/^\d{6}$/)}).strict());
  const generated=generateRecovery(master(c),key);
  await transaction(platform(c).sql,async tx=>{
   const [f]=await tx`select * from aevic_platform.mfa_factors where actor_key=${key} and setup_id=${input.setupId} and setup_expires_at>now() and enabled_at is null for update`;if(!f)throw new ServiceError(409,'MFA_SETUP_EXPIRED');
@@ -57,10 +59,11 @@ app.post('/me/2fa/setup/verification',async c=>{
 });
 async function changeFactor(c:ApiContext,disable:boolean){
  const a=actor(c),key=actorKey(a);limit('mfa-change',key,5);const input=await body(c,z.object({password:z.string().min(1).max(128),code:z.string().min(6).max(40)}).strict()),sql=platform(c).sql;
+ await persistentLimit(c,sql,'mfa-change',key,5);
  const [account]=a.adminId?await sql`select password_hash from aevic_platform.admin_accounts where id=${a.adminId}`:await sql`select password_hash from aevic_platform.account_identity where id=${a.teamId!}`;
  if(!await verifyPassword(input.password,account?.password_hash))throw new ServiceError(401,'PASSWORD_CHANGE_FAILED');
  const generated=generateRecovery(master(c),key);
- await transaction(sql,async tx=>{await lockCredential(tx,a,account.password_hash);if(!await consumeFactor(tx,a,master(c),input.code))throw new ServiceError(409,'MFA_NOT_ENABLED');if(disable)await tx`delete from aevic_platform.mfa_factors where actor_key=${key}`;else await tx`update aevic_platform.mfa_factors set recovery_digests=${generated.digests} where actor_key=${key}`;await audit(tx,a,disable?'mfa.disable':'mfa.recovery-refresh','account',key);});
+ await transaction(sql,async tx=>{await lockCredential(tx,a,account.password_hash);if(!await consumeFactor(tx,a,master(c),input.code))throw new ServiceError(409,'MFA_NOT_ENABLED');if(disable)await tx`delete from aevic_platform.mfa_factors where actor_key=${key}`;else await tx`update aevic_platform.mfa_factors set recovery_digests=${generated.digests} where actor_key=${key}`;await tx`update aevic_platform.sessions set revoked_at=now() where token_digest<>${currentDigest(c)} and revoked_at is null and (admin_id=${a.adminId??null} or team_id=${a.teamId??null})`;await audit(tx,a,disable?'mfa.disable':'mfa.recovery-refresh','account',key);});
  return disable?c.body(null,204):c.json({codes:generated.codes,generatedAt:new Date().toISOString()});
 }
 app.delete('/me/2fa',c=>changeFactor(c,true));

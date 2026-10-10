@@ -17,11 +17,11 @@ describe('UXScan remediation contracts', () => {
   it('enables implemented services while avoiding unrelated homepage requests', () => {
     const capabilities = createServiceCapabilities('api');
     const homePage = readFileSync('src/pages/HomePage.tsx', 'utf8');
-    const layouts = readFileSync('src/layouts/layouts.tsx', 'utf8');
+    const layouts = readFileSync('src/services/PublicSessionContext.tsx', 'utf8');
     expect(capabilities).toMatchObject({ publicSession: true, publicPlayers: true, publicRecords: true, login: true, register: true, teamWorkspace: true, adminWorkspace: true });
     expect(layouts).toContain('if (!serviceCapabilities.publicSession)');
     expect(homePage).not.toContain('services.players.list(');
-    expect(homePage).toContain('if (!serviceCapabilities.publicRecords)');
+    expect(homePage).not.toContain('services.records.list(');
   });
 
   it('keeps application-owned HTML injection sinks out of source', () => {

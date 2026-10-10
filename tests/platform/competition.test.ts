@@ -3,12 +3,14 @@ import publicRoutes from '../../server/routes/public';
 import platformRoutes from '../../server/platform/routes';
 import {adminManagementRoutes} from '../../server/platform/admin-management';
 import legacyClaimRoutes from '../../server/platform/legacy-claims';
+import verificationRoutes from '../../server/platform/verification';
+import {requireVerifiedEmail} from '../../server/platform/email-requirement';
 import {createStandaloneAccount} from '../../server/platform/activation';
 import {createApp} from '../../server/app';
 import {Hono} from 'hono';
 import type {Env} from '../../server/types';
 import {ServiceError} from '../../server/errors';
-import {registerOriginalTeam} from '../../server/platform/registration';
+import registrationRoutes,{registerOriginalTeam} from '../../server/platform/registration';
 import adminAccountRoutes from '../../server/platform/admin-account';
 import mfaRoutes,{consumeFactor} from '../../server/platform/mfa';
 import {totp,fromBase32} from '../../server/platform/totp';
@@ -20,7 +22,7 @@ import sharp from 'sharp';
 import staffRoutes from '../../server/platform/staff';
 import profileRoutes from '../../server/platform/profile';
 import type {Actor} from '../../server/platform/repository';
-import {beforeAll,afterAll,describe,it,expect} from 'vitest';
+import {beforeAll,afterAll,describe,it,expect,vi} from 'vitest';
 import {execFileSync} from 'node:child_process';
 import {readdirSync} from 'node:fs';
 import postgres from 'postgres';
@@ -30,7 +32,7 @@ import {createTournament,editTournament,saveResults,publishMatch} from '../../se
 import {randomBytes} from 'node:crypto';
 import {inspectAdminReset,consumeAdminReset} from '../../server/platform/admin-recovery';
 import {tokenDigest} from '../../server/platform/context';
-import {hashPassword,verifyPassword} from '../../server/captain/crypto';
+import {hashPassword,verifyPassword,makeSession} from '../../server/captain/crypto';
 import {PlatformRepository} from '../../server/platform/repository';
 
 const bin='/opt/homebrew/opt/postgresql@18/bin',database=`aevic_platform_behavior_${process.pid}`;
@@ -49,7 +51,7 @@ beforeAll(async()=>{
  for(const schema of ['public','aevic','aevic_private','aevic_platform','storage']){await sql.unsafe(`grant usage on schema ${schema} to ${gateway}`);await sql.unsafe(`grant all on all tables in schema ${schema} to ${gateway}`);await sql.unsafe(`grant usage,select on all sequences in schema ${schema} to ${gateway}`);}
  await sql`insert into aevic_platform.admin_accounts(id,email,role) values(${actor.adminId},'admin@example.invalid','super-admin')`;
  for(const id of [1,2,3])await sql`insert into public.teams(id,team_name,captain_name,captain_contact,email,password_hash,player1_ign,player2_ign,player3_ign,player4_ign,status) values(${id},${'Team '+id},'Captain','000000',${id+'@example.invalid'},'test-only','First','Second','Third','Fourth','approved')`;
- await sql`insert into aevic_platform.accounts(id,original_team_id) select id,id from public.teams`;
+ await sql`insert into aevic_platform.accounts(id,original_team_id,verification_required) select id,id,false from public.teams`;
  await sql`insert into aevic_platform.team_authority(team_id,account_id,role) select id,id,'OWNER' from public.teams`;
  const result=await createTournament(sql,actor,input(),'create-tournament-1');tournamentId=result.id;
  [ {id:matchId} ]=await sql`select id from aevic.matches where tournament_id=${tournamentId}`;
@@ -180,6 +182,8 @@ describe('original-team competition persistence',()=>{
   const write=(path:string,body:unknown,cookie='',method='POST')=>app.request('/api'+path,{method,headers:{origin,'content-type':'application/json',cookie,'idempotency-key':crypto.randomUUID()},body:JSON.stringify(body)});
   const login=async(id:number)=>{const response=await write('/auth/login',{email:id+'@example.invalid',password});expect(response.status).toBe(200);return response.headers.get('set-cookie')!.split(';')[0];};
   const owner=await login(60),manager=await login(61),player=await login(62);
+  const blocked=await write('/teams/60/invitations',{recipient:'61@example.invalid',role:'MANAGER'},owner);expect(blocked.status).toBe(403);expect((await blocked.json()).code).toBe('EMAIL_VERIFICATION_REQUIRED');
+  await sql`update aevic_platform.accounts set email_verified_at=now() where id in (60,61,62)`;
   expect((await write('/me/workspace',{teamId:'60'},manager)).status).toBe(403);
   const invitation=await (await write('/teams/60/invitations',{recipient:'61@example.invalid',role:'MANAGER'},owner)).json();expect(invitation.id).toBeDefined();
   expect((await write(`/team-invitations/${invitation.id}/response`,{response:'ACCEPTED'},player)).status).toBe(404);
@@ -201,6 +205,10 @@ describe('original-team competition persistence',()=>{
   expect((await app.request('/api/me/account',{headers:{cookie:owner}})).status).toBe(200);
   expect((await write('/teams/60/archive',{reason:'Isolated archive test only',confirmation:'Workspace 60'},selectedCookie)).status).toBe(204);
   const preserved=await sql`select id::text,password_hash,email from public.teams where id in (60,61,62)`;expect(preserved).toHaveLength(3);for(const row of preserved)expect(row.password_hash).toBe(hash);
+  const otherOwnerSession=await login(60);
+  expect((await write('/auth/logout',{},owner)).status).toBe(204);
+  expect((await app.request('/api/me/session',{headers:{cookie:owner}})).status).toBe(401);
+  expect((await app.request('/api/me/session',{headers:{cookie:otherOwnerSession}})).status).toBe(200);
  });
 
  it('requires recipient consent for organization teams and owner authority for transfer',async()=>{
@@ -290,6 +298,7 @@ describe('original-team competition persistence',()=>{
   expect(await sql.begin(tx=>consumeFactor(tx,actor,master,recovery.codes[0]))).toBe(true);
   await expect(sql.begin(tx=>consumeFactor(tx,actor,master,recovery.codes[0]))).rejects.toMatchObject({code:'MFA_INVALID'});
   const [stored]=await sql`select secret_ciphertext,recovery_digests from aevic_platform.mfa_factors where admin_id=${actor.adminId}`;expect(stored.recovery_digests).toHaveLength(9);expect(JSON.stringify(stored)).not.toContain(recovery.codes[0]);expect(stored.secret_ciphertext).not.toContain(secret.toString('base64'));
+  const races=await Promise.allSettled([sql.begin(tx=>consumeFactor(tx,actor,master,recovery.codes[2])),sql.begin(tx=>consumeFactor(tx,actor,master,recovery.codes[2]))]);expect(races.filter(r=>r.status==='fulfilled')).toHaveLength(1);expect(races.filter(r=>r.status==='rejected')).toHaveLength(1);
   const disabled=await app.request('/me/2fa',{method:'DELETE',headers,body:JSON.stringify({password:'ChangedAdminPassword42',code:recovery.codes[1]})});expect(disabled.status).toBe(204);
   expect((await (await app.request('/me/2fa',{headers})).json()).enabled).toBe(false);
   const expiring=await (await app.request('/me/2fa/setup',{method:'POST',headers,body:JSON.stringify({password:'ChangedAdminPassword42'})})).json();
@@ -351,7 +360,7 @@ describe('original-team competition persistence',()=>{
   expect((await new PlatformRepository(client,sql,{teamId:'1'}).team('1',true)).socialLinks).toEqual({website:'https://example.invalid/team'});
  });
  it('keeps evidence private while serving published team images',async()=>{
-  const appFor=(identity:Actor)=>{const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,identity));await next();});app.route('/',mediaRoutes);app.onError((e,c)=>c.json({code:e instanceof ServiceError?e.code:'ERROR'},e instanceof ServiceError?e.status:500));return app;};
+  const appFor=(identity:Actor)=>{const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,identity));await next();});app.use('*',async(c,next)=>{c.set('config',{supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'isolated',siteUrl:'http://localhost',secureCookies:false});await next();});app.route('/',mediaRoutes);app.onError((e,c)=>c.json({code:e instanceof ServiceError?e.code:'ERROR'},e instanceof ServiceError?e.status:500));return app;};
   const image=await sharp({create:{width:40,height:20,channels:3,background:'#805020'}}).png().toBuffer();
   const upload=async(kind:string,owner='1')=>{const form=new FormData();form.set('ownerId',owner);form.set('assetType',kind);form.set('file',new File([image],'fixture.png',{type:'image/png'}));return appFor({teamId:'1'}).request('/media/uploads',{method:'POST',body:form});};
   expect((await upload('logo','2')).status).toBe(403);
@@ -499,4 +508,149 @@ describe('original-team competition persistence',()=>{
   expect(await sql`select * from aevic_platform.message_reads where message_id=${m.id}`).toHaveLength(1);
  });
 
+});
+
+
+it('enforces new-account verification without restricting pre-rollout identities', async () => {
+  await expect(requireVerifiedEmail(sql, '2')).resolves.toBeUndefined();
+  const [row] = await sql`insert into aevic_platform.accounts(email,password_hash) values('verify-gate@example.invalid','fixture') returning id::text,verification_required`;
+  expect(row.verification_required).toBe(true);
+  await expect(requireVerifiedEmail(sql, row.id)).rejects.toMatchObject({code:'EMAIL_VERIFICATION_REQUIRED'});
+  await sql`update aevic_platform.accounts set email_verified_at=now() where id=${row.id}`;
+  await expect(requireVerifiedEmail(sql, row.id)).resolves.toBeUndefined();
+});
+
+
+it('consumes email tokens once and classifies expired and invalid tokens in SQL', async () => {
+  const created = await createStandaloneAccount(sql, 'verification-flow@example.invalid', 'VerificationTest42');
+  const app = new Hono<Env>();
+  app.use('*', async (c, next) => { c.set('platform', new PlatformRepository(client, sql, {})); await next(); });
+  app.route('/', verificationRoutes);
+  app.onError((e,c)=>c.json({code:e instanceof ServiceError?e.code:'ERROR'},e instanceof ServiceError?e.status:500));
+  const send = (route:string, token:string) => app.request('/auth/email-verification/'+route, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token})});
+  expect(await (await send('inspect',created!.token)).json()).toEqual({state:'valid'});
+  const results = await Promise.all([send('confirm',created!.token),send('confirm',created!.token)]);
+  expect(results.map(r=>r.status).sort()).toEqual([204,422]);
+  expect(await (await send('inspect',created!.token)).json()).toEqual({state:'already-verified'});
+  await expect(requireVerifiedEmail(sql,created!.id)).resolves.toBeUndefined();
+  const expired = await createStandaloneAccount(sql, 'expired-flow@example.invalid', 'VerificationTest42');
+  await sql`update aevic_platform.email_verifications set expires_at=now()-interval '1 second' where team_id=${expired!.id}`;
+  expect(await (await send('inspect',expired!.token)).json()).toEqual({state:'expired'});
+  expect((await send('confirm',expired!.token)).status).toBe(422);
+  expect(await (await send('inspect','invalid')).json()).toEqual({state:'invalid'});
+});
+
+
+it('registration sends a digest-backed expiring link through an isolated mail transport', async () => {
+  await sql`update aevic_platform.settings set value=jsonb_set(value,'{registrationEnabled}','true') where key='platform'`;
+  const app=new Hono<Env>();
+  app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,{}));c.set('config',{supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'fixture',siteUrl:'https://fixture.test',secureCookies:true,sessionSecret:'isolated-registration-delivery-secret-00000',emailFrom:'fixture@example.invalid',resendKey:'fixture'});await next();});
+  app.route('/',registrationRoutes);
+  const mail=vi.fn(async(url:unknown,init?:RequestInit)=>{expect(url).toBe('https://api.resend.com/emails');return Response.json({id:'isolated-mail'});});
+  vi.stubGlobal('fetch',mail);
+  try {
+    const input={idempotencyKey:'registration-delivery-fixture',password:'RegistrationFixture42',draft:{teamName:'Delivery Fixture',tag:'MAIL',firstName:'Fixture',lastName:'Captain',phone:'0000000',email:'delivery@example.invalid',players:[{ign:'One',uid:'910000001',role:'captain'},{ign:'Two',uid:'910000002',role:'starter'},{ign:'Three',uid:'910000003',role:'starter'},{ign:'Four',uid:'910000004',role:'starter'},{ign:'',uid:'',role:'substitute'}]}};
+    const result=await app.request('/registrations',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(input)});
+    expect(result.status).toBe(201);expect(mail).toHaveBeenCalledTimes(1);
+    const receipt=await result.json();
+    const message=JSON.parse(String(mail.mock.calls[0][1]!.body));
+    const token=/#token=([A-Za-z0-9_-]{43})/.exec(message.text)![1];
+    const [stored]=await sql`select token_digest,expires_at,created_at from aevic_platform.email_verifications where team_id=${receipt.registrationId}`;
+    expect(stored.token_digest).toBe(tokenDigest(token));expect(stored.token_digest).not.toBe(token);
+    expect(new Date(stored.expires_at).getTime()-new Date(stored.created_at).getTime()).toBe(1800000);
+    await expect(requireVerifiedEmail(sql,receipt.registrationId)).rejects.toMatchObject({code:'EMAIL_VERIFICATION_REQUIRED'});
+  } finally {vi.unstubAllGlobals();}
+});
+
+it('rotates memory-access session families, serializes refresh and detects delayed reuse',async()=>{
+ const origin='http://localhost:8899',password='TokenFixturePassword42';
+ const created=await createStandaloneAccount(sql,'tokens@example.invalid',password);
+ const config={supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'isolated-publishable-key',siteUrl:origin,secureCookies:false,databaseUrl:`postgres://${gateway}@127.0.0.1:55432/${database}`,sessionSecret:'isolated-token-secret-000000000000000000',sessionMode:'tokens' as const};
+ const app=createApp(config);
+ const call=(path:string,body?:unknown,cookie='',access='',method=body?'POST':'GET')=>app.request('/api'+path,{method,headers:{origin,'content-type':'application/json',cookie,...(access?{authorization:`Bearer ${access}`}:{})},...(body?{body:JSON.stringify(body)}:{})});
+ const login=await call('/auth/login',{email:'tokens@example.invalid',password,remember:true});expect(login.status).toBe(200);
+ const session=await login.json(),cookie=login.headers.get('set-cookie')!.split(';')[0];
+ expect(cookie).toMatch(/^aevic-refresh-v2=/);expect(login.headers.get('set-cookie')).toContain('HttpOnly');expect(login.headers.get('set-cookie')).toContain('SameSite=Strict');expect(login.headers.get('set-cookie')).toContain('Path=/api/auth');
+ expect(session.accessExpiresAt-Date.now()).toBeLessThanOrEqual(600000);
+ expect((await call('/me/account',undefined,'',session.accessToken)).status).toBe(200);
+ expect((await call('/me/account',undefined,cookie)).status).toBe(401);
+ expect((await call('/me/account',undefined,'',session.accessToken+'tamper')).status).toBe(401);
+ const [family]=await sql`select * from aevic_platform.sessions where team_id=${created!.id} and protocol=2`;
+ const [stored]=await sql`select * from aevic_platform.refresh_tokens where session_id=${family.id}`;expect(stored.token_digest).toBe(tokenDigest(cookie.split('=')[1]));expect(JSON.stringify(stored)).not.toContain(cookie.split('=')[1]);
+ const parallel=await Promise.all([call('/auth/refresh',{},cookie),call('/auth/refresh',{},cookie)]);expect(parallel.map(r=>r.status).sort()).toEqual([200,409]);
+ const successful=parallel.find(r=>r.status===200)!;const freshCookie=successful.headers.get('set-cookie')!.split(';')[0],fresh=await successful.json();expect(freshCookie).not.toBe(cookie);
+ expect((await createApp(config).request('/api/me/account',{headers:{authorization:`Bearer ${fresh.accessToken}`}})).status).toBe(200);
+ await sql`update aevic_platform.refresh_tokens set consumed_at=clock_timestamp()-interval '6 seconds' where token_digest=${stored.token_digest}`;
+ const replay=await call('/auth/refresh',{},cookie);expect(replay.status).toBe(401);expect((await replay.json()).code).toBe('REFRESH_REUSED');
+ expect((await call('/me/account',undefined,'',fresh.accessToken)).status).toBe(401);
+ expect((await call('/auth/refresh',{},freshCookie)).status).toBe(401);
+ const relog=await call('/auth/login',{email:'tokens@example.invalid',password});const restored=await relog.json(),restoredCookie=relog.headers.get('set-cookie')!.split(';')[0];
+ const other=await call('/auth/login',{email:'tokens@example.invalid',password});const otherSession=await other.json();
+ expect((await call('/me/sessions/others',undefined,'',restored.accessToken,'DELETE')).status).toBe(204);
+ expect((await call('/me/account',undefined,'',restored.accessToken)).status).toBe(200);
+ expect((await call('/me/account',undefined,'',otherSession.accessToken)).status).toBe(401);
+ expect((await app.request('/api/auth/refresh',{method:'POST',headers:{origin:'https://evil.invalid',cookie:restoredCookie}})).status).toBe(403);
+ expect((await call('/auth/logout',{},restoredCookie)).status).toBe(204);
+ expect((await call('/me/account',undefined,'',restored.accessToken)).status).toBe(401);
+ const final=await call('/auth/login',{email:'tokens@example.invalid',password});const last=await final.json();
+ expect((await call('/me/account/password',{currentPassword:password,newPassword:'TokenChangedPassword42'},'',last.accessToken,'PUT')).status).toBe(204);
+ expect((await call('/me/account',undefined,'',last.accessToken)).status).toBe(401);
+});
+
+it('persists immutable Cloudinary artwork across fresh repository reads and preserves references on failure',async()=>{
+ const config={supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'fixture',siteUrl:'http://localhost',secureCookies:false,cloudinary:{cloudName:'isolated',apiKey:'fixture',apiSecret:'fixture'}};
+ const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('config',config);c.set('platform',new PlatformRepository(client,sql,{teamId:'2',accountId:'2'}));await next();});app.route('/',mediaRoutes);app.onError((e,c)=>c.json({code:e instanceof ServiceError?e.code:'ERROR'},e instanceof ServiceError?e.status:500));
+ const image=await sharp({create:{width:64,height:64,channels:4,background:'#e0b54a'}}).png().toBuffer();
+ let failed=false;const vendor=vi.fn(async(url:string,options?:RequestInit)=>{if(failed)return new Response(null,{status:503});if(options?.method==='HEAD')return new Response(null,{headers:{'content-type':'image/webp'}});const id=(options?.body as FormData).get('public_id');return Response.json({public_id:id,version:1,secure_url:`https://res.cloudinary.com/isolated/image/upload/v1/${id}.webp`,resource_type:'image',format:'webp'});});vi.stubGlobal('fetch',vendor);
+ const upload=async(kind:string)=>{const form=new FormData();form.set('ownerId','2');form.set('assetType',kind);form.set('file',new File([new Uint8Array(image)],'isolated.png',{type:'image/png'}));return app.request('/media/uploads',{method:'POST',body:form});};
+ try{
+  const first=await upload('logo');expect(first.status).toBe(201);const original=await first.json();
+  const second=await upload('logo');expect(second.status).toBe(201);const replacement=await second.json();expect(replacement.previewUrl).not.toBe(original.previewUrl);
+  const banner=await upload('banner');expect(banner.status).toBe(201);const bannerAsset=await banner.json();
+  const fresh=await new PlatformRepository(client,sql,{teamId:'2',accountId:'2'}).team('2',true);expect(fresh.logoUrl).toBe(replacement.previewUrl);expect(fresh.bannerUrl).toBe(bannerAsset.previewUrl);
+  failed=true;expect((await upload('logo')).status).toBe(503);expect((await new PlatformRepository(client,sql,{teamId:'2',accountId:'2'}).team('2',true)).logoUrl).toBe(replacement.previewUrl);
+  expect(vendor.mock.calls.every(([url])=>!url.includes('destroy'))).toBe(true);
+ }finally{vi.unstubAllGlobals();}
+});
+
+it('enforces administrator token MFA, current-device identity, and idle/absolute expiration',async()=>{
+ const origin='http://localhost:8899',password='ChangedAdminPassword42';
+ await sql`insert into aevic_platform.admin_accounts(id,email,role,password_hash) values(${crypto.randomUUID()},'token-admin@example.invalid','super-admin',${await hashPassword(password)})`;
+ const app=createApp({supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'fixture',siteUrl:origin,secureCookies:false,databaseUrl:`postgres://${gateway}@127.0.0.1:55432/${database}`,sessionSecret:'isolated-token-admin-secret-0000000000000000',sessionMode:'tokens'});
+ const call=(path:string,body?:unknown,access='',method=body?'POST':'GET',cookie='')=>app.request('/api'+path,{method,headers:{origin,'x-nf-client-connection-ip':'192.0.2.22','content-type':'application/json',cookie,...(access?{authorization:`Bearer ${access}`}:{})},...(body?{body:JSON.stringify(body)}:{})});
+ const login=async()=>{const response=await call('/auth/admin/login',{email:'token-admin@example.invalid',password});expect(response.status).toBe(200);return{...await response.json(),cookie:response.headers.get('set-cookie')!.split(';')[0]};};
+ const current=await login(),other=await login();
+ const sessions=await (await call('/me/sessions',undefined,current.accessToken)).json();expect(sessions.filter((s:{status:string})=>s.status==='current')).toHaveLength(1);
+ const response=await call('/me/2fa/setup',{password},current.accessToken);expect(response.status).toBe(200);const setup=await response.json();const secret=fromBase32(new URL(setup.otpauthUri).searchParams.get('secret')!);
+ const enabled=await call('/me/2fa/setup/verification',{setupId:setup.setupId,code:totp(secret,Math.floor(Date.now()/30000))},current.accessToken);expect(enabled.status).toBe(200);const codes=(await enabled.json()).codes;
+ expect((await call('/me/account',undefined,other.accessToken)).status).toBe(401);
+ expect((await call('/me/account',undefined,current.accessToken)).status).toBe(200);
+ expect((await call('/auth/admin/login',{email:'token-admin@example.invalid',password})).status).toBe(401);
+ const regenerated=await call('/me/2fa/recovery-codes',{password,code:codes[0]},current.accessToken);expect(regenerated.status).toBe(200);const freshCodes=(await regenerated.json()).codes;
+ expect((await call('/auth/admin/login',{email:'token-admin@example.invalid',password,otp:codes[1]})).status).toBe(401);
+ expect((await call('/me/2fa',{password,code:freshCodes[0]},current.accessToken,'DELETE')).status).toBe(204);
+ const idle=await login();await sql`update aevic_platform.sessions set idle_expires_at=now()-interval '1 second' where id=${idle.accessToken.split('.')[1]}`;
+ expect((await call('/auth/refresh',{},'','POST',idle.cookie)).status).toBe(401);
+ const absolute=await login();await sql`update aevic_platform.sessions set expires_at=now()-interval '1 second' where id=${absolute.accessToken.split('.')[1]}`;
+ expect((await call('/me/account',undefined,absolute.accessToken)).status).toBe(401);
+});
+
+it('bounds legacy compatibility by registry membership and the explicit transition deadline',async()=>{
+ const origin='http://localhost:8899',secret='transition-fixture-secret-at-least-32-characters',created=await createStandaloneAccount(sql,'transition@example.invalid','TransitionFixture42');
+ const [row]=await sql`select password_hash from aevic_platform.account_identity where id=${created!.id}`;
+ const cookie=makeSession(created!.id,row.password_hash,secret,3600),config={supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'fixture',siteUrl:origin,secureCookies:false,databaseUrl:`postgres://${gateway}@127.0.0.1:55432/${database}`,sessionSecret:secret,sessionMode:'transition' as const,legacySessionUntil:new Date(Date.now()+3600000).toISOString()};
+ const read=(configuration:typeof config)=>createApp(configuration).request('/api/me/account',{headers:{cookie:'aevic-captain='+cookie}});
+ expect((await read(config)).status).toBe(401);
+ await sql`insert into aevic_platform.sessions(team_id,token_digest,expires_at) values(${created!.id},${tokenDigest(cookie)},now()+interval '1 hour')`;
+ expect((await read(config)).status).toBe(200);
+ expect((await read({...config,legacySessionUntil:new Date(Date.now()-1000).toISOString()})).status).toBe(401);
+ await sql`update aevic_platform.sessions set revoked_at=now() where token_digest=${tokenDigest(cookie)}`;
+ expect((await read(config)).status).toBe(401);
+});
+
+it('commits shared authentication limits across app instances and simultaneous failures',async()=>{
+ const {persistentLimit}=await import('../../server/auth/persistent-limit');
+ const build=()=>{const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('config',{supabaseUrl:'https://fixture.test',publishableKey:'fixture',siteUrl:'http://localhost',secureCookies:false,sessionMode:'tokens',sessionSecret:'shared-rate-fixture-at-least-32-characters'});await next();});app.post('/attempt',async c=>{await persistentLimit(c,sql,'isolated-counter','private-fixture@example.invalid',1);return c.json({ok:true});});app.onError((e,c)=>c.json({},e instanceof ServiceError?e.status:500));return app;};
+ const responses=await Promise.all([build().request('/attempt',{method:'POST'}),build().request('/attempt',{method:'POST'})]);expect(responses.map(r=>r.status).sort()).toEqual([200,429]);expect((await build().request('/attempt',{method:'POST'})).status).toBe(429);
+ expect(JSON.stringify(await sql`select key from aevic_platform.authentication_limits`)).not.toContain('private-fixture@example.invalid');
 });

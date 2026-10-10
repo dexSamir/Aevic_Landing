@@ -1,4 +1,7 @@
-import {PlatformAccountStore,accountUser} from '../platform/account-store';
+import {persistentLimit} from '../auth/persistent-limit';
+import {issueTokens,saveTokens,tokensEnabled,clearTokenCookies,tokenMode} from '../auth/platform-tokens';
+import {makeSession} from '../captain/crypto';
+import {PlatformAccountStore,accountUser,lockAccount} from '../platform/account-store';
 import {consumeFactor} from '../platform/mfa';
 import {tokenDigest} from '../platform/context';
 import {transaction} from '../platform/competition';
@@ -20,10 +23,10 @@ import {clearSession} from '../auth/session';
 export type CaptainDependencies={store?:CaptainStore;mailer?:ResetMailer;media?:CaptainMedia;now?:()=>number};
 const stores=new Map<string,CaptainStore>();
 const cookieName=(c:ApiContext)=>c.get('config').secureCookies?'__Host-aevic-captain':'aevic-captain';
-const cookie=(c:ApiContext)=>getCookie(c,cookieName(c));
+const cookie=(c:ApiContext)=>{const row=c.get('verifiedCaptain');if(tokenMode(c)==='tokens'&&!c.get('sessionId')||tokenMode(c)==='transition'&&!c.get('sessionId')&&Date.parse(c.get('config').legacySessionUntil??'')<=Date.now())return undefined;return c.get('sessionId')&&row?makeSession(row.id,row.password_hash,c.get('config').sessionSecret??'',60):getCookie(c,cookieName(c));};
 const cookieOptions=(c:ApiContext)=>({path:'/',httpOnly:true,secure:c.get('config').secureCookies,sameSite:'Strict' as const});
 function save(c:ApiContext,value:string,remember:boolean){setCookie(c,cookieName(c),value,{...cookieOptions(c),...(remember?{maxAge:30*86400}:{})});}
-function clear(c:ApiContext){deleteCookie(c,cookieName(c),cookieOptions(c));clearSession(c);}
+function clear(c:ApiContext){clearTokenCookies(c);deleteCookie(c,cookieName(c),cookieOptions(c));clearSession(c);}
 const password=z.string().min(8).max(128).regex(/[A-ZƏÖÜĞÇŞİ]/).regex(/[0-9]/);
 const token=z.string().max(100).regex(/^[1-9]\d{0,18}\.[A-Za-z0-9_-]{43}$/);
 const slot=z.coerce.number().int().min(1).max(5);
@@ -45,9 +48,9 @@ export function captainRoutes(deps:CaptainDependencies={}) {
  };
  app.post('/auth/login',async c=>{
   attempt(c,'login');const input=await body(c,z.object({email,password:z.string().min(1).max(128),remember:z.boolean().default(false),otp:z.string().max(40).optional()}).strict());
-  limit('login-account',input.email,10);const auth=service(c),result=await auth.login(input.email,input.password,input.remember);
-  if(c.get('platform'))await transaction(c.get('platform')!.sql,async tx=>{const verified=await consumeFactor(tx,{teamId:result.row.id},c.get('config').sessionSecret??'',input.otp);await tx`insert into aevic_platform.sessions(token_digest,team_id,expires_at,device,mfa_verified_at) values(${tokenDigest(result.cookie)},${result.row.id},to_timestamp(${Number(result.cookie.split('.')[1])}),${(c.req.header('user-agent')??'Browser').slice(0,300)},case when ${verified} then clock_timestamp() else null end)`;});
-  save(c,result.cookie,input.remember);return c.json(c.get('platform')?{user:accountUser(result.row),role:'captain'}:auth.sessionView(result.row));
+  limit('login-account',input.email,10);if(c.get('platform'))await persistentLimit(c,c.get('platform')!.sql,'login-account',input.email,10);const auth=service(c),result=await auth.login(input.email,input.password,input.remember);
+  const issued=c.get('platform')?await transaction(c.get('platform')!.sql,async tx=>{const current=await lockAccount(tx,result.row.id);if(current.password_hash!==result.row.password_hash||current.status==='banned')throw new ServiceError(401,'LOGIN_FAILED');const verified=await consumeFactor(tx,{teamId:result.row.id},c.get('config').sessionSecret??'',input.otp);if(tokensEnabled(c))return issueTokens(c,tx,{accountId:result.row.id},current.password_hash,input.remember,verified);await tx`insert into aevic_platform.sessions(token_digest,team_id,expires_at,device,mfa_verified_at) values(${tokenDigest(result.cookie)},${result.row.id},to_timestamp(${Number(result.cookie.split('.')[1])}),${(c.req.header('user-agent')??'Browser').slice(0,300)},case when ${verified} then clock_timestamp() else null end)`;}):undefined;
+  if(issued)saveTokens(c,issued);else save(c,result.cookie,input.remember);return c.json(c.get('platform')?{user:accountUser(result.row),role:'captain',...(issued?{accessToken:issued.accessToken,accessExpiresAt:issued.accessExpiresAt,sessionMode:'tokens'}:{})}:auth.sessionView(result.row));
  });
  app.get('/me/session',async c=>{
   if(!cookie(c))return c.json(null);
@@ -58,7 +61,7 @@ export function captainRoutes(deps:CaptainDependencies={}) {
   }
   try{const auth=service(c);const row=await auth.authenticate(cookie(c));return c.json(c.get('platform')?{user:accountUser(row),role:'captain'}:auth.sessionView(row));}catch(error){if(error instanceof ServiceError&&error.status===401){clear(c);return c.json(null);}throw error;}
  });
- app.post('/auth/logout',async c=>{try{if(cookie(c))await service(c).logout(cookie(c));}finally{clear(c);}return c.body(null,204);});
+ app.post('/auth/logout',async c=>{try{if(cookie(c)){if(c.get('platform'))await c.get('platform')!.sql`update aevic_platform.sessions set revoked_at=now() where token_digest=${tokenDigest(cookie(c)!)} and revoked_at is null`;else await service(c).logout(cookie(c));}}finally{clear(c);}return c.body(null,204);});
  app.post('/auth/password-reset',async c=>{
   attempt(c,'reset');const input=await body(c,z.object({email}).strict());
   // Sender setup is checked for every request, independently of account existence.

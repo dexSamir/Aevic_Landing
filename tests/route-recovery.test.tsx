@@ -15,6 +15,7 @@ describe('route recovery boundaries', () => {
 
   it.each(['/team', '/team/roster', '/admin', '/admin/results'])('never adds public marketing to %s', (path) => {
     const { container } = render(<MemoryRouter initialEntries={[path]}><PublicFooter /></MemoryRouter>);
-    expect(container).toBeEmptyDOMElement();
+    expect(container.querySelector('.participation-band')).not.toBeInTheDocument();
+    expect(screen.getByRole('contentinfo')).toBeInTheDocument();
   });
 });
