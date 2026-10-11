@@ -15,8 +15,8 @@
   --color-bg-deep: #070709;
   --color-bg-ink: #09090c;
   --color-bg-primary: #0d0d0d;
-  --color-bg-secondary: #131418;
-  --color-bg-elevated: #191a20;
+  --color-bg-secondary: #16171b;
+  --color-bg-elevated: #202127;
   --color-bg-strong: #25272e;
   --color-surface-editorial: #171512;
   --color-surface-atmosphere: #120d16;
@@ -177,7 +177,7 @@
   --heading-product: var(--font-ui);
   --card-surface: var(--surface-1);
   --card-border: var(--border-subtle);
-  --card-radius: var(--radius-md);
+  --card-radius: var(--radius-lg);
   --card-padding: clamp(1.25rem, 2.5vw, 2rem);
   --control-radius: var(--radius-sm);
   --stat-card-radius: var(--card-radius);
@@ -213,7 +213,7 @@
   --team-purple-wash: #211725;
   --team-border-accent: #5e4f2d;
   --team-border-hover: #554f59;
-  --team-card-radius: var(--radius-sm);
+  --team-card-radius: var(--radius-lg);
   --team-control-radius: var(--radius-sm);
   --team-shell-shadow: none;
   --team-selection-edge: color-mix(in srgb, var(--color-medal-silver) 42%, transparent);

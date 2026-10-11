@@ -9,7 +9,7 @@
 .sharecard-integrity-state strong { color: var(--color-text-primary); }
 .sharecard-canvas { min-width: 0; display: grid; place-items: center; padding: clamp(1rem, 4vw, 3rem); overflow: auto; background: color-mix(in srgb, var(--color-bg-deep) 88%, var(--color-bg-secondary)); border-radius: var(--radius-md); }
 .sharecard-canvas > div { width: min(100%, 50rem); }
-.sharecard-integrity-placeholder { min-height: 24rem; display: grid; place-items: center; padding: var(--space-xl); color: var(--color-text-muted); background: var(--color-bg-secondary); border: 1px dashed var(--color-border-strong); text-align: center; }
+.sharecard-integrity-placeholder { min-height: 24rem; display: grid; place-items: center; padding: var(--space-xl); color: var(--color-text-muted); background: var(--color-bg-secondary); border:0; text-align: center; }
 .sharecard-studio--compact-download { display: block; margin-bottom: var(--space-lg); }
 .sharecard-studio--compact-download > aside { position: static; min-height: 4.5rem; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-lg); padding: var(--space-md) var(--space-lg); background: var(--color-bg-deep); border-radius: var(--radius-md); box-shadow: 0 10px 28px rgba(0, 0, 0, .18); }
 .sharecard-studio--compact-download .sharecard-studio__compact-copy { min-width: 0; display: grid; gap: .2rem; }
@@ -189,7 +189,7 @@
 
 .profile-card-studio { grid-template-columns: minmax(17rem, .34fr) minmax(0, .66fr); gap: clamp(1.5rem, 4vw, 4rem); }
 .profile-card-studio > aside { padding-top: var(--space-md); }
-.profile-card-canvas { background: radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--color-brand-secondary) 14%, var(--color-bg-secondary)), var(--color-bg-deep) 60%); border: 1px solid var(--color-border); }
+.profile-card-canvas { background: radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--color-brand-secondary) 14%, var(--color-bg-secondary)), var(--color-bg-deep) 60%); border:0; }
 
 @media (max-width: 640px) {
   .profile-card-studio > aside { position: static; }
@@ -201,7 +201,7 @@
   background:
     radial-gradient(circle at 50% 24%, color-mix(in srgb, var(--purple-atmospheric) 16%, transparent), transparent 30rem),
     var(--surface-command);
-  border: 1px solid var(--border-hairline);
+  border:0;
   border-radius: 0;
 }
 .profile-card-canvas canvas { outline-color: color-mix(in srgb, var(--gold-primary) 36%, transparent); }

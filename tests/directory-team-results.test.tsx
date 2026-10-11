@@ -14,6 +14,6 @@ it('reserves the gold result treatment for WWCD and uses supplied placements', (
   expect(screen.getByLabelText('WWCD')).toHaveClass('directory-result--wwcd');
   const css = readFileSync('src/styles/public-pages.css', 'utf8');
   const neutral = css.match(/\.directory-result \{([^}]+)\}/)![1];
-  expect(neutral).toContain('border: 1px solid var(--border-subtle)');
+  expect(neutral).toContain('border: 0');
   expect(neutral).not.toMatch(/gold|success|danger|warning/);
 });

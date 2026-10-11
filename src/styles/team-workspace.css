@@ -321,9 +321,9 @@
 .product-shell--team .empty-state { min-height:12rem; align-content:center; }
 .product-shell--team .empty-state p { max-width:52ch; }
 .product-shell--team .empty-state > .button { margin-top:.5rem; }
-.product-shell--team .toast { border:1px solid #434754; border-radius:8px; background:var(--team-surface-secondary); box-shadow:none; margin-bottom:1.5rem; }
+.product-shell--team .toast { border:0; border-radius:8px; background:var(--team-surface-secondary); box-shadow:none; margin-bottom:1.5rem; }
 .product-shell--team .loading-skeleton { --skeleton-fill:var(--team-surface-raised); }
-.product-shell--team .loading-skeleton__panel { border:0; background:var(--team-surface-primary); border-radius:12px; }
+.product-shell--team .loading-skeleton__panel { border:0; background:var(--team-surface-primary); border-radius:0; }
 .product-shell--team .route-data-loading { padding:0; }
 /* Dense data keeps semantic tables; companion mobile rows retain all key facts. */
 .product-shell--team .data-table-wrap { max-width:100%; border:0; border-radius:12px; scrollbar-color:#626777 var(--team-surface-primary); }
@@ -421,7 +421,7 @@
 .product-shell--team .badge-editor > section { border:0; border-radius:12px; padding:1.5rem; background:var(--team-surface-primary); }
 .product-shell--team .badge-editor section > header h2 { font-size:1.25rem; }
 .product-shell--team .badge-editor__picker > div { grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr)); gap:.75rem; }
-.product-shell--team .badge-editor__picker > div > article { grid-template-columns:minmax(0,1fr); background:var(--team-surface-secondary); border:1px solid transparent; border-radius:8px; }
+.product-shell--team .badge-editor__picker > div > article { grid-template-columns:minmax(0,1fr); background:var(--team-surface-secondary); border: 0; border-radius:8px; }
 .product-shell--team .badge-editor__picker > div > article:has([aria-pressed='true']) { border-color:#a98b48; }
 .product-shell--team .badge-editor__picker > div > article > button { grid-template-columns:minmax(0,1fr); background:transparent; }
 .product-shell--team .badge-editor__picker > div > article > button > span { justify-content:flex-start; padding:0 1rem .75rem; min-height:2rem; color:var(--team-text-secondary); }

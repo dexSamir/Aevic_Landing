@@ -1,6 +1,9 @@
 import {
 ChevronRight,
 CircleUserRound,
+LayoutDashboard,
+Settings,
+Users,
 FileText,
 LogOut,
 Menu
@@ -116,11 +119,11 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
     </button>
     {open && <div ref={menuRef} id="public-identity-menu" className="public-identity-menu" role="menu" aria-label="Hesab əməliyyatları" onKeyDown={handleMenuKeyDown}>
       <header><span>{isAdmin ? 'Administrator' : team?.tag || 'AEVIC hesabı'}</span><strong>{identity}</strong><small>{session.user.email}</small></header>
-      {isAdmin && <Link role="menuitem" tabIndex={-1} to="/admin" onClick={() => close()}>Admin paneli <ChevronRight size={16} /></Link>}
-      {hasTeamArea && <Link role="menuitem" tabIndex={-1} to="/team" onClick={() => close()}>Komanda paneli <ChevronRight size={16} /></Link>}
-      <Link role="menuitem" tabIndex={-1} to="/account/profile" onClick={() => close()}>Hesab <ChevronRight size={16} /></Link>
-      <Link role="menuitem" tabIndex={-1} to={isAdmin ? '/admin/settings' : hasTeamArea ? '/team/settings' : '/account/security'} onClick={() => close()}>Ayarlar <ChevronRight size={16} /></Link>
-      <div role="separator" className="identity-menu-divider" /><button role="menuitem" tabIndex={-1} type="button" disabled={loggingOut} onClick={() => void logout()}><LogOut size={16} /> {loggingOut ? 'Çıxış edilir…' : 'Çıxış'}</button>
+      {isAdmin && <Link role="menuitem" tabIndex={-1} to="/admin" onClick={() => close()}><LayoutDashboard size={16} aria-hidden="true" />Admin paneli</Link>}
+      {hasTeamArea && <Link role="menuitem" tabIndex={-1} to="/team" onClick={() => close()}><Users size={16} aria-hidden="true" />Komanda paneli</Link>}
+      <Link role="menuitem" tabIndex={-1} to="/account/profile" onClick={() => close()}><CircleUserRound size={16} aria-hidden="true" />Hesab</Link>
+      <Link role="menuitem" tabIndex={-1} to={isAdmin ? '/admin/settings' : hasTeamArea ? '/team/settings' : '/account/security'} onClick={() => close()}><Settings size={16} aria-hidden="true" />Ayarlar</Link>
+      <button role="menuitem" tabIndex={-1} type="button" disabled={loggingOut} onClick={() => void logout()}><LogOut size={16} /> {loggingOut ? 'Çıxış edilir…' : 'Çıxış'}</button>
       {logoutError && <p role="alert">{logoutError}</p>}
     </div>}
   </div>;

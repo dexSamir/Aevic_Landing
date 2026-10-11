@@ -3,16 +3,17 @@ import {it,expect,vi} from 'vitest';
 import {ShareProfileAction} from '../src/components/profile/PublicTeamExperience';
 import {TeamAnalytics} from '../src/components/team/TeamAnalytics';
 import type {MatchHistoryEntry} from '../src/types/domain';
-it('announces copying only after clipboard success and never invokes native sharing',async()=>{
+it('uses the share clipboard fallback and announces only confirmed success',async()=>{
  let finish!:()=>void;const writeText=vi.fn(()=>new Promise<void>(r=>{finish=r;})),share=vi.fn();
- Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText}});Object.defineProperty(navigator,'share',{configurable:true,value:share});
- render(<ShareProfileAction teamName="Team"/>);fireEvent.click(screen.getByRole('button',{name:/linki kopyala/}));
+ Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText}});Object.defineProperty(navigator,'share',{configurable:true,value:undefined});
+ render(<ShareProfileAction teamName="Team"/>);fireEvent.click(screen.getByRole('button',{name:'Paylaş'}));
  expect(screen.queryByText('Link kopyalandı')).toBeNull();expect(share).not.toHaveBeenCalled();finish();expect(await screen.findByText('Link kopyalandı')).toBeInTheDocument();
  expect(writeText).toHaveBeenCalledWith(window.location.href);
 });
 it('reports clipboard refusal without success',async()=>{
+ Object.defineProperty(navigator,'share',{configurable:true,value:undefined});
  Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:vi.fn().mockRejectedValue(new Error('denied'))}});
- render(<ShareProfileAction teamName="Team"/>);fireEvent.click(screen.getByRole('button',{name:/linki kopyala/}));
+ render(<ShareProfileAction teamName="Team"/>);fireEvent.click(screen.getByRole('button',{name:'Paylaş'}));
  await waitFor(()=>expect(screen.getByText('Link kopyalanmadı')).toBeInTheDocument());expect(screen.queryByText('Link kopyalandı')).toBeNull();
 });
 it('keeps separate rounds readable at the same timestamp',()=>{

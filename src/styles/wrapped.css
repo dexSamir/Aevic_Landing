@@ -2,7 +2,7 @@
 
 .wrapped-shell { min-height: 100svh; display: grid; place-items: center; padding: 1rem; color: var(--color-text-primary); background: radial-gradient(circle at 50% 0, color-mix(in srgb, var(--color-brand-secondary) 36%, var(--color-bg-deep)), var(--color-bg-deep) 52%); }
 .wrapped-loading { width: min(30rem, 100%); }
-.wrapped-story { position: relative; width: min(30rem, 100%); min-height: min(52rem, calc(100svh - 2rem)); display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; isolation: isolate; background: var(--color-bg-primary); border: 1px solid var(--color-white-outline); border-radius: 1rem; box-shadow: var(--shadow-overlay); }
+.wrapped-story { position: relative; width: min(30rem, 100%); min-height: min(52rem, calc(100svh - 2rem)); display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; isolation: isolate; background: var(--color-bg-primary); border: 0; border-radius: 1rem; box-shadow: var(--shadow-overlay); }
 .wrapped-story::before { content: ''; position: absolute; z-index: -2; inset: 0; background: linear-gradient(145deg, transparent 48%, rgba(106,27,154,.18)); }
 .wrapped-story__top { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: .75rem; padding: .75rem; }
 .wrapped-story__top > a { width: 44px; height: 44px; display: grid; place-items: center; color: inherit; border-radius: .45rem; }
@@ -19,13 +19,13 @@
 .wrapped-story__value { max-width: 100%; color: var(--color-text-primary); font: 800 clamp(4rem, 21vw, 7rem)/.86 Orbitron, sans-serif; letter-spacing: -.035em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .wrapped-story__content h1 { max-width: 11ch; margin: 0; font: 800 clamp(2rem, 10vw, 4rem)/.98 Orbitron, sans-serif; letter-spacing: -.035em; text-wrap: balance; }
 .wrapped-story__content p { max-width: 32ch; margin: .25rem 0 0; color: var(--color-text-muted); font-size: 1rem; text-wrap: pretty; }
-.wrapped-story__content .wrapped-navigation-hint { width: max-content; max-width: 100%; margin-top: var(--space-md); padding: .55rem .7rem; color: var(--color-text-primary); background: color-mix(in srgb, var(--color-bg-elevated) 88%, transparent); border: 1px solid var(--color-white-outline); border-radius: var(--radius-sm); font-size: .72rem; line-height: 1.35; pointer-events: none; }
+.wrapped-story__content .wrapped-navigation-hint { width: max-content; max-width: 100%; margin-top: var(--space-md); padding: .55rem .7rem; color: var(--color-text-primary); background: color-mix(in srgb, var(--color-bg-elevated) 88%, transparent); border: 0; border-radius: var(--radius-sm); font-size: .72rem; line-height: 1.35; pointer-events: none; }
 .wrapped-facet { position: absolute; z-index: -1; right: -18%; bottom: -5%; width: 76%; aspect-ratio: 1; background: rgba(243,196,80,.1); clip-path: polygon(50% 0,100% 30%,82% 100%,8% 78%); transform: rotate(-12deg); }
 .wrapped-story--victories .wrapped-facet, .wrapped-story--share .wrapped-facet { background: rgba(106,27,154,.32); }
 .wrapped-share-studio { width: 100%; display: grid; gap: .65rem; margin-top: .5rem; }
 .wrapped-share-studio canvas { width: min(100%, 19rem); max-height: 24rem; justify-self: start; object-fit: contain; object-position: left center; background: var(--color-bg-deep); outline: 1px solid var(--color-white-outline); }
 .wrapped-share-studio__controls, .wrapped-share-studio__actions { display: flex; flex-wrap: wrap; gap: .45rem; }
-.wrapped-share-studio__controls button { min-width: 48px; min-height: 44px; color: var(--color-text-muted); background: var(--color-bg-elevated); border: 1px solid var(--color-white-outline); border-radius: .4rem; }
+.wrapped-share-studio__controls button { min-width: 48px; min-height: 44px; color: var(--color-text-muted); background: var(--color-bg-elevated); border:0; border-radius: .4rem; }
 .wrapped-share-studio__controls button[aria-pressed='true'] { color: var(--color-bg-deep); background: var(--color-brand-primary); border-color: var(--color-brand-primary); }
 .wrapped-share-studio__actions .button { width: auto; }
 .wrapped-share-studio > p { margin: 0; color: var(--color-text-muted); font-size: .8rem; }

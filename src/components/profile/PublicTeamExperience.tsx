@@ -1,4 +1,4 @@
-import { CalendarClock, Copy, Crown, GitCompareArrows, Share2, Swords, Trophy } from 'lucide-react';
+import { CalendarClock, Crown, GitCompareArrows, Share2, Swords, Trophy } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './public-roster.css';
@@ -33,7 +33,7 @@ export function ShareProfileAction({ teamName }: { teamName: string }) {
     catch (failure) { if (!(failure instanceof DOMException && failure.name === 'AbortError')) setError('share'); }
     finally { setBusy(false); }
   };
-  return <>{error && <Toast tone="error" title={error === 'copy' ? 'Link kopyalanmadı' : 'Paylaşım tamamlanmadı'} body="Yenidən cəhd edin və ya ünvan sətrindən keçidi kopyalayın." onClose={() => setError(undefined)} />}{copied && <Toast title="Link kopyalandı" body="Komanda profilinin keçidi mübadilə buferinə köçürüldü." onClose={() => setCopied(false)} />}<Button variant="ghost" disabled={busy} aria-label={`${teamName}: linki kopyala`} onClick={() => void copy()} icon={<Copy size={17} />}>Linki kopyala</Button>{typeof navigator.share === 'function' && <Button variant="ghost" disabled={busy} icon={<Share2 size={17} />} onClick={() => void share()}>Paylaş</Button>}</>;
+  return <>{error && <Toast tone="error" title={error === 'copy' ? 'Link kopyalanmadı' : 'Paylaşım tamamlanmadı'} body="Yenidən cəhd edin və ya ünvan sətrindən keçidi kopyalayın." onClose={() => setError(undefined)} />}{copied && <Toast title="Link kopyalandı" body="Komanda profilinin keçidi mübadilə buferinə köçürüldü." onClose={() => setCopied(false)} />}<Button variant="ghost" disabled={busy} icon={<Share2 size={17} />} onClick={() => void (typeof navigator.share === 'function' ? share() : copy())}>Paylaş</Button></>;
 
 }
 

@@ -58,7 +58,7 @@
 .register-form { min-height: 0; grid-template-rows: minmax(0, 1fr) auto auto; }
 .register-form > section { min-height: 0; display: grid; align-content: start; gap: var(--space-md); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--color-border-strong) transparent; }
 .password-grid > div { min-width: 0; display: grid; align-content: start; gap: var(--space-xs); }
-.registration-status-panel { width: 100%; display: grid !important; gap: var(--space-sm); padding: var(--space-lg); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg-deep); }
+.registration-status-panel { width: 100%; display: grid !important; gap: var(--space-sm); padding: var(--space-lg); border:0; border-radius: var(--radius-md); background: var(--color-bg-deep); }
 .registration-status-panel > div:first-child { display: flex; justify-content: space-between; gap: var(--space-md); }
 .registration-status-panel span { color: var(--color-text-soft); font-size: var(--text-xs); }
 .registration-status-panel strong { display: inline-flex; align-items: center; gap: var(--space-xs); }
@@ -520,7 +520,7 @@
 .auth-identity .auth-header > span { color: #f3c450; font-size: 13px; letter-spacing: .06em; }
 .auth-identity .auth-header h1 { max-width: 17ch; margin-top: 16px; color: #fff; font-size: clamp(32px, 3.6vw, 48px); line-height: 1.15; letter-spacing: -.025em; }
 .auth-identity .auth-header p { display: block; max-width: 54ch; margin-top: 18px; color: #b9b9bf; font-size: 16px; line-height: 1.65; }
-.auth-identity .login-card, .auth-identity .register-workspace__form { padding: 24px; background: rgba(5,5,6,.86); border: 1px solid rgba(243,196,80,.14); border-radius: 20px; }
+.auth-identity .login-card, .auth-identity .register-workspace__form { padding: 24px; background: rgba(5,5,6,.86); border:0; border-radius: 20px; }
 .auth-identity .auth-form { gap: 16px; }
 .auth-identity .field { gap: 8px; }
 .auth-identity .field__label { color: #f5f5f6; font-size: 14px; }
@@ -533,7 +533,7 @@
 .auth-identity .auth-icon-field input { padding-left: 50px; }
 .auth-identity .form-inline { gap: 12px; font-size: 13px; }
 .auth-identity .form-inline a, .auth-identity .auth-switch a { color: #f3c450; }
-.auth-identity .button--primary { min-height: 50px; color: #090909; background: #f3c450; border: 1px solid #f3c450; border-radius: 9px; box-shadow: none; }
+.auth-identity .button--primary { min-height: 50px; color: #090909; background: #f3c450; border:0; border-radius: 9px; box-shadow: none; }
 .auth-identity .button--primary:hover:not(:disabled) { background: #f8d478; border-color: #f8d478; box-shadow: none; transform: none; }
 .auth-identity .button--primary svg { order: 2; }
 .auth-shell--login .button--primary { width: 100%; position: relative; }
@@ -826,14 +826,14 @@ html:has(.auth-identity)::-webkit-scrollbar, body:has(.auth-identity)::-webkit-s
 .auth-recovery__heading h1 { margin: 14px 0; font-family: var(--font-heading); font-size: clamp(36px, 4vw, 52px); line-height: 1.08; text-wrap: balance; }
 .auth-recovery__heading em { color: var(--gold-primary); font-style: normal; }
 .auth-recovery__heading p { max-width: 390px; margin-inline: auto; color: #b9b9bf; font-size: 15px; line-height: 1.55; }
-.auth-recovery__card { padding: 28px; border: 1px solid rgba(243,196,80,.28); border-radius: 8px; background: rgba(6,6,8,.94); }
+.auth-recovery__card { padding: 28px; border:0; border-radius: 8px; background: rgba(6,6,8,.94); }
 .auth-recovery .auth-form { gap: 18px; }
 .auth-recovery .field input { height: 48px; min-height: 48px; background: rgba(15,15,17,.85); border: 1px solid rgba(255,255,255,.24); border-radius: 6px; }
 .auth-recovery .field input:focus { border-color: var(--gold-primary); outline: 2px solid var(--gold-primary); outline-offset: 2px; box-shadow: none; }
 .auth-recovery .button { min-height: 50px; border-radius: 6px; font-size: 14px; }
 .auth-recovery .button--primary { width: 100%; justify-content: space-between; white-space: nowrap; }
 .auth-recovery .button--primary > span { flex: 1; text-align: center; }
-.auth-recovery .button--secondary { border: 1px solid var(--gold-primary); color: var(--gold-primary); background: transparent; }
+.auth-recovery .button--secondary { border:0; color: var(--gold-primary); background: transparent; }
 .auth-recovery .back-link { display: inline-flex; gap: 12px; align-items: center; margin-top: 24px; color: var(--gold-primary); font-size: 14px; font-weight: 700; }
 .recovery-state { display: grid; justify-items: start; gap: 14px; }
 .recovery-state h2 { font-size: 21px; line-height: 1.3; }

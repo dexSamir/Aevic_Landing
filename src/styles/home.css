@@ -52,7 +52,7 @@
 .home-identity-explanation svg { flex-shrink: 0; color: var(--gold-primary); }
 .home-team-stage__hint { color: var(--text-muted); font-size: .7rem; }
 .home-team-controls { display: flex; justify-content: end; gap: .4rem; margin-bottom: .5rem; }
-.home-team-controls button { display: grid; place-items: center; width: 36px; height: 36px; border: var(--module-divider); border-radius: var(--radius-sm); background: transparent; color: var(--text-primary); cursor: pointer; }
+.home-team-controls button { display: grid; place-items: center; width: 36px; height: 36px; border:0; border-radius: var(--radius-sm); background: transparent; color: var(--text-primary); cursor: pointer; }
 .home-team-controls button:hover { color: var(--gold-primary); }
 .home-team-stage { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 3rem) / 5); gap: .75rem; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; scrollbar-width: none; padding-block: 2px; }
 .home-team-stage::-webkit-scrollbar { display: none; }
@@ -142,7 +142,7 @@
 .home-competition-slot .loading-skeleton__button { width: 6rem; height: 44px; margin: 0; }
 .home-team-placeholder { padding-top: calc(36px + .5rem); }
 .loading-skeleton__team-rail { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 3rem) / 5); gap: .75rem; overflow: hidden; padding-block: 2px; }
-.loading-skeleton__team-card { min-width: 0; min-height: 15rem; padding: 2.5rem .75rem 1rem; display: flex; flex-direction: column; align-items: center; border: var(--module-divider); border-radius: 3px; background: var(--surface-command); }
+.loading-skeleton__team-card { min-width: 0; min-height: 15rem; padding: 2.5rem .75rem 1rem; display: flex; flex-direction: column; align-items: center; border:0; border-radius:0; background: var(--surface-command); }
 .loading-skeleton__team-card .loading-skeleton__avatar { width: 4.5rem; height: 4.5rem; }
 @media (max-width: 1100px) {
   .home-competition-slot, .home-competition-slot > .home-competition-rail { min-height: 10rem; }

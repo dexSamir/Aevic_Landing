@@ -205,7 +205,7 @@
 .tournaments-calendar-page .calendar-event-status small { display: none; }
 .tournaments-calendar-page .calendar-event-inspector > p { font-size: 13px; margin: 0; }
 .tournaments-calendar-page .calendar-event-inspector dl { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; background: transparent; }
-.tournaments-calendar-page .calendar-event-inspector dl > div { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 14px 4px; background: var(--color-bg-deep); border: 1px solid var(--border-subtle); border-radius: 6px; }
+.tournaments-calendar-page .calendar-event-inspector dl > div { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 14px 4px; background: var(--color-bg-deep); border: 0; border-radius: 6px; }
 .tournaments-calendar-page .calendar-event-inspector dl svg { color: var(--gold-primary); }
 .tournaments-calendar-page .calendar-event-inspector dd { font: 500 16px var(--font-public-display); }
 .tournaments-calendar-page .tournament-join__action { width: 100%; }
