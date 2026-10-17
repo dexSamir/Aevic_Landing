@@ -17,7 +17,7 @@ export function OrganizationProfilePage() {
   const { organizationSlug = '' } = useParams(); const [cabinetOpen, setCabinetOpen] = useState(false);
   const {data:organization,loading,error,refetch}=usePlatformQuery({key:`organization:${organizationSlug}`,scope:'public',query:()=>services.organizations.getBySlug(organizationSlug)});
   if(error&&!organization)return <EmptyState title="Təşkilat yüklənmədi" body="Xidmət hazırda cavab vermir." action={<Button onClick={refetch}>Yenidən yoxla</Button>}/>;
-  if (loading) return <section className="page-section"><div className="container"><LoadingSkeleton variant="profile" rows={5} /></div></section>;
+  if (loading) return <section className="page-section"><div className="container"><LoadingSkeleton variant="organization" rows={5} /></div></section>;
   if (!organization) return <section className="page-section"><div className="container"><EmptyState title="Təşkilat tapılmadı" body="Bu public profil mövcud deyil və ya görünürlükdən çıxarılıb." action={<Link className="button button--secondary" to="/organizations"><span>Directory-yə qayıt</span></Link>} /></div></section>;
   const featured = teamAchievements.filter((item) => organization.featuredAchievements.includes(item.id)).map((item, index) => ({ ...item, displayOrder: index + 1 }));
   return <><Seo title={organization.name} description={organization.description} canonicalPath={`/organizations/${organization.slug}`} publicEntity />

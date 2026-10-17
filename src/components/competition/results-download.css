@@ -1,6 +1,6 @@
-.results-download-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.results-download-options { position: relative; isolation:isolate; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
 .results-download-options > button { display: grid; gap: 12px; min-width: 0; padding: 12px; border: 2px solid transparent; border-radius: 12px; color: var(--color-text-primary); background: var(--surface-1); cursor: pointer; text-align: center; }
-.results-download-options > button[aria-checked='true'] { border-color: var(--gold-primary); background: color-mix(in srgb, var(--gold-primary) 5%, var(--surface-1)); }
+.results-download-options > button[aria-checked='true'] { background: var(--surface-1); }
 .results-download-options > button:focus-visible { outline: 2px solid var(--gold-primary); outline-offset: 3px; }
 .results-download-options > button:disabled { opacity: .45; cursor: not-allowed; }
 .results-download-options > button:not(:disabled):hover { background: var(--color-bg-elevated); }
@@ -21,3 +21,12 @@
 @media(max-width:420px) { .results-download-options { grid-template-columns: 1fr; } .results-download-preview { aspect-ratio: 1.6; } }
 
 .modal:has(.results-download-options) { border: 0; outline: none; }
+
+.results-download-indicator { position:absolute; z-index:2; pointer-events:none; inset:0 auto 0 0; width:calc((100% - 16px)/2); border:2px solid var(--gold-primary); border-radius:12px; background:color-mix(in srgb,var(--gold-primary) 5%,transparent); transition:transform 420ms cubic-bezier(.22,1,.36,1); }
+.results-download-options[data-selected='result'] .results-download-indicator { transform:translateX(calc(100% + 16px)); }
+.results-download-options > button { position:relative; z-index:1; background:var(--surface-1); transition:color 220ms ease, opacity 220ms ease; }
+.results-download-options > button:not(:disabled):hover { background:var(--surface-1); }
+.results-download-options strong { transition:color 220ms ease; }
+.results-download-options > button[aria-checked='true'] strong { color:var(--gold-primary); }
+@media(max-width:420px) { .results-download-indicator { width:100%; height:calc((100% - 16px)/2); bottom:auto; } .results-download-options[data-selected='result'] .results-download-indicator { transform:translateY(calc(100% + 16px)); } }
+@media(prefers-reduced-motion:reduce) { .results-download-indicator, .results-download-options > button, .results-download-options strong { transition:none; } }

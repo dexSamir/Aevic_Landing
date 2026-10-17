@@ -15,7 +15,7 @@ import { selectPrimaryCompetition } from '../utils/competitionSelectors';
 
 const HomeCompetitionProgram = lazy(() => import('../components/competition/HomeCompetitionProgram'));
 function ProgramSkeleton() {
-  return <><div className="home-program-placeholder"><LoadingSkeleton variant="media" /></div><LoadingSkeleton variant="table" rows={5} /></>;
+  return <><div className="home-program-placeholder"><LoadingSkeleton variant="feature" /></div><LoadingSkeleton variant="calendar" /></>;
 }
 
 export function HomePage() {
@@ -54,7 +54,7 @@ export function HomePage() {
 
 
 
-    <section className="home-calendar-section" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>TURNİR TƏQVİMİ</span><h2>Yaxın turnirlər.</h2><p>Rəqabət heç zaman dayanmır.</p></div><Link to="/tournaments">Bütün turnirlər <ArrowRight size={16} /></Link></header><div className="home-competition-program">{publicQuery.loading ? <ProgramSkeleton /> : !featured ? <div className="home-program-empty"><EmptyState title={publicQuery.error ? "Turnir təqvimi yüklənmədi" : "Hazırda dərc edilmiş turnir yoxdur"} body={publicQuery.error ? "Yarış məlumatı bölməsində yenidən yoxlaya bilərsiniz." : "Növbəti yarışın proqramı dərc edildikdə burada görünəcək."} /></div> : <Suspense fallback={<ProgramSkeleton />}><HomeCompetitionProgram featured={featured} tournaments={tournaments} /></Suspense>}</div></div></section>
+    <section className="home-calendar-section" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>TURNİR TƏQVİMİ</span><h2>Yaxın <em>turnirlər.</em></h2><p>Rəqabət heç zaman dayanmır.</p></div><Link to="/tournaments">Bütün turnirlər <ArrowRight size={16} /></Link></header><div className="home-competition-program">{publicQuery.loading ? <ProgramSkeleton /> : !featured ? <div className="home-program-empty"><EmptyState title={publicQuery.error ? "Turnir təqvimi yüklənmədi" : "Hazırda dərc edilmiş turnir yoxdur"} body={publicQuery.error ? "Yarış məlumatı bölməsində yenidən yoxlaya bilərsiniz." : "Növbəti yarışın proqramı dərc edildikdə burada görünəcək."} /></div> : <Suspense fallback={<ProgramSkeleton />}><HomeCompetitionProgram featured={featured} tournaments={tournaments} /></Suspense>}</div></div></section>
 
 
     <section className="home-rotation" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>XƏRİTƏLƏR</span><h2>Hər xəritə,<br />yeni hekayə.</h2></div><p>Dörd raund, bir məqsəd. Rəqabətin xəritəsi hər yarışda yenidən yazılır.</p></header><MapRotation variant="program" statuses={[]} ariaLabel="Xəritə formatı nümunəsi" /></div></section>

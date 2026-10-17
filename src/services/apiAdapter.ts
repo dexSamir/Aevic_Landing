@@ -47,7 +47,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
     auth: {
       workspaces: () => request('/me/workspaces'),
       selectWorkspace: (teamId) => request('/me/workspace',{method:'POST',body:{teamId}}),
-      getSession: () => request('/me/session', { nullStatuses: [401, 403], timeoutMs: 30_000 }),
+      getSession: (signal) => request('/me/session', { signal, nullStatuses: [401], timeoutMs: 30_000 }),
       login: (email, password, remember = false, admin = false, otp) => request(admin ? '/auth/admin/login' : '/auth/login', { method: 'POST', body: { email, password, remember, otp }, timeoutMs: 30_000 }),
       logout: () => request('/auth/logout', { method: 'POST' }),
       requestPasswordReset: (email) => request('/auth/password-reset', { method: 'POST', body: { email } }),
@@ -141,7 +141,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
     },
     profiles: {
       listTeams: (search) => request(`/public/teams${query({ search })}`),
-      teamBySlug: (slug) => request(`/public/teams/${encodeURIComponent(slug)}`, { nullStatuses: [404] }),
+      teamBySlug: (slug, signal) => request(`/public/teams/${encodeURIComponent(slug)}`, { signal, nullStatuses: [404] }),
       matches: (teamId) => request(`/public/teams/${encodeURIComponent(teamId)}/matches`),
       upcomingMatch: (teamId) => request(`/public/teams/${encodeURIComponent(teamId)}/upcoming-match`, { nullStatuses: [404] }),
       seasons: (teamId) => request(`/public/teams/${encodeURIComponent(teamId)}/seasons`),

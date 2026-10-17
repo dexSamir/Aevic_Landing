@@ -30,7 +30,7 @@ describe('public experience refinements', () => {
     const scope = within(view.container);
     expect(scope.getByRole('navigation', { name: /əsas naviqasiya/i })).toBeInTheDocument();
     expect(scope.getByRole('link', { name: 'Turnirlər' })).toHaveAttribute('href', '/tournaments');
-    expect(scope.getByRole('link', { name: 'Komanda yarat' })).toHaveAttribute('href', '/register');
+    expect(scope.queryByRole('link', { name: 'Komanda yarat' })).not.toBeInTheDocument();
     expect(scope.getByRole('link', { name: 'Yarış qaydaları' })).toHaveAttribute('href', '/regulations');
     expect(scope.queryByRole('button', { name: /global axtarışı aç/i })).not.toBeInTheDocument();
     await scope.findByRole('button', { name: /hesab menyusu/i });

@@ -48,7 +48,7 @@ export function AdminPlayerDetailPage() {
         }
       />
     );
-  if (!loaded) return <LoadingSkeleton variant="profile" rows={7} />;
+  if (!loaded) return <LoadingSkeleton variant="player" rows={7} />;
   if (!detail)
     return (
       <>

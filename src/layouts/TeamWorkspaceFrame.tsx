@@ -1,3 +1,4 @@
+import { SkeletonBlock } from '../components/common/LoadingSkeleton';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { BrandEmblem } from '../components/brand/BrandMark';
@@ -15,7 +16,7 @@ export function TeamWorkspaceFrame({ sidebar, header, children, overlays, busy =
   </div>;
 }
 
-const Placeholder = ({ kind = 'line' }: { kind?: string }) => <span className={`workspace-placeholder workspace-placeholder--${kind}`} />;
+const Placeholder = ({ kind = 'line' }: { kind?: string }) => <SkeletonBlock className={`workspace-placeholder workspace-placeholder--${kind}`} />;
 
 function PendingSidebar({ loading = true }: { loading?: boolean }) {
   return <>

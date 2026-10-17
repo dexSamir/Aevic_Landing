@@ -34,23 +34,11 @@
 /* Transparent fill, refracted highlights and a fine lit edge give the letters depth.
    The scene remains visible through the glyphs; no filters or animation are needed. */
 .cinematic-footer__wordmark {
-  position: relative;
-  z-index: 0;
-  margin: -0.025em -.025em -.055em;
-  pointer-events: none;
-  user-select: none;
-  font: 800 26cqi/.88 var(--font-ui), sans-serif;
-  letter-spacing: -.065em;
-  text-align: center;
-  white-space: nowrap;
-  color: #ffffff0d;
-  background: linear-gradient(166deg, #ffffff36 0%, #ffffff08 27%, #ffffff05 45%, #ffffff28 46%, #ffffff09 49%, #ffffff02 74%, #ffffff22 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 1px #ffffff30;
-  filter: drop-shadow(0 1px 0 #ffffff0d) drop-shadow(0 6px 8px #0006);
+  position:relative; display:block; z-index:0; width:100%; height:auto;
+  margin:24px 0 0; overflow:visible; pointer-events:none; user-select:none;
+  filter:drop-shadow(0 1px 0 #ffffff0d) drop-shadow(0 6px 8px #0006);
 }
+
 .cinematic-footer__bottom { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; padding-top: 1.5rem; color: #b9b9c1; font-size: .6875rem; letter-spacing: .09em; }
 .cinematic-footer__bottom small { font-size: inherit; }
 .cinematic-footer__bottom > span { letter-spacing: .25em; }

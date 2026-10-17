@@ -25,7 +25,7 @@ export function FollowingPage() {
     <PageHeader eyebrow="Yarış yenilikləri" title="İzlədiklərim" description="İzlədiyiniz komandaların profillərinə buradan keçin və izləmə siyahınızı idarə edin." />
     {mutationError && <Toast tone="error" title="İzləmə dəyişdirilmədi" body="Yenidən cəhd edin." />}
     {error ? <EmptyState title="Məlumat yüklənmədi" body="Bağlantını yoxlayın və yenidən cəhd edin." action={<Button onClick={() => refetch()}>Yenidən yoxla</Button>} />
-      : !data ? <LoadingSkeleton variant="cards" rows={4} />
+      : !data ? <LoadingSkeleton variant="list" rows={4} />
       : data.state === 'signed-out' ? <EmptyState title="İzlədiyiniz komandaları görmək üçün daxil olun" body="İzləmə siyahısı hesabınıza bağlıdır." action={<Link className="button button--primary" to="/login">Daxil ol</Link>} />
       : data.state === 'admin' ? <EmptyState title="Şəxsi hesabınızla daxil olun" body="Komanda izləmə siyahısı şəxsi hesabınızda saxlanılır." action={<Link className="button button--secondary" to="/teams">Komandaları kəşf et</Link>} />
       : data.items.length ? <div className="entity-ledger">{data.items.map(item => <article key={`${item.entityType}-${item.entityId}`}>

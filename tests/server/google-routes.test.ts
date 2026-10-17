@@ -43,7 +43,7 @@ it('keeps disabled Google routes inert and preserves the existing logout handler
  expect(logout.headers.get('set-cookie')).not.toContain('aevic-captain=');
  expect(queries).toEqual([]);expect(exchangeGoogleCode).not.toHaveBeenCalled();
 });
-it('starts PKCE with HttpOnly browser binding and no secret in URL',async()=>{const r=await request('/auth/google/start');expect(r.status).toBe(200);const {url}=await r.json();expect(url).toContain('code_challenge_method=S256');expect(url).not.toContain(config.google.clientSecret);expect(r.headers.get('set-cookie')).toContain('HttpOnly');expect(r.headers.get('set-cookie')).toContain('SameSite=Lax');});
+it('starts PKCE with HttpOnly browser binding and no secret in URL',async()=>{const r=await request('/auth/google/start');expect(r.status).toBe(200);const {url}=await r.json();expect(url).toContain('code_challenge_method=S256');expect(new URL(url).searchParams.get('redirect_uri')).toBe(config.siteUrl+'/api/auth/google/callback');expect(new URL(url).searchParams.get('scope')).toBe('openid email profile');expect(url).not.toContain(config.google.clientSecret);expect(r.headers.get('set-cookie')).toContain('HttpOnly');expect(r.headers.get('set-cookie')).toContain('SameSite=Lax');});
 it('rejects wrong state, expired callbacks and replay before provider exchange',async()=>{
  flow={token_digest:tokenDigest('state'),browser_digest:tokenDigest('browser'),expires_at:0};
  const r=await app().request('/api/auth/google/callback?state=state&code=code',{headers:{cookie:'aevic-google=browser'}});expect(r.headers.get('location')).toBe('/login?google=failed');expect(exchangeGoogleCode).not.toHaveBeenCalled();
@@ -71,4 +71,13 @@ it('does not contact provider on cancellation and handles provider failure',asyn
  const reset=()=>{flow={token_digest:tokenDigest('state'),browser_digest:tokenDigest('browser'),expires_at:Date.now()+10000,nonce:'nonce',verifier:'verifier'};};
  reset();expect((await app().request('/api/auth/google/callback?state=state&error=access_denied',{headers:{cookie:'aevic-google=browser'}})).headers.get('location')).toBe('/login?google=failed');expect(exchangeGoogleCode).not.toHaveBeenCalled();
  reset();vi.mocked(exchangeGoogleCode).mockRejectedValueOnce(new Error('provider down'));expect((await app().request('/api/auth/google/callback?state=state&code=x',{headers:{cookie:'aevic-google=browser'}})).headers.get('location')).toBe('/login?google=failed');
+});
+
+it('rejects cross-origin Google start and completion before persisting a flow',async()=>{
+ for(const path of ['start','complete']){
+  const response=await app().request('/api/auth/google/'+path,{method:'POST',headers:{origin:'https://untrusted.invalid','content-type':'application/json'},body:'{}'});
+  expect(response.status).toBe(403);
+ }
+ expect(queries).toEqual([]);
+ expect(exchangeGoogleCode).not.toHaveBeenCalled();
 });

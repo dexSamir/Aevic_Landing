@@ -38,7 +38,7 @@ describe('UX architecture reset contracts', () => {
     }
     expect(view.container.querySelector('.overview-statistics, .overview-stat-grid, .dashboard-quick-links')).not.toBeInTheDocument();
     expect(view.container.querySelectorAll('.overview-status-grid > a')).toHaveLength(0);
-    expect([...view.container.querySelectorAll('.overview-recent li')].map(el => el.textContent)).toEqual(matchHistory.slice(0, 5).map(match => match.placement === 1 ? 'WWCD' : String(match.placement)));
+    expect([...view.container.querySelectorAll('.overview-recent li')].map(el => el.textContent)).toEqual(matchHistory.slice(0, 5).map(match => String(match.placement)));
     expect(view.container.querySelector('.overview-standings table')).not.toBeInTheDocument();
     expect(screen.getByText('Komandanız üçün cari sıralama dərc edilməyib.')).toBeInTheDocument();
     expect(view.container.querySelectorAll('.overview-rounds li')).toHaveLength(matchSchedule.length);

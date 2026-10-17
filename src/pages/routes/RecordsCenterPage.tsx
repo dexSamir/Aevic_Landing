@@ -94,10 +94,7 @@ export function RecordsCenterPage() {
           </p>
         </header>
         {loading && (
-          <div className="record-skeletons">
-            <LoadingSkeleton variant="cards" rows={4} />
-            <LoadingSkeleton variant="cards" rows={4} />
-          </div>
+          <LoadingSkeleton variant="record-board" rows={8} />
         )}
         {!loading && failed && (
           <EmptyState
@@ -167,7 +164,7 @@ export function RecordsCenterPage() {
                   )}
                 </div>
                 {selectedId && selectedQuery.loading && !selectedRecord && (
-                  <LoadingSkeleton variant="cards" rows={3} />
+                  <LoadingSkeleton variant="table" rows={3} />
                 )}
                 {selectedId && !selectedQuery.loading && !selectedRecord && (
                   <EmptyState

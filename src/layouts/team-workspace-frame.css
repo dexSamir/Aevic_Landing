@@ -1,53 +1,12 @@
 /* Shared before and after authentication. No public or admin selectors. */
 .product-shell--team {
   --sidebar-width: 16rem;
-  --team-workspace: #101114;
-  --team-chrome: #15161b;
-  --team-topbar: #101114;
-  --team-surface-primary: #191b21;
-  --team-surface-secondary: #20232b;
-  --team-surface-raised: #292c35;
-  --team-surface-inset: #13151a;
-  --team-surface-hover: #252832;
-  --team-text-primary: #f4f3ef;
-  --team-text-secondary: #c9cad2;
-  --team-text-muted: #a5a7b3;
-  --team-text-navigation: #b9bbc6;
-  --team-accent-secondary: #c5b3e6;
-  --team-accent-wash: #302a1e;
-  --team-purple-wash: #262132;
-  --team-border-subtle: transparent;
-  --team-border-default: #626777;
-  --team-border-hover: #818697;
-  --team-border-accent: transparent;
-  --team-card-radius: 12px;
-  --team-control-radius: 8px;
-  --team-shell-shadow: 0 16px 48px #0003;
   --workspace-gap: 1.5rem;
   --workspace-section: 2rem;
   --workspace-padding: clamp(1rem, 3vw, 2.5rem);
   --workspace-content: 90rem;
   --workspace-control: 2.75rem;
-  --workspace-fast: 140ms;
-  /* Existing primitives resolve through these aliases, including lazy route content. */
-  --color-bg-primary: var(--team-workspace);
-  --color-bg-deep: var(--team-surface-inset);
-  --color-bg-secondary: var(--team-surface-primary);
-  --color-bg-elevated: var(--team-surface-raised);
-  --color-surface-editorial: var(--team-surface-primary);
-  --color-text-primary: var(--team-text-primary);
-  --color-text-secondary: var(--team-text-secondary);
-  --color-text-muted: var(--team-text-muted);
-  --color-text-soft: var(--team-text-muted);
-  --color-border: #343740;
-  --color-danger-soft: #2b2024;
-  --surface-1: var(--team-surface-primary);
-  --surface-2: var(--team-surface-secondary);
-  --surface-command: var(--team-surface-primary);
-  --surface-operational: var(--team-surface-secondary);
-  --border-hairline: #343740;
-  --font-heading: var(--font-ui);
-  --font-display: var(--font-ui);
+  --workspace-fast: var(--motion-fast);
   grid-template-columns: var(--sidebar-width) minmax(0,1fr);
   background: var(--team-workspace);
   color: var(--team-text-primary);
@@ -66,18 +25,18 @@
 .workspace-brand small { display:block; color:var(--team-text-muted); font:500 .6875rem/1.7 var(--font-ui); letter-spacing:.01em; }
 .workspace-pending-header { display:flex; align-items:center; gap:.75rem; color:var(--team-text-muted); font-size:.8125rem; }
 .workspace-pending-header .brand-emblem { display:none; }
-.workspace-placeholder { display:block; width:100%; height:.75rem; border-radius:4px; background:#2a2d36; animation:workspace-breathe 1.6s ease-in-out infinite alternate; }
+.workspace-placeholder { display:block; width:100%; height:.75rem; border-radius:var(--radius-sm); background:var(--color-bg-elevated);  }
 .workspace-placeholder--short { width:40%; }
 .workspace-placeholder--label { width:7rem; max-width:60%; height:.625rem; }
 .workspace-placeholder--title { width:22rem; max-width:80%; height:2.5rem; }
 .workspace-placeholder--description { width:32rem; max-width:90%; }
 .workspace-placeholder--avatar { width:2.5rem; height:2.75rem; }
 .workspace-placeholder--icon { width:1.125rem; height:1.125rem; }
-.workspace-placeholder--control { width:2.75rem; height:2.75rem; border-radius:8px; }
-.workspace-placeholder--button { width:10rem; max-width:100%; height:2.75rem; margin-top:.5rem; border-radius:8px; }
+.workspace-placeholder--control { width:2.75rem; height:2.75rem; border-radius:var(--control-radius); }
+.workspace-placeholder--button { width:10rem; max-width:100%; height:2.75rem; margin-top:.5rem; border-radius:var(--control-radius); }
 .workspace-placeholder--value { width:4rem; height:2.25rem; }
 .team-workspace-frame .product-topbar .workspace-pending-actions { display:flex; gap:.5rem; }
-.workspace-pending-identity { display:grid; grid-template-columns:2.5rem minmax(0,1fr); align-items:center; gap:.75rem; min-height:7rem; padding:1rem .75rem; margin-bottom:1.25rem; border-radius:8px; background:var(--team-surface-secondary); }
+.workspace-pending-identity { display:grid; grid-template-columns:2.5rem minmax(0,1fr); align-items:center; gap:.75rem; min-height:7rem; padding:1rem .75rem; margin-bottom:1.25rem; border-radius:var(--control-radius); background:var(--team-surface-secondary); }
 .workspace-pending-identity > div { display:grid; gap:.875rem; }
 .workspace-pending-nav { min-height:0; overflow:hidden; display:grid; align-content:start; gap:1.5rem; padding:.5rem .75rem; }
 .workspace-pending-nav__item { display:grid; grid-template-columns:1.125rem 1fr; align-items:center; gap:.875rem; min-height:2.75rem; }
@@ -92,7 +51,6 @@
 .workspace-pending-row { display:grid; grid-template-columns:1.125rem minmax(0,1fr) 20%; align-items:center; gap:1rem; min-height:4rem; }
 .workspace-pending-row > :last-child { width:100%; }
 .team-workspace-frame .product-page:focus { outline:none; box-shadow:none; }
-@keyframes workspace-breathe { from { opacity:.55; } to { opacity:.85; } }
 @media(max-width:1180px) {
  .team-workspace-frame { grid-template-columns:minmax(0,1fr); }
  .team-workspace-frame .product-sidebar { display:none; }
@@ -116,7 +74,7 @@
 
 .workspace-pending-menu { display:none; }
 .workspace-recovery-nav { display:grid; gap:.5rem; }
-.workspace-recovery-nav a { display:flex; align-items:center; min-height:44px; padding:.75rem; color:var(--team-text-secondary); border-radius:8px; }
+.workspace-recovery-nav a { display:flex; align-items:center; min-height:44px; padding:.75rem; color:var(--team-text-secondary); border-radius:var(--control-radius); }
 .workspace-recovery-nav a:hover { background:var(--team-surface-secondary); }
 .team-workspace-frame:not([aria-busy]) .workspace-placeholder { animation:none; }
 @media(max-width:1180px) { .workspace-pending-menu { display:block; } }

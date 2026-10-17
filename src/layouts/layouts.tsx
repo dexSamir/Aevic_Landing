@@ -13,7 +13,7 @@ import { isRouteErrorResponse,Link,NavLink,useLocation,useNavigate,useRouteError
 import { publicNavigation } from '../app/publicNavigation';
 import { BrandMark } from '../components/brand/BrandMark';
 import { RouteTransitionOutlet } from '../components/common/Motion';
-import { Drawer,IconButton,TeamLogo } from '../components/common/primitives';
+import { Drawer,IconButton,TeamLogo,LoadingSkeleton } from '../components/common/primitives';
 import { RouteSeo } from '../components/common/Seo';
 import { InstallAevic,OfflineNotice } from '../components/pwa/PwaExperience';
 import { serviceCapabilities,services } from '../services';
@@ -69,7 +69,7 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { session, team } = usePublicSession();
+  const { session, team, loading, error, refresh } = usePublicSession();
   const [open, setOpen] = useState(false);
   const [logoutError, setLogoutError] = useState('');
   const [loggingOut, setLoggingOut] = useState(false);
@@ -84,6 +84,8 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
     return () => document.removeEventListener('pointerdown', closeFromOutside);
   }, [open]);
 
+  if (loading) return <div className="public-nav-actions"><LoadingSkeleton variant="navigation" label="Sessiya yoxlanılır" /></div>;
+  if (session === undefined) return <div className="public-nav-actions"><button type="button" className="button button--secondary button--sm" onClick={refresh} aria-label="Sessiya yoxlanmadı. Yenidən yoxla" title={error?.message}>Sessiyanı yoxla</button></div>;
   if (!session) return <div className="public-nav-actions"><Link aria-current={pathname === '/login' ? 'page' : undefined} className={`nav-login button button--secondary button--sm ${pathname === '/login' ? 'is-active' : ''}`} to={publicNavigation.login.to} onClick={onNavigate}>{publicNavigation.login.label}</Link><Link aria-current={pathname === '/register' ? 'page' : undefined} className={`nav-cta button button--primary button--sm ${pathname === '/register' ? 'is-active' : ''}`} to={publicNavigation.register.to} onClick={onNavigate}>{publicNavigation.register.label}</Link></div>;
 
   const close = (restoreFocus = false) => {

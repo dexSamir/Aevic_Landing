@@ -1,3 +1,4 @@
+import { RecentPlacementStrip } from '../common/RecentPlacementStrip';
 import { Link } from 'react-router-dom';
 import { TeamLogoTile } from '../common/primitives';
 import { TeamFollowButton } from './TeamFollowButton';
@@ -7,7 +8,7 @@ import { queryPolicy, usePlatformQuery } from '../../services/queryCache';
 import type { PublicTeamSummary, TeamComparisonRecord } from '../../types/domain';
 
 export function DirectoryTeamCard({ team, ordinal, compareMode, selected, ownTeam, registration, record, onToggle, onOpen }: { team: PublicTeamSummary; ordinal: number; compareMode: boolean; selected: boolean; ownTeam: boolean; registration?: { label: string; tournamentId: string }; record?: TeamComparisonRecord; onToggle: (id: string) => void; onOpen: () => void }) {
-  const profile = usePlatformQuery({ scope:'public', key: `profile:${team.slug}`, query: () => services.profiles.teamBySlug(team.slug), enabled: serviceCapabilities.publicTeamHistory && team.form === undefined, staleTime: queryPolicy.publicCompetition });
+  const profile = usePlatformQuery({ scope:'public', key: `profile:${team.slug}`, query: signal => services.profiles.teamBySlug(team.slug, signal), enabled: serviceCapabilities.publicTeamHistory && team.form === undefined, staleTime: queryPolicy.publicCompetition });
   const historyAvailable = team.historyAvailable ?? profile.data?.historyAvailable;
   const form = [...(team.form ?? profile.data?.form ?? [])].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt));
   const top10 = form.length ? Math.round(form.filter(item => item.placement <= 10).length / form.length * 100) : undefined;
@@ -18,7 +19,7 @@ export function DirectoryTeamCard({ team, ordinal, compareMode, selected, ownTea
     {team.verificationLevel && <div className="directory-verification"><VerificationCrest level={team.verificationLevel} /></div>}
     {team.legacyHistoryIncomplete && <small>Tam yarış tarixçəsi hələ əlçatan deyil.</small>}
     <div className="directory-competitive"><span><strong>{record?.wwcd ?? '—'}</strong> WWCD</span><span tabIndex={0} data-tooltip="Dərc edilmiş son matçlar üzrə"><strong>{top10 === undefined ? '—' : `${top10}%`}</strong> Top 10 <small>son matçlar</small></span></div>
-    <div className="directory-recent"><span>Son nəticələr</span><div>{form.length ? form.slice(0,5).map(item => <span key={item.matchId} className={`directory-result${item.wwcd ? ' directory-result--wwcd' : ''}`} tabIndex={0} data-tooltip={`${item.map} · Yer ${item.placement}`} aria-label={item.wwcd ? 'WWCD' : `Yer ${item.placement}`}>{item.wwcd ? <>WW<br />CD</> : item.placement}</span>) : <small>{profile.loading ? 'Nəticələr yüklənir…' : historyAvailable === false ? 'Nəticə formatı dəstəklənmir' : 'Mövcud nəticələr sahəsi boşdur'}</small>}</div></div>
+    <div className="directory-recent"><span>Son nəticələr</span><div>{form.length ? <RecentPlacementStrip results={form} /> : <small>{profile.loading ? 'Nəticələr yüklənir…' : historyAvailable === false ? 'Nəticə formatı dəstəklənmir' : 'Mövcud nəticələr sahəsi boşdur'}</small>}</div></div>
     {compareMode && <Link className="directory-profile-link" to={`/teams/${team.slug}`}>Public profil</Link>}
   </div>;
 }

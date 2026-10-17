@@ -32,3 +32,26 @@ it('preserves the current identity when revocation fails so the user can retry',
   expect(synchronize).not.toHaveBeenCalled();
   expect(clear).not.toHaveBeenCalled();
 });
+
+it('does not evict successful identity caches on a transient session outage', async () => {
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => url.endsWith('/auth/refresh') ? Response.json({sessionMode:'legacy'}) : Response.json({}, {status:503})));
+  const clear=vi.spyOn(cache,'clearQueryCache');
+  const synchronize=vi.spyOn(cache,'synchronizeSessionCache');
+  await expect(services.auth.getSession()).rejects.toMatchObject({status:503});
+  expect(clear).not.toHaveBeenCalled();
+  expect(synchronize).not.toHaveBeenCalled();
+});
+it('cancels one session observer without cancelling another concurrent observer', async () => {
+  let complete!:(response:Response)=>void;
+  const fetcher=vi.fn(async (url:string)=>url.endsWith('/auth/refresh') ? Response.json({sessionMode:'legacy'}) : new Promise<Response>(resolve=>{complete=resolve;}));
+  vi.stubGlobal('fetch',fetcher);
+  const controller=new AbortController();
+  const first=services.auth.getSession(controller.signal);
+  const second=services.auth.getSession();
+  const cancelled=expect(first).rejects.toMatchObject({kind:'abort'});
+  controller.abort();await cancelled;
+  while(!complete) await Promise.resolve();
+  complete(Response.json({user:{id:'fixture'},role:'team'}));
+  await expect(second).resolves.toMatchObject({user:{id:'fixture'}});
+  expect(fetcher.mock.calls.filter(([url])=>url.endsWith('/me/session'))).toHaveLength(1);
+});

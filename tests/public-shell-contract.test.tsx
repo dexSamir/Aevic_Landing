@@ -46,7 +46,7 @@ describe('public IA is independent of backend availability', () => {
     const nav = screen.getByRole('navigation', { name: 'Əsas naviqasiya' });
     expect(within(nav).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual(primary);
     const header = screen.getByRole('banner');
-    expect(within(header).getByRole('link', { name: 'Daxil ol' })).toHaveAttribute('href', '/login');
+    expect(await within(header).findByRole('link', { name: 'Daxil ol' })).toHaveAttribute('href', '/login');
     expect(within(header).getByRole('link', { name: 'Komanda yarat' })).toHaveAttribute('href', '/register');
     fireEvent.click(screen.getByRole('button', { name: 'Menyunu aç' }));
     const drawer = await screen.findByRole('dialog');

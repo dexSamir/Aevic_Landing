@@ -35,7 +35,7 @@ components:
   public-navigation: Left-grouped brand and discovery with right-aligned rules/account controls
   media-backdrop: Cover media with desktop/mobile focal points and bounded dark scrims
   public-team-card: Compact verified-team discovery card with roster metadata
-  team-form: One continuous newest-to-oldest performance rail with separator-led results and WWCD prestige emphasis
+  team-form: Shared RecentPlacementStrip, newest-first 44px rounded numeric tiles; first place uses gold with dark text
   records-center: Provenance-led archive with a featured horizontal rail and historical-snapshot integrity
   profile-card-studio: Deterministic public share cards in 1:1, 4:5, and 9:16 formats
   team-workspace: Opaque warm-graphite operations shell with next-action-first hierarchy and restrained precision accents
@@ -45,9 +45,7 @@ components:
 
 Competitive Legacy translates AEVIC's official low-poly crowned phoenix into a professional esports product. Public pages persuade through one editorial brand moment; team and admin pages prioritize operational clarity. The same approved official logo asset is used throughout public, authentication, profile, team, and admin surfaces.
 
-The authenticated Team Panel extends this authority through **Operations Field**: a focused warm-graphite workspace for competition operations. It preserves the AEVIC gold, purple, Orbitron, and Raleway vocabulary while replacing undifferentiated black panels with a deliberate opaque surface hierarchy. The current public team dossier and tournament pages are the visual reference for this subsystem; the remaining `/team` routes inherit its chrome, density, control language, and next-action-first logic rather than becoming independent visual concepts.
-
-Public discovery uses a separate **Smoked Competition Ledger** expression: smoked silver and graphite navigation glass, a dark selected core, one tiny gold line, and quiet purple depth. Home continues from that chrome into a static four-round competition program and independent logo-first team surfaces. This public glass language does not enter the opaque Team workspace.
+Public, account, admin and Team layouts share one semantic palette, radius scale and motion system in `src/styles/tokens.css`. Layout and density adapt to the task; components do not acquire a second visual language inside a workspace. Opaque tonal surfaces carry content. Gold identifies competition and primary actions, muted purple identifies team identity, and cool blue identifies analytics. Floating public navigation retains its existing bounded material treatment.
 
 Logo frequency is contextual: public headers carry the compact mark, one primary hero may carry the larger identity moment, and the footer may repeat the compact brand for orientation. Protected desktop routes rely on the sidebar identity; below 1180px the compact official mark sits at the left of the product topbar; notifications, account and the drawer control stay at the right. Authentication and sharecard uses remain selective. Decorative watermarks and unnecessary duplicate large marks are not part of the system.
 
@@ -57,7 +55,7 @@ All reusable interface and medal material colors live in `src/styles/tokens.css`
 
 Medal tiers use the `--color-medal-*` token family for bronze, silver, gold, phoenix depth, and legacy materials. Component CSS must not contain literal medal material colors. Tier silhouettes and labels remain distinct so color is never the only signal.
 
-The Team workspace has a route-scoped semantic palette in `src/styles/tokens.css`: workspace `#111012`, chrome `#0b0a0c`, topbar `#131215`, primary surface `#18171a`, secondary surface `#1e1c20`, raised surface `#262329`, and inset surface `#0e0d0f`. Hover, border, text, and secondary-accent values use the corresponding `--team-*` tokens. All normal Team content surfaces are opaque. Gold remains a precision marker for the primary action or active boundary; the lighter purple accent and `--team-purple-wash` are quiet secondary signals, never page-sized atmosphere.
+The `--team-*` aliases resolve to the same global surface and text roles. `team-workspace-frame.css` owns layout and sizing only; it must not redefine the color palette. Recent placement tiles use their global component tokens at every location. Winner styling follows placement === 1, never a conflicting derived flag.
 
 Public navigation uses the `--material-navigation*` and `--navigation-*` token families rather than Team surface tokens. The capsule, search trigger, login control, and authenticated account control share the same smoked graphite/silver edge and foreground logic. The selected route uses `--material-navigation-active` as its dark core, `--navigation-accent` for the short gold line, and `--navigation-depth` for bounded purple depth. Under `prefers-reduced-transparency`, navigation and companion controls become opaque elevated charcoal and blur is removed.
 
@@ -303,3 +301,12 @@ The Team Identity Card is a permanent AEVIC brand asset, not a result poster. Ev
 - **AEVIC Icons:** Lucide outline icons use `currentColor`, 17–20px in product controls, 1.5–2px optical weight, and a 44px touch target. Filled icon variants are reserved for selected states.
 
 Wrapped is a centered mobile-first editorial viewport rather than a stretched desktop presentation. It uses typography, facts, faceted directional planes, and one progress language. It does not imitate Spotify palettes or Instagram chrome. The final share artifact is rendered by a deterministic Canvas template instead of capturing arbitrary DOM state.
+
+## Global component contracts (October 2026)
+
+- `RecentPlacementStrip`: one 44px square, 8px radius, 8px gap and Raleway numeral treatment for directory, profile and workspace. Only numeric placements are visible; map/date context remains accessible. No decorative border, no invented results.
+- `LoadingSkeleton`: shared rounded blocks and card radii, 2.2s opacity pulse, static under reduced motion; page-specific variants retain content geometry. Legacy preview and logo loading treatments inherit the same language.
+- `MapPerformance`: existing landscape images, prominent average placement, secondary sample size and win percentage. Win meter uses 0–1 proportion; average placement has no invented normalized performance score. Best-average labels require existing sample eligibility and an actual difference.
+- Public identity has checking, authenticated, confirmed guest and verification-error states. Guest actions require a verified null session. Navigation between public pages does not restart hydration.
+
+See `docs/global-design/audit.md` and `docs/global-design/report.md` for the audit, evidence and rollout limits.

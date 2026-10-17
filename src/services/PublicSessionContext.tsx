@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { serviceCapabilities, services } from './index';
+import { runReadQuery } from './queryRetry';
 import { ApiError, safeQueryError } from './apiError';
 import type { Team } from '../types/domain';
 
@@ -10,18 +10,20 @@ const PublicSessionContext = createContext<(Identity & { refresh: () => void }) 
 
 /** One server-verified identity shared by the header, registration and exports. */
 export function PublicSessionProvider({ children }: { children: ReactNode }) {
-  const { pathname } = useLocation();
+  const lastRead = useRef(0);
   const [attempt, setAttempt] = useState(0);
   const refresh = useCallback(() => setAttempt(value => value + 1), []);
   const [identity, setIdentity] = useState<Identity>({ session: undefined, loading: true });
   useEffect(() => {
+    lastRead.current = Date.now();
     let active = true;
+    const controller = new AbortController();
     setIdentity({ session: undefined, loading: true });
     const read = async () => {
       if (!serviceCapabilities.publicSession) { setIdentity({ session: null, loading: false }); return; }
       let session: Session | undefined;
       try {
-        session = await services.auth.getSession() ?? null;
+        session = await runReadQuery(signal => services.auth.getSession(signal), controller.signal) ?? null;
         if (!active) return;
         let team: Team | undefined;
         if (session && ['captain', 'team'].includes(session.role)) {
@@ -35,11 +37,14 @@ export function PublicSessionProvider({ children }: { children: ReactNode }) {
       } catch (error) { if (active) setIdentity({ session, loading: false, error: safeQueryError(error) }); }
     };
     void read();
-    return () => { active = false; };
-  }, [pathname, attempt]);
+    return () => { active = false; controller.abort(); };
+  }, [attempt]);
   useEffect(() => {
+    const revalidate = () => { if (Date.now() - lastRead.current >= 60_000) refresh(); };
     window.addEventListener('aevic:session-change', refresh);
-    return () => window.removeEventListener('aevic:session-change', refresh);
+    window.addEventListener('focus', revalidate);
+    window.addEventListener('online', revalidate);
+    return () => { window.removeEventListener('aevic:session-change', refresh); window.removeEventListener('focus', revalidate); window.removeEventListener('online', revalidate); };
   }, [refresh]);
   return <PublicSessionContext.Provider value={{ ...identity, refresh }}>{children}</PublicSessionContext.Provider>;
 }

@@ -3,7 +3,8 @@
 .team-insights h2 { font-size:22px; letter-spacing:-.025em; }
 .team-insights header p,.team-insights small { color:var(--color-text-muted); font-size:13px; line-height:1.5; }
 .insight-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
-.insight-metrics>div,.insight-chart { padding:20px; border-radius:16px; background:var(--team-surface-secondary,var(--color-bg-secondary)); min-width:0; }
+.insight-metrics>div,.insight-chart { padding:20px; border-radius:var(--card-radius); background:var(--team-surface-secondary,var(--color-bg-secondary)); min-width:0; }
+.insight-metrics>div:first-child { background:var(--color-info-soft); }
 .insight-metrics dt { font-size:13px; color:var(--color-text-muted); }
 .insight-metrics dd { font-size:30px; font-weight:650; letter-spacing:-.04em; font-variant-numeric:tabular-nums; margin-block:8px; }
 .insight-charts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }

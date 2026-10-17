@@ -81,7 +81,7 @@ import type {
 export interface AuthService {
   workspaces(): Promise<Array<{id:string;name:string;role:TeamAuthorityRole}>>;
   selectWorkspace(teamId:string): Promise<void>;
-  getSession(): Promise<{ user: User; role: UserRole } | null>;
+  getSession(signal?: AbortSignal): Promise<{ user: User; role: UserRole } | null>;
   login(email: string, password: string, remember?: boolean, admin?: boolean, otp?: string): Promise<{ user: User; role: UserRole }>;
   logout(): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;
@@ -182,7 +182,7 @@ export interface OrganizationService {
 
 export interface PublicProfileService {
   listTeams(query?: string): Promise<PublicTeamSummary[]>;
-  teamBySlug(slug: string): Promise<PublicTeamProfile | undefined>;
+  teamBySlug(slug: string, signal?: AbortSignal): Promise<PublicTeamProfile | undefined>;
   matches(teamId: string): Promise<PublicTeamProfile['recentMatches']>;
   upcomingMatch(teamId: string): Promise<PublicTeamProfile['upcomingMatch']>;
   seasons(teamId: string): Promise<TeamSeasonSummary[]>;

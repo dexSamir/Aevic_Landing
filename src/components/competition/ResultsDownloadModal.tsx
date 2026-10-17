@@ -56,7 +56,8 @@ export function ResultsDownloadModal({ open, onClose, standings, teams, tourname
     event.currentTarget.parentElement?.querySelector<HTMLButtonElement>(`[data-family="${next}"]`)?.focus();
   };
   return <Modal open={open} onClose={onClose} title="Nəticələri yüklə">
-    <div className="results-download-options" role="radiogroup" aria-label="PNG növü">
+    <div className="results-download-options" data-selected={family} role="radiogroup" aria-label="PNG növü">
+      <span className="results-download-indicator" aria-hidden="true" />
       {(['leaderboard', 'result'] as const).map(option => <button key={option} type="button" role="radio" data-family={option} aria-checked={family === option} disabled={option === 'result' && !ownRow} aria-describedby={option === 'result' ? 'team-export-help' : undefined} tabIndex={family === option ? 0 : -1} onClick={() => setSelected(option)} onKeyDown={onKeyDown}>
         <span className={`results-download-preview results-download-preview--${option}`} aria-hidden="true">{option === 'leaderboard' ? <><i className="preview-heading" />{Array.from({ length: 4 }, (_, row) => <span key={row}>{Array.from({ length: 4 }, (_, col) => <i key={col} />)}</span>)}</> : <><i className="preview-logo" /><i className="preview-name" /><span className="preview-stats"><i /><i /><i /></span><i className="preview-tournament" /></>}</span>
         <strong>{option === 'leaderboard' ? 'Turnir cədvəli' : 'Komanda nəticəsi'}</strong>

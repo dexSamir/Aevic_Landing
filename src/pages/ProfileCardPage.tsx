@@ -11,7 +11,7 @@ export function TeamProfileCardPage() {
   const {teamSlug=''}=useParams();
   const {data:profile,loading,error,refetch}=usePlatformQuery({key:`profile:${teamSlug}`,scope:'public',query:()=>services.profiles.teamBySlug(teamSlug)});
   const failed=Boolean(error&&!profile);
-  if (loading) return <section className="page-section"><div className="container"><LoadingSkeleton variant="profile" rows={6} /></div></section>;
+  if (loading) return <section className="page-section"><div className="container"><LoadingSkeleton variant="studio" rows={6} /></div></section>;
   if (failed) return <section className="page-section"><div className="container"><EmptyState title="Profil kartı yüklənmədi" body="Public profil servisi hazırda cavab vermir." action={<Button variant="secondary" onClick={refetch}>Yenidən cəhd et</Button>} /></div></section>;
   if (!profile) return <section className="page-section"><div className="container"><EmptyState title="Profil kartı əlçatan deyil" body="Public komanda profili tapılmadı." /></div></section>;
   const metric = (key: string) => profile.career?.metrics.find((item) => item.key === key)?.value;

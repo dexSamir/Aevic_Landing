@@ -11,7 +11,10 @@
   --color-warning-soft: #3a2208;
   --color-success: #58bd79;
   --color-success-soft: #112d1a;
-  --color-info: #8b78c7;
+  --color-info: #94bdf5;
+  --color-info-soft: #182637;
+  --color-identity: #c5b3e6;
+  --color-identity-soft: #262132;
   --color-bg-deep: #070709;
   --color-bg-ink: #09090c;
   --color-bg-primary: #0d0d0d;
@@ -59,7 +62,7 @@
   --surface-base: var(--color-bg-primary);
   --surface-1: var(--color-bg-secondary);
   --surface-2: var(--color-bg-elevated);
-  --surface-3: var(--color-surface-muted);
+  --surface-3: var(--color-bg-strong);
   --surface-interactive: var(--color-bg-elevated);
   --surface-hover: var(--color-surface-hover);
   --surface-active: var(--color-bg-strong);
@@ -131,6 +134,13 @@
   --material-blur-sticky: blur(18px);
 
   /* Shared motion language: quick feedback, deliberate navigation, calm pages. */
+  --motion-loading: 2.2s;
+  --placement-size: 2.75rem;
+  --placement-gap: .5rem;
+  --placement-radius: var(--radius-sm);
+  --placement-font-size: 1.125rem;
+  --placement-surface: var(--color-bg-strong);
+  --placement-text: var(--color-text-primary);
   --motion-fast: 140ms;
   --motion-press: 90ms;
   --motion-normal: 220ms;
@@ -195,22 +205,23 @@
   --table-cell-inline: 1rem;
 
   /* Team workspace: semantic surfaces and component decisions. */
-  --team-workspace: #111012;
-  --team-chrome: #0b0a0c;
-  --team-topbar: #131215;
-  --team-surface-primary: #18171a;
-  --team-surface-secondary: #1e1c20;
-  --team-surface-raised: #262329;
-  --team-surface-inset: #0e0d0f;
-  --team-surface-hover: #2b272e;
+  --team-text-primary: var(--text-primary);
+  --team-workspace: var(--bg-page);
+  --team-chrome: var(--surface-1);
+  --team-topbar: var(--bg-page);
+  --team-surface-primary: var(--surface-1);
+  --team-surface-secondary: var(--surface-2);
+  --team-surface-raised: var(--surface-3);
+  --team-surface-inset: var(--surface-command);
+  --team-surface-hover: var(--surface-hover);
   --team-border-subtle: #2b282e;
   --team-border-default: #3a353e;
-  --team-text-secondary: #c1bdc4;
-  --team-text-muted: #8f8993;
-  --team-text-navigation: #aaa5ad;
-  --team-accent-secondary: #b29bd1;
-  --team-accent-wash: #2b2313;
-  --team-purple-wash: #211725;
+  --team-text-secondary: var(--text-secondary);
+  --team-text-muted: var(--text-secondary);
+  --team-text-navigation: var(--text-secondary);
+  --team-accent-secondary: var(--color-identity);
+  --team-accent-wash: var(--surface-gold);
+  --team-purple-wash: var(--color-identity-soft);
   --team-border-accent: #5e4f2d;
   --team-border-hover: #554f59;
   --team-card-radius: var(--radius-lg);

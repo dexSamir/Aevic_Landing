@@ -1,0 +1,5 @@
+.recent-placement-strip { display:flex; flex-wrap:wrap; gap:var(--placement-gap); list-style:none; margin:0; padding:0; min-width:0; }
+.recent-placement-strip > .recent-placement-tile { display:grid; place-items:center; flex:0 0 var(--placement-size); width:var(--placement-size); height:var(--placement-size); padding:0; border:0; border-radius:var(--placement-radius); background:var(--placement-surface); color:var(--placement-text); font:700 var(--placement-font-size)/1 var(--font-ui); font-variant-numeric:tabular-nums; }
+.recent-placement-strip > [data-winner] { background:var(--gold-primary); color:var(--text-on-gold); }
+.recent-placement-tile:focus-visible { outline:2px solid var(--gold-primary); outline-offset:3px; }
+.recent-placement-empty { color:var(--text-secondary); font-size:var(--text-sm); }

@@ -49,7 +49,7 @@ export function TournamentRecapPage() {
     return (
       <section className="page-section">
         <div className="container">
-          <LoadingSkeleton variant="cards" rows={7} />
+          <LoadingSkeleton variant="recap" rows={7} />
         </div>
       </section>
     );

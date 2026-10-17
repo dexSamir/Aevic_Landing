@@ -1,3 +1,4 @@
+import { ApiError } from './apiError';
 import { createApiServices } from './apiAdapter';
 import { createServiceCapabilities } from './capabilities';
 import { clearQueryCache, synchronizeSessionCache } from './queryCache';
@@ -11,7 +12,18 @@ const notifyIdentity = () => { if (typeof window !== 'undefined') window.dispatc
 // Only an invalidation signal crosses tabs; no account data or token is broadcast.
 const channel = typeof window !== 'undefined' && typeof window.BroadcastChannel !== 'undefined' ? new window.BroadcastChannel('aevic-session') : undefined;
 if (channel) channel.onmessage = () => { identityRevision++; synchronizeSessionCache(null); clearQueryCache(); notifyIdentity(); };
-services.auth.getSession = async () => {
+// Cancelling one observer must not abort the shared session read for others.
+function observeSession<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (!signal) return promise;
+  if (signal.aborted) return Promise.reject(new ApiError({status:0,kind:'abort'}));
+  return new Promise((resolve,reject) => {
+    const cancel = () => { signal.removeEventListener('abort',cancel); reject(new ApiError({status:0,kind:'abort'})); };
+    signal.addEventListener('abort',cancel,{once:true});
+    void promise.then(resolve,reject).finally(()=>signal.removeEventListener('abort',cancel));
+  });
+}
+services.auth.getSession = async (signal) => {
+  if (signal?.aborted) throw new ApiError({status:0,kind:'abort'});
   const revision = identityRevision;
   // Share concurrent reads only; every later check still revalidates with the server.
   if (!sessionRead || sessionRead.revision !== revision) {
@@ -19,8 +31,8 @@ services.auth.getSession = async () => {
     sessionRead = read;
     void read.promise.finally(() => { if (sessionRead === read) sessionRead = undefined; }).catch(() => {});
   }
-  try { const session = await sessionRead.promise; if(revision===identityRevision)synchronizeSessionCache(session ? `${session.user.id}:${session.role}` : null); return revision===identityRevision?session:services.auth.getSession(); }
-  catch (error) { if(revision===identityRevision){synchronizeSessionCache(null);clearQueryCache();} throw error; }
+  try { const session = await observeSession(sessionRead.promise,signal); if(revision===identityRevision)synchronizeSessionCache(session ? `${session.user.id}:${session.role}` : null); return revision===identityRevision?session:services.auth.getSession(signal); }
+  catch (error) { if(revision===identityRevision && error instanceof ApiError && [401,403].includes(error.status)){synchronizeSessionCache(null);clearQueryCache();} throw error; }
 };
 services.auth.login = async (...args) => { identityRevision++; const session = await auth.login(...args); synchronizeSessionCache(`${session.user.id}:${session.role}`); channel?.postMessage('changed'); notifyIdentity(); return session; };
 services.auth.logout = async () => {
