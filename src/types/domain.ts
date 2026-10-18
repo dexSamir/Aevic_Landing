@@ -717,6 +717,7 @@ export interface CalendarEventData {
 }
 
 export interface TeamProfileCardData {
+  mapStats?: MapPerformanceMetric[];
   teamId: ID;
   teamName: string;
   teamLogo?: string;

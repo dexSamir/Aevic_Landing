@@ -199,7 +199,7 @@
 .home-other-tournaments header > div { display:flex; gap:8px; }
 .home-other-tournaments header button { display:grid; place-items:center; width:44px; height:44px; border:0; border-radius:50%; background:var(--surface-1); color:var(--text-primary); }
 .home-other-tournaments button:disabled { opacity:.3; cursor:default; }
-.home-other-tournaments__rail { display:flex; gap:16px; overflow-x:auto; overscroll-behavior-inline:contain; scroll-snap-type:x mandatory; scrollbar-width:thin; padding-bottom:8px; }
+.home-other-tournaments__rail { display:flex; gap:16px; overflow-x:auto; overscroll-behavior-inline:contain; scroll-snap-type:x mandatory; scrollbar-width:none; -ms-overflow-style:none; min-width:0; max-width:100%; padding-bottom:8px; }
 .home-other-tournament { display:flex; flex:0 0 calc((100% - 32px)/3); min-width:290px; text-align:left; padding:12px; gap:18px; border:0; border-radius:20px; background:var(--surface-1); scroll-snap-align:start; transition:background-color 180ms; }
 .home-other-tournament:hover { background:var(--surface-2); }
 .home-other-tournament img { width:32%; max-width:140px; height:100px; object-fit:cover; border-radius:14px; }
@@ -214,3 +214,6 @@
 @media(max-width:1100px) { .home-competition-program { gap:18px; grid-template-columns:minmax(0,1.3fr) minmax(340px,1fr); } .home-competition-program .competition-feature dl { grid-template-columns:1fr 1fr; } .home-competition-program .competition-feature__identity { padding:24px; } }
 @media(max-width:800px) { .home-competition-program { grid-template-columns:minmax(0,1fr); } .home-competition-program .competition-feature { min-height:510px; } .home-competition-program .competition-feature h2 { font-size:clamp(2rem,7vw,3.5rem); } .home-other-tournament { flex-basis:78%; } }
 @media(prefers-reduced-motion:reduce) { .home-competition-program .competition-feature { animation:none; } .home-competition-program .competition-feature a { transition:none; } .home-competition-program .competition-feature a:hover { transform:none; } }
+
+.home-other-tournaments__rail::-webkit-scrollbar { display:none; width:0; height:0; }
+.home-other-tournaments { min-width:0; max-width:100%; }

@@ -1,6 +1,7 @@
 import type { PlatformServices } from './contracts';
 import {sessionTransport} from './tokenSession';
 import { invalidateQuery } from './queryCache';
+import { invalidateMutation } from './mutationInvalidation';
 import { validatePublicSnapshot } from './snapshotValidation';
 
 type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; nullStatuses?: number[]; timeoutMs?: number };
@@ -16,10 +17,10 @@ export function createApiServices(baseUrl: string): PlatformServices {
       headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}), ...(csrfToken && fetchOptions.method && fetchOptions.method !== 'GET' ? { 'X-CSRF-Token': csrfToken } : {}), ...options.headers },
       body: body ? JSON.stringify(body) : undefined,
     }, nullStatuses, timeoutMs);
-    if (fetchOptions.method && !['GET','HEAD'].includes(fetchOptions.method) && !path.endsWith('/inspect') && path !== '/media/validate') invalidateQuery('');
+    if (fetchOptions.method && !['GET','HEAD'].includes(fetchOptions.method) && !path.endsWith('/inspect') && path !== '/media/validate') invalidateMutation(path);
     return result;
   };
-  const uploadRequest=async<T,>(path:string,options:RequestInit,nullStatuses:number[]=[],timeoutMs=30_000):Promise<T>=>{const result=await transport.request<T>(path,options,nullStatuses,timeoutMs);invalidateQuery('');return result;};
+  const uploadRequest=async<T,>(path:string,options:RequestInit,nullStatuses:number[]=[],timeoutMs=30_000):Promise<T>=>{const result=await transport.request<T>(path,options,nullStatuses,timeoutMs);invalidateMutation(path);return result;};
   const query = (values: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
     Object.entries(values).forEach(([key, value]) => value && params.set(key, value));

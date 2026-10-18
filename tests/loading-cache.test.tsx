@@ -54,3 +54,10 @@ it('never shows the previous route data while a new uncached key is loading',asy
  const first=vi.fn(async()=>'first team'),next=deferred();const r=render(<Probe id="first" query={first}/>);await screen.findByText('first team');
  r.rerender(<Probe id="next" query={()=>next.promise}/>);expect(screen.queryByText('first team')).not.toBeInTheDocument();expect(screen.getByRole('status')).toBeInTheDocument();await act(async()=>next.resolve('next team'));
 });
+it('refreshes an expired entry on revisit and never reuses public data beyond its stale limit',async()=>{
+ const now=Date.now();const clock=vi.spyOn(Date,'now').mockReturnValue(now);
+ const query=vi.fn().mockResolvedValueOnce('fresh public').mockResolvedValueOnce('new public').mockRejectedValue(new ApiError({status:503,kind:'server'}));
+ const first=render(<Probe query={query}/>);await screen.findByText('fresh public');first.unmount();
+ clock.mockReturnValue(now+61000);const next=render(<Probe query={query}/>);await screen.findByText('new public');expect(query).toHaveBeenCalledTimes(2);next.unmount();
+ clock.mockReturnValue(now+362000);render(<Probe query={query}/>);expect(screen.queryByText('new public')).toBeNull();await screen.findByText('failed');expect(screen.queryByText('new public')).toBeNull();clock.mockRestore();
+});

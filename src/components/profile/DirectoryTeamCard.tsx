@@ -3,14 +3,11 @@ import { Link } from 'react-router-dom';
 import { TeamLogoTile } from '../common/primitives';
 import { TeamFollowButton } from './TeamFollowButton';
 import { VerificationCrest } from './ProfileElements';
-import { serviceCapabilities, services } from '../../services';
-import { queryPolicy, usePlatformQuery } from '../../services/queryCache';
 import type { PublicTeamSummary, TeamComparisonRecord } from '../../types/domain';
 
 export function DirectoryTeamCard({ team, ordinal, compareMode, selected, ownTeam, registration, record, onToggle, onOpen }: { team: PublicTeamSummary; ordinal: number; compareMode: boolean; selected: boolean; ownTeam: boolean; registration?: { label: string; tournamentId: string }; record?: TeamComparisonRecord; onToggle: (id: string) => void; onOpen: () => void }) {
-  const profile = usePlatformQuery({ scope:'public', key: `profile:${team.slug}`, query: signal => services.profiles.teamBySlug(team.slug, signal), enabled: serviceCapabilities.publicTeamHistory && team.form === undefined, staleTime: queryPolicy.publicCompetition });
-  const historyAvailable = team.historyAvailable ?? profile.data?.historyAvailable;
-  const form = [...(team.form ?? profile.data?.form ?? [])].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt));
+  const historyAvailable = team.historyAvailable;
+  const form = [...(team.form ?? [])].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt));
   const top10 = form.length ? Math.round(form.filter(item => item.placement <= 10).length / form.length * 100) : undefined;
   return <div role="listitem" tabIndex={0} aria-label={team.name} onKeyDown={event => { if (event.target !== event.currentTarget || !['Enter', ' '].includes(event.key)) return; event.preventDefault(); if (compareMode) onToggle(team.id); else onOpen(); }} className={`team-directory-card ${compareMode ? 'is-comparing' : ''} ${selected ? 'is-comparison-selected' : ''}`} onClick={event => { const nested = (event.target as HTMLElement).closest('a, button, input, label, select, [tabindex]'); if (nested && nested !== event.currentTarget) return; if (compareMode) onToggle(team.id); else onOpen(); }}>
     <div className="directory-card-top"><span>{String(ordinal).padStart(2, '0')}</span><div className="directory-card-badges">{ownTeam && <span className="directory-own-team">Sizin komanda</span>}{registration && <Link className="directory-registration" to={`/tournaments/${registration.tournamentId}`} data-tooltip={registration.label}>{registration.label}</Link>}</div><div className="directory-follow"><TeamFollowButton teamId={team.id}/></div></div>
@@ -19,7 +16,7 @@ export function DirectoryTeamCard({ team, ordinal, compareMode, selected, ownTea
     {team.verificationLevel && <div className="directory-verification"><VerificationCrest level={team.verificationLevel} /></div>}
     {team.legacyHistoryIncomplete && <small>Tam yarış tarixçəsi hələ əlçatan deyil.</small>}
     <div className="directory-competitive"><span><strong>{record?.wwcd ?? '—'}</strong> WWCD</span><span tabIndex={0} data-tooltip="Dərc edilmiş son matçlar üzrə"><strong>{top10 === undefined ? '—' : `${top10}%`}</strong> Top 10 <small>son matçlar</small></span></div>
-    <div className="directory-recent"><span>Son nəticələr</span><div>{form.length ? <RecentPlacementStrip results={form} /> : <small>{profile.loading ? 'Nəticələr yüklənir…' : historyAvailable === false ? 'Nəticə formatı dəstəklənmir' : 'Mövcud nəticələr sahəsi boşdur'}</small>}</div></div>
+    <div className="directory-recent"><span>Son nəticələr</span><div>{form.length ? <RecentPlacementStrip results={form} /> : <small>{historyAvailable === false ? 'Nəticə formatı dəstəklənmir' : team.form === undefined ? 'Nəticələrə profildə baxın' : 'Dərc edilmiş nəticə yoxdur'}</small>}</div></div>
     {compareMode && <Link className="directory-profile-link" to={`/teams/${team.slug}`}>Public profil</Link>}
   </div>;
 }

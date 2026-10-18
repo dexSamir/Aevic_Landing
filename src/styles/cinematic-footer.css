@@ -32,7 +32,7 @@
 .cinematic-footer__unavailable { color: #aaaab2; cursor: default; }
 .cinematic-footer__group .cinematic-footer__email { gap: .75rem; }
 /* Transparent fill, refracted highlights and a fine lit edge give the letters depth.
-   The scene remains visible through the glyphs; no filters or animation are needed. */
+   The scene remains visible through the glyphs beneath the shared reflection. */
 .cinematic-footer__wordmark {
   position:relative; display:block; z-index:0; width:100%; height:auto;
   margin:24px 0 0; overflow:visible; pointer-events:none; user-select:none;
@@ -72,3 +72,8 @@
 .cinematic-footer__social-link:is(:hover, :focus-visible) svg { transform: translate(2px, -2px); }
 
 @media (prefers-reduced-motion: reduce) { .cinematic-footer a, .cinematic-footer__social-link svg { transition: none; } .cinematic-footer__social-link:is(:hover, :focus-visible) svg { transform: none; } }
+
+/* A single illumination plane is clipped by the complete word. */
+.cinematic-footer__reflection { animation: footer-reflection 14s linear infinite; }
+@keyframes footer-reflection { from { transform:translateX(0); } to { transform:translateX(4400px); } }
+@media (prefers-reduced-motion: reduce) { .cinematic-footer__reflection { animation:none; transform:translateX(1900px); } }

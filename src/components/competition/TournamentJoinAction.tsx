@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { competitionNow, serviceCapabilities, services } from '../../services';
 import { useOptionalPublicSession } from '../../services/PublicSessionContext';
 import { ApiError } from '../../services/apiError';
-import { invalidateQuery } from '../../services/queryCache';
+import { invalidateQuery, usePlatformQuery } from '../../services/queryCache';
 import type { Team, Tournament, TournamentCalendarParticipation, TournamentJoinFailureCode } from '../../types/domain';
 import { formatEventTime } from '../../utils/calendar';
 import { resolveTournamentJoinState } from '../../utils/tournamentJoin';
@@ -41,12 +41,15 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
   const [failure, setFailure] = useState<{ code: TournamentJoinFailureCode; message: string }>();
   const [success, setSuccess] = useState('');
   const [attempt, setAttempt] = useState(0);
+  const slotsQuery = usePlatformQuery({ key: `tournament:${tournament.id}:slots`, scope: 'public', query: () => services.tournaments.slots(tournament.id), enabled: Boolean(sharedIdentity?.team), staleTime: 30_000, retry: 1 });
 
   useEffect(() => {
     let active = true;
     if (!serviceCapabilities.publicSession) { setChecking(false); return; }
     setChecking(true); setFailure(undefined); setSuccess(''); setParticipation(undefined); setTeam(undefined);
     if (sharedIdentity?.loading) return () => { active = false; };
+    if (sharedIdentity?.team && slotsQuery.loading) return () => { active = false; };
+    if (sharedIdentity?.team && slotsQuery.error && !slotsQuery.data) { setFailure(normalizeFailure(slotsQuery.error)); setChecking(false); return; }
     if (sharedIdentity?.error) { setFailure(normalizeFailure(sharedIdentity.error)); setChecking(false); return; }
     const sessionRead = sharedIdentity ? Promise.resolve(sharedIdentity.session) : services.auth.getSession();
     void sessionRead.then(async (session) => {
@@ -57,7 +60,7 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
       if (!active) return;
       setTeam(currentTeam);
       if (!currentTeam) return;
-      const tournamentSlots = await services.tournaments.slots(tournament.id);
+      const tournamentSlots = sharedIdentity ? slotsQuery.data ?? [] : await services.tournaments.slots(tournament.id);
       if (!active) return;
       const registered = tournamentSlots.some((slot) => slot.teamId === currentTeam.id);
       const nextParticipation = registered ? 'registered' as const : undefined;
@@ -65,7 +68,7 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
       onStateChange?.(nextParticipation, currentTeam);
     }).catch((error) => { if (active) setFailure(normalizeFailure(error)); }).finally(() => { if (active) setChecking(false); });
     return () => { active = false; };
-  }, [attempt, tournament.id, refreshKey, sharedIdentity?.session, sharedIdentity?.team, sharedIdentity?.loading, sharedIdentity?.error]);
+  }, [attempt, tournament.id, refreshKey, sharedIdentity?.session, sharedIdentity?.team, sharedIdentity?.loading, sharedIdentity?.error, slotsQuery.data, slotsQuery.loading, slotsQuery.error]);
 
   const state = resolveTournamentJoinState({ checking, authenticated, team, tournament, participation, registering, failureCode: failure?.code, now: currentTime ?? competitionNow() });
   const dateLabel = useMemo(() => new Date(tournament.startsAt).toLocaleDateString('az-AZ', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Baku' }), [tournament.startsAt]);
@@ -121,7 +124,7 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
     if (state === 'full') return <Button variant="secondary" disabled icon={<Users size={17} />}>Slot yoxdur</Button>;
     if (state === 'closed') return <Button variant="secondary" disabled icon={<LockKeyhole size={17} />}>Qeydiyyat bağlanıb</Button>;
     if (state === 'ineligible') return <Button variant="secondary" disabled icon={<ShieldAlert size={17} />}>Komanda uyğun deyil</Button>;
-    if (state === 'error') return <Button variant="secondary" onClick={() => { if (sharedIdentity?.error) sharedIdentity.refresh(); else setAttempt((value) => value + 1); }}>Yenidən yoxla</Button>;
+    if (state === 'error') return <Button variant="secondary" onClick={() => { if (sharedIdentity?.error) sharedIdentity.refresh(); else { slotsQuery.refetch(); setAttempt((value) => value + 1); } }}>Yenidən yoxla</Button>;
     return <Button variant="secondary" disabled loading>Status yoxlanılır</Button>;
   })();
 

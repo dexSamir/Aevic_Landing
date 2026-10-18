@@ -8,6 +8,8 @@ import { organizations } from '../services/identity';
 // One anonymous snapshot per warm database pool. Never retain rejected reads.
 const snapshots = new WeakMap<object, { expiresAt: number; pending: Promise<PublicPlatformSnapshot> }>();
 
+export function invalidatePublicSnapshot(pool: object) { snapshots.delete(pool); }
+
 /** Minimal, anonymous-only reads for the public snapshot, never private routes. */
 export class PublicContextRepository extends PlatformRepository {
  async snapshot(): Promise<PublicPlatformSnapshot> {

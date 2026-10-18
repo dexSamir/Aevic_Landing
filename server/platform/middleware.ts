@@ -1,3 +1,5 @@
+import {invalidatePublicReads} from './public-cache';
+import {invalidatePublicSnapshot} from './public-context';
 import {persistentLimit} from '../auth/persistent-limit';
 import {authenticateAccess,tokenMode} from '../auth/platform-tokens';
 import {requireVerifiedEmail} from './email-requirement';
@@ -47,7 +49,7 @@ export function platformMiddleware(testSql?:Sql){
   // An anonymous session probe has no identity to resolve or sanctions to expire.
   // Keep cookie-bearing requests on the full authorization path.
   const guestSession = ['GET','HEAD'].includes(c.req.method) && c.req.path === '/api/me/session' && !c.req.header('authorization') && !getCookie(c,adminCookieName(c)) && !currentCaptainCookie(c);
-  if(publicRead || guestSession){c.set('platform',new PlatformRepository(c.get('db'),sql,{}));return next();}
+  if(publicRead || guestSession || c.req.method === 'GET' && (c.req.path === '/api/auth/google/status' || /^\/api\/teams\/[^/]+\/wrapped$/.test(c.req.path))){c.set('platform',new PlatformRepository(c.get('db'),sql,{}));return next();}
   // Expiry maintenance is optional. Coalesce it per warm runtime; a failure
   // leaves bans in force, but must not take login/media/session endpoints down.
   await maintainSanctions(sql);
@@ -74,5 +76,10 @@ export function platformMiddleware(testSql?:Sql){
   if(identity.accountId&&workspaceRequest(c.req.path)){await selectWorkspace(sql,identity,getCookie(c,'aevic-workspace'));if(!['GET','HEAD','OPTIONS'].includes(c.req.method)&&!/^\/api\/teams\/[^/]+\/(authority|invitations|ownership|leave|archive)(\/|$)/.test(c.req.path))requireWorkspaceWrite(identity);}
   c.set('platform',new PlatformRepository(c.get('db'),sql,identity));
   await next();
+  if (!['GET','HEAD','OPTIONS'].includes(c.req.method) && c.res.status < 400 && /\/(teams|roster|tournaments|matches|results|verification|registrations|organizations|players|legacy-claims|legacy-roster)(\/|$)/.test(c.req.path)) {
+   invalidatePublicSnapshot(sql);
+   // Team identity updates do not affect tournament read caches.
+   invalidatePublicReads(sql, /\/(teams|roster|verification)(\/|$)/.test(c.req.path) ? 'profile:' : undefined);
+  }
  });return app;
 }

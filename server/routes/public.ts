@@ -1,3 +1,4 @@
+import {publicRead} from '../platform/public-cache';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { Env,ApiContext } from '../types';
@@ -13,9 +14,10 @@ import { rateLimit } from './auth';
 import { PublicContextRepository } from '../platform/public-context';
 const app=new Hono<Env>();
 const repo=(c:ApiContext)=>c.get('platform')??new Repository(c.get('db'));
+const cached=<T,>(c:ApiContext,key:string,read:()=>Promise<T>)=>{const p=c.get('platform');return p?publicRead(p.sql,key,read):read();};
 const paramId=(c:ApiContext)=>z.union([z.uuid(),z.string().regex(/^[1-9]\d{0,18}$/)]).parse(c.req.param('id'));
 app.get('/public/context',async c=>{const platform=c.get('platform');const r=platform?new PublicContextRepository(c.get('db'),platform.sql):repo(c);if(r instanceof PublicContextRepository){c.set('platform',r);return c.json(await r.snapshot());}const [tournaments,teams,leaderboard,publicOrganizations,teamComparisonRecords]=await Promise.all([r.tournaments(),r.teams(),r.standings(),organizations(r),r.comparisons()]);return c.json({tournaments,teams:teams.map(summary),organizations:publicOrganizations,leaderboard,leaderboardTeams:leaderboard.map(row=>teams.find(t=>t.id===row.teamId)?.name??''),playerPerformances:[],teamComparisonRecords,teamAchievements:[]});});
-app.get('/tournaments',async c=>c.json(await repo(c).tournaments()));
+app.get('/tournaments',async c=>c.json(await cached(c,'tournaments',()=>repo(c).tournaments())));
 app.get('/tournaments/:id',async c=>c.json(await repo(c).tournament(paramId(c))));
 app.get('/tournaments/:id/participants',async c=>{
  const id=paramId(c),r=repo(c);await r.tournament(id);const [teams,entries,rosters]=await Promise.all([r.teams(),r.rows('tournament_registrations'),r.rows('tournament_rosters')]);
@@ -25,7 +27,7 @@ app.get('/tournaments/:id/slots',async c=>{const id=paramId(c),r=repo(c),t=await
 app.get('/tournaments/:id/recap',async c=>{const id=paramId(c),r=repo(c),t=await r.tournament(id);const [matches,standings,teams]=await Promise.all([r.history(),r.standings(id),r.teams()]);const recap=buildTournamentRecap(t,matches,standings,teams.map(summary));if(!recap)throw new ServiceError(404,'RECAP_NOT_FOUND');recap.totalMatches=new Set(matches.filter(m=>m.tournamentId===id).map(m=>m.id)).size;return c.json(recap);});
 app.get('/tournaments/:id/calendar',async c=>{const t=await repo(c).tournament(paramId(c));return c.json({id:t.id,title:t.name,description:t.description,startsAt:t.startsAt,endsAt:t.endsAt,timezone:'Asia/Baku',publicUrl:`${c.get('config').siteUrl}/tournaments/${t.id}`});});
 app.get('/public/teams',async c=>{const search=text(0,100).parse(c.req.query('search')??'').toLocaleLowerCase('az-AZ');return c.json((await repo(c).teams()).filter(t=>t.name.toLocaleLowerCase('az-AZ').includes(search)).map(summary));});
-app.get('/public/teams/:slug',async c=>c.json(await repo(c).profile(text(1,110).parse(c.req.param('slug')))));
+app.get('/public/teams/:slug',async c=>c.json(await cached(c,'profile:'+text(1,110).parse(c.req.param('slug')),()=>repo(c).profile(text(1,110).parse(c.req.param('slug'))))));
 app.get('/public/teams/:id/matches',async c=>{const r=repo(c),t=await r.team(paramId(c));return c.json(await r.history(t.id));});
 app.get('/public/teams/:id/upcoming-match',async c=>{const p=await repo(c).profile(paramId(c));if(!p.upcomingMatch)throw new ServiceError(404,'MATCH_NOT_FOUND');return c.json(p.upcomingMatch);});
 app.get('/public/teams/:id/form',async c=>c.json((await repo(c).profile(paramId(c))).form));

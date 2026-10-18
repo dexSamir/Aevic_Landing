@@ -15,6 +15,8 @@ function fixture(){
  app.get('/public/context',c=>c.json({actor:c.get('platform')!.actor}));
  app.get('/me/session',c=>c.json({actor:c.get('platform')!.actor}));
  app.get('/matches',c=>c.json([]));
+ app.get('/auth/google/status',c=>c.json({enabled:false}));
+ app.get('/teams/:id/wrapped',c=>c.json({available:false}));
  app.post('/auth/login',c=>c.json({reached:true}));
  app.get('/me/private',c=>c.json({id:captain(c)}));
  return {sql,app};
@@ -45,7 +47,7 @@ describe('shared request dependency isolation',()=>{
  });
  it('does not run maintenance or validate unrelated cookies for public reads',async()=>{
   const {app,sql}=fixture();
-  for(const path of ['/api/public/context','/api/matches']){
+  for(const path of ['/api/public/context','/api/matches','/api/auth/google/status','/api/teams/16/wrapped']){
    const response=await app.request(path,{headers:{cookie:'__Host-aevic-admin=broken; __Host-aevic-captain=broken'}});
    expect(response.status).toBe(200);
   }

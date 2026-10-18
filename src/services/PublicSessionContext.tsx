@@ -43,7 +43,7 @@ export function PublicSessionProvider({ children }: { children: ReactNode }) {
           const failure = safeQueryError(error);
           retryAt.current = Date.parse(failure.timestamp) + (failure.retryAfterMs ?? 0);
           setIdentity(previous => ({
-            session: failure.status === 401 ? null : session ?? previous.session,
+            session: [401, 403].includes(failure.status) ? null : session ?? previous.session,
             team: failure.status === 401 || failure.status === 403 ? undefined : previous.team,
             loading: false, error: failure,
           }));

@@ -36,7 +36,12 @@ export default function HomeCompetitionProgram({ featured, tournaments }: { feat
     <div className="home-competition-program__calendar"><TournamentCalendar tournaments={tournaments} compact overview cinematic currentTime={now} selection={selection} onSelectionChange={setSelection} /></div>
     {others.length > 0 && <section className="home-other-tournaments" aria-label="Digər turnirlər">
       <header><h3>DİGƏR TURNİRLƏR</h3><div><button type="button" aria-label="Əvvəlki turnirlər" disabled={edges.start} onClick={() => move(-1)}><ChevronLeft size={21} /></button><button type="button" aria-label="Növbəti turnirlər" disabled={edges.end} onClick={() => move(1)}><ChevronRight size={21} /></button></div></header>
-      <div className="home-other-tournaments__rail" ref={rail} tabIndex={0} aria-label="Turnirləri üfüqi sürüşdürün">{others.map(tournament => {
+      <div className="home-other-tournaments__rail" ref={rail} tabIndex={0} onKeyDown={event => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        if (event.key === 'Home' || event.key === 'End') rail.current?.scrollTo({ left: event.key === 'Home' ? 0 : rail.current.scrollWidth, behavior: 'instant' });
+        else move(event.key === 'ArrowLeft' ? -1 : 1);
+      }} aria-label="Turnirləri üfüqi sürüşdürün">{others.map(tournament => {
         const thumbnail = tournamentStripArtwork[tournament.id] ?? homeArtwork.tournament;
         const phase = resolveTournamentTemporalPhase(tournament, now);
         const label = { 'registration-open': 'Qeydiyyat açıqdır', 'registration-closed': 'Qeydiyyat bağlıdır', upcoming: 'Tezliklə', live: 'Canlı', completed: 'Tamamlanıb', draft: 'Planlaşdırılır', cancelled: 'Ləğv edilib' }[phase];

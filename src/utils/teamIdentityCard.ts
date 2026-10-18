@@ -2,9 +2,9 @@ import { publicImageUrl } from './mediaUrl';
 import type { ProfileCardFormat, TeamProfileCardData } from '../types/domain';
 
 export const teamIdentityCardSizes: Record<ProfileCardFormat, { width: number; height: number; label: string; use: string }> = {
-  square: { width: 1080, height: 1080, label: '1:1', use: 'X · Discord' },
-  portrait: { width: 1080, height: 1350, label: '4:5', use: 'Instagram feed' },
-  story: { width: 1080, height: 1920, label: '9:16', use: 'Story · Status' },
+  square: { width: 1080, height: 1080, label: 'Square', use: '1:1' },
+  portrait: { width: 1080, height: 1350, label: 'Post', use: '4:5' },
+  story: { width: 1080, height: 1920, label: 'Story', use: '9:16' },
 };
 
 export interface TeamIdentityCardAssets {
@@ -19,6 +19,8 @@ export interface TeamIdentityCardOptions {
   template: TeamIdentityCardTemplate;
   showStats: boolean;
   showQr: boolean;
+  showMaps?: boolean;
+  showRoster?: boolean;
 }
 
 export async function loadCardImage(source?: string, generatedPng = false) {
@@ -28,7 +30,7 @@ export async function loadCardImage(source?: string, generatedPng = false) {
   image.decoding = 'async';
   image.crossOrigin = 'anonymous';
   image.src = safeSource;
-  await image.decode();
+  await new Promise<void>((resolve, reject) => { const timer = setTimeout(() => reject(new Error('Image timed out')), 10000); image.decode().then(() => { clearTimeout(timer); resolve(); }, () => { clearTimeout(timer); reject(new Error('Image unavailable')); }); });
   return image;
 }
 
@@ -93,7 +95,7 @@ export function selectSharecardStats(data: TeamProfileCardData, template: TeamId
   const legacy = [career[1], career[0], career[2], career[3], career[4]];
   const identity = [career[3], career[0], career[1], career[2]];
   const source = template === 'legacy' ? legacy : template === 'identity' ? identity : career;
-  return source.filter((stat): stat is { label: string; value: number } => typeof stat.value === 'number' && stat.value > 0).slice(0, 4);
+  return source.filter((stat): stat is { label: string; value: number } => typeof stat.value === 'number' && Number.isFinite(stat.value) && stat.value >= 0).slice(0, 4);
 }
 
 function drawStats(context: CanvasRenderingContext2D, stats: ReturnType<typeof selectSharecardStats>, x: number, y: number, width: number, columns: number, rowHeight: number) {
@@ -142,7 +144,7 @@ function drawQrZone(context: CanvasRenderingContext2D, data: TeamProfileCardData
   context.fillStyle = '#f3c450'; context.font = '800 16px Orbitron, sans-serif'; context.fillText('SCAN // PUBLIC PROFILE', x + 30, y + 42);
   const path = data.profileUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
   context.fillStyle = '#e9e6de'; context.font = '600 17px Raleway, sans-serif'; context.fillText(path, x + 28, y + 78, width - size - 70);
-  context.fillStyle = '#9b9891'; context.font = '600 15px Raleway, sans-serif'; context.fillText('Komandanın təsdiqlənmiş AEVIC profilini aç', x + 28, y + 108, width - size - 70);
+  context.fillStyle = '#9b9891'; context.font = '600 15px Raleway, sans-serif'; context.fillText('Komandanın ictimai AEVIC profilini aç', x + 28, y + 108, width - size - 70);
   if (qr) { const qrX = x + width - size - 14; const qrY = y + 14; context.fillStyle = '#f5f0dd'; context.beginPath(); context.roundRect(qrX - 8, qrY - 8, size + 16, size + 16, 10); context.fill(); context.drawImage(qr, qrX, qrY, size, size); }
 }
 
@@ -155,7 +157,7 @@ function drawCornerBrackets(context: CanvasRenderingContext2D, width: number, he
 export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfileCardData, format: ProfileCardFormat, assets: TeamIdentityCardAssets, options: TeamIdentityCardOptions = { template: 'identity', showStats: true, showQr: true }) {
   const { width, height } = teamIdentityCardSizes[format];
   canvas.width = width; canvas.height = height;
-  const context = canvas.getContext('2d'); if (!context) return;
+  const context = canvas.getContext('2d'); if (!context) throw new Error('Canvas unavailable');
   context.fillStyle = '#070709'; context.fillRect(0, 0, width, height);
   const bannerHeight = format === 'story' ? 540 : format === 'portrait' ? 430 : 300;
   if (assets.background) { context.save(); context.globalAlpha = .72; drawCover(context, assets.background, 0, 0, width, height); context.restore(); }
@@ -171,37 +173,52 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
   drawSignature(context, width, format === 'story' ? 118 : 92, pad);
   const stats = options.showStats ? selectSharecardStats(data, options.template) : [];
 
-  if (format === 'square') {
-    drawLogo(context, data, assets.logo, 76, 248, 190);
-    context.fillStyle = '#f3c450'; context.font = '700 18px Raleway, sans-serif'; context.fillText(`${data.teamTag || 'PUBG MOBILE'} · AEVIC COMPETITOR`, 76, 478);
-    const nameSize = fitText(context, data.teamName.toLocaleUpperCase('az'), 900, 68, 40); context.fillStyle = '#f5f4f0'; context.font = `800 ${nameSize}px Orbitron, sans-serif`; context.fillText(data.teamName.toLocaleUpperCase('az'), 76, 558, 900);
-    if (data.organizationName || data.country) { context.fillStyle = '#aaa69e'; context.font = '600 19px Raleway, sans-serif'; context.fillText([data.organizationName, data.country].filter(Boolean).join(' · '), 76, 600); }
-    context.fillStyle = 'rgba(255,255,255,.1)'; context.fillRect(76, 642, 928, 1);
-    drawRoster(context, data, 76, 668, 928);
-    if (stats.length) drawStats(context, stats, 52, 770, 976, stats.length, 104);
-    if (options.showQr) drawQrZone(context, data, assets.qr, 76, 880, 928, 116);
-    if (data.sourceLabel) { context.fillStyle = '#aaa69e'; context.font = '500 16px Raleway, sans-serif'; context.fillText(data.sourceLabel, 76, 1048, 928); }
-  } else if (format === 'portrait') {
-    drawLogo(context, data, assets.logo, 76, 300, 238);
-    context.fillStyle = '#f3c450'; context.font = '700 18px Raleway, sans-serif'; context.fillText(`${data.teamTag || 'PUBG MOBILE'} · OFFICIAL TEAM IDENTITY`, 350, 370);
-    const nameSize = fitText(context, data.teamName.toLocaleUpperCase('az'), 650, 66, 38); context.fillStyle = '#f5f4f0'; context.font = `800 ${nameSize}px Orbitron, sans-serif`; context.fillText(data.teamName.toLocaleUpperCase('az'), 350, 455, 650);
-    context.fillStyle = '#aaa69e'; context.font = '600 20px Raleway, sans-serif'; context.fillText([data.organizationName, data.country].filter(Boolean).join(' · ') || 'AEVIC COMPETITOR', 350, 500, 650);
-    context.fillStyle = 'rgba(255,255,255,.1)'; context.fillRect(72, 590, 936, 1);
-    drawRoster(context, data, 76, 642, 928);
-    if (stats.length) drawStats(context, stats, 52, 748, 976, stats.length, 112);
-    if (options.showQr) drawQrZone(context, data, assets.qr, 72, 940, 936, 210);
-    if (data.sourceLabel) { context.fillStyle = '#8e8a82'; context.font = '500 16px Raleway, sans-serif'; context.fillText(data.sourceLabel, 72, 1268, 936); }
-  } else {
-    drawLogo(context, data, assets.logo, 390, 390, 300);
-    context.textAlign = 'center'; context.fillStyle = '#f3c450'; context.font = '700 22px Raleway, sans-serif'; context.fillText(`${data.teamTag || 'PUBG MOBILE'} · AEVIC TEAM IDENTITY`, width / 2, 758);
-    const nameSize = fitText(context, data.teamName.toLocaleUpperCase('az'), 890, 82, 44); context.fillStyle = '#f5f4f0'; context.font = `800 ${nameSize}px Orbitron, sans-serif`; context.fillText(data.teamName.toLocaleUpperCase('az'), width / 2, 866, 890);
-    context.fillStyle = '#aaa69e'; context.font = '600 22px Raleway, sans-serif'; context.fillText([data.organizationName, data.country].filter(Boolean).join(' · ') || 'AEVIC COMPETITOR', width / 2, 914); context.textAlign = 'left';
-    context.fillStyle = 'rgba(255,255,255,.1)'; context.fillRect(92, 984, 896, 1);
-    drawRoster(context, data, 96, 1030, 888, true);
-    if (stats.length) drawStats(context, stats, 72, 1170, 936, stats.length, 120);
-    if (options.showQr) drawQrZone(context, data, assets.qr, 72, 1430, 936, 210);
-    if (data.sourceLabel || data.year) { context.fillStyle = '#8e8a82'; context.font = '500 17px Raleway, sans-serif'; context.fillText([data.sourceLabel, data.year].filter(Boolean).join(' · '), 72, 1770, 936); }
+  const maps = options.showMaps ? (data.mapStats ?? []).filter(m => m.matches > 0) : [];
+  const roster = options.showRoster !== false && data.roster.length > 0;
+  const compact = format === 'square';
+  const story = format === 'story';
+  const extraHeight = (roster ? 110 : 0) + (stats.length ? 112 : 0) + (maps.length ? 42 + maps.length * 43 : 0);
+  const qrHeight = options.showQr ? (compact ? 155 : 210) : 0;
+  const contentTop = height - 112 - qrHeight - extraHeight;
+  const heroTop = dividerY + 40;
+  const heroHeight = contentTop - heroTop - 30;
+  // Each format has its own identity composition; optional sections consume real space.
+  const logoSize = Math.min(story ? 310 : compact ? 200 : 240, heroHeight * (story ? .48 : .65));
+  const centered = story;
+  const logoX = centered ? (width - logoSize) / 2 : pad;
+  const heroY = heroTop + Math.max(0, (heroHeight - logoSize - (story ? 180 : 0)) / 2);
+  drawLogo(context, data, assets.logo, logoX, heroY, logoSize);
+  const nameX = centered ? width / 2 : compact ? pad + logoSize + 36 : pad + logoSize + 40;
+  const nameWidth = centered ? width - pad * 2 : width - pad - nameX;
+  const nameY = centered ? heroY + logoSize + 94 : heroY + logoSize * .58;
+  context.textAlign = centered ? 'center' : 'left';
+  context.fillStyle = '#f3c450'; context.font = '700 18px Raleway, sans-serif';
+  context.fillText(data.teamTag || 'PUBG MOBILE', nameX, nameY - 52, nameWidth);
+  const nameSize = fitText(context, data.teamName.toLocaleUpperCase('az'), nameWidth, story ? 76 : 56, 30);
+  context.fillStyle = '#f5f4f0'; context.font = `800 ${nameSize}px Orbitron, sans-serif`;
+  context.fillText(data.teamName.toLocaleUpperCase('az'), nameX, nameY + 12, nameWidth);
+  context.fillStyle = '#b6b3ac'; context.font = '600 20px Raleway, sans-serif';
+  context.fillText([data.organizationName, data.country].filter(Boolean).join(' · ') || 'AEVIC ESPORTS', nameX, nameY + 56, nameWidth);
+  context.textAlign = 'left';
+  let y = contentTop;
+  context.fillStyle = 'rgba(243,196,80,.3)'; context.fillRect(pad, y - 24, width - pad * 2, 1);
+  if (roster) { drawRoster(context, data, pad, y, width - pad * 2); y += 110; }
+  if (stats.length) { drawStats(context, stats, pad - 24, y, width - pad * 2 + 24, stats.length, 104); y += 112; }
+  if (maps.length) {
+    context.fillStyle = '#f3c450'; context.font = '700 17px Raleway, sans-serif';
+    context.fillText('XƏRİTƏ / MATÇ / WWCD / ORTA YER', pad, y + 18); y += 42;
+    for (const map of maps) {
+      context.fillStyle = '#f5f4f0'; context.font = '600 22px Raleway, sans-serif';
+      context.fillText(map.map.toLocaleUpperCase('az'), pad, y + 22, 380);
+      context.textAlign = 'right';
+      context.fillText(`${map.matches}  /  ${map.wwcd}  /  #${map.averagePlacement.toFixed(1)}`, width - pad, y + 22, 460);
+      context.textAlign = 'left'; y += 43;
+    }
   }
+  if (options.showQr) drawQrZone(context, data, assets.qr, pad, y + 12, width - pad * 2, compact ? 116 : 170);
+  context.fillStyle = '#b6b3ac'; context.font = '500 16px Raleway, sans-serif';
+  context.fillText(data.sourceLabel || 'AEVIC ESPORTS · PUBLIC TEAM IDENTITY', pad, height - 48, width - pad * 2);
+
 }
 
 export function teamIdentityCardBlob(canvas: HTMLCanvasElement) {

@@ -1,89 +1,86 @@
 import '../../styles/share-controls.css';
 import '../../styles/share-studio.css';
-import { ShareBackgroundPicker } from '../common/ShareBackgroundPicker';
-import { Check, Copy, Download, Share2 } from 'lucide-react';
+import { Download } from 'lucide-react';
 import QRCode from 'qrcode';
 import { useEffect, useRef, useState } from 'react';
 import type { ProfileCardFormat, TeamProfileCardData } from '../../types/domain';
 import { drawTeamIdentityCard, loadCardImage, teamIdentityCardBlob, teamIdentityCardSizes, type TeamIdentityCardAssets } from '../../utils/teamIdentityCard';
-import { Button, Checkbox, Toast } from '../common/primitives';
-
-function safeFileName(value: string) {
-  return value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '') || "Komanda";
-}
-
-function FormatSelector({ value, onChange, disabled }: { value: ProfileCardFormat; onChange: (format: ProfileCardFormat) => void; disabled: boolean }) {
-  return <div className="share-format-selector" role="radiogroup" aria-label="Share card formatı">{Object.entries(teamIdentityCardSizes).map(([id, format]) => <button key={id} type="button" disabled={disabled} role="radio" aria-checked={value === id} className={value === id ? 'is-active' : ''} onClick={() => onChange(id as ProfileCardFormat)}><strong>{format.label}</strong><span>{format.use}</span><small>{format.width} × {format.height}</small></button>)}</div>;
-}
+import { Button, Checkbox } from '../common/primitives';
 
 export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
-  const [backgrounds,setBackgrounds]=useState<Partial<Record<ProfileCardFormat,File>>>({});
-  const [format, setFormat] = useState<ProfileCardFormat>('portrait');
-  const [showStats, setShowStats] = useState(true);
+  const [format, setFormat] = useState<ProfileCardFormat>('square');
+  const [extended, setExtended] = useState(false);
+  const [showMaps, setShowMaps] = useState(false);
   const [showQr, setShowQr] = useState(true);
-  const [busy, setBusy] = useState(true);
-  const [backgroundError, setBackgroundError] = useState(false);
-  const [notice, setNotice] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [assets, setAssets] = useState<TeamIdentityCardAssets>();
+  const [error, setError] = useState('');
+  const [warning, setWarning] = useState('');
+  const [attempt, setAttempt] = useState(0);
+  const [rendered, setRendered] = useState('');
+  const [exporting, setExporting] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const assetsRef = useRef<TeamIdentityCardAssets>({});
+  const version = JSON.stringify([data, format, extended, showMaps, showQr, attempt]);
+  const hasMaps = Boolean(data.mapStats?.some(map => map.matches > 0));
+  const hasExtended = data.roster.length > 0 || [data.matches, data.finishes, data.wwcd, data.championships, data.podiums].some(value => typeof value === 'number');
 
+  // Assets and fonts load once per team, never when a content switch changes.
   useEffect(() => {
     let active = true;
-    setBusy(true); setBackgroundError(false);
-    void Promise.all([
-      loadCardImage(data.teamLogo).catch(() => undefined),
-      (async()=>{const file=backgrounds[format];if(!file)return undefined;const url=URL.createObjectURL(file);try{const image=new Image();image.src=url;await image.decode();return image;}finally{URL.revokeObjectURL(url);}})().catch(() => { if (active) { setBackgroundError(true); setNotice('Kart fonu açıla bilmədi. Başqa şəkil seçin və ya AEVIC fonuna qayıdın.'); } return undefined; }),
-      QRCode.toDataURL(data.profileUrl, { errorCorrectionLevel: 'H', margin: 4, width: 360, color: { dark: '#070709', light: '#f3c450' } }).then((source) => loadCardImage(source, true)).catch(() => undefined),
-    ]).then(([logo, background, qr]) => {
-      if (!active) return;
-      assetsRef.current = { logo, background, qr };
-      if (!qr) setNotice('QR hazırlanmadı; public profil keçidi kartda mətn kimi saxlanıldı.');
-    }).finally(() => { if (active) setBusy(false); });
+    setAssets(undefined); setError(''); setWarning('');
+    void (async () => {
+      await Promise.all([document.fonts?.load('800 48px Orbitron'), document.fonts?.load('700 24px Raleway')]);
+      await document.fonts?.ready;
+      const [logo, qr] = await Promise.all([
+        loadCardImage(data.teamLogo).catch(() => { if (active) setWarning('Loqo yüklənmədi. Kartda komandanın baş hərfləri göstərilir.'); return undefined; }),
+        QRCode.toDataURL(data.profileUrl, { errorCorrectionLevel: 'H', margin: 4, width: 360, color: { dark: '#070709', light: '#ffffff' } }).then(source => loadCardImage(source, true)),
+      ]);
+      if (active) setAssets({ logo, qr });
+    })().catch(() => { if (active) setError('Kart hazırlanmadı. Bağlantını yoxlayıb yenidən cəhd edin.'); });
     return () => { active = false; };
-  }, [data.profileUrl, data.teamLogo, backgrounds, format]);
+  }, [data.teamLogo, data.profileUrl, attempt]);
 
-  const options = { template: 'identity' as const, showStats, showQr };
-  useEffect(() => { if (canvasRef.current && !busy) drawTeamIdentityCard(canvasRef.current, data, format, assetsRef.current, options); }, [busy, data, format, showQr, showStats]);
-
-  const exportBlob = async () => {
-    const canvas = canvasRef.current; if (backgroundError || !canvas) throw new Error('Preview unavailable');
-    await document.fonts.ready;
-    drawTeamIdentityCard(canvas, data, format, assetsRef.current, options);
-    return teamIdentityCardBlob(canvas);
-  };
-  const filename = `AEVIC_${safeFileName(data.teamName)}_Profile${data.year ? `_${data.year}` : ''}.png`;
+  useEffect(() => {
+    if (!assets) return;
+    // Coalesce rapid changes; obsolete renders never become downloadable.
+    const timer = window.setTimeout(() => {
+      try {
+        if (!canvasRef.current) return;
+        drawTeamIdentityCard(canvasRef.current, data, format, assets, { template: 'career', showStats: extended, showRoster: extended, showMaps, showQr });
+        setRendered(version); setError('');
+      } catch { setError('Önizləmə hazırlanmadı. Yenidən cəhd edin.'); }
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [assets, data, format, extended, showMaps, showQr, version]);
+  const ready = Boolean(assets && rendered === version && !error);
   const download = async () => {
-    setBusy(true);
-    try { const blob = await exportBlob(); const link = document.createElement('a'); link.download = filename; link.href = URL.createObjectURL(blob); link.click(); window.setTimeout(() => URL.revokeObjectURL(link.href), 1000); setNotice(`${teamIdentityCardSizes[format].width} × ${teamIdentityCardSizes[format].height} PNG hazırdır.`); }
-    catch { setNotice('PNG hazırlanmadı. Preview tam yükləndikdən sonra yenidən cəhd edin.'); }
-    finally { setBusy(false); }
-  };
-  const share = async () => {
-    setBusy(true);
+    if (!ready || !canvasRef.current || exporting) return;
+    setExporting(true);
     try {
-      const blob = await exportBlob(); const file = new File([blob], filename, { type: 'image/png' });
-      if (navigator.share && navigator.canShare?.({ files: [file] })) await navigator.share({ title: `${data.teamName} · AEVIC Team Identity`, text: 'AEVIC public team profile', files: [file], url: data.profileUrl });
-      else { const link = document.createElement('a'); link.download = filename; link.href = URL.createObjectURL(blob); link.click(); window.setTimeout(() => URL.revokeObjectURL(link.href), 1000); await navigator.clipboard.writeText(data.profileUrl); setNotice('Fayl paylaşımı dəstəklənmir; PNG yükləndi və profil keçidi kopyalandı.'); }
-    } catch (error) { if (!(error instanceof DOMException && error.name === 'AbortError')) setNotice('Paylaşım alınmadı. PNG-ni yükləyib əl ilə paylaşın.'); }
-    finally { setBusy(false); }
+      // Export the exact preview pixels. No second render, request or authorization change.
+      const blob = await teamIdentityCardBlob(canvasRef.current);
+      const name = data.teamName.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '') || 'team';
+      const url = URL.createObjectURL(blob), link = document.createElement('a');
+      link.href = url; link.download = `AEVIC-${name}-${format}-${extended ? 'extended' : 'standard'}.png`; link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch { setError('PNG hazırlanmadı. Yenidən cəhd edin.'); }
+    finally { setExporting(false); }
   };
-  const copy = async () => { await navigator.clipboard.writeText(data.profileUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); };
-
-  return <>
-    {notice && <Toast tone={notice.includes('alınmadı') ? 'error' : 'info'} title="Team Identity Card" body={notice} onClose={() => setNotice('')} />}
-    <div className="profile-card-studio">
-      <aside>
-        <span className="profile-kicker">Official AEVIC identity asset</span>
-        <h2>Komanda kimliyi</h2>
-        <p>Bir rəsmi public aktiv: logo, heyət, profil keçidi və istəyə görə dərc edilmiş karyera sübutu. Preview və PNG eyni kompozisiya mənbəyindən çəkilir.</p>
-        <FormatSelector value={format} onChange={setFormat} disabled={busy} />
-        <ShareBackgroundPicker key={format} width={teamIdentityCardSizes[format].width} height={teamIdentityCardSizes[format].height} value={backgrounds[format]} disabled={busy} onChange={file => setBackgrounds(value => ({ ...value, [format]: file }))} />
-        <div className="share-card-options"><Checkbox checked={showStats} onChange={(event) => setShowStats(event.target.checked)} label="Dərc edilmiş statistikanı göstər" /><Checkbox checked={showQr} onChange={(event) => setShowQr(event.target.checked)} label="Public profil QR-ni göstər" /></div>
-        <div className="studio-actions"><Button loading={busy} disabled={backgroundError} icon={<Download size={17} />} onClick={() => void download()}>PNG yüklə</Button><Button variant="secondary" disabled={busy || backgroundError} icon={<Share2 size={17} />} onClick={() => void share()}>Paylaş</Button><Button variant="ghost" icon={copied ? <Check size={17} /> : <Copy size={17} />} onClick={() => void copy()}>{copied ? 'Kopyalandı' : 'Profil linkini kopyala'}</Button></div>
-        <small>Yalnız public kimlik və dərc edilmiş statistika. Export: {teamIdentityCardSizes[format].width} × {teamIdentityCardSizes[format].height} PNG.</small>
-      </aside>
-      <section className={`profile-card-canvas profile-card-canvas--${format}`} aria-busy={busy} aria-label={`${data.teamName} ${teamIdentityCardSizes[format].label} kart önizləməsi`}><canvas ref={canvasRef} /></section>
-    </div>
-  </>;
+  return <div className="profile-card-studio team-export-studio">
+    <section className={`profile-card-canvas profile-card-canvas--${format}`} aria-busy={!ready} aria-label={`${data.teamName} kart önizləməsi`}>
+      <canvas ref={canvasRef} role="img" aria-label={`${data.teamName} · ${teamIdentityCardSizes[format].label} · ${extended ? 'Geniş' : 'Standart'} komanda kartı`} />
+      {!ready && !error && <p role="status">Önizləmə hazırlanır…</p>}
+    </section>
+    <aside>
+      <span className="profile-kicker">AEVIC × {data.teamName}</span>
+      <p>Komandanın kimliyi. Sənin formatın.</p>
+      <fieldset className="team-export-formats"><legend>Format</legend><div>{(['square', 'story', 'portrait'] as const).map(id => <label key={id} className={format === id ? 'is-active' : ''}><input type="radio" name="team-card-format" value={id} checked={format === id} onChange={() => setFormat(id)} disabled={exporting}/><strong>{teamIdentityCardSizes[id].label}</strong><span>{teamIdentityCardSizes[id].use}</span></label>)}</div></fieldset>
+      <fieldset className="team-export-formats"><legend>Məzmun</legend><div>{[false, true].map(value => <label key={String(value)} className={extended === value ? 'is-active' : ''}><input type="radio" name="team-card-mode" checked={extended === value} onChange={() => setExtended(value)} disabled={exporting || value && !hasExtended}/><strong>{value ? 'Geniş' : 'Standart'}</strong></label>)}</div></fieldset>
+      {!hasExtended && <small>Geniş kart üçün dərc edilmiş heyət və ya statistika yoxdur.</small>}
+      <div className="share-card-options"><Checkbox checked={showMaps} disabled={!hasMaps || exporting} onChange={event => setShowMaps(event.target.checked)} label="Xəritə statistikasını daxil et"/>{!hasMaps && <small>Xəritə statistikası hələ dərc edilməyib.</small>}<Checkbox checked={showQr} disabled={exporting} onChange={event => setShowQr(event.target.checked)} label="QR kodu göstər"/></div>
+      {warning && <p role="status">{warning}</p>}
+      {error && <p role="alert">{error} <button type="button" onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</button></p>}
+      <Button loading={exporting} disabled={!ready} icon={<Download size={18}/>} onClick={() => void download()}>PNG yüklə</Button>
+      <small>{teamIdentityCardSizes[format].width} × {teamIdentityCardSizes[format].height} · PNG · İctimai profil</small>
+    </aside>
+  </div>;
 }

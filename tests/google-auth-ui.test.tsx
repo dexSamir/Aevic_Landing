@@ -21,3 +21,12 @@ it('a linked identity does not ask for a password again',async()=>{
  window.history.replaceState({},'','/login?google=continue');request.mockImplementation((path:string)=>Promise.resolve(path.endsWith('/status')?{enabled:true}:{email:'captain@example.com',mode:'login'}));
  render(<GoogleAuth/>);expect(await screen.findByRole('button',{name:'Girişi tamamla'})).toBeEnabled();expect(screen.queryByLabelText('Mövcud AEVIC şifrəsi')).toBeNull();
 });
+it('surfaces provider availability failure instead of silently hiding the option',async()=>{
+ request.mockRejectedValue(new Error('offline'));render(<GoogleAuth/>);
+ expect(await screen.findByRole('alert')).toHaveTextContent('Google giriş seçimi yüklənmədi');
+});
+it('rejects a provider-start response that redirects outside Google',async()=>{
+ request.mockImplementation((path:string)=>Promise.resolve(path.endsWith('/status')?{enabled:true}:{url:'https://attacker.invalid/'}));
+ render(<GoogleAuth/>);fireEvent.click(await screen.findByRole('button',{name:'Google ilə davam et'}));
+ expect(await screen.findByRole('alert')).toHaveTextContent('Google girişi hazırda əlçatan deyil');
+});

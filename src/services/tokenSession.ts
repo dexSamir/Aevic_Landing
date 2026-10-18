@@ -15,7 +15,7 @@ export function createTokenTransport(root:string){
   pending=(async()=>{if(typeof navigator!=='undefined'&&navigator.locks){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20_000);try{await navigator.locks.request('aevic-refresh-v2',{signal:controller.signal},rotate);}finally{clearTimeout(timer);}}else await rotate();})().finally(()=>{pending=undefined;});
   return pending;
  }
- const publicPath=(path:string,method:string)=>/^\/auth\//.test(path)||path==='/registrations'||['GET','HEAD'].includes(method)&&/^\/(public|tournaments|matches|leaderboards|records|archive|search|sitemap|registrations)(\/|\?|$)/.test(path);
+ const publicPath=(path:string,method:string)=>/^\/auth\//.test(path)||path==='/registrations'||['GET','HEAD'].includes(method)&&(/^\/(public|tournaments|matches|leaderboards|records|archive|search|sitemap|registrations)(\/|\?|$)/.test(path)||/^\/teams\/[^/]+\/wrapped(?:\?|$)/.test(path));
  async function request<T>(path:string,options:RequestInit={},nullStatuses:number[]=[],timeout?:number,format:'json'|'blob'='json'):Promise<T>{
   if(options.signal?.aborted)throw new ApiError({status:0,kind:'abort'});
   const method=options.method??'GET',protectedRequest=!publicPath(path,method);

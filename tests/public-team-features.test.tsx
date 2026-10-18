@@ -9,7 +9,8 @@ import { deriveWrappedSummary, yearPeriod } from '../src/utils/wrapped';
 import { drawPublicTeamIdentityCard, teamIdentityCardBlob, loadCardImage } from '../src/utils/teamIdentityCard';
 vi.mock('../src/utils/teamIdentityCard', () => ({ loadCardImage: vi.fn().mockResolvedValue(undefined), drawPublicTeamIdentityCard: vi.fn(), teamIdentityCardBlob: vi.fn().mockResolvedValue(new Blob(['png'], { type: 'image/png' })) }));
 beforeEach(() => { clearQueryCache('all'); vi.mocked(loadCardImage).mockResolvedValue(undefined); vi.mocked(teamIdentityCardBlob).mockResolvedValue(new Blob(['png'], { type: 'image/png' })); });
-it('uses seasonal facts, supplied phone, current identity and clipboard fallback', async () => {
+vi.mock('../src/components/profile/ProfileCardGenerator', () => ({ProfileCardGenerator: () => <div>Export controls</div>}));
+it('uses seasonal facts and opens a public export studio before any download', async () => {
  const summary = { ...deriveWrappedSummary({ team: currentTeam, period: yearPeriod(2026), matches: [] }), matches: 17, wwcd: 4, kills: 123 };
  vi.spyOn(services.wrapped, 'forTeam').mockResolvedValue(summary);
  const copy = vi.fn().mockResolvedValue(undefined);
@@ -24,7 +25,8 @@ it('uses seasonal facts, supplied phone, current identity and clipboard fallback
  expect(view.container.querySelector('.public-team-wrapped img')).toHaveAttribute('src', expect.stringContaining('team-wrapped-phone-1024.webp'));
  await waitFor(() => expect(drawPublicTeamIdentityCard).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ teamName: currentTeam.name, teamTag: currentTeam.tag }), expect.anything()));
  fireEvent.click(screen.getByRole('button', { name: 'Paylaş', exact: true }));
- expect(await screen.findByRole('status')).toHaveTextContent('Profil keçidi kopyalandı');
- expect(copy).toHaveBeenCalledWith(expect.stringContaining('/teams/caspian-wolves'));
- expect(teamIdentityCardBlob).toHaveBeenCalled();
+ expect(await screen.findByRole('dialog', {name:'Komanda kartını hazırla'})).toBeInTheDocument();
+ expect(await screen.findByText('Export controls')).toBeInTheDocument();
+ expect(copy).not.toHaveBeenCalled();
+ expect(teamIdentityCardBlob).not.toHaveBeenCalled();
 });
