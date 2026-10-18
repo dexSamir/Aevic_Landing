@@ -11,7 +11,7 @@ afterEach(() => { clearQueryCache('all'); vi.useRealTimers(); vi.unstubAllGlobal
 describe('bounded read retries', () => {
   it('keeps manual retry disabled until the server cooldown expires', async () => {
     vi.useFakeTimers(); const query=vi.fn().mockRejectedValueOnce(new ApiError({status:429,kind:'rate-limit',retryAfterMs:3000})).mockResolvedValue('ready');
-    const hook=renderHook(()=>usePlatformQuery({key:'cooldown-test',query}));
+    const hook=renderHook(()=>usePlatformQuery({key:'cooldown-test',query,retry:0}));
     await act(async()=>{await vi.advanceTimersByTimeAsync(0);}); expect(hook.result.current.retryAfterSeconds).toBe(3);
     act(()=>hook.result.current.refetch()); expect(query).toHaveBeenCalledTimes(1);
     await act(async()=>{await vi.advanceTimersByTimeAsync(3000);}); expect(hook.result.current.retryAfterSeconds).toBe(0);
@@ -40,7 +40,7 @@ describe('bounded read retries', () => {
     expect(retryAfterMilliseconds('1')).toBe(1000); expect(retryAfterMilliseconds('invalid')).toBeUndefined();
     expect(retryAfterMilliseconds('Thu, 01 Jan 1970 00:00:02 GMT',1000)).toBe(1000);
     expect(queryRetryDelay(new ApiError({status:429,kind:'rate-limit',retryAfterMs:1000}),0,()=>0)).toBe(1000);
-    expect(queryRetryDelay(new ApiError({status:429,kind:'rate-limit',retryAfterMs:5000}),0)).toBeUndefined();
+    expect(queryRetryDelay(new ApiError({status:429,kind:'rate-limit',retryAfterMs:30000}),0)).toBeUndefined();
     expect(queryRetryDelay(new ApiError({status:200,kind:'server',code:'SNAPSHOT_INVALID'}),0)).toBeUndefined();
     const error=await apiErrorFromResponse(new Response('{}',{status:502,headers:{'content-type':'application/json','x-retryable':'false','retry-after':'1'}}));
     expect(error.retryable).toBe(false); expect(error.retryAfterMs).toBe(1000);
@@ -76,4 +76,63 @@ describe('explicit style ownership', () => {
     for(const name of ['public-pages','components']) expect(readFileSync(`src/styles/${name}.css`,'utf8')).not.toMatch(/\.tournament-calendar(?:\s|__|\s*\{)/);
     for(const name of ['primitives','FileUpload']) expect(readFileSync(`src/components/common/${name}.tsx`,'utf8')).toContain("import '../../styles/components.css'");
   });
+});
+
+describe('active API recovery contract', () => {
+  it.each([429,503])('automatically recovers after the API three-second cooldown (%i)', async status => {
+    vi.useFakeTimers();
+    const failure=await apiErrorFromResponse(new Response('{}',{status,headers:{'content-type':'application/json','retry-after':'3'}}));
+    const query=vi.fn().mockRejectedValueOnce(failure).mockResolvedValue('ready');
+    const pending=runReadQuery(query,new AbortController().signal,2);
+    await vi.advanceTimersByTimeAsync(2999); expect(query).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1); await expect(pending).resolves.toBe('ready');
+    expect(query).toHaveBeenCalledTimes(2);
+  });
+  it('allows a delayed cold public response beyond the old ten-second deadline', async () => {
+    vi.useFakeTimers();
+    const {createApiServices}=await import('../src/services/apiAdapter');
+    const snapshot={teams:[],tournaments:[],organizations:[],leaderboard:[],leaderboardTeams:[],playerPerformances:[],teamComparisonRecords:[],teamAchievements:[]};
+    vi.stubGlobal('fetch',vi.fn((_url,init)=>new Promise<Response>((resolve,reject)=>{
+      const timer=setTimeout(()=>resolve(Response.json(snapshot)),11_000);
+      init.signal.addEventListener('abort',()=>{clearTimeout(timer);reject(new DOMException('Aborted','AbortError'));},{once:true});
+    })));
+    const pending=createApiServices('/slow-api').snapshots.public();
+    const assertion=expect(pending).resolves.toEqual(snapshot);
+    await vi.advanceTimersByTimeAsync(11_000); await assertion;
+  });
+  it('expires last successful data during an outage without extending its age on refresh', async () => {
+    vi.useFakeTimers();
+    const query=vi.fn().mockResolvedValueOnce('real data').mockRejectedValue(new ApiError({status:0,kind:'network'}));
+    const hook=renderHook(()=>usePlatformQuery({key:'bounded-stale',scope:'public',query,retry:0,maxDataAge:5000}));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(0);});
+    expect(hook.result.current.data).toBe('real data');
+    await act(async()=>{await vi.advanceTimersByTimeAsync(1000);hook.result.current.refetch();});
+    expect(hook.result.current.data).toBe('real data'); expect(hook.result.current.error).toBeDefined();
+    await act(async()=>{await vi.advanceTimersByTimeAsync(4000);});
+    expect(hook.result.current.data).toBeUndefined(); expect(hook.result.current.loading).toBe(false);
+    query.mockResolvedValue('recovered');
+    await act(async()=>{hook.result.current.refetch();});
+    expect(hook.result.current.data).toBe('recovered'); hook.unmount();
+  });
+  it('does not cancel a pending read when a refresh timer or another consumer requests refresh', async () => {
+    let resolve!:(value:string)=>void;
+    const query=vi.fn((signal:AbortSignal)=>new Promise<string>(r=>{resolve=r;expect(signal.aborted).toBe(false);}));
+    const hook=renderHook(()=>usePlatformQuery({key:'pending-refresh',query}));
+    await act(async()=>{});
+    act(()=>hook.result.current.refetch());
+    expect(query).toHaveBeenCalledTimes(1);
+    await act(async()=>resolve('ready'));
+    expect(hook.result.current.data).toBe('ready'); hook.unmount();
+  });
+});
+
+it('preserves long server cooldowns across navigation without caching a rejected promise', async () => {
+ vi.useFakeTimers();
+ const query=vi.fn().mockRejectedValueOnce(new ApiError({status:429,kind:'rate-limit',retryAfterMs:30_000})).mockResolvedValue('recovered');
+ const mount=()=>renderHook(()=>usePlatformQuery({key:'navigation-cooldown',scope:'public',query}));
+ const first=mount();await act(async()=>{});expect(first.result.current.loading).toBe(false);first.unmount();
+ const second=mount();await act(async()=>{});
+ act(()=>second.result.current.refetch());expect(query).toHaveBeenCalledTimes(1);expect(second.result.current.retryAfterSeconds).toBe(30);
+ await act(async()=>{await vi.advanceTimersByTimeAsync(30_000);});
+ await act(async()=>second.result.current.refetch());expect(second.result.current.data).toBe('recovered');second.unmount();
 });

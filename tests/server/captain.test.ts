@@ -65,3 +65,12 @@ describe('existing media and authorized uploads',()=>{
  it('serves resolved images and verifies ownership before touching storage',async()=>{const bytes=await sharp({create:{width:10,height:7,channels:4,background:'red'}}).png().toBuffer();const upload=vi.fn(async()=>({id:'fixture-image',url:`${config.supabaseUrl}/storage/v1/object/public/fixture/new.png`}));const application=createApp(config,{}, {store,mailer,now:()=>clock,media:{upload,read:async()=>({bytes,type:'image/png'})}});const res=await application.request('/api/media/f7b98b59-32ca-4577-a3e5-84f7185b3e22');expect(res.headers.get('content-type')).toBe('image/png');expect(Buffer.from(await res.arrayBuffer())).toEqual(bytes);expect((await application.request('/api/media/aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa')).status).toBe(404);
   const send=async(id:string,kind:string,slot='')=>{const body=new FormData();body.set('ownerId',id);body.set('assetType',kind);body.set('slot',slot);body.set('file',new File([bytes],'photo.png',{type:'image/png'}));return application.request('/api/media/uploads',{method:'POST',headers:{origin:config.siteUrl,cookie:cookie()},body});};expect((await send('7','logo')).status).toBe(403);expect(upload).not.toHaveBeenCalled();expect((await send('2','logo')).status).toBe(201);expect((await send('2','player-photo','3')).status).toBe(201);expect(store.rows.get('2')!.player3_photo_url).toContain('new.png');expect(store.rows.get('7')!.logo_url).toContain('/api/media/');});
 });
+
+it('keeps the captain cookie when logout revocation fails',async()=>{
+ const currentCookie=cookie();
+ const failure=vi.spyOn(store,'ready').mockRejectedValueOnce(Object.assign(new Error('(EMAXCONNSESSION) pool full'),{code:'XX000'}));
+ try{
+  const response=await app().request('/api/auth/logout',{method:'POST',headers:{origin:config.siteUrl,cookie:currentCookie}});
+  expect(response.status).toBe(503);expect(response.headers.get('set-cookie')).toBeNull();
+ }finally{failure.mockRestore();}
+});

@@ -35,3 +35,18 @@ it('does not send an already cancelled mutation or leak credentials on public pr
  const fetcher=vi.fn();vi.stubGlobal('fetch',fetcher);const controller=new AbortController();controller.abort();
  await expect(createTokenTransport('/api').request('/media/uploads',{method:'POST',signal:controller.signal})).rejects.toMatchObject({kind:'abort'});expect(fetcher).not.toHaveBeenCalled();
 });
+
+it('retains access credentials across a refresh outage and recovers without logging in again',async()=>{
+ let rotations=0,reads=0;
+ const authorization:string[]=[];
+ vi.stubGlobal('fetch',vi.fn(async(url:string,options:RequestInit)=>{
+  if(url.endsWith('/auth/refresh')){rotations++;return rotations===2?Response.json({code:'SERVICE_UNAVAILABLE'},{status:503}):Response.json(envelope());}
+  reads++;authorization.push(new Headers(options.headers).get('authorization')??'');
+  return reads<=2?Response.json({code:'ACCESS_EXPIRED'},{status:401}):Response.json({ok:true});
+ }));
+ const transport=createTokenTransport('/api');
+ await expect(transport.request('/me/session')).rejects.toMatchObject({status:503});
+ await expect(transport.request('/me/session')).resolves.toEqual({ok:true});
+ expect(rotations).toBe(3);expect(authorization).toEqual(Array(3).fill('Bearer fixture-memory-token'));
+ transport.dispose();
+});

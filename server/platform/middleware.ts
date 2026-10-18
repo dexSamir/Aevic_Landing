@@ -35,6 +35,12 @@ export function platformMiddleware(testSql?:Sql){
   let store:PostgresCaptainStore|undefined;
   if(config.databaseUrl){store=stores.get(config.databaseUrl);if(!store){store=new PostgresCaptainStore(config.databaseUrl,!config.secureCookies);stores.set(config.databaseUrl,store);}}
   const sql=testSql??store!.sql;
+  // Legacy negotiation neither reads nor rotates credentials. Do not make this
+  // no-op depend on pool capacity; the subsequent session read still verifies
+  // the signed cookie, revocation, MFA and account state normally.
+  if(c.req.method==='POST'&&c.req.path==='/api/auth/refresh'&&tokenMode(c)==='legacy'){
+   c.set('platform',new PlatformRepository(c.get('db'),sql,{}));return next();
+  }
   if(!['GET','HEAD','OPTIONS'].includes(c.req.method)&&/^\/api\/(auth|registrations|me\/2fa)(\/|$)/.test(c.req.path))await persistentLimit(c,sql,'security-ip',c.req.header('x-nf-client-connection-ip')??'local',60);
   // Public reads must not depend on session state or maintenance writes.
   const publicRead=['GET','HEAD'].includes(c.req.method)&&/^\/api\/(public(?:\/|$)|tournaments(?:\/|$)|matches(?:\/|$)|leaderboards(?:\/|$)|records(?:\/|$)|archive$|search$|sitemap)/.test(c.req.path);

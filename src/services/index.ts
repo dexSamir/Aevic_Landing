@@ -32,7 +32,7 @@ services.auth.getSession = async (signal) => {
     void read.promise.finally(() => { if (sessionRead === read) sessionRead = undefined; }).catch(() => {});
   }
   try { const session = await observeSession(sessionRead.promise,signal); if(revision===identityRevision)synchronizeSessionCache(session ? `${session.user.id}:${session.role}` : null); return revision===identityRevision?session:services.auth.getSession(signal); }
-  catch (error) { if(revision===identityRevision && error instanceof ApiError && [401,403].includes(error.status)){synchronizeSessionCache(null);clearQueryCache();} throw error; }
+  catch (error) { if(revision===identityRevision && error instanceof ApiError && error.status===401){synchronizeSessionCache(null);clearQueryCache();} throw error; }
 };
 services.auth.login = async (...args) => { identityRevision++; const session = await auth.login(...args); synchronizeSessionCache(`${session.user.id}:${session.role}`); channel?.postMessage('changed'); notifyIdentity(); return session; };
 services.auth.logout = async () => {

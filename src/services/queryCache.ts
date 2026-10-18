@@ -3,10 +3,18 @@ import { safeQueryError, type ApiError } from './apiError';
 import { runReadQuery } from './queryRetry';
 
 type Scope = 'public' | 'private';
-type CacheEntry<T> = { data: T; updatedAt: number };
+type CacheEntry<T> = { data: T; updatedAt: number; invalidated?: boolean };
 type InFlightEntry<T> = { promise: Promise<T>; controller: AbortController; observers: number };
 const cache = new Map<string, CacheEntry<unknown>>();
 const inFlight = new Map<string, InFlightEntry<unknown>>();
+// Cooldown metadata survives navigation; failed promises and response data do not.
+const cooldowns = new Map<string, ApiError>();
+function cooldownFor(key: string) {
+  for (const [id, error] of cooldowns) {
+    if (Date.now() >= Date.parse(error.timestamp) + (error.retryAfterMs ?? 0)) cooldowns.delete(id);
+  }
+  return cooldowns.get(key);
+}
 let privateEpoch = 0;
 let publicEpoch = 0;
 const listeners = new Set<() => void>();
@@ -23,6 +31,7 @@ export const queryPolicy = {
 export function clearQueryCache(scope: Scope | 'all' = 'private') {
   const matches = (key: string) => scope === 'all' || key.startsWith(scope + ':');
   for (const key of cache.keys()) if (matches(key)) cache.delete(key);
+  for (const key of cooldowns.keys()) if (matches(key)) cooldowns.delete(key);
   for (const [key, pending] of inFlight) if (matches(key)) { pending.controller.abort(); inFlight.delete(key); }
   if (scope !== 'public') privateEpoch += 1;
   if (scope !== 'private') publicEpoch += 1;
@@ -36,7 +45,7 @@ export function synchronizeSessionCache(identity: string | null) {
 export function invalidateQuery(prefix: string) {
   for (const key of new Set([...cache.keys(), ...inFlight.keys()])) {
     if (!key.slice(key.indexOf(':') + 1).startsWith(prefix)) continue;
-    const stale = cache.get(key); if (stale) cache.set(key, { ...stale, updatedAt: 0 });
+    const stale = cache.get(key); if (stale) cache.set(key, { ...stale, invalidated: true });
     inFlight.get(key)?.controller.abort(); inFlight.delete(key);
     keyVersions.set(key, (keyVersions.get(key) ?? 0) + 1);
   }
@@ -56,9 +65,9 @@ export function updateCachedQuery<T>(key: string, update: (value: T) => T, scope
 
 export function usePlatformQuery<T>(options: {
   key: string; query: (signal: AbortSignal) => Promise<T>;
-  scope?: Scope; staleTime?: number; enabled?: boolean; retry?: number; refetchOnFocus?: boolean;
+  scope?: Scope; staleTime?: number; enabled?: boolean; retry?: number; refetchOnFocus?: boolean; maxDataAge?: number;
 }) {
-  const { key, query, scope = 'private', staleTime = queryPolicy.publicCompetition, enabled = true, retry = 1, refetchOnFocus = true } = options;
+  const { key, query, scope = 'private', staleTime = queryPolicy.publicCompetition, enabled = true, retry = 1, refetchOnFocus = true, maxDataAge = Infinity } = options;
   const cacheKey = scope + ':' + key;
   const epoch = useSyncExternalStore(subscribe, () => versionFor(scope, cacheKey), () => '0/0');
   const stateKey = cacheKey + ':' + epoch;
@@ -76,15 +85,15 @@ export function usePlatformQuery<T>(options: {
   }, [retryAt]);
   // Manual retries also respect a server cooldown; no consumer can bypass it.
   const refetch = useCallback(() => {
-    if (Date.now() < retryAt) return;
+    if (Date.now() < retryAt || cooldownFor(cacheKey) || inFlight.has(cacheKey)) return;
     const entry = cache.get(cacheKey);
-    if (entry) cache.set(cacheKey, { ...entry, updatedAt: 0 });
+    if (entry) cache.set(cacheKey, { ...entry, invalidated: true });
     setAttempt((n) => n + 1);
   }, [cacheKey, retryAt]);
 
   useEffect(() => {
     if (!enabled || !refetchOnFocus) return;
-    const onFocus = () => { const entry = cache.get(cacheKey); if (!entry || Date.now() - entry.updatedAt >= staleTime) refetch(); };
+    const onFocus = () => { const entry = cache.get(cacheKey); if (!entry || entry.invalidated || Date.now() - entry.updatedAt >= staleTime) refetch(); };
     window.addEventListener('focus', onFocus);
     window.addEventListener('online', onFocus);
     return () => { window.removeEventListener('focus', onFocus); window.removeEventListener('online', onFocus); };
@@ -93,7 +102,9 @@ export function usePlatformQuery<T>(options: {
   useEffect(() => {
     if (!enabled) { setState({ key: stateKey, loading: false }); return; }
     const entry = cache.get(cacheKey) as CacheEntry<T> | undefined;
-    if (entry && Date.now() - entry.updatedAt < staleTime) { setState({ key: stateKey, data: entry.data, loading: false }); return; }
+    if (entry && !entry.invalidated && Date.now() - entry.updatedAt < staleTime) { setState({ key: stateKey, data: entry.data, loading: false }); return; }
+    const cooldown = cooldownFor(cacheKey);
+    if (cooldown) { setState({ key: stateKey, data: entry?.data, loading: false, error: cooldown }); return; }
     let active = true;
     setState({ key: stateKey, data: entry?.data, loading: true });
     let pending = inFlight.get(cacheKey) as InFlightEntry<T> | undefined;
@@ -101,7 +112,11 @@ export function usePlatformQuery<T>(options: {
       const controller = new AbortController();
       const execute = () => runReadQuery((signal) => queryRef.current(signal), controller.signal, retry);
       const created: InFlightEntry<T> = { promise: Promise.resolve().then(execute), controller, observers: 0 };
-      created.promise = created.promise.finally(() => { if (inFlight.get(cacheKey) === created) inFlight.delete(cacheKey); });
+      created.promise = created.promise.catch(error => {
+        const failure = safeQueryError(error);
+        if (!controller.signal.aborted && failure.retryable && (failure.retryAfterMs ?? 0) > 0) cooldowns.set(cacheKey, failure);
+        throw error;
+      }).finally(() => { if (inFlight.get(cacheKey) === created) inFlight.delete(cacheKey); });
       pending = created; inFlight.set(cacheKey, created);
     }
     const owned = pending;
@@ -131,7 +146,17 @@ export function usePlatformQuery<T>(options: {
   // Key/identity changes hide the old value during render, before effects run.
   const refreshed = enabled ? cache.get(cacheKey) as CacheEntry<T> | undefined : undefined;
   const current = state.key === stateKey && enabled ? state : refreshed ? { data: refreshed.data, loading: false, error: undefined } : { loading: enabled, data: undefined, error: undefined };
-  return { data: current.data, loading: current.loading && current.data === undefined,
-    refreshing: current.loading && current.data !== undefined, error: current.error, refetch,
+  // Invalidation must not reset the age of the last successful response.
+  // Expire visible stale data even when the tab stays mounted and offline.
+  const [, expire] = useState(0);
+  const expiresAt = refreshed ? refreshed.updatedAt + maxDataAge : Infinity;
+  useEffect(() => {
+    if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return;
+    const timer = window.setTimeout(() => expire(n => n + 1), expiresAt - Date.now());
+    return () => window.clearTimeout(timer);
+  }, [expiresAt]);
+  const data = Date.now() >= expiresAt ? undefined : current.data;
+  return { data, loading: current.loading && data === undefined,
+    refreshing: current.loading && data !== undefined, error: current.error, refetch,
     retryAfterSeconds: Math.max(0, Math.ceil((retryAt - retryClock) / 1000)) };
 }

@@ -61,7 +61,7 @@ export function captainRoutes(deps:CaptainDependencies={}) {
   }
   try{const auth=service(c);const row=await auth.authenticate(cookie(c));return c.json(c.get('platform')?{user:accountUser(row),role:'captain'}:auth.sessionView(row));}catch(error){if(error instanceof ServiceError&&error.status===401){clear(c);return c.json(null);}throw error;}
  });
- app.post('/auth/logout',async c=>{try{if(cookie(c)){if(c.get('platform'))await c.get('platform')!.sql`update aevic_platform.sessions set revoked_at=now() where token_digest=${tokenDigest(cookie(c)!)} and revoked_at is null`;else await service(c).logout(cookie(c));}}finally{clear(c);}return c.body(null,204);});
+ app.post('/auth/logout',async c=>{if(cookie(c)){if(c.get('platform'))await c.get('platform')!.sql`update aevic_platform.sessions set revoked_at=now() where token_digest=${tokenDigest(cookie(c)!)} and revoked_at is null`;else await service(c).logout(cookie(c));}clear(c);return c.body(null,204);});
  app.post('/auth/password-reset',async c=>{
   attempt(c,'reset');const input=await body(c,z.object({email}).strict());
   // Sender setup is checked for every request, independently of account existence.

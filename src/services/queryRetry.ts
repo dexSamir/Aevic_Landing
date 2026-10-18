@@ -5,7 +5,7 @@ export function queryRetryDelay(error: unknown, failure: number, random = Math.r
   const safe = safeQueryError(error);
   if (!safe.retryable) return undefined;
   // Long server cooldowns need an explicit later retry, not a long homepage spinner.
-  if ((safe.retryAfterMs ?? 0) > 1500) return undefined;
+  if ((safe.retryAfterMs ?? 0) > 5_000) return undefined;
   return Math.max(safe.retryAfterMs ?? 0, Math.min(1200, 300 * 2 ** failure + random() * 300));
 }
 

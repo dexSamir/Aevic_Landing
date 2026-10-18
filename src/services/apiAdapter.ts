@@ -40,7 +40,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       review: (id,decision,evidenceRef,expectedVersion) => request(`/admin/legacy-claims/${encodeURIComponent(id)}/review`,{method:'POST',body:{decision,evidenceRef,expectedVersion}}),
     },
     snapshots: {
-      public: async (signal) => validatePublicSnapshot(await request('/public/context', { signal })),
+      public: async (signal) => validatePublicSnapshot(await request('/public/context', { signal, timeoutMs: 30_000 })),
       team: (signal) => request('/me/context', { signal }),
       admin: (signal) => request('/admin/context', { signal }),
     },

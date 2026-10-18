@@ -120,3 +120,61 @@ it('reuses only the captain identity verified in this request without repeating 
  expect(response.status).toBe(200);expect(await response.json()).toMatchObject({role:'captain',user:{id:'16'}});
  expect(store.ready).not.toHaveBeenCalled();expect(store.byId).not.toHaveBeenCalled();
 });
+
+it('shares only anonymous public snapshots, expires them, and discards failed reads', async () => {
+ const {PublicContextRepository}=await import('../../server/platform/public-context');
+ vi.useFakeTimers();
+ try {
+  const sql={} as Sql;
+  const make=()=>{
+   const repo=new PublicContextRepository({} as DbClient,sql);
+   vi.spyOn(repo,'teams').mockResolvedValue([]);
+   vi.spyOn(repo,'tournaments').mockResolvedValue([]);
+   vi.spyOn(repo,'standings').mockResolvedValue([]);
+   vi.spyOn(repo,'comparisons').mockResolvedValue([]);
+   vi.spyOn(repo,'rows').mockResolvedValue([]);
+   return repo;
+  };
+  const first=make(),second=make();
+  const values=await Promise.all([first.snapshot(),second.snapshot()]);
+  expect(values[0]).toEqual(values[1]); expect(values[0].teams).toEqual([]);
+  expect(first.tournaments).toHaveBeenCalledTimes(1);expect(second.teams).not.toHaveBeenCalled();
+  await second.snapshot();expect(second.teams).not.toHaveBeenCalled();
+  vi.advanceTimersByTime(30_000);
+  vi.mocked(second.teams).mockRejectedValueOnce(Object.assign(new Error('pool unavailable'),{code:'XX000'}));
+  await expect(second.snapshot()).rejects.toMatchObject({code:'XX000'});
+  const recovered=make();await expect(recovered.snapshot()).resolves.toMatchObject({teams:[]});
+  expect(recovered.tournaments).toHaveBeenCalledTimes(1);
+  const privateRepo=new PublicContextRepository({} as DbClient,sql,{teamId:'private'});
+  await expect(privateRepo.snapshot()).rejects.toMatchObject({status:403});
+ } finally { vi.useRealTimers(); }
+});
+
+it('identifies Supavisor session exhaustion in private logs without exposing upstream text', async () => {
+ const log=vi.spyOn(console,'error').mockImplementation(()=>{});
+ try {
+  const app=createHttpApp(config,{});
+  app.get('/public/context',()=>{throw Object.assign(new Error('(EMAXCONNSESSION) private upstream details'),{code:'XX000'});});
+  const response=await app.request('/api/public/context');
+  expect(response.status).toBe(503);expect(response.headers.get('retry-after')).toBe('3');
+  expect(JSON.parse(log.mock.calls[0][0])).toMatchObject({databaseFailure:'EMAXCONNSESSION'});
+  expect(JSON.stringify(log.mock.calls)).not.toContain('private upstream');
+  expect(await response.text()).not.toContain('EMAXCONNSESSION');
+ } finally {log.mockRestore();}
+});
+
+it('negotiates legacy mode without database work while preserving protected cookie checks',async()=>{
+ const {default:tokens}=await import('../../server/auth/token-routes');
+ const {app,sql}=fixture();app.route('/',tokens);
+ const response=await app.request('/api/auth/refresh',{method:'POST',headers:{origin:config.siteUrl}});
+ expect(response.status).toBe(200);expect(await response.json()).toEqual({sessionMode:'legacy'});
+ expect(sql).not.toHaveBeenCalled();expect(sql.begin).not.toHaveBeenCalled();
+});
+it('returns a retryable outage without deleting credentials when protected validation hits pool exhaustion',async()=>{
+ const sql=Object.assign(vi.fn(async()=>{throw Object.assign(new Error('(EMAXCONNSESSION) pool full'),{code:'XX000'});}),{begin:vi.fn(async()=>{})});
+ const app=createHttpApp(config,{});app.route('/',platformMiddleware(sql as unknown as Sql));
+ app.get('/me/session',c=>c.json({unexpected:true}));
+ const response=await app.request('/api/me/session',{headers:{cookie:'__Host-aevic-admin=opaque'}});
+ expect(response.status).toBe(503);expect(response.headers.get('set-cookie')).toBeNull();expect(response.headers.get('retry-after')).toBe('3');
+ expect(await response.json()).toMatchObject({code:'SERVICE_UNAVAILABLE'});
+});

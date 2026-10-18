@@ -1,10 +1,38 @@
-import type { Team } from '../../src/types/domain';
+import type { PublicPlatformSnapshot, Team } from '../../src/types/domain';
 import { ServiceError } from '../errors';
 import { mapProductionTeam } from '../services/productionTeams';
 import { PlatformRepository, normalize } from './repository';
+import { summary } from '../services/data';
+import { organizations } from '../services/identity';
+
+// One anonymous snapshot per warm database pool. Never retain rejected reads.
+const snapshots = new WeakMap<object, { expiresAt: number; pending: Promise<PublicPlatformSnapshot> }>();
 
 /** Minimal, anonymous-only reads for the public snapshot, never private routes. */
 export class PublicContextRepository extends PlatformRepository {
+ async snapshot(): Promise<PublicPlatformSnapshot> {
+  if (Object.keys(this.actor).length) throw new ServiceError(403, 'FORBIDDEN');
+  const cached = snapshots.get(this.sql);
+  if (cached && Date.now() < cached.expiresAt) return cached.pending;
+  const entry = { expiresAt: Infinity, pending: Promise.resolve().then(async () => {
+   const [tournaments, teams, leaderboard, publicOrganizations, teamComparisonRecords] = await Promise.all([
+    this.tournaments(), this.teams(), this.standings(), organizations(this), this.comparisons(),
+   ]);
+   return { tournaments, teams: teams.map(summary), organizations: publicOrganizations, leaderboard,
+    leaderboardTeams: leaderboard.map(row => teams.find(team => team.id === row.teamId)?.name ?? ''),
+    playerPerformances: [], teamComparisonRecords, teamAchievements: [] };
+  }) };
+  snapshots.set(this.sql, entry);
+  try {
+   const value = await entry.pending;
+   entry.expiresAt = Date.now() + 30_000;
+   return value;
+  } catch (error) {
+   if (snapshots.get(this.sql) === entry) snapshots.delete(this.sql);
+   throw error;
+  }
+ }
+
  private contextTeams?: Promise<Team[]>;
  private contextTournaments?: Promise<Record<string,unknown>[]>;
 
