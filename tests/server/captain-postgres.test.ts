@@ -30,7 +30,7 @@ describe('existing bigint contract readiness', () => {
  it('shares a bounded non-pipelined pool between platform and auth stores',()=>{
   const first=store(),second=new PlatformAccountStore('postgres://fixture@db.nmjjibifcuzjlsvfcaaz.supabase.co/postgres');
   expect(first.sql).toBe(second.sql);
-  expect(vi.mocked(postgres).mock.calls[0][1]).toMatchObject({max:2,prepare:false,max_pipeline:1,max_lifetime:300});
+  expect(vi.mocked(postgres).mock.calls[0][1]).toMatchObject({max:1,prepare:false,max_pipeline:1,max_lifetime:300});
  });
  it('preserves the configured pooler endpoint in Lambda',()=>{
   vi.stubEnv('NETLIFY','true');

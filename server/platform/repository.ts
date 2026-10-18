@@ -61,15 +61,28 @@ export class PlatformRepository extends Repository {
   if(!this.teamCache.has(privateData))this.teamCache.set(privateData,this.readTeams(privateData));
   return this.teamCache.get(privateData)!;
  }
- private async readTeams(privateData:boolean):Promise<Team[]> {
+ override async team(id:string,privateData=false):Promise<Team> {
+  if (!/^[1-9]\d{0,18}$/.test(id)) return super.team(id,privateData);
+  if(privateData&&!this.actor.teamId&&!this.actor.adminId)throw new ServiceError(401,'UNAUTHORIZED');
+  const teams=await this.readTeams(privateData,id);
+  if(!teams[0])throw new ServiceError(404,'TEAM_NOT_FOUND');
+  return teams[0];
+ }
+ private async readTeams(privateData:boolean,id?:string):Promise<Team[]> {
   const projection=publicColumns+(privateData?',captain_name,captain_contact,email,rejection_reason':'');
   // Approval controls competition eligibility, not whether a public identity exists.
   // Explicit moderation/archival still hides a team; account claiming is irrelevant.
   const started=performance.now();
-  const rows=normalize(await this.sql.unsafe(`select ${projection} from public.teams where ($1::boolean or status in ('pending','approved') or id=$2::bigint) order by id`,[Boolean(this.actor.adminId),this.actor.teamId??null]));
+  const rows=normalize(await this.sql.unsafe(`select ${projection} from public.teams where ($1::boolean or status in ('pending','approved') or id=$2::bigint) and ($3::bigint is null or id=$3::bigint) order by id`,[Boolean(this.actor.adminId),this.actor.teamId??null,id??null]));
   this.metrics.teamQueries++;this.metrics.teamQueryMs+=performance.now()-started;this.metrics.teamRows=rows.length;
-  const [details,links,players,verified]=await Promise.all([this.rows('team_details'),this.rows('organization_teams'),this.sql`select team_id::text,slot,pubg_id,role from aevic_platform.player_details`,this.sql`select team_id::text from aevic_platform.verification_requests where status='APPROVED'`]);
-  return rows.map((r):Team=>{const team=privateData&&(this.actor.adminId||r.id===(this.actor.accountId??this.actor.teamId))?privateTeam(r as CaptainRow):mapProductionTeam(r);const d=details.find(x=>x.team_id===r.id)??{};
+  // Scope supporting reads too: a private bootstrap must not scan every roster.
+  const [details,links,players,verified]=await Promise.all([
+   id?this.sql`select team_id::text,description,tag,banner_url,banner_alt,country,founded_at,social_links,archived_at,legacy_history_incomplete from aevic_platform.team_details where team_id=${id}`:this.rows('team_details'),
+   id?this.sql`select team_id::text,organization_id from aevic_platform.organization_teams where team_id=${id}`:this.rows('organization_teams'),
+   this.sql`select team_id::text,slot,pubg_id,role from aevic_platform.player_details where (${id??null}::bigint is null or team_id=${id??null})`,
+   this.sql`select team_id::text from aevic_platform.verification_requests where status='APPROVED' and (${id??null}::bigint is null or team_id=${id??null})`
+  ]);
+  return rows.map((r):Team=>{const team=privateData&&(this.actor.adminId||r.id===(this.actor.accountId??this.actor.teamId))?privateTeam(r as CaptainRow):mapProductionTeam(r);const d=normalize(details).find(x=>x.team_id===r.id)??{};
    return {...team,legacyHistoryIncomplete:Boolean(d.legacy_history_incomplete??true),verificationLevel:verified.some(v=>v.team_id===r.id)?'verified':team.verificationLevel,roster:team.roster.map(p=>{const meta=players.find(d=>`${d.team_id}:player${d.slot}`===p.id);return {...p,uid:meta?.pubg_id??undefined,role:meta?.role??p.role};}),description:String(d.description??''),tag:d.tag?String(d.tag):undefined,bannerUrl:d.banner_url?String(d.banner_url):undefined,bannerAlt:d.banner_alt?String(d.banner_alt):undefined,country:d.country?String(d.country):undefined,foundedAt:d.founded_at?String(d.founded_at).slice(0,10):undefined,socialLinks:d.social_links as Team['socialLinks']??{},archivedAt:d.archived_at?String(d.archived_at):undefined,gameKey:'pubg-mobile',organizationId:links.find(l=>l.team_id===r.id)?.organization_id as string|undefined,organizationRelationship:links.some(l=>l.team_id===r.id)?'owned':'independent'};
   }).filter(t=>!t.archivedAt||this.actor.adminId||t.id===this.actor.teamId);
  }

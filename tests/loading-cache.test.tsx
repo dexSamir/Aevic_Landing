@@ -61,3 +61,10 @@ it('refreshes an expired entry on revisit and never reuses public data beyond it
  clock.mockReturnValue(now+61000);const next=render(<Probe query={query}/>);await screen.findByText('new public');expect(query).toHaveBeenCalledTimes(2);next.unmount();
  clock.mockReturnValue(now+362000);render(<Probe query={query}/>);expect(screen.queryByText('new public')).toBeNull();await screen.findByText('failed');expect(screen.queryByText('new public')).toBeNull();clock.mockRestore();
 });
+
+it('suppresses remount storms for infrastructure failures without Retry-After',async()=>{
+ const query=vi.fn().mockRejectedValue(new ApiError({status:504,kind:'timeout'}));
+ const first=render(<Probe query={query}/>);await screen.findByText('failed');first.unmount();
+ for(let i=0;i<5;i++){const next=render(<Probe query={query}/>);await screen.findByText('failed');next.unmount();}
+ expect(query).toHaveBeenCalledTimes(1);
+});

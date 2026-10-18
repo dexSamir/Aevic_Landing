@@ -1,4 +1,5 @@
 import postgres from 'postgres';
+import {boundedSql} from './bounded-sql';
 import type {CaptainRow,CaptainStore,TeamPatch} from './store';
 import {ServiceError} from '../errors';
 import {databaseCa} from './database-ca';
@@ -16,12 +17,13 @@ export class PostgresCaptainStore implements CaptainStore {
   const local=allowLocal&&['localhost','127.0.0.1'].includes(u.hostname);
   if(!['postgres:','postgresql:'].includes(u.protocol)||!(local||u.hostname===`db.${ref}.supabase.co`||(u.hostname.endsWith('.pooler.supabase.com')&&decodeURIComponent(u.username).endsWith(`.${ref}`))))throw new ServiceError(503,'PRIVATE_DATABASE_NOT_CONFIGURED');
   // The configured endpoint selects the pooler mode. Rewriting 5432 to 6543
-  // caused concurrent queries to stall on the production Supavisor endpoint.
+  // is never changed implicitly; select transaction mode explicitly for serverless.
   const connectionUrl=url;
   // postgres 3.4.9 supports max_pipeline at runtime (missing from its TS options).
   // Bound queued work per connection and share one pool across the credential
-  // and platform adapters in each warm function.
-  this.sql=pools.get(connectionUrl)??postgres(connectionUrl,{ssl:local?false:{rejectUnauthorized:true,ca:databaseCa},max:2,prepare:false,...{max_pipeline:1},idle_timeout:20,max_lifetime:300,connect_timeout:10,onnotice:()=>{},connection:{application_name:'aevic-captain',statement_timeout:8000,lock_timeout:3000}});
+  // and platform adapters in each warm function. Across N runtimes this still
+  // permits N connections; session pooling cannot bound aggregate occupancy.
+  this.sql=pools.get(connectionUrl)??boundedSql(postgres(connectionUrl,{ssl:local?false:{rejectUnauthorized:true,ca:databaseCa},max:1,prepare:false,...{max_pipeline:1},idle_timeout:5,max_lifetime:300,connect_timeout:5,onnotice:()=>{},connection:{application_name:'aevic-captain',statement_timeout:8000,lock_timeout:3000}}));
   pools.set(connectionUrl,this.sql);
  }
  ready() {

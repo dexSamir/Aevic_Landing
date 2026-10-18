@@ -32,3 +32,27 @@ it('refuses private reads or use with an authenticated actor', () => {
  expect(()=>authenticated.teams()).toThrow();
  expect(sql).not.toHaveBeenCalled();
 });
+
+it('batches the full snapshot without changing public identity or capacity',async()=>{
+ const id='9007199254740993';
+ const sql=vi.fn(async()=>[{
+  teams:[{id,team_name:'Precise identity',status:'approved',created_at:'2026-01-01T00:00:00Z',player1_ign:'One'}],
+  tournaments:[{id:'tournament',name:'Published',status:'registration-open',context_used_slots:3,max_slots:16,days:1,rounds_per_day:1}],
+  results:[],organizations:[],links:[],
+ }]);
+ const repo=new PublicContextRepository({} as DbClient,sql as unknown as Sql);
+ const result=await repo.snapshot();
+ expect(result.teams[0]).toMatchObject({id,name:'Precise identity',rosterSize:1});
+ expect(result.tournaments[0]).toMatchObject({id:'tournament',usedSlots:3});
+ expect(result.teamComparisonRecords[0]).toMatchObject({teamId:id,matches:0});
+ expect(sql).toHaveBeenCalledTimes(1);
+ expect(sql.mock.calls[0]).toBeDefined();
+});
+
+it('does not grant an invalidated response the freshness budget of a newer load',async()=>{
+ const {invalidatePublicSnapshot}=await import('../../server/platform/public-context');
+ const sql=vi.fn(async()=>[{tournaments:[],teams:[],results:[],organizations:[],links:[]}]) as unknown as Sql;
+ const first=new PublicContextRepository({} as DbClient,sql);await first.snapshot();expect(first.freshnessSeconds()).toBeGreaterThan(0);
+ invalidatePublicSnapshot(sql);const next=new PublicContextRepository({} as DbClient,sql);await next.snapshot();
+ expect(first.freshnessSeconds()).toBe(0);expect(next.freshnessSeconds()).toBeGreaterThan(0);
+});

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { safeQueryError, type ApiError } from './apiError';
+import { safeQueryError, ApiError } from './apiError';
 import { runReadQuery } from './queryRetry';
 
 type Scope = 'public' | 'private';
@@ -8,12 +8,12 @@ type InFlightEntry<T> = { promise: Promise<T>; controller: AbortController; obse
 const cache = new Map<string, CacheEntry<unknown>>();
 const inFlight = new Map<string, InFlightEntry<unknown>>();
 // Cooldown metadata survives navigation; failed promises and response data do not.
-const cooldowns = new Map<string, ApiError>();
+const cooldowns = new Map<string, {error:ApiError;manualAllowed:boolean}>();
 function cooldownFor(key: string) {
-  for (const [id, error] of cooldowns) {
+  for (const [id, {error}] of cooldowns) {
     if (Date.now() >= Date.parse(error.timestamp) + (error.retryAfterMs ?? 0)) cooldowns.delete(id);
   }
-  return cooldowns.get(key);
+  return cooldowns.get(key)?.error;
 }
 let privateEpoch = 0;
 let publicEpoch = 0;
@@ -105,7 +105,8 @@ export function usePlatformQuery<T>(options: {
   }, [retryAt]);
   // Manual retries also respect a server cooldown; no consumer can bypass it.
   const refetch = useCallback(() => {
-    if (Date.now() < retryAt || cooldownFor(cacheKey) || inFlight.has(cacheKey)) return;
+    if (Date.now() < retryAt || (cooldownFor(cacheKey) && !cooldowns.get(cacheKey)?.manualAllowed) || inFlight.has(cacheKey)) return;
+    cooldowns.delete(cacheKey);
     const entry = cache.get(cacheKey);
     if (entry) cache.set(cacheKey, { ...entry, invalidated: true });
     setAttempt((n) => n + 1);
@@ -113,7 +114,7 @@ export function usePlatformQuery<T>(options: {
 
   useEffect(() => {
     if (!enabled || !refetchOnFocus) return;
-    const onFocus = () => { const entry = cache.get(cacheKey); if (!entry || entry.invalidated || Date.now() - entry.updatedAt >= staleTime) refetch(); };
+    const onFocus = () => { if(cooldownFor(cacheKey))return; const entry = cache.get(cacheKey); if (!entry || entry.invalidated || Date.now() - entry.updatedAt >= staleTime) refetch(); };
     window.addEventListener('focus', onFocus);
     window.addEventListener('online', onFocus);
     return () => { window.removeEventListener('focus', onFocus); window.removeEventListener('online', onFocus); };
@@ -134,7 +135,12 @@ export function usePlatformQuery<T>(options: {
       const created: InFlightEntry<T> = { promise: Promise.resolve().then(execute), controller, observers: 0 };
       created.promise = created.promise.catch(error => {
         const failure = safeQueryError(error);
-        if (!controller.signal.aborted && failure.retryable && (failure.retryAfterMs ?? 0) > 0) cooldowns.set(cacheKey, failure);
+        if (!controller.signal.aborted && failure.retryable) {
+          // Infrastructure responses do not always carry Retry-After (network/504).
+          // Keep a short navigation cooldown after the bounded retry budget ends.
+          cooldowns.set(cacheKey, {manualAllowed:!(failure.retryAfterMs && failure.retryAfterMs>0),error:new ApiError({ ...failure, message: failure.message,
+            retryAfterMs: Math.max(1000, (Date.parse(failure.timestamp) + (failure.retryAfterMs ?? 0)) - Date.now()) })});
+        }
         throw error;
       }).finally(() => { if (inFlight.get(cacheKey) === created) inFlight.delete(cacheKey); });
       pending = created; inFlight.set(cacheKey, created);

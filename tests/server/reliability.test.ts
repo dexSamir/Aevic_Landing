@@ -10,7 +10,7 @@ import { officialRecords } from '../../server/services/records';
 const config={supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'fixture-key',siteUrl:'https://fixture.test',secureCookies:true};
 // Isolated transport fixtures: no database or production calls.
 function fixture(){
- const sql=Object.assign(vi.fn(async()=>{throw new Error('private-session-secret');}),{begin:vi.fn(async()=>{throw new Error('optional-maintenance-secret');})});
+ const sql=Object.assign(vi.fn(async()=>{throw Object.assign(new Error('private-session-secret'),{code:'ECONNRESET'});}),{begin:vi.fn(async()=>{throw new Error('optional-maintenance-secret');})});
  const app=createHttpApp(config,{});app.route('/',platformMiddleware(sql as unknown as Sql));
  app.get('/public/context',c=>c.json({actor:c.get('platform')!.actor}));
  app.get('/me/session',c=>c.json({actor:c.get('platform')!.actor}));
@@ -127,7 +127,7 @@ it('shares only anonymous public snapshots, expires them, and discards failed re
  const {PublicContextRepository}=await import('../../server/platform/public-context');
  vi.useFakeTimers();
  try {
-  const sql={} as Sql;
+  const sql=vi.fn(async()=>[{tournaments:[],teams:[],results:[],organizations:[],links:[]}]) as unknown as Sql;
   const make=()=>{
    const repo=new PublicContextRepository({} as DbClient,sql);
    vi.spyOn(repo,'teams').mockResolvedValue([]);
@@ -203,4 +203,25 @@ it('reproduces the deployed origin mismatch and accepts only the corrected produ
   }
   expect((await post(app,path,{origin:production,'sec-fetch-site':'cross-site'})).status).toBe(403);
  }
+});
+
+it('classifies unexpected application exceptions as non-retryable internal errors',async()=>{
+ const app=createHttpApp(config,{});app.get('/broken',()=>{throw new TypeError('sensitive detail');});
+ const response=await app.request('/api/broken');expect(response.status).toBe(500);
+ expect(response.headers.get('x-retryable')).toBe('false');expect(await response.text()).not.toContain('sensitive');
+});
+it('serves anonymous CDN-cacheable context without caching private routes or failures',async()=>{
+ const {default:routes}=await import('../../server/routes/public');
+ const {PlatformRepository}=await import('../../server/platform/repository');
+ const sql=vi.fn(async()=>[{tournaments:[],teams:[],results:[],organizations:[],links:[]}]) as unknown as Sql;
+ const app=createHttpApp(config,{});
+ app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository({} as DbClient,sql,{}));await next();});
+ app.route('/',routes);
+ const responses=await Promise.all(Array.from({length:24},()=>app.request('/api/public/context',{headers:{authorization:'Bearer ignored-on-public',cookie:'private=ignored'}})));
+ for(const response of responses){expect(response.status).toBe(200);expect(response.headers.get('cache-control')).toBe('private, no-store');expect(response.headers.get('netlify-cdn-cache-control')).toMatch(/^public, durable, max-age=(29|30)$/);expect(response.headers.has('set-cookie')).toBe(false);}
+ expect(vi.mocked(sql).mock.calls.filter(args=>Array.isArray((args[0] as TemplateStringsArray)?.raw))).toHaveLength(1);
+ expect(responses.filter(r=>r.headers.get('x-public-cache')==='miss')).toHaveLength(1);
+ expect((await app.request('/api/me/team')).headers.has('netlify-cdn-cache-control')).toBe(false);
+ const failed=createHttpApp(config,{});failed.use('*',async(c,next)=>{c.set('platform',new PlatformRepository({} as DbClient,vi.fn(async()=>{throw Object.assign(Error(),{code:'53300'});}) as unknown as Sql,{}));await next();});failed.route('/',routes);
+ const error=await failed.request('/api/public/context');expect(error.status).toBe(503);expect(error.headers.has('netlify-cdn-cache-control')).toBe(false);
 });

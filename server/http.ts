@@ -1,3 +1,4 @@
+import {databaseMetrics} from './captain/bounded-sql';
 import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { ZodError } from 'zod';
@@ -12,11 +13,12 @@ export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=proces
  let firstRequest=true;
  app.use('*',async(c,next)=>{
   const started=performance.now(),coldStart=firstRequest;firstRequest=false;
-  await next();
+  const queries={queries:0,queryMs:0,timeouts:0,queueWaitMs:0};
+  await databaseMetrics.run(queries,()=>next());
   const durationMs=Math.round((performance.now()-started)*10)/10;
   c.header('Server-Timing',`app;dur=${durationMs}`);
   // Route templates only: never log URLs, query strings, bodies, cookies or errors.
-  console.info(JSON.stringify({event:'api_request',requestId:c.get('requestId'),route:c.req.routePath??'unmatched',method:c.req.method,status:c.res.status,durationMs,coldStart,version:/^[a-f0-9]{7,40}$/i.test(env.COMMIT_REF??'')?env.COMMIT_REF:/^[a-zA-Z0-9_-]{1,80}$/.test(env.DEPLOY_ID??'')?env.DEPLOY_ID:env.NETLIFY?'netlify-unknown':'local',code:c.get('operationalError'),database:c.get('platform')?.metrics,databaseFailure:c.get('databaseFailure')}));
+  console.info(JSON.stringify({event:'api_request',requestId:c.get('requestId'),route:c.req.routePath??'unmatched',method:c.req.method,status:c.res.status,durationMs,coldStart,version:/^[a-f0-9]{7,40}$/i.test(env.COMMIT_REF??'')?env.COMMIT_REF:/^[a-zA-Z0-9_-]{1,80}$/.test(env.DEPLOY_ID??'')?env.DEPLOY_ID:env.NETLIFY?'netlify-unknown':'local',code:c.get('operationalError'),queryTiming:queries,publicCache:c.res.headers.get('X-Public-Cache')??undefined,database:c.get('platform')?.metrics,databaseFailure:c.get('databaseFailure')}));
  });
  app.use('*',async(c,next)=>{
   c.set('requestId',crypto.randomUUID());c.header('X-Request-Id',c.get('requestId'));c.header('Cache-Control','private, no-store');c.header('X-Content-Type-Options','nosniff');c.header('Referrer-Policy','no-referrer');
@@ -34,15 +36,16 @@ export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=proces
  app.notFound(c=>c.json({code:'NOT_FOUND',message:'Məlumat tapılmadı.',requestId:c.get('requestId')},404));
  app.onError((error,c)=>{
   const databaseCode=error&&typeof error==='object'&&'code' in error?String(error.code):'';
-  const timedOut=['CONNECT_TIMEOUT','ETIMEDOUT','57014'].includes(databaseCode);
-  const e=error instanceof ZodError?new ServiceError(422,'VALIDATION_ERROR',Object.fromEntries(error.issues.map(i=>[i.path.join('.'),'Dəyəri yoxlayın.']))):error instanceof ServiceError?error:new ServiceError(timedOut?504:503,timedOut?'REQUEST_TIMEOUT':'SERVICE_UNAVAILABLE');
+  const timedOut=['CONNECT_TIMEOUT','ETIMEDOUT','57014','QUERY_TIMEOUT'].includes(databaseCode);
+  const transientDatabase=/^(?:08[A-Z0-9]{3}|53[A-Z0-9]{3}|57P0[123]|55P03|CONNECTION_(?:CLOSED|ENDED|DESTROYED)|POOL_QUEUE_FULL|ECONNRESET|ECONNREFUSED|EAI_AGAIN|ENOTFOUND|XX000)$/.test(databaseCode);
+  const e=error instanceof ZodError?new ServiceError(422,'VALIDATION_ERROR',Object.fromEntries(error.issues.map(i=>[i.path.join('.'),'Dəyəri yoxlayın.']))):error instanceof ServiceError?error:new ServiceError(timedOut?504:transientDatabase?503:500,timedOut?'REQUEST_TIMEOUT':transientDatabase?'SERVICE_UNAVAILABLE':'INTERNAL_ERROR');
   c.set('operationalError',e.code);
   // Allowlisted error codes only: never exception messages, SQL or connection URLs.
   const cause=error&&typeof error==='object'&&'code' in error?String(error.code):'';
-  if(['CONNECT_TIMEOUT','CONNECTION_CLOSED','CONNECTION_ENDED','CONNECTION_DESTROYED','ECONNRESET','ECONNREFUSED','ETIMEDOUT','57P01','57P02','57P03','53300','53400','57014','55P03','42501','42P01','42703','XX000'].includes(cause))c.set('databaseFailure',cause);
+  if(['POOL_QUEUE_FULL','QUERY_TIMEOUT','CONNECT_TIMEOUT','CONNECTION_CLOSED','CONNECTION_ENDED','CONNECTION_DESTROYED','ECONNRESET','ECONNREFUSED','ETIMEDOUT','57P01','57P02','57P03','53300','53400','57014','55P03','42501','42P01','42703','XX000'].includes(cause))c.set('databaseFailure',cause);
   // Supavisor reports session capacity as generic XX000; log only the
   // recognized marker, never the upstream message or connection credentials.
-  const poolCapacity = cause === 'XX000' && error.message.includes('EMAXCONNSESSION');
+  const poolCapacity = cause === 'XX000' && /EMAXCONNSESSION|MaxClientsInSessionMode/.test(error.message);
   if (poolCapacity) c.set('databaseFailure', 'EMAXCONNSESSION');
   if(e.status>=500){
    let database: {endpoint:string;port:string}|undefined;
@@ -51,7 +54,8 @@ export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=proces
    const errorCode=/^(?:[0-9A-Z]{5}|CONNECT_TIMEOUT|CONNECTION_CLOSED|CONNECTION_ENDED|CONNECTION_DESTROYED|ECONNRESET|ECONNREFUSED|ETIMEDOUT|ENOTFOUND|EAI_AGAIN|CERT_HAS_EXPIRED|DEPTH_ZERO_SELF_SIGNED_CERT|SELF_SIGNED_CERT_IN_CHAIN|UNABLE_TO_VERIFY_LEAF_SIGNATURE|ERR_TLS_CERT_ALTNAME_INVALID)$/.test(cause)?cause:undefined;
    console.error(JSON.stringify({event:'api_failure',requestId:c.get('requestId'),route:c.req.routePath??'unmatched',method:c.req.method,errorType,errorCode,databaseFailure:c.get('databaseFailure'),code:e.code,database,runtime:env.AWS_LAMBDA_FUNCTION_NAME?'lambda':env.NETLIFY?'netlify':'node'}));
   }
-  if(e.status===503)c.header('Retry-After','3');
+  if(e.status===503||e.status===504)c.header('Retry-After','3');
+  if(e.status===500)c.header('X-Retryable','false');
   if(/(?:NOT_CONFIGURED|CONTRACT_UNAVAILABLE|PERMISSIONS_UNSAFE)$/.test(e.code)||['42501','42P01','42703'].includes(cause))c.header('X-Retryable','false');
   // Deliberately no request body/error logging: auth, room and private fields can occur in errors.
   return c.json({code:e.code,message:e.status>=500?'Xidmət müvəqqəti əlçatan deyil.':'Sorğu tamamlanmadı.',fieldErrors:e.fieldErrors,requestId:c.get('requestId')},e.status);

@@ -15,7 +15,7 @@ function harness({ actor = 'fixture-team', failUpload = false, failPersistence=f
     const query = strings.join('?');
     if (/^(insert|update)/.test(query.trim())) writes.push({ query, values });
     return Promise.resolve([{ id: 'fixture-team' }]);
-  }, { json: (value: unknown) => value, begin: vi.fn(async (work: (tx: unknown) => Promise<unknown>) =>{if(failPersistence)throw new Error('isolated persistence failure');return work(sql);}) });
+  }, { json: (value: unknown) => value, begin: vi.fn(async (work: (tx: unknown) => Promise<unknown>) =>{if(failPersistence)throw Object.assign(new Error('isolated persistence failure'),{code:'ECONNRESET'});return work(sql);}) });
   const app = createHttpApp(config, {});
   app.use('*', async (c, next) => { c.set('platform', { actor: actor ? { teamId: actor } : {}, sql: sql as unknown as Sql } as PlatformRepository); await next(); });
   app.route('/', mediaRoutes);

@@ -48,7 +48,7 @@ export function platformMiddleware(testSql?:Sql){
   const publicRead=['GET','HEAD'].includes(c.req.method)&&/^\/api\/(public(?:\/|$)|tournaments(?:\/|$)|matches(?:\/|$)|leaderboards(?:\/|$)|records(?:\/|$)|archive$|search$|sitemap)/.test(c.req.path);
   // An anonymous session probe has no identity to resolve or sanctions to expire.
   // Keep cookie-bearing requests on the full authorization path.
-  const guestSession = ['GET','HEAD'].includes(c.req.method) && c.req.path === '/api/me/session' && !c.req.header('authorization') && !getCookie(c,adminCookieName(c)) && !currentCaptainCookie(c);
+  const guestSession = ['GET','HEAD'].includes(c.req.method) && c.req.path.startsWith('/api/me/') && !c.req.header('authorization') && !getCookie(c,adminCookieName(c)) && !currentCaptainCookie(c);
   if(publicRead || guestSession || c.req.method === 'GET' && (c.req.path === '/api/auth/google/status' || /^\/api\/teams\/[^/]+\/wrapped$/.test(c.req.path))){c.set('platform',new PlatformRepository(c.get('db'),sql,{}));return next();}
   // Expiry maintenance is optional. Coalesce it per warm runtime; a failure
   // leaves bans in force, but must not take login/media/session endpoints down.
@@ -68,7 +68,7 @@ export function platformMiddleware(testSql?:Sql){
     if(factor&&(!factor.mfa_verified_at||factor.mfa_verified_at<factor.enabled_at))throw new ServiceError(401,'MFA_REQUIRED');
     c.set('verifiedCaptain',row);
     identity.accountId=row.id;identity.teamId=row.id;
-    await sql`insert into aevic_platform.sessions(token_digest,team_id,expires_at,device) values(${tokenDigest(captainToken)},${row.id},to_timestamp(${Number(captainToken.split('.')[1])}),${(c.req.header('user-agent')??'Browser').slice(0,300)}) on conflict(token_digest) do update set last_active_at=case when aevic_platform.sessions.last_active_at<now()-interval '5 minutes' then now() else aevic_platform.sessions.last_active_at end`;
+    await sql`insert into aevic_platform.sessions(token_digest,team_id,expires_at,device) values(${tokenDigest(captainToken)},${row.id},to_timestamp(${Number(captainToken.split('.')[1])}),${(c.req.header('user-agent')??'Browser').slice(0,300)}) on conflict(token_digest) do update set last_active_at=now() where aevic_platform.sessions.last_active_at<now()-interval '5 minutes'`;
    }catch(error){if(error instanceof ServiceError&&['SESSION_REVOKED','MFA_REQUIRED'].includes(error.code)&&!c.req.path.startsWith('/api/auth/'))throw error;
     if(!(error instanceof ServiceError&&error.status===401))throw error;}
   }

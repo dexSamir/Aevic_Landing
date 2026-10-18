@@ -16,7 +16,12 @@ const app=new Hono<Env>();
 const repo=(c:ApiContext)=>c.get('platform')??new Repository(c.get('db'));
 const cached=<T,>(c:ApiContext,key:string,read:()=>Promise<T>)=>{const p=c.get('platform');return p?publicRead(p.sql,key,read):read();};
 const paramId=(c:ApiContext)=>z.union([z.uuid(),z.string().regex(/^[1-9]\d{0,18}$/)]).parse(c.req.param('id'));
-app.get('/public/context',async c=>{const platform=c.get('platform');const r=platform?new PublicContextRepository(c.get('db'),platform.sql):repo(c);if(r instanceof PublicContextRepository){c.set('platform',r);return c.json(await r.snapshot());}const [tournaments,teams,leaderboard,publicOrganizations,teamComparisonRecords]=await Promise.all([r.tournaments(),r.teams(),r.standings(),organizations(r),r.comparisons()]);return c.json({tournaments,teams:teams.map(summary),organizations:publicOrganizations,leaderboard,leaderboardTeams:leaderboard.map(row=>teams.find(t=>t.id===row.teamId)?.name??''),playerPerformances:[],teamComparisonRecords,teamAchievements:[]});});
+app.get('/public/context',async c=>{const platform=c.get('platform');const r=platform?new PublicContextRepository(c.get('db'),platform.sql):repo(c);if(r instanceof PublicContextRepository){c.set('platform',r);const snapshot=await r.snapshot();
+ // Anonymous contract only. Preserve the existing total 30-second freshness
+ // bound across runtime and durable CDN caches; never cache errors/private data.
+ c.header('Netlify-CDN-Cache-Control',`public, durable, max-age=${r.freshnessSeconds()}`);
+ c.header('X-Public-Cache',r.cacheStatus);
+ return c.json(snapshot);}const [tournaments,teams,leaderboard,publicOrganizations,teamComparisonRecords]=await Promise.all([r.tournaments(),r.teams(),r.standings(),organizations(r),r.comparisons()]);return c.json({tournaments,teams:teams.map(summary),organizations:publicOrganizations,leaderboard,leaderboardTeams:leaderboard.map(row=>teams.find(t=>t.id===row.teamId)?.name??''),playerPerformances:[],teamComparisonRecords,teamAchievements:[]});});
 app.get('/tournaments',async c=>c.json(await cached(c,'tournaments',()=>repo(c).tournaments())));
 app.get('/tournaments/:id',async c=>c.json(await repo(c).tournament(paramId(c))));
 app.get('/tournaments/:id/participants',async c=>{
