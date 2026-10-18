@@ -152,7 +152,7 @@
 .tournament-calendar :is(.tournament-calendar__days, .tournament-calendar__strip) > button.is-selected {
   background: var(--gold-primary);
   color: var(--text-on-gold);
-  font-weight: 800;
+  font-weight: 600;
 }
 .tournament-calendar :is(.tournament-calendar__days, .tournament-calendar__strip) > button.is-selected > i {
   background: var(--text-on-gold);
@@ -185,7 +185,7 @@
 .tournaments-calendar-page .tournament-calendar__picker > header span { font: 600 24px/1.2 var(--font-public-display); text-transform: uppercase; }
 .tournaments-calendar-page .tournament-calendar__picker > header > div::before { content: '//'; color: var(--gold-primary); font: 600 24px var(--font-public-display); margin-right: 8px; }
 .tournaments-calendar-page .tournament-calendar__picker > header strong { font: 600 22px var(--font-public-display); color: var(--gold-primary); }
-.tournaments-calendar-page .tournament-calendar__days button { color: var(--text-primary); font: 500 18px var(--font-public-display); }
+
 .tournaments-calendar-page .tournament-calendar button[data-event-status='live'] > i { background: var(--planning-live); }
 .tournaments-calendar-page .tournament-calendar button[data-event-status='registration-closed'] > i { background: var(--planning-scheduled); }
 .tournaments-calendar-page .tournament-calendar button[data-event-status='completed'] > i { background: var(--planning-completed); }
@@ -228,9 +228,9 @@
 .tournament-calendar--cinematic .tournament-calendar__picker nav button { border:0; border-radius:50%; background:var(--surface-2); }
 .tournament-calendar--cinematic .tournament-calendar__picker > header span { font:700 20px var(--font-ui); }
 .tournament-calendar--cinematic .tournament-calendar__picker > header strong { color:var(--gold-primary); font-size:20px; }
-.tournament-calendar--cinematic .tournament-calendar__days { grid-auto-rows:44px; }
-.tournament-calendar--cinematic .tournament-calendar__days > :is(button,span) { height:44px; aspect-ratio:auto; }
-.tournament-calendar--cinematic .tournament-calendar__days > button { border-radius:14px; color:var(--text-primary); }
+
+
+
 .tournament-calendar--cinematic .tournament-calendar__legend { display:none; }
 .tournament-calendar--cinematic .tournament-calendar__agenda { padding:20px; border-radius:24px; background:var(--surface-1); min-height:238px; }
 .tournament-calendar--cinematic .tournament-calendar__agenda > header { display:none; }
@@ -254,8 +254,25 @@
 .tournament-calendar--cinematic .tournament-calendar__empty { padding:14px 0; }
 @media(max-width:420px) { .tournament-calendar--cinematic .calendar-event-inspector__heading { grid-template-columns:1fr; gap:8px; } .tournament-calendar--cinematic .calendar-event-inspector { grid-template-columns:1fr; } .tournament-calendar--cinematic .calendar-event-inspector dl { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; } }
 @media(prefers-reduced-motion:reduce) { .tournament-calendar__month, .tournament-calendar--cinematic .calendar-event-inspector { animation:none; } }
-.tournament-calendar--cinematic .tournament-calendar__picker { overflow-x:auto; }
-.tournament-calendar--cinematic .tournament-calendar__month { display:block; min-width:308px; }
+
+.tournament-calendar--cinematic .tournament-calendar__month { display:block; min-width:0; }
 .tournament-calendar--cinematic .tournament-calendar__strip { display:none; }
 .tournament-calendar--cinematic .calendar-event-inspector dt,
 .tournament-calendar--cinematic .calendar-event-inspector dd { font-size:12px; }
+
+/* One date-cell contract: retain the 44px height; center an equal-width highlight. */
+.tournament-calendar .tournament-calendar__days { grid-auto-rows:44px; }
+.tournament-calendar .tournament-calendar__days > button {
+  justify-self:center; width:44px; height:44px; padding:0; border-radius:14px;
+  font:600 16px/1 var(--font-ui); color:var(--text-primary);
+}
+.tournament-calendar .tournament-calendar__days > button:is(.is-selected,:focus-visible) {
+  background:var(--gold-primary); color:var(--text-on-gold);
+}
+.tournament-calendar .tournament-calendar__days > button:focus-visible { outline:2px solid var(--text-primary); outline-offset:-3px; }
+.tournament-calendar .tournament-calendar__days > button:focus-visible > i { background:var(--text-on-gold); }
+@container (max-width:307px) {
+  .tournament-calendar .tournament-calendar__days > button { width:100%; height:auto; aspect-ratio:1; border-radius:8px; font-size:clamp(10px,6cqw,16px); }
+  .tournament-calendar .tournament-calendar__days { grid-auto-rows:auto; }
+  .tournament-calendar__days > button > i { width:3px; height:3px; bottom:2px; }
+}

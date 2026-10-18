@@ -55,7 +55,15 @@ export class Repository {
  async team(idOrSlug:string,privateData=false) { const team=(await this.teams(privateData)).find(t=>t.id===idOrSlug||t.slug===idOrSlug);if(!team)throw new ServiceError(404,'TEAM_NOT_FOUND');return team; }
  async tournament(id:string) {const t=(await this.tournaments()).find(t=>t.id===id);if(!t)throw new ServiceError(404,'TOURNAMENT_NOT_FOUND');return t;}
  async schedule():Promise<MatchScheduleItem[]> {return (await this.rows('matches')).map(m=>({id:s(m,'id'),tournamentId:s(m,'tournament_id'),stage:s(m,'stage') as MatchScheduleItem['stage'],day:n(m,'day'),round:n(m,'round'),map:s(m,'map'),lobby:s(m,'lobby'),startsAt:s(m,'scheduled_at'),status:s(m,'status') as MatchScheduleItem['status']})).sort((a,b)=>a.startsAt.localeCompare(b.startsAt));}
- async results():Promise<RoundResult[]> {return(await this.rows('team_match_results')).filter(r=>r.published).map(roundResult);}
+ async results():Promise<RoundResult[]> {
+  const unique=new Map<string,RoundResult>();
+  for(const row of await this.rows('team_match_results')){
+   const result=roundResult(row);
+   if(!result.published || !result.teamId || !result.roundId || !Number.isInteger(result.placement) || result.placement<1)continue;
+   unique.set(`${result.teamId}:${result.roundId}`,result);
+  }
+  return [...unique.values()];
+ }
  async tournamentStandings(id:string) {await this.tournament(id);return this.standings(id);}
  async standings(tournamentId?:string):Promise<TeamTournamentResult[]> {
   return rankResults((await this.results()).filter(r=>!tournamentId||r.tournamentId===tournamentId));
@@ -79,6 +87,21 @@ export class Repository {
     averagePlacement:rows.length?rows.reduce((s,r)=>s+r.placement,0)/rows.length:undefined,averagePoints:rows.length?rows.reduce((s,r)=>s+r.totalPoints,0)/rows.length:undefined,
     championships:countChampionships(team.id,standings,tournaments)};
   });
+ }
+ async publicSummaries():Promise<PublicTeamSummary[]> {
+  const [teams,results,matches]=await Promise.all([this.teams(),this.results(),this.rows('matches')]);
+  const byMatch=new Map(matches.map(m=>[s(m,'id'),m]));
+  const grouped=new Map<string,MatchHistoryEntry[]>();
+  for(const result of results){
+   const match=byMatch.get(result.roundId);
+   if(!match?.published_at || !Number.isInteger(result.placement) || result.placement<1)continue;
+   const playedAt=s(match,'scheduled_at');
+   if(!Number.isFinite(Date.parse(playedAt)))continue;
+   const history=grouped.get(result.teamId)??[];
+   history.push({id:result.roundId,tournamentId:result.tournamentId,tournamentName:'',playedAt,map:s(match,'map'),stage:s(match,'stage') as MatchHistoryEntry['stage'],stageLabel:'',placement:result.placement,finishes:result.finishes,placementPoints:result.placementPoints,killPoints:result.finishPoints,points:result.totalPoints,wwcd:result.placement===1});
+   grouped.set(result.teamId,history);
+  }
+  return teams.map(team=>({...summary(team),form:deriveTeamForm(grouped.get(team.id)??[]),historyAvailable:true}));
  }
  async profile(slug:string):Promise<PublicTeamProfile> {
   const team=await this.team(slug);if(team.archivedAt||!['approved','pending'].includes(team.approvalStatus))throw new ServiceError(404,'TEAM_NOT_FOUND');

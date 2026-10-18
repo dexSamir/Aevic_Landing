@@ -12,7 +12,13 @@ export interface RecentPlacement {
 }
 /** A single visual and formatting contract for published, newest-first form. */
 export function RecentPlacementStrip({ results, empty = 'Dərc edilmiş nəticə yoxdur.' }: { results: readonly RecentPlacement[]; empty?: ReactNode }) {
-  const rows = [...results].sort((a, b) => {
+  const seen = new Set<string>();
+  const rows = results.filter(result => {
+    const id = result.matchId ?? result.id;
+    if (!Number.isInteger(result.placement) || Number(result.placement) < 1 || (id && seen.has(id))) return false;
+    if (id) seen.add(id);
+    return true;
+  }).sort((a, b) => {
     const first = Date.parse(a.playedAt ?? ''), second = Date.parse(b.playedAt ?? '');
     const firstTime = Number.isFinite(first) ? first : -Infinity;
     const secondTime = Number.isFinite(second) ? second : -Infinity;
@@ -22,6 +28,6 @@ export function RecentPlacementStrip({ results, empty = 'Dərc edilmiş nəticə
   return <ol className="recent-placement-strip" aria-label="Son matçların nəticələri, yeni → köhnə">{rows.map((result, index) => {
     const valid = Number.isInteger(result.placement) && Number(result.placement) > 0;
     const label = [valid ? `${result.placement}-ci yer` : 'Yer məlum deyil', result.map, result.tournamentName, result.playedAt, result.finishes !== undefined ? `${result.finishes} kill` : undefined].filter(Boolean).join(' · ');
-    return <li key={result.matchId ?? result.id ?? index} className="recent-placement-tile" data-winner={valid && result.placement === 1 || undefined} tabIndex={0} aria-label={label} data-tooltip={label}><span aria-hidden="true">{valid ? result.placement : '—'}</span></li>;
+    return <li key={result.matchId ?? result.id ?? index} className="recent-placement-tile" data-winner={valid && result.placement === 1 || undefined} tabIndex={0} aria-label={label} data-tooltip={label}><span aria-hidden="true">{result.placement === 1 ? <span className="placement-wwcd"><span>WW</span><span>CD</span></span> : valid ? result.placement : '—'}</span></li>;
   })}</ol>;
 }

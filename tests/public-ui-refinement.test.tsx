@@ -12,7 +12,7 @@ import type { TeamTournamentResult } from '../src/types/domain';
 import { ApiError } from '../src/services/apiError';
 import { toPng } from 'html-to-image';
 
-vi.mock('html-to-image', () => ({ toPng: vi.fn().mockResolvedValue('data:image/png;base64,test') }));
+vi.mock('html-to-image', () => ({ toPng: vi.fn().mockResolvedValue('data:image/png;base64,' + 'a'.repeat(100)) }));
 const rows: TeamTournamentResult[] = Array.from({ length: 12 }, (_, index) => ({ tournamentId: 'export-test', teamId: index === 0 ? currentTeam.id : `other-${index}`, placement: index + 1, matches: 4, wwcd: 1, finishes: 8, placementPoints: 12, finishPoints: 8, penalties: 2, totalPoints: 18 }));
 const teams = [{ id: currentTeam.id, slug: 'current', name: currentTeam.name, rosterSize: currentTeam.roster.length }];
 function mountResults() {
@@ -22,6 +22,8 @@ beforeEach(() => {
   vi.spyOn(services.auth, 'getSession').mockResolvedValue(null);
   vi.spyOn(services.results, 'ownExport').mockResolvedValue({ teamId: currentTeam.id, result: rows[0] });
   vi.spyOn(services.teams, 'current').mockResolvedValue({ ...currentTeam, logoUrl: undefined });
+  vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(800);
+  vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(800);
   Object.defineProperty(document, 'fonts', { configurable: true, value: { ready: Promise.resolve() } });
   vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
   vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);

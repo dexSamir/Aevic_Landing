@@ -2,7 +2,7 @@ import { test, expect } from '../helpers/api-fixture-test';
 import { fixtureServices } from '../fixtures/component-services';
 test.use({ screenshot: 'off', trace: 'off', video: 'off' });
 
-import { currentTeam } from '../fixtures/platform-data';
+import { currentTeam, leaderboard } from '../fixtures/platform-data';
 
 test('desktop and touch roster states preserve navigation without hover requests', async ({ page, browser }) => {
   await page.goto('/tournaments/daily-cup-24');
@@ -40,6 +40,7 @@ test('desktop and touch roster states preserve navigation without hover requests
 });
 
 test('downloads actual PNG bytes for both result options without saving images', async ({ page }) => {
+  await page.route('**/api/team/tournaments/summer-final-25/result-export', route => route.fulfill({json:{teamId:currentTeam.id,result:leaderboard.find(row=>row.teamId===currentTeam.id&&row.tournamentId==='summer-final-25')}}));
   await page.goto('/tournaments/summer-final-25');
   await page.getByRole('button', { name: 'Nəticələri yüklə' }).click();
   const dialog = page.getByRole('dialog');

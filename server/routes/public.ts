@@ -21,7 +21,7 @@ app.get('/public/context',async c=>{const platform=c.get('platform');const r=pla
  // bound across runtime and durable CDN caches; never cache errors/private data.
  c.header('Netlify-CDN-Cache-Control',`public, durable, max-age=${r.freshnessSeconds()}`);
  c.header('X-Public-Cache',r.cacheStatus);
- return c.json(snapshot);}const [tournaments,teams,leaderboard,publicOrganizations,teamComparisonRecords]=await Promise.all([r.tournaments(),r.teams(),r.standings(),organizations(r),r.comparisons()]);return c.json({tournaments,teams:teams.map(summary),organizations:publicOrganizations,leaderboard,leaderboardTeams:leaderboard.map(row=>teams.find(t=>t.id===row.teamId)?.name??''),playerPerformances:[],teamComparisonRecords,teamAchievements:[]});});
+ return c.json(snapshot);}const [tournaments,teams,leaderboard,publicOrganizations,teamComparisonRecords]=await Promise.all([r.tournaments(),r.teams(),r.standings(),organizations(r),r.comparisons()]);return c.json({tournaments,teams:await r.publicSummaries(),organizations:publicOrganizations,leaderboard,leaderboardTeams:leaderboard.map(row=>teams.find(t=>t.id===row.teamId)?.name??''),playerPerformances:[],teamComparisonRecords,teamAchievements:[]});});
 app.get('/tournaments',async c=>c.json(await cached(c,'tournaments',()=>repo(c).tournaments())));
 app.get('/tournaments/:id',async c=>c.json(await repo(c).tournament(paramId(c))));
 app.get('/tournaments/:id/participants',async c=>{
@@ -31,7 +31,7 @@ app.get('/tournaments/:id/participants',async c=>{
 app.get('/tournaments/:id/slots',async c=>{const id=paramId(c),r=repo(c),t=await r.tournament(id),entries=await r.rows('tournament_registrations');return c.json(Array.from({length:t.maxSlots},(_,i)=>{const e=entries.find(e=>e.tournament_id===id&&e.slot_number===i+1);return{number:i+1,tournamentId:id,teamId:e?.team_id,state:e?'occupied':'available'};}));});
 app.get('/tournaments/:id/recap',async c=>{const id=paramId(c),r=repo(c),t=await r.tournament(id);const [matches,standings,teams]=await Promise.all([r.history(),r.standings(id),r.teams()]);const recap=buildTournamentRecap(t,matches,standings,teams.map(summary));if(!recap)throw new ServiceError(404,'RECAP_NOT_FOUND');recap.totalMatches=new Set(matches.filter(m=>m.tournamentId===id).map(m=>m.id)).size;return c.json(recap);});
 app.get('/tournaments/:id/calendar',async c=>{const t=await repo(c).tournament(paramId(c));return c.json({id:t.id,title:t.name,description:t.description,startsAt:t.startsAt,endsAt:t.endsAt,timezone:'Asia/Baku',publicUrl:`${c.get('config').siteUrl}/tournaments/${t.id}`});});
-app.get('/public/teams',async c=>{const search=text(0,100).parse(c.req.query('search')??'').toLocaleLowerCase('az-AZ');return c.json((await repo(c).teams()).filter(t=>t.name.toLocaleLowerCase('az-AZ').includes(search)).map(summary));});
+app.get('/public/teams',async c=>{const search=text(0,100).parse(c.req.query('search')??'').toLocaleLowerCase('az-AZ');return c.json((await repo(c).publicSummaries()).filter(t=>t.name.toLocaleLowerCase('az-AZ').includes(search)));});
 app.get('/public/teams/:slug',async c=>c.json(await cached(c,'profile:'+text(1,110).parse(c.req.param('slug')),()=>repo(c).profile(text(1,110).parse(c.req.param('slug'))))));
 app.get('/public/teams/:id/matches',async c=>{const r=repo(c),t=await r.team(paramId(c));return c.json(await r.history(t.id));});
 app.get('/public/teams/:id/upcoming-match',async c=>{const p=await repo(c).profile(paramId(c));if(!p.upcomingMatch)throw new ServiceError(404,'MATCH_NOT_FOUND');return c.json(p.upcomingMatch);});

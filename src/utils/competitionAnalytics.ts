@@ -3,7 +3,12 @@ import type { MapPerformanceMetric, MapPerformanceSummary, MatchHistoryEntry, Pu
 export const TEAM_SPECIALIZATION_MINIMUM_MATCHES = 8;
 
 export function deriveTeamForm(matches: MatchHistoryEntry[]): TeamFormEntry[] {
-  return [...matches]
+  const seen = new Set<string>();
+  return matches.filter(match => {
+    if (seen.has(match.id) || !Number.isInteger(match.placement) || match.placement < 1 || !Number.isFinite(Date.parse(match.playedAt))) return false;
+    seen.add(match.id);
+    return true;
+  })
     .sort((a, b) => new Date(b.playedAt).getTime() - new Date(a.playedAt).getTime())
     .slice(0, 10)
     .map((match, index) => ({ matchId: match.id, playedAt: match.playedAt, map: match.map, placement: match.placement, finishes: match.finishes, points: match.points, wwcd: match.wwcd, newest: index === 0 }));

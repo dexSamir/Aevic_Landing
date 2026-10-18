@@ -56,3 +56,14 @@ it('does not grant an invalidated response the freshness budget of a newer load'
  invalidatePublicSnapshot(sql);const next=new PublicContextRepository({} as DbClient,sql);await next.snapshot();
  expect(first.freshnessSeconds()).toBe(0);expect(next.freshnessSeconds()).toBeGreaterThan(0);
 });
+
+it('includes ordered valid match form and podium totals in the one-query cached snapshot',async()=>{
+ const results=Array.from({length:7},(_,i)=>({id:`result-${i}`,match_id:`match-${i}`,team_id:'16',tournament_id:'tournament',placement:i+1,finishes:2,placement_points:3,finish_points:2,total_points:5,published:true,match_date:`2026-10-${String(i+1).padStart(2,'0')}T12:00:00Z`,match_published_at:'2026-10-10T12:00:00Z',match_map:'Erangel',match_stage:'final'}));
+ const sql=vi.fn(async()=>[{teams:[{id:'16',team_name:'Existing team',status:'approved'}],tournaments:[{id:'tournament',status:'completed'}],results:[...results,results[0],{...results[0],id:'invalid',match_id:'invalid',placement:0}],organizations:[],links:[]}]);
+ const repo=new PublicContextRepository({} as DbClient,sql as unknown as Sql);
+ const snapshot=await repo.snapshot();
+ expect(snapshot.teams[0].form?.slice(0,5).map(row=>row.placement)).toEqual([7,6,5,4,3]);
+ expect(snapshot.teamComparisonRecords[0]).toMatchObject({matches:7,podiums:3,wwcd:1});
+ expect(await new PublicContextRepository({} as DbClient,sql as unknown as Sql).snapshot()).toBe(snapshot);
+ expect(sql).toHaveBeenCalledTimes(1);
+});

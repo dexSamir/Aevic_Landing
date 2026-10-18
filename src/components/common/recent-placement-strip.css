@@ -3,3 +3,5 @@
 .recent-placement-strip > [data-winner] { background:var(--gold-primary); color:var(--text-on-gold); }
 .recent-placement-tile:focus-visible { outline:2px solid var(--gold-primary); outline-offset:3px; }
 .recent-placement-empty { color:var(--text-secondary); font-size:var(--text-sm); }
+
+.placement-wwcd { display:grid; text-align:center; font-size:.65em; line-height:1.05; letter-spacing:.02em; }

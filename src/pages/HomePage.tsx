@@ -1,3 +1,4 @@
+import { GuestOnly } from '../services/PublicSessionContext';
 import { RosterTeamCard } from '../components/common/RosterTeamCard';
 import { BrandJoinCta } from '../components/common/BrandJoinCta';
 import { ArrowRight, ChevronLeft, ChevronRight, Crown } from 'lucide-react';
@@ -41,7 +42,7 @@ export function HomePage() {
             <span>AZƏRBAYCAN · PUBG MOBILE · AEVIC</span>
             <h1>Rəqabətin <em>yeni səhnəsi.</em></h1>
             <p>Turnirlər, komandalar, oyunçular və daha böyük bir e-sport ekosistemi.</p>
-            <div className="hero-actions"><Link className="button button--primary" to="/tournaments"><span>Turnirləri kəşf et</span><ArrowRight size={18} /></Link><Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/teams'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'Komandaları kəşf et'}</span></Link></div>
+            <div className="hero-actions"><Link className="button button--primary" to="/tournaments"><span>Turnirləri kəşf et</span><ArrowRight size={18} /></Link><GuestOnly><Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/teams'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'Komandaları kəşf et'}</span></Link></GuestOnly></div>
           </div>
         </div>
         <div className="home-competition-slot">{publicQuery.loading ? <LoadingSkeleton variant="rail"/> : !publicQuery.data ? <div className="home-competition-rail home-competition-rail--empty" aria-live="polite"><div><span>YARIŞ VƏZİYYƏTİ</span><h2>{publicQuery.error ? (publicQuery.error.code==='SERVER_NOT_CONFIGURED'?'Platform xidməti hələ konfiqurasiya edilməyib.':'Yarış məlumatı yüklənmədi.') : 'Yarış məlumatı yoxlanılır…'}</h2></div>{publicQuery.error?.retryable && <Button variant="secondary" disabled={publicQuery.retryAfterSeconds > 0} onClick={publicQuery.refetch}>{publicQuery.retryAfterSeconds > 0 ? `${publicQuery.retryAfterSeconds} san. sonra yoxla` : 'Yenidən yoxla'}</Button>}</div> : featured ? <article className="home-competition-rail">

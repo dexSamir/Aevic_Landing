@@ -11,5 +11,5 @@ it('reserves the gold result treatment for WWCD and uses supplied placements', (
   expect(screen.getByLabelText(/3-ci yer · Erangel/)).toHaveClass('recent-placement-tile');
   expect(screen.getByLabelText(/3-ci yer · Erangel/)).not.toHaveAttribute('data-winner');
   expect(screen.getByLabelText(/1-ci yer · Miramar/)).toHaveAttribute('data-winner','true');
-  expect(screen.getByLabelText(/1-ci yer · Miramar/)).toHaveTextContent('1');
+  expect(screen.getByLabelText(/1-ci yer · Miramar/)).toHaveTextContent('WWCD');
 });

@@ -88,7 +88,7 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
   useEffect(() => {
     setBackgroundFailed(false);
     if (!selectedBackground) { setBackgroundPreview(undefined); return; }
-    // html-to-image cache-busts fetched URLs; embed local crops to preserve them in PNGs.
+    // Embed local crops so export never depends on the lifetime of an object URL.
     const reader = new FileReader();
     reader.onload = () => { if (typeof reader.result === 'string') setBackgroundPreview({ file: selectedBackground, url: reader.result }); };
     reader.onerror = () => setBackgroundFailed(true);
@@ -98,6 +98,7 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
   const background = backgroundPreview?.file === selectedBackground ? backgroundPreview?.url : undefined;
   const [leaderboardLimit, setLeaderboardLimit] = useState<LeaderboardLimit>(props.initialLeaderboardLimit ?? '10');
   const [exporting, setExporting] = useState(false);
+  const exportLock = useRef(false);
   const [error, setError] = useState('');
   const previewRef = useRef<HTMLDivElement>(null);
   const provenance = validProvenance(props.provenance) && props.provenance.tournamentId === props.tournamentId ? props.provenance : undefined;
@@ -106,7 +107,7 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
   const exportReady = sourceReady && (!selectedBackground || Boolean(background));
 
   const render = async () => {
-    if (!previewRef.current || exporting || !exportReady) return;
+    if (!previewRef.current || !exportReady) return;
     const poster = previewRef.current.querySelector<HTMLElement>('.generated-poster');
     if (!poster) return;
     await props.beforeExport?.();
@@ -115,18 +116,20 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
   };
 
   const download = async () => {
-    if (exporting) return;
+    if (exportLock.current) return;
+    exportLock.current = true;
     setExporting(true); setError('');
     try {
       const dataUrl = await render();
       if (!dataUrl) return;
       downloadPng(dataUrl, `aevic-${family}-poster.png`);
-    } catch { setError('Poster hazırlanmadı. Şəkillərin yükləndiyini yoxlayıb yenidən cəhd edin.'); }
-    finally { setExporting(false); }
+    } catch (error) { console.error('Tournament PNG export failed', error); setError('Poster hazırlanmadı. Şəkillərin yükləndiyini yoxlayıb yenidən cəhd edin.'); }
+    finally { exportLock.current = false; setExporting(false); }
   };
 
   const share = async () => {
-    if (exporting) return;
+    if (exportLock.current) return;
+    exportLock.current = true;
     setExporting(true); setError('');
     try {
       const dataUrl = await render();
@@ -138,7 +141,7 @@ export function SharecardGenerator(props: SharecardGeneratorProps) {
     } catch (caught) {
       if (caught instanceof DOMException && caught.name === 'AbortError') return;
       setError('Bu brauzer fayl paylaşımını dəstəkləmir. PNG-ni yükləyib paylaşa bilərsiniz.');
-    } finally { setExporting(false); }
+    } finally { exportLock.current = false; setExporting(false); }
   };
 
   return <>

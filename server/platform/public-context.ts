@@ -2,7 +2,6 @@ import type { PublicPlatformSnapshot, Team } from '../../src/types/domain';
 import { ServiceError } from '../errors';
 import { mapProductionTeam } from '../services/productionTeams';
 import { PlatformRepository, normalize } from './repository';
-import { summary } from '../services/data';
 import { organizations } from '../services/identity';
 
 // One anonymous snapshot per warm database pool. Never retain rejected reads.
@@ -27,7 +26,7 @@ export class PublicContextRepository extends PlatformRepository {
    const [tournaments, teams, leaderboard, publicOrganizations, teamComparisonRecords] = await Promise.all([
     this.tournaments(), this.teams(), this.standings(), organizations(this), this.comparisons(),
    ]);
-   return { tournaments, teams: teams.map(summary), organizations: publicOrganizations, leaderboard,
+   return { tournaments, teams: await this.publicSummaries(), organizations: publicOrganizations, leaderboard,
     leaderboardTeams: leaderboard.map(row => teams.find(team => team.id === row.teamId)?.name ?? ''),
     playerPerformances: [], teamComparisonRecords, teamAchievements: [] };
   }) };
@@ -67,15 +66,16 @@ export class PublicContextRepository extends PlatformRepository {
     where t.status in ('pending','approved') and d.archived_at is null order by t.id::text
 ) q) as teams,
     (select coalesce(jsonb_agg(q),'[]'::jsonb) from (
-     select r.*,r.team_id::text from aevic_platform.team_match_results r
+     select r.*,r.team_id::text,m.scheduled_at as match_date,m.published_at as match_published_at,m.map as match_map,m.stage as match_stage from aevic_platform.team_match_results r
      join aevic.matches m on m.id=r.match_id join aevic.tournaments t on t.id=r.tournament_id
-     where r.published and m.published_at is not null and t.status<>'draft'
+     where r.published and m.published_at is not null and t.status<>'draft' and t.archived_at is null
      order by r.created_at,r.id limit 10000
     ) q) as results,
     (select coalesce(jsonb_agg(q),'[]'::jsonb) from (select * from aevic.organizations limit 10000) q) as organizations,
     (select coalesce(jsonb_agg(q),'[]'::jsonb) from (select *,team_id::text from aevic_platform.organization_teams limit 10000) q) as links
   `;
   this.snapshotRows=new Map([['tournaments',row.tournaments],['team_match_results',row.results],['organizations',row.organizations],['organization_teams',row.links]]);
+  this.snapshotRows.set('matches',(row.results as Record<string,unknown>[]).map(result=>({id:result.match_id,scheduled_at:result.match_date,published_at:result.match_published_at,map:result.match_map,stage:result.match_stage})));
   this.snapshotTeamRows=row.teams;
  }
  private contextTeams?: Promise<Team[]>;

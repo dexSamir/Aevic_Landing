@@ -2,12 +2,13 @@ import '../../styles/share-controls.css';
 import '../../styles/share-studio.css';
 import { Download } from 'lucide-react';
 import QRCode from 'qrcode';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import type { ProfileCardFormat, TeamProfileCardData } from '../../types/domain';
 import { drawTeamIdentityCard, loadCardImage, teamIdentityCardBlob, teamIdentityCardSizes, type TeamIdentityCardAssets } from '../../utils/teamIdentityCard';
 import { Button, Checkbox } from '../common/primitives';
 
 export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
+  const groupId = useId();
   const [format, setFormat] = useState<ProfileCardFormat>('square');
   const [extended, setExtended] = useState(false);
   const [showMaps, setShowMaps] = useState(false);
@@ -19,6 +20,7 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
   const [rendered, setRendered] = useState('');
   const [exporting, setExporting] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const exportLock = useRef(false);
   const version = JSON.stringify([data, format, extended, showMaps, showQr, attempt]);
   const hasMaps = Boolean(data.mapStats?.some(map => map.matches > 0));
   const hasExtended = data.roster.length > 0 || [data.matches, data.finishes, data.wwcd, data.championships, data.podiums].some(value => typeof value === 'number');
@@ -53,7 +55,8 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
   }, [assets, data, format, extended, showMaps, showQr, version]);
   const ready = Boolean(assets && rendered === version && !error);
   const download = async () => {
-    if (!ready || !canvasRef.current || exporting) return;
+    if (!ready || !canvasRef.current || exportLock.current) return;
+    exportLock.current = true;
     setExporting(true);
     try {
       // Export the exact preview pixels. No second render, request or authorization change.
@@ -63,22 +66,32 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
       link.href = url; link.download = `AEVIC-${name}-${format}-${extended ? 'extended' : 'standard'}.png`; link.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch { setError('PNG hazırlanmadı. Yenidən cəhd edin.'); }
-    finally { setExporting(false); }
+    finally { exportLock.current = false; setExporting(false); }
   };
   return <div className="profile-card-studio team-export-studio">
-    <section className={`profile-card-canvas profile-card-canvas--${format}`} aria-busy={!ready} aria-label={`${data.teamName} kart önizləməsi`}>
-      <canvas ref={canvasRef} role="img" aria-label={`${data.teamName} · ${teamIdentityCardSizes[format].label} · ${extended ? 'Geniş' : 'Standart'} komanda kartı`} />
-      {!ready && !error && <p role="status">Önizləmə hazırlanır…</p>}
-    </section>
+    <canvas ref={canvasRef} className="team-export-canvas" aria-hidden="true" />
     <aside>
       <span className="profile-kicker">AEVIC × {data.teamName}</span>
       <p>Komandanın kimliyi. Sənin formatın.</p>
-      <fieldset className="team-export-formats"><legend>Format</legend><div>{(['square', 'story', 'portrait'] as const).map(id => <label key={id} className={format === id ? 'is-active' : ''}><input type="radio" name="team-card-format" value={id} checked={format === id} onChange={() => setFormat(id)} disabled={exporting}/><strong>{teamIdentityCardSizes[id].label}</strong><span>{teamIdentityCardSizes[id].use}</span></label>)}</div></fieldset>
-      <fieldset className="team-export-formats"><legend>Məzmun</legend><div>{[false, true].map(value => <label key={String(value)} className={extended === value ? 'is-active' : ''}><input type="radio" name="team-card-mode" checked={extended === value} onChange={() => setExtended(value)} disabled={exporting || value && !hasExtended}/><strong>{value ? 'Geniş' : 'Standart'}</strong></label>)}</div></fieldset>
+      <fieldset className="team-export-formats team-export-formats--visual"><legend>Format</legend><div data-format={format}>
+        <span className="team-export-indicator" aria-hidden="true" />
+        {(['square', 'story', 'portrait'] as const).map(id => <label key={id} className={format === id ? 'is-active' : ''}>
+          <input type="radio" name={`${groupId}-format`} value={id} checked={format === id} onChange={() => setFormat(id)} disabled={exporting}/>
+          <span className="team-export-thumbnail" aria-hidden="true"><span className={`team-export-skeleton team-export-skeleton--${id}`}>
+            <i className="skeleton-brand" /><span className="skeleton-identity"><i className="skeleton-logo"/><i className="skeleton-name"/></span>
+            {extended && <span className="skeleton-extended"><i className="skeleton-roster"/><span className="skeleton-stats"><i/><i/><i/><i/></span></span>}
+            {showMaps && hasMaps && <span className="skeleton-maps"><i/><i/><i/></span>}
+            {showQr && <span className="skeleton-footer"><i/><i className="skeleton-qr"/></span>}
+          </span></span>
+          <strong>{teamIdentityCardSizes[id].label}</strong><span>{teamIdentityCardSizes[id].use}</span>
+        </label>)}
+      </div></fieldset>
+      <fieldset className="team-export-formats"><legend>Məzmun</legend><div>{[false, true].map(value => <label key={String(value)} className={extended === value ? 'is-active' : ''}><input type="radio" name={`${groupId}-mode`} checked={extended === value} onChange={() => setExtended(value)} disabled={exporting || value && !hasExtended}/><strong>{value ? 'Geniş' : 'Standart'}</strong></label>)}</div></fieldset>
       {!hasExtended && <small>Geniş kart üçün dərc edilmiş heyət və ya statistika yoxdur.</small>}
       <div className="share-card-options"><Checkbox checked={showMaps} disabled={!hasMaps || exporting} onChange={event => setShowMaps(event.target.checked)} label="Xəritə statistikasını daxil et"/>{!hasMaps && <small>Xəritə statistikası hələ dərc edilməyib.</small>}<Checkbox checked={showQr} disabled={exporting} onChange={event => setShowQr(event.target.checked)} label="QR kodu göstər"/></div>
       {warning && <p role="status">{warning}</p>}
       {error && <p role="alert">{error} <button type="button" onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</button></p>}
+      {!ready && !error && <p role="status">Kart hazırlanır…</p>}
       <Button loading={exporting} disabled={!ready} icon={<Download size={18}/>} onClick={() => void download()}>PNG yüklə</Button>
       <small>{teamIdentityCardSizes[format].width} × {teamIdentityCardSizes[format].height} · PNG · İctimai profil</small>
     </aside>

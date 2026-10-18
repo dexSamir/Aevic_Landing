@@ -2,8 +2,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { ChartSnapshot } from '../src/components/team/ChartSnapshot';
 import { toPng } from 'html-to-image';
-vi.mock('html-to-image', () => ({ toPng: vi.fn().mockResolvedValue('data:image/png;base64,test') }));
+vi.mock('html-to-image', () => ({ toPng: vi.fn().mockResolvedValue('data:image/png;base64,' + 'a'.repeat(100)) }));
 beforeEach(() => {
+ vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(800);
+ vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(600);
  Object.defineProperty(document, 'fonts', { configurable:true, value:{ready:Promise.resolve()} });
  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
 });

@@ -10,12 +10,12 @@ import { ApiError } from '../src/services/apiError';
 import { currentTeam } from './fixtures/platform-data';
 
 describe('unified placement contract', () => {
-  it('keeps real results newest first, numeric wins and contextual accessible labels', () => {
+  it('keeps real results newest first, stacked WWCD wins and contextual accessible labels', () => {
     const results = [{ id:'old',placement:1,map:'Miramar',playedAt:'2026-01-01' },{ id:'new',placement:3,map:'Rondo',playedAt:'2026-02-01' },{id:'missing',placement:null}];
     const view=render(<RecentPlacementStrip results={results}/>);
-    expect([...view.container.querySelectorAll('li')].map(el=>el.textContent)).toEqual(['3','1','—']);
+    expect([...view.container.querySelectorAll('li')].map(el=>el.textContent)).toEqual(['3','WWCD']);
     expect(screen.getByLabelText(/1-ci yer · Miramar/)).toHaveAttribute('data-winner','true');
-    expect(screen.getByLabelText('Yer məlum deyil')).not.toHaveAttribute('data-winner');
+    expect(screen.queryByLabelText('Yer məlum deyil')).not.toBeInTheDocument();
     expect(results[0].id).toBe('old');
   });
   it('preserves small sample eligibility and a true win proportion',()=>{
