@@ -178,3 +178,27 @@ it('returns a retryable outage without deleting credentials when protected valid
  expect(response.status).toBe(503);expect(response.headers.get('set-cookie')).toBeNull();expect(response.headers.get('retry-after')).toBe('3');
  expect(await response.json()).toMatchObject({code:'SERVICE_UNAVAILABLE'});
 });
+
+it('reproduces the deployed origin mismatch and accepts only the corrected production origin',async()=>{
+ const {readConfig}=await import('../../server/config');
+ const {default:tokens}=await import('../../server/auth/token-routes');
+ const production='https://aevic-esports.netlify.app',old='https://aevic-demo.netlify.app';
+ const make=(site:string)=>{
+  const settings=readConfig({PUBLIC_SITE_URL:site,SUPABASE_URL:config.supabaseUrl,SUPABASE_PUBLISHABLE_KEY:'fixture',CONTEXT:'production'});
+  const app=createHttpApp(settings,{});app.route('/',tokens);
+  for(const path of ['/auth/login','/auth/logout'])app.post(path,c=>c.json({reached:true}));
+  return app;
+ };
+ const post=(app:ReturnType<typeof make>,path:string,headers:Record<string,string>)=>app.request('https://internal-proxy.invalid/api'+path,{method:'POST',headers});
+ expect((await post(make(old),'/auth/refresh',{origin:production,'sec-fetch-site':'same-origin'})).status).toBe(403);
+ const app=make(production);
+ for(const path of ['/auth/login','/auth/refresh','/auth/logout']){
+  const accepted=await post(app,path,{origin:production,'sec-fetch-site':'same-origin'});
+  expect(accepted.status).toBe(200);expect(accepted.headers.get('access-control-allow-origin')).toBeNull();
+  for(const origin of [old,'https://attacker.example','https://aevic-esports.netlify.app.attacker.example','http://aevic-esports.netlify.app','null','']){
+   const denied=await post(app,path,{...(origin?{origin}:{}),'sec-fetch-site':'same-origin',host:'aevic-esports.netlify.app','x-forwarded-host':'aevic-esports.netlify.app','x-forwarded-proto':'https',forwarded:'host=aevic-esports.netlify.app;proto=https'});
+   expect(denied.status).toBe(403);expect(await denied.json()).toMatchObject({code:'ORIGIN_REJECTED'});
+  }
+  expect((await post(app,path,{origin:production,'sec-fetch-site':'cross-site'})).status).toBe(403);
+ }
+});

@@ -24,6 +24,13 @@ export function buildConfiguration(mode = 'production', development = false) {
   const canonicalOrigin = origin(canonicalValue, 'PUBLIC_SITE_URL');
   if (!localServerOrigin && env.PUBLIC_SITE_URL && env.VITE_PUBLIC_SITE_URL && origin(env.VITE_PUBLIC_SITE_URL, 'VITE_PUBLIC_SITE_URL') !== canonicalOrigin) throw new Error('Public canonical origins disagree.');
   if ((env.CONTEXT === 'production' || env.REQUIRE_PUBLIC_SITE_URL === 'true') && !canonicalOrigin) throw new Error('PUBLIC_SITE_URL is required for a production deployment.');
+  // Netlify's read-only URL is the site's primary production address, not
+  // an incoming Host/forwarded header. Catch a copied demo configuration before
+  // shipping a frontend whose auth requests the Functions origin check rejects.
+  if (env.NETLIFY === 'true' && env.CONTEXT === 'production' && !development) {
+    if (!env.PUBLIC_SITE_URL) throw new Error('PUBLIC_SITE_URL must be set in Netlify production Builds and Functions scopes.');
+    if (canonicalOrigin !== origin(env.URL, 'Netlify URL')) throw new Error('PUBLIC_SITE_URL must match the Netlify primary production URL. Update its Builds and Functions scopes.');
+  }
   const mediaOrigin = origin(env.VITE_PUBLIC_MEDIA_ORIGIN || env.SUPABASE_URL || env.VITE_SUPABASE_URL, 'Public media origin');
   const indexableDeployment = Boolean(canonicalOrigin && !development && (!env.CONTEXT || env.CONTEXT === 'production'));
   return { canonicalOrigin, mediaOrigin, indexableDeployment };

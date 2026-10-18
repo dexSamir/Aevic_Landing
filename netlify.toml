@@ -4,6 +4,10 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # Set PUBLIC_SITE_URL=https://aevic-esports.netlify.app in Netlify's
+  # production environment with BOTH Builds and Functions scopes.
+  # If set, VITE_PUBLIC_SITE_URL must match; VITE_API_BASE_URL must be /api.
+  # Values declared here are build-only and cannot configure runtime CSRF checks.
   # Keep secrets scanning enabled. Public URL variables must not be marked secret.
   # See docs/netlify-secrets.md for scopes and a narrowly scoped fallback.
 

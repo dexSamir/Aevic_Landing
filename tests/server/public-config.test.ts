@@ -38,3 +38,32 @@ describe('public configuration boundaries', () => {
   } finally { rmSync(path, { recursive: true, force: true }); }
  });
 });
+
+describe('Netlify production origin consistency',()=>{
+ afterEach(()=>vi.unstubAllEnvs());
+ const production='https://aevic-esports.netlify.app';
+ function environment(origin=production){
+  vi.stubEnv('NETLIFY','true');vi.stubEnv('CONTEXT','production');vi.stubEnv('URL',production);
+  vi.stubEnv('PUBLIC_SITE_URL',origin);vi.stubEnv('VITE_PUBLIC_SITE_URL','');
+ }
+ it('rejects the exact stale demo origin seen on production',()=>{
+  environment('https://aevic-demo.netlify.app');
+  expect(()=>buildConfiguration()).toThrow('PUBLIC_SITE_URL must match the Netlify primary production URL');
+ });
+ it('accepts the real production domain and matching browser origin',()=>{
+  environment();vi.stubEnv('VITE_PUBLIC_SITE_URL',production);
+  expect(buildConfiguration().canonicalOrigin).toBe(production);
+ });
+ it('does not mistake a browser-only setting for Functions configuration',()=>{
+  environment('');vi.stubEnv('VITE_PUBLIC_SITE_URL',production);
+  expect(()=>buildConfiguration()).toThrow('Builds and Functions scopes');
+ });
+ it('supports an explicitly configured custom primary domain',()=>{
+  environment('https://aevicesports.com');vi.stubEnv('URL','https://aevicesports.com');
+  expect(buildConfiguration().canonicalOrigin).toBe('https://aevicesports.com');
+ });
+ it('does not compare preview builds to the production primary domain',()=>{
+  environment('https://deploy-preview-1--aevic-esports.netlify.app');vi.stubEnv('CONTEXT','deploy-preview');
+  expect(buildConfiguration().indexableDeployment).toBe(false);
+ });
+});

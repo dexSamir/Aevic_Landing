@@ -74,3 +74,20 @@ it('keeps the captain cookie when logout revocation fails',async()=>{
   expect(response.status).toBe(503);expect(response.headers.get('set-cookie')).toBeNull();
  }finally{failure.mockRestore();}
 });
+
+it('logs in, restores the team session and logs out with the corrected production origin',async()=>{
+ const production='https://aevic-esports.netlify.app';
+ const application=createApp({...config,siteUrl:production},{},{store,mailer,now:()=>clock});
+ const login=await application.request(production+'/api/auth/login',{method:'POST',headers:{origin:production,'sec-fetch-site':'same-origin','content-type':'application/json'},body:JSON.stringify({email:'captain2@example.test',password})});
+ expect(login.status).toBe(200);
+ const cookieHeader=login.headers.get('set-cookie')!;
+ for(const flag of ['HttpOnly','Secure','SameSite=Strict','Path=/'])expect(cookieHeader).toContain(flag);
+ expect(cookieHeader).not.toContain('Domain=');
+ const sessionCookie=cookieHeader.split(';')[0];
+ const session=await application.request('/api/me/session',{headers:{cookie:sessionCookie}});
+ expect(session.status).toBe(200);expect(await session.json()).toMatchObject({role:'captain',user:{teamId:'2'}});
+ expect((await application.request('/api/me/team',{headers:{cookie:sessionCookie}})).status).toBe(200);
+ const logout=await application.request('/api/auth/logout',{method:'POST',headers:{origin:production,'sec-fetch-site':'same-origin',cookie:sessionCookie}});
+ expect(logout.status).toBe(204);expect(logout.headers.get('set-cookie')).toContain('Max-Age=0');
+ expect(await(await application.request('/api/me/session',{headers:{cookie:sessionCookie}})).json()).toBeNull();
+});
