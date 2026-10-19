@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { TeamWorkspacePlaceholder } from './TeamWorkspaceFrame';
 import { BrandEmblem } from '../components/brand/BrandMark';
 import { RouteSkeleton } from '../components/common/LoadingSkeleton';
@@ -16,7 +16,9 @@ export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'a
     window.addEventListener('aevic:session-change', changed);
     return () => window.removeEventListener('aevic:session-change', changed);
   }, []);
-  const loginPath = area === 'admin' ? '/admin/login' : '/login';
+  const location = useLocation();
+  const loginBase = area === 'admin' ? '/admin/login' : '/login';
+  const loginPath = `${loginBase}?returnTo=${encodeURIComponent(location.pathname + location.search + location.hash)}`;
   if (!serviceCapabilities.publicSession || query.error?.status === 401) return <Navigate to={loginPath} replace />;
   if (query.error?.status === 403) return <Navigate to="/forbidden" replace />;
   // A failed verification never authorizes entry based on a stale identity.

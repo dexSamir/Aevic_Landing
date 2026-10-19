@@ -42,13 +42,13 @@ it('removes both acquisition banners on login and restores them after logout', a
   expect(view.container.querySelector('.participation-band')).not.toBeNull();
 });
 it('opens the modal, exports all standings through the existing renderer, and restores focus on Escape', async () => {
-  const view = mountResults();
+  mountResults();
   const trigger = screen.getByRole('button', { name: 'Nəticələri yüklə' });
   trigger.focus(); fireEvent.click(trigger);
   const dialog = await screen.findByRole('dialog');
   expect(within(dialog).getByRole('radio', { name: 'Komanda nəticəsi' })).toBeDisabled();
   const download = await within(dialog).findByRole('button', { name: 'Yüklə' });
-  expect(view.container.querySelectorAll('.generated-poster--leaderboard li')).toHaveLength(12);
+  expect(dialog.querySelectorAll('.generated-poster--leaderboard li')).toHaveLength(12);
   fireEvent.click(download);
   await waitFor(() => expect(toPng).toHaveBeenCalled());
   expect(vi.mocked(toPng).mock.calls.at(-1)?.[0]).toHaveClass('generated-poster--leaderboard');
@@ -58,14 +58,14 @@ it('opens the modal, exports all standings through the existing renderer, and re
 });
 it('selects the authenticated team result by keyboard and exports authoritative totals', async () => {
   vi.mocked(services.auth.getSession).mockResolvedValue({ user: currentTeam.captain, role: 'team' });
-  const view = mountResults();
+  mountResults();
   fireEvent.click(screen.getByRole('button', { name: 'Nəticələri yüklə' }));
   const option = await screen.findByRole('radio', { name: 'Komanda nəticəsi' });
   await waitFor(() => expect(option).toBeEnabled());
   fireEvent.keyDown(screen.getByRole('radio', { name: 'Turnir cədvəli' }), { key: 'ArrowRight' });
   expect(option).toHaveAttribute('aria-checked', 'true'); expect(option).toHaveFocus();
   const download = await screen.findByRole('button', { name: 'Yüklə' });
-  const poster = view.container.querySelector('.generated-poster--result')!;
+  const poster = screen.getByRole('dialog').querySelector('.generated-poster--result')!;
   expect(poster).toHaveTextContent(currentTeam.name);
   expect(poster).toHaveTextContent('18'); expect(poster).toHaveTextContent('−2');
   fireEvent.click(download);

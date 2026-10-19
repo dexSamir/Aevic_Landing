@@ -72,6 +72,22 @@ export function invalidateTeamProfile(id: string) {
   for (const key of keys) invalidateQuery(key, 'public', true);
 }
 
+/** Refresh embedded team projections without evicting unrelated competitions. */
+export function invalidateTeamDependents(id: string) {
+  const related = (value: unknown): boolean => {
+    if (!value || typeof value !== 'object') return false;
+    if (Array.isArray(value)) return value.some(related);
+    const row = value as Record<string, unknown>;
+    if (row.teamId === id || row.id === id && ('rosterSize' in row || 'roster' in row || row.type === 'team')) return true;
+    return Object.values(row).some(related);
+  };
+  for (const key of new Set([...cache.keys(), ...inFlight.keys()])) {
+    if (!/^public:(tournament:|match:|wrapped:|organization:|records|archive)/.test(key)) continue;
+    const entry = cache.get(key);
+    if (entry ? related(entry.data) : inFlight.has(key)) invalidateQuery(key.slice('public:'.length), 'public', true);
+  }
+}
+
 /** Apply an acknowledged service response without refetching the same snapshot. */
 export function updateCachedQuery<T>(key: string, update: (value: T) => T, scope: Scope = 'private') {
   const cacheKey = `${scope}:${key}`;

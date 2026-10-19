@@ -50,3 +50,12 @@ it('retains access credentials across a refresh outage and recovers without logg
  expect(rotations).toBe(3);expect(authorization).toEqual(Array(3).fill('Bearer fixture-memory-token'));
  transport.dispose();
 });
+it('omits cookies and bearer tokens on anonymous public reads without affecting private authorization',async()=>{
+ const fetcher=vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/auth/refresh')?Response.json(envelope()):Response.json({authorization:new Headers(options.headers).get('authorization'),credentials:options.credentials}));
+ vi.stubGlobal('fetch',fetcher);const transport=createTokenTransport('/api');
+ await transport.request('/me/account');
+ for(const path of ['/public/context','/public/teams/16','/tournaments/1/slots','/teams/16/wrapped?year=2026'])expect(await transport.request(path)).toEqual({authorization:null,credentials:'omit'});
+ expect(await transport.request('/me/sessions')).toEqual({authorization:'Bearer fixture-memory-token',credentials:'include'});
+ expect(fetcher.mock.calls.filter(([url])=>url.endsWith('/auth/refresh'))).toHaveLength(1);
+ transport.dispose();
+});

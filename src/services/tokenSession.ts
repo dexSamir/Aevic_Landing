@@ -20,7 +20,8 @@ export function createTokenTransport(root:string){
   if(options.signal?.aborted)throw new ApiError({status:0,kind:'abort'});
   const method=options.method??'GET',protectedRequest=!publicPath(path,method);
   if(protectedRequest&&(!negotiated||access&&expires<Date.now()+30_000))await refresh();
-  const send=()=>{if(options.signal?.aborted)throw new ApiError({status:0,kind:'abort'});const headers=new Headers(options.headers);if(access)headers.set('Authorization',`Bearer ${access}`);return requestJson<T>(root+path,{...options,headers,credentials:'include'},[],timeout,format);};
+  const anonymous=['GET','HEAD'].includes(method)&&(/^\/(public|tournaments|matches|leaderboards|records|archive|search|sitemap)(\/|\?|$)/.test(path)||/^\/teams\/[^/]+\/wrapped(?:\?|$)/.test(path));
+  const send=()=>{if(options.signal?.aborted)throw new ApiError({status:0,kind:'abort'});const headers=new Headers(options.headers);if(anonymous)headers.delete('Authorization');else if(access)headers.set('Authorization',`Bearer ${access}`);return requestJson<T>(root+path,{...options,headers,credentials:anonymous?'omit':'include'},[],timeout,format);};
   let result:T;
   try{result=await send();}catch(error){
    if(error instanceof ApiError&&error.code==='ACCESS_EXPIRED'&&['GET','HEAD'].includes(method)&&protectedRequest){await refresh();try{result=await send();}catch(retry){if(retry instanceof ApiError&&nullStatuses.includes(retry.status))return undefined as T;throw retry;}}

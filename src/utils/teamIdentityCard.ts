@@ -20,6 +20,8 @@ export interface TeamIdentityCardOptions {
   showStats: boolean;
   showQr: boolean;
   showMaps?: boolean;
+  showRecent?: boolean;
+  extended?: boolean;
   showRoster?: boolean;
 }
 
@@ -173,13 +175,15 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
   drawSignature(context, width, format === 'story' ? 118 : 92, pad);
   const stats = options.showStats ? selectSharecardStats(data, options.template) : [];
 
-  const maps = options.showMaps ? (data.mapStats ?? []).filter(m => m.matches > 0) : [];
+  const maps = options.showMaps ? (data.mapStats ?? []).filter(m => m.matches > 0).slice(0, options.extended ? 5 : 3) : [];
+  const recent = options.showRecent ? [...(data.recentMatches ?? [])].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt)).slice(0, 5) : [];
   const roster = options.showRoster !== false && data.roster.length > 0;
   const compact = format === 'square';
   const story = format === 'story';
-  const extraHeight = (roster ? 110 : 0) + (stats.length ? 112 : 0) + (maps.length ? 42 + maps.length * 43 : 0);
+  const extraHeight = (roster ? 110 : 0) + (stats.length ? 112 : 0) + (maps.length ? 42 + maps.length * 43 : 0) + (recent.length ? 110 : 0);
   const qrHeight = options.showQr ? (compact ? 155 : 210) : 0;
-  const contentTop = height - 112 - qrHeight - extraHeight;
+  const sectionScale = Math.min(1, (height - 520) / Math.max(1, qrHeight + extraHeight));
+  const contentTop = height - 112 - (qrHeight + extraHeight) * sectionScale;
   const heroTop = dividerY + 40;
   const heroHeight = contentTop - heroTop - 30;
   // Each format has its own identity composition; optional sections consume real space.
@@ -200,9 +204,11 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
   context.fillStyle = '#b6b3ac'; context.font = '600 20px Raleway, sans-serif';
   context.fillText([data.organizationName, data.country].filter(Boolean).join(' · ') || 'AEVIC ESPORTS', nameX, nameY + 56, nameWidth);
   context.textAlign = 'left';
-  let y = contentTop;
+  context.save();
+  context.translate(0, contentTop); context.scale(1, sectionScale);
+  let y = 0;
   context.fillStyle = 'rgba(243,196,80,.3)'; context.fillRect(pad, y - 24, width - pad * 2, 1);
-  if (roster) { drawRoster(context, data, pad, y, width - pad * 2); y += 110; }
+  if (roster) { drawRoster(context, options.extended ? { ...data, roster: data.roster.map(member => ({ ...member, ign: `${member.ign} (${member.role})` })) } : data, pad, y, width - pad * 2); y += 110; }
   if (stats.length) { drawStats(context, stats, pad - 24, y, width - pad * 2 + 24, stats.length, 104); y += 112; }
   if (maps.length) {
     context.fillStyle = '#f3c450'; context.font = '700 17px Raleway, sans-serif';
@@ -215,9 +221,24 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
       context.textAlign = 'left'; y += 43;
     }
   }
+  if (recent.length) {
+    context.fillStyle = '#f3c450'; context.font = '700 17px Raleway, sans-serif';
+    context.fillText('SON 5 MATÇ', pad, y + 18);
+    const cellWidth = (width - pad * 2) / recent.length;
+    recent.forEach((match, index) => {
+      const x = pad + index * cellWidth;
+      context.fillStyle = match.wwcd ? '#f3c450' : '#202226';
+      context.beginPath(); context.roundRect(x, y + 32, cellWidth - 12, 58, 10); context.fill();
+      context.fillStyle = match.wwcd ? '#070709' : '#f5f4f0'; context.font = '700 22px Raleway, sans-serif';
+      context.fillText(`${match.wwcd ? 'WWCD' : '#' + match.placement} · ${match.finishes} K`, x + 12, y + 68, cellWidth - 36);
+    });
+    y += 110;
+  }
   if (options.showQr) drawQrZone(context, data, assets.qr, pad, y + 12, width - pad * 2, compact ? 116 : 170);
+  context.restore();
+  if (data.year) { context.fillStyle = '#a7a39b'; context.font = '500 16px Raleway, sans-serif'; context.textAlign = 'right'; context.fillText(`EST. ${data.year}`, width - pad, format === 'story' ? 142 : 116); context.textAlign = 'left'; }
   context.fillStyle = '#b6b3ac'; context.font = '500 16px Raleway, sans-serif';
-  context.fillText(data.sourceLabel || 'AEVIC ESPORTS · PUBLIC TEAM IDENTITY', pad, height - 48, width - pad * 2);
+  context.fillText(options.extended && data.sourceLabel || 'AEVIC ESPORTS · PUBLIC TEAM IDENTITY', pad, height - 48, width - pad * 2);
 
 }
 

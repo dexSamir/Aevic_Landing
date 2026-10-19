@@ -21,3 +21,9 @@ it('team writes invalidate the matching slug, leaving other profiles warm',async
  function Profiles(){const a=usePlatformQuery({key:'profile:alpha',scope:'public',query:first});const b=usePlatformQuery({key:'profile:beta',scope:'public',query:second});return <p>{a.data?.name} {b.data?.name}</p>;}
  render(<Profiles/>);await screen.findByText('first second');act(()=>invalidateMutation('/teams/1'));await waitFor(()=>expect(first).toHaveBeenCalledTimes(2));expect(second).toHaveBeenCalledTimes(1);
 });
+it('team edits refresh only competition projections containing that team',async()=>{
+ const first=vi.fn(async()=>[{teamId:'16',name:'affected'}]),second=vi.fn(async()=>[{teamId:'17',name:'unrelated'}]);
+ function Tables(){const a=usePlatformQuery({key:'tournament:a:standings',scope:'public',query:first});const b=usePlatformQuery({key:'tournament:b:standings',scope:'public',query:second});return <p>{a.data?.[0].name} {b.data?.[0].name}</p>;}
+ render(<Tables/>);await screen.findByText('affected unrelated');act(()=>invalidateMutation('/teams/16'));
+ await waitFor(()=>expect(first).toHaveBeenCalledTimes(2));expect(second).toHaveBeenCalledTimes(1);
+});

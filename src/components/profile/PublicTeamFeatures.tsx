@@ -17,10 +17,10 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
   const year = competitionNow().getFullYear();
   const slug = team.slug ?? team.id;
   const period = useMemo(() => yearPeriod(year), [year]);
-  const wrapped = usePlatformQuery({ scope:'public', key: `wrapped:${slug}:${period.label}`, query: () => services.wrapped.forTeam(slug, period), staleTime: queryPolicy.historical, retry: 0 });
   const canvas = useRef<HTMLCanvasElement>(null);
   const region = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(() => typeof IntersectionObserver === 'undefined');
+  const wrapped = usePlatformQuery({ scope:'public', key: `wrapped:${slug}:${period.label}`, query: () => services.wrapped.forTeam(slug, period), staleTime: queryPolicy.historical, retry: 0, enabled: visible });
   useEffect(() => {
     if (visible || !region.current) return;
     const observer = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting)) { setVisible(true); observer.disconnect(); } }, { rootMargin: '200px' });
@@ -34,7 +34,7 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
   const data = useMemo<TeamProfileCardData>(() => {
     const metric = (key: string) => profile?.career?.metrics.find(item => item.key === key)?.value;
     const founded = profile?.team.foundedAt ? new Date(profile.team.foundedAt).getFullYear() : undefined;
-    return { teamId: team.id, teamName: team.name, teamTag: team.tag, teamLogo: team.logoUrl, country: team.country, profileUrl: publicTeamUrl(slug), matches: metric('matches'), finishes: metric('finishes'), wwcd: metric('wwcd'), championships: metric('championships'), year: founded && Number.isFinite(founded) ? founded : undefined, roster: (profile?.team.roster ?? team.roster ?? []).map(({ign, role}) => ({ign, role})), mapStats: profile?.mapSpecialization.metrics, podiums: metric('podiums'), sourceLabel: profile?.career?.scopeLabel };
+    return { teamId: team.id, teamName: team.name, teamTag: team.tag, teamLogo: team.logoUrl, country: team.country, profileUrl: publicTeamUrl(slug), matches: metric('matches'), finishes: metric('finishes'), wwcd: metric('wwcd'), championships: metric('championships'), year: founded && Number.isFinite(founded) ? founded : undefined, roster: (profile?.team.roster ?? team.roster ?? []).map(({ign, role}) => ({ign, role})), mapStats: profile?.mapSpecialization.metrics, recentMatches: [...(profile?.recentMatches ?? [])].sort((a,b) => Date.parse(b.playedAt) - Date.parse(a.playedAt)).slice(0,5), podiums: metric('podiums'), sourceLabel: profile?.career?.scopeLabel };
   }, [team, profile, slug]);
   useEffect(() => {
     if (!visible) return;
@@ -61,6 +61,6 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
       <div className="public-team-feature-copy"><span className="public-team-eyebrow">// RƏSMİ KOMANDA KARTI</span><h2 id="team-official-title">{team.name}</h2><span className="public-team-identity-line">TEAM IDENTITY // COMPETITIVE LEGACY</span><p>Rəsmi komanda kartınızı paylaş və AEVIC icmasında təmsil et.</p><div className="public-team-feature-actions"><Button onClick={() => setStudioOpen(true)} icon={<Share2 size={18} />}>Paylaş<ArrowRight size={18} /></Button><Button variant="secondary" onClick={() => setStudioOpen(true)} icon={<Download size={18} />}>PNG-ni yüklə</Button></div>{notice && <p role="status" className="public-team-feature-notice">{notice}</p>}</div>
       <div className="public-team-card-preview"><canvas ref={canvas} width="1200" height="660" role="img" aria-label={`${team.name} rəsmi komanda kartı: ${data.matches ?? '—'} matç, ${data.finishes ?? '—'} kill, ${data.wwcd ?? '—'} WWCD, ${data.championships ?? '—'} çempionluq`} /><button type="button" aria-label="Rəsmi komanda kartını paylaş" onClick={() => setStudioOpen(true)}><ArrowRight size={28} /></button></div>
     </section>
-    <Modal open={studioOpen} onClose={closeStudio} title="Komanda kartını hazırla">{studioOpen && <Suspense fallback={<p role="status">Studiya yüklənir…</p>}><ProfileCardGenerator data={data}/></Suspense>}</Modal>
+    <Modal className="team-share-modal" customHeading open={studioOpen} onClose={closeStudio} title="Komanda kartını hazırla">{studioOpen && <Suspense fallback={<p role="status">Studiya yüklənir…</p>}><ProfileCardGenerator data={data}/></Suspense>}</Modal>
   </div>;
 }

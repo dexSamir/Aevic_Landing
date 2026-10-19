@@ -499,3 +499,8 @@
 .toast strong { font-size:var(--text-sm); }
 .toast p { margin-top:4px; font-size:var(--text-xs); line-height:1.5; }
 @media(prefers-reduced-motion:reduce) { .skeleton span { animation:none; } }
+
+/* The portal owns the viewport; the dialog owns all overflow. */
+.modal-backdrop { box-sizing: border-box; height: 100dvh; padding: max(var(--space-md), env(safe-area-inset-top)) max(var(--space-md), env(safe-area-inset-right)) max(var(--space-md), env(safe-area-inset-bottom)) max(var(--space-md), env(safe-area-inset-left)); backdrop-filter: blur(8px); }
+.modal-backdrop .modal { max-height: 100%; position: relative; }
+.modal__custom-header { position: absolute; right: 0; top: 0; z-index: 1; }

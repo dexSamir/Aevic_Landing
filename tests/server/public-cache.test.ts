@@ -21,3 +21,11 @@ it('does not retain errors or let an invalidated pending read overwrite a new va
  invalidatePublicReads(pool,'profile:');await publicRead(pool,'profile:2',async()=>3);resolve(1);await pending;
  expect(await publicRead(pool,'profile:2',async()=>4)).toBe(3);
 });
+it('coalesces 50 callers and invalidates only matching canonical team tags, including slug aliases',async()=>{
+ const {invalidatePublicTags}=await import('../../server/platform/public-cache');
+ const pool={},a=vi.fn(async()=>({team:{id:'1'}})),b=vi.fn(async()=>({team:{id:'2'}})),options={tags:['profiles'],tagsFor:(v:{team:{id:string}})=>['team:'+v.team.id]};
+ await Promise.all(Array.from({length:50},()=>publicRead(pool,'profile:alpha',a,options)));
+ await publicRead(pool,'profile:beta',b,options);expect(a).toHaveBeenCalledTimes(1);
+ invalidatePublicTags(pool,['team:1']);await publicRead(pool,'profile:alpha',a,options);await publicRead(pool,'profile:beta',b,options);
+ expect(a).toHaveBeenCalledTimes(2);expect(b).toHaveBeenCalledTimes(1);
+});

@@ -1,4 +1,6 @@
 import '../../styles/components.css';
+import { createPortal } from 'react-dom';
+import { enterModal, isTopModal } from './modalEnvironment';
 import { sanitizeInternalPath, sanitizeOutboundUrl } from '../../utils/outboundUrl';
 import {
   AlertTriangle,
@@ -159,7 +161,7 @@ export function Select({ label, hint, error, id: providedId, children, ...props 
 export function Switch({ label, description, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; description?: string }) {
   const generatedId = useId();
   const id = props.id ?? generatedId;
-  return <label className="switch" htmlFor={id}><span><strong>{label}</strong>{description && <small>{description}</small>}</span><input {...props} id={id} type="checkbox" role="switch" /><i aria-hidden="true" /></label>;
+  return <label className="switch" htmlFor={id}><span><strong>{label}</strong>{description && <small id={`${id}-description`}>{description}</small>}</span><input {...props} id={id} aria-label={props['aria-label'] ?? label} aria-describedby={description ? `${id}-description` : undefined} type="checkbox" role="switch" /><i aria-hidden="true" /></label>;
 }
 
 export function Textarea({ label, hint, error, id: providedId, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement> & FieldProps) {
@@ -336,28 +338,43 @@ function useExitPresence(open: boolean) {
   return { rendered, visible };
 }
 
-export function Modal({ open, title, children, onClose, footer }: { open: boolean; title: string; children: ReactNode; onClose: () => void; footer?: ReactNode }) {
+export function Modal({ open, title, children, onClose, footer, className = '', customHeading = false }: { open: boolean; title: string; children: ReactNode; onClose: () => void; footer?: ReactNode; className?: string; customHeading?: boolean }) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose); closeRef.current = onClose;
   const titleId = useId();
   const { rendered, visible } = useExitPresence(open);
   useEffect(() => {
-    if (!open) return;
+    if (!open || !rendered || !panelRef.current) return;
+    const panel = panelRef.current;
     const previous = document.activeElement as HTMLElement | null;
-    window.requestAnimationFrame(() => (panelRef.current?.querySelector<HTMLElement>('[data-autofocus]') ?? panelRef.current)?.focus());
+    const leave = enterModal(panel);
+    const frame = window.requestAnimationFrame(() => (panel.querySelector<HTMLElement>('[data-autofocus]') ?? panel).focus({ preventScroll: true }));
+    const viewport = window.visualViewport;
+    const resize = () => {
+      if (!overlayRef.current || !viewport) return;
+      Object.assign(overlayRef.current.style, { top: `${viewport.offsetTop}px`, left: `${viewport.offsetLeft}px`, width: `${viewport.width}px`, height: `${viewport.height}px` });
+    };
+    resize(); viewport?.addEventListener('resize', resize); viewport?.addEventListener('scroll', resize);
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { onClose(); return; }
-      if (event.key !== 'Tab' || !panelRef.current) return;
-      const focusable = [...panelRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
-      if (!focusable.length) { event.preventDefault(); panelRef.current.focus(); return; }
-      const first = focusable[0]; const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      if (!isTopModal(panel)) return;
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeRef.current(); return; }
+      if (event.key !== 'Tab') return;
+      const focusable = [...panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')].filter(element => !element.closest('[hidden], [inert]') && getComputedStyle(element).visibility !== 'hidden');
+      if (!focusable.length) { event.preventDefault(); panel.focus({ preventScroll: true }); return; }
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === panel || !panel.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (document.activeElement === last || document.activeElement === panel || !panel.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
     };
     document.addEventListener('keydown', onKeyDown);
-    return () => { document.removeEventListener('keydown', onKeyDown); previous?.focus(); };
-  }, [open, onClose]);
+    return () => {
+      window.cancelAnimationFrame(frame); document.removeEventListener('keydown', onKeyDown);
+      viewport?.removeEventListener('resize', resize); viewport?.removeEventListener('scroll', resize);
+      leave(); if (previous?.isConnected) previous.focus({ preventScroll: true });
+    };
+  }, [open, rendered]);
   if (!rendered) return null;
-  return <div className="modal-backdrop" data-state={visible ? 'open' : 'closed'} aria-hidden={!open} role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}><div className="modal" role="dialog" aria-modal={open ? true : undefined} aria-labelledby={titleId} tabIndex={-1} ref={panelRef}><header><h2 id={titleId}>{title}</h2><IconButton label="Pəncərəni bağla" onClick={onClose}><X size={20} /></IconButton></header><div className="modal__body">{children}</div>{footer && <footer>{footer}</footer>}</div></div>;
+  return createPortal(<div ref={overlayRef} className="modal-backdrop" data-state={visible ? 'open' : 'closed'} aria-hidden={!open} inert={!open} role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) closeRef.current(); }}><div className={`modal ${className}`} role="dialog" aria-modal={open ? true : undefined} aria-labelledby={titleId} tabIndex={-1} ref={panelRef}><header className={customHeading ? 'modal__custom-header' : undefined}><h2 id={titleId} className={customHeading ? 'sr-only' : undefined}>{title}</h2><IconButton label="Pəncərəni bağla" onClick={onClose}><X size={20} /></IconButton></header><div className="modal__body">{children}</div>{footer && <footer>{footer}</footer>}</div></div>, document.body);
 }
 
 export function ConfirmDialog({ open, title, body, confirmLabel, tone = 'danger', onConfirm, onClose }: { open: boolean; title: string; body: string; confirmLabel: string; tone?: 'danger' | 'primary'; onConfirm: () => void | Promise<void>; onClose: () => void }) {

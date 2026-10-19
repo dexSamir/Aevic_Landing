@@ -1,4 +1,4 @@
-import {publicRead} from '../platform/public-cache';
+import {publicRead,existingPublicRead} from '../platform/public-cache';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { Env,ApiContext } from '../types';
@@ -11,10 +11,35 @@ import { client } from '../db';
 import { organizations,achievements } from '../services/identity';
 import { officialRecords } from '../services/records';
 import { rateLimit } from './auth';
+import type {PublicTeamProfile} from '../../src/types/domain';
 import { PublicContextRepository } from '../platform/public-context';
 const app=new Hono<Env>();
 const repo=(c:ApiContext)=>c.get('platform')??new Repository(c.get('db'));
-const cached=<T,>(c:ApiContext,key:string,read:()=>Promise<T>)=>{const p=c.get('platform');return p?publicRead(p.sql,key,read):read();};
+function teamTags(value: unknown): string[] {
+ const tags=new Set<string>();
+ const visit=(value:unknown)=>{
+  if(!value||typeof value!=='object')return;
+  if(Array.isArray(value)){value.forEach(visit);return;}
+  const row=value as Record<string,unknown>;
+  if(typeof row.teamId==='string')tags.add('team:'+row.teamId);
+  if(typeof row.id==='string'&&('rosterSize' in row||'roster' in row||row.type==='team'))tags.add('team:'+row.id);
+  Object.values(row).forEach(visit);
+ };
+ visit(value);return [...tags];
+}
+const cached=<T,>(c:ApiContext,key:string,read:()=>Promise<T>,tags:string[]=[])=>{
+ const p=c.get('platform');
+ return p?publicRead<T>(p.sql,key,read,{ttl:key.startsWith('slots:')?5_000:key.startsWith('standings:')?10_000:30_000,tags,tagsFor:teamTags}):read();
+};
+const profile=(c:ApiContext,id:string)=>{
+ const p=c.get('platform');
+ return p?publicRead(p.sql,'profile:'+id,()=>repo(c).profile(id),{tags:['profiles','team:'+id],tagsFor:value=>['team:'+value.team.id,...teamTags(value)]}):repo(c).profile(id);
+};
+const history=(c:ApiContext,id:string)=>{
+ const p=c.get('platform'),warm=p&&existingPublicRead<PublicTeamProfile>(p.sql,'profile:'+id);
+ if(warm)return warm.then(value=>value.recentMatches);
+ return cached(c,'history:'+id,async()=>{const r=repo(c);await r.team(id);return r.history(id);},['competition','team:'+id]);
+};
 const paramId=(c:ApiContext)=>z.union([z.uuid(),z.string().regex(/^[1-9]\d{0,18}$/)]).parse(c.req.param('id'));
 app.get('/public/context',async c=>{const platform=c.get('platform');const r=platform?new PublicContextRepository(c.get('db'),platform.sql):repo(c);if(r instanceof PublicContextRepository){c.set('platform',r);const snapshot=await r.snapshot();
  // Anonymous contract only. Preserve the existing total 30-second freshness
@@ -22,28 +47,28 @@ app.get('/public/context',async c=>{const platform=c.get('platform');const r=pla
  c.header('Netlify-CDN-Cache-Control',`public, durable, max-age=${r.freshnessSeconds()}`);
  c.header('X-Public-Cache',r.cacheStatus);
  return c.json(snapshot);}const [tournaments,teams,leaderboard,publicOrganizations,teamComparisonRecords]=await Promise.all([r.tournaments(),r.teams(),r.standings(),organizations(r),r.comparisons()]);return c.json({tournaments,teams:await r.publicSummaries(),organizations:publicOrganizations,leaderboard,leaderboardTeams:leaderboard.map(row=>teams.find(t=>t.id===row.teamId)?.name??''),playerPerformances:[],teamComparisonRecords,teamAchievements:[]});});
-app.get('/tournaments',async c=>c.json(await cached(c,'tournaments',()=>repo(c).tournaments())));
-app.get('/tournaments/:id',async c=>c.json(await repo(c).tournament(paramId(c))));
-app.get('/tournaments/:id/participants',async c=>{
- const id=paramId(c),r=repo(c);await r.tournament(id);const [teams,entries,rosters]=await Promise.all([r.teams(),r.rows('tournament_registrations'),r.rows('tournament_rosters')]);
- return c.json(entries.filter(e=>e.tournament_id===id&&e.status==='confirmed').flatMap(e=>{const team=teams.find(t=>t.id===e.team_id);return team?[{team:summary(team),roster:rosters.filter(p=>p.registration_id===e.id).map(p=>({id:p.player_id,ign:p.ign,role:p.role})),registrationStatus:'confirmed'}]:[];}));
-});
-app.get('/tournaments/:id/slots',async c=>{const id=paramId(c),r=repo(c),t=await r.tournament(id),entries=await r.rows('tournament_registrations');return c.json(Array.from({length:t.maxSlots},(_,i)=>{const e=entries.find(e=>e.tournament_id===id&&e.slot_number===i+1);return{number:i+1,tournamentId:id,teamId:e?.team_id,state:e?'occupied':'available'};}));});
-app.get('/tournaments/:id/recap',async c=>{const id=paramId(c),r=repo(c),t=await r.tournament(id);const [matches,standings,teams]=await Promise.all([r.history(),r.standings(id),r.teams()]);const recap=buildTournamentRecap(t,matches,standings,teams.map(summary));if(!recap)throw new ServiceError(404,'RECAP_NOT_FOUND');recap.totalMatches=new Set(matches.filter(m=>m.tournamentId===id).map(m=>m.id)).size;return c.json(recap);});
+app.get('/tournaments',async c=>c.json(await cached(c,'tournaments',()=>repo(c).tournaments(),['competition','tournaments'])));
+app.get('/tournaments/:id',async c=>c.json(await cached(c,'tournament:'+paramId(c),()=>repo(c).tournament(paramId(c)),['competition','tournament:'+paramId(c)])));
+app.get('/tournaments/:id/participants',async c=>{const id=paramId(c);return c.json(await cached(c,'participants:'+id,async()=>{
+ const r=repo(c);await r.tournament(id);const [teams,entries,rosters]=await Promise.all([r.teams(),r.rows('tournament_registrations'),r.rows('tournament_rosters')]);
+ return (entries.filter(e=>e.tournament_id===id&&e.status==='confirmed').flatMap(e=>{const team=teams.find(t=>t.id===e.team_id);return team?[{team:summary(team),roster:rosters.filter(p=>p.registration_id===e.id).map(p=>({id:p.player_id,ign:p.ign,role:p.role})),registrationStatus:'confirmed'}]:[];}));
+},['competition','tournament:'+id]));});
+app.get('/tournaments/:id/slots',async c=>{const id=paramId(c);return c.json(await cached(c,'slots:'+id,async()=>{const r=repo(c),t=await r.tournament(id),entries=await r.rows('tournament_registrations');return (Array.from({length:t.maxSlots},(_,i)=>{const e=entries.find(e=>e.tournament_id===id&&e.slot_number===i+1);return{number:i+1,tournamentId:id,teamId:e?.team_id,state:e?'occupied':'available'};}));},['competition','tournament:'+id]));});
+app.get('/tournaments/:id/recap',async c=>{const id=paramId(c);return c.json(await cached(c,'recap:'+id,async()=>{const r=repo(c),t=await r.tournament(id);const [matches,standings,teams]=await Promise.all([r.history(),r.standings(id),r.teams()]);const recap=buildTournamentRecap(t,matches,standings,teams.map(summary));if(!recap)throw new ServiceError(404,'RECAP_NOT_FOUND');recap.totalMatches=new Set(matches.filter(m=>m.tournamentId===id).map(m=>m.id)).size;return (recap);},['competition','tournament:'+id]));});
 app.get('/tournaments/:id/calendar',async c=>{const t=await repo(c).tournament(paramId(c));return c.json({id:t.id,title:t.name,description:t.description,startsAt:t.startsAt,endsAt:t.endsAt,timezone:'Asia/Baku',publicUrl:`${c.get('config').siteUrl}/tournaments/${t.id}`});});
-app.get('/public/teams',async c=>{const search=text(0,100).parse(c.req.query('search')??'').toLocaleLowerCase('az-AZ');return c.json((await repo(c).publicSummaries()).filter(t=>t.name.toLocaleLowerCase('az-AZ').includes(search)));});
-app.get('/public/teams/:slug',async c=>c.json(await cached(c,'profile:'+text(1,110).parse(c.req.param('slug')),()=>repo(c).profile(text(1,110).parse(c.req.param('slug'))))));
-app.get('/public/teams/:id/matches',async c=>{const r=repo(c),t=await r.team(paramId(c));return c.json(await r.history(t.id));});
-app.get('/public/teams/:id/upcoming-match',async c=>{const p=await repo(c).profile(paramId(c));if(!p.upcomingMatch)throw new ServiceError(404,'MATCH_NOT_FOUND');return c.json(p.upcomingMatch);});
-app.get('/public/teams/:id/form',async c=>c.json((await repo(c).profile(paramId(c))).form));
-app.get('/public/teams/:id/map-specialization',async c=>c.json((await repo(c).profile(paramId(c))).mapSpecialization));
-app.get('/public/teams/:id/map-performance',async c=>{const p=await repo(c).profile(paramId(c));return c.json(p.mapSpecialization.metrics.map(m=>({teamId:p.team.id,map:m.map,matches:m.matches,averagePlacement:m.averagePlacement,averageFinishes:m.averageFinishes,winRate:m.wwcd/m.matches})));});
-app.get('/public/teams/:id/seasons',async c=>{const id=paramId(c),r=repo(c);await r.team(id);const history=await r.history(id);return c.json([...new Set(history.map(m=>new Date(m.playedAt).getUTCFullYear()))].map(year=>{const matches=history.filter(m=>new Date(m.playedAt).getUTCFullYear()===year);return{teamId:id,seasonId:String(year),seasonName:String(year),matches:matches.length,finishes:matches.reduce((s,m)=>s+m.finishes,0),wwcd:matches.filter(m=>m.wwcd).length,points:matches.reduce((s,m)=>s+m.points,0)};}));});
-app.get('/teams/:slug/wrapped',async c=>{const r=repo(c),t=await r.team(text(1,110).parse(c.req.param('slug')));const year=z.coerce.number().int().min(2000).max(2100).parse(c.req.query('year')??c.req.query('seasonId'));const wrapped=deriveWrappedSummary({team:t,period:yearPeriod(year),matches:await r.history(t.id),championships:countChampionships(t.id,await r.standings(),(await r.tournaments()).filter(t=>new Date(t.endsAt).getUTCFullYear()===year)),achievements:await achievements(r,t.id),records:(await officialRecords(r)).current.filter(record=>record.teamId===t.id)});return c.json({...wrapped,historyIncomplete:t.legacyHistoryIncomplete,available:wrapped.available});});
+app.get('/public/teams',async c=>{const search=text(0,100).parse(c.req.query('search')??'').toLocaleLowerCase('az-AZ');return c.json((await cached(c,'teams',()=>repo(c).publicSummaries(),['teams'])).filter(t=>t.name.toLocaleLowerCase('az-AZ').includes(search)));});
+app.get('/public/teams/:slug',async c=>c.json(await profile(c,text(1,110).parse(c.req.param('slug')))));
+app.get('/public/teams/:id/matches',async c=>c.json(await history(c,paramId(c))));
+app.get('/public/teams/:id/upcoming-match',async c=>{const p=await profile(c,paramId(c));if(!p.upcomingMatch)throw new ServiceError(404,'MATCH_NOT_FOUND');return c.json(p.upcomingMatch);});
+app.get('/public/teams/:id/form',async c=>c.json((await profile(c,paramId(c))).form));
+app.get('/public/teams/:id/map-specialization',async c=>c.json((await profile(c,paramId(c))).mapSpecialization));
+app.get('/public/teams/:id/map-performance',async c=>{const p=await profile(c,paramId(c));return c.json(p.mapSpecialization.metrics.map(m=>({teamId:p.team.id,map:m.map,matches:m.matches,averagePlacement:m.averagePlacement,averageFinishes:m.averageFinishes,winRate:m.wwcd/m.matches})));});
+app.get('/public/teams/:id/seasons',async c=>{const id=paramId(c),rows=await history(c,id);return c.json([...new Set(rows.map(m=>new Date(m.playedAt).getUTCFullYear()))].map(year=>{const matches=rows.filter(m=>new Date(m.playedAt).getUTCFullYear()===year);return{teamId:id,seasonId:String(year),seasonName:String(year),matches:matches.length,finishes:matches.reduce((s,m)=>s+m.finishes,0),wwcd:matches.filter(m=>m.wwcd).length,points:matches.reduce((s,m)=>s+m.points,0)};}));});
+app.get('/teams/:slug/wrapped',async c=>{const r=repo(c),slug=text(1,110).parse(c.req.param('slug'));const year=z.coerce.number().int().min(2000).max(2100).parse(c.req.query('year')??c.req.query('seasonId'));return c.json(await cached(c,`wrapped:${slug}:${year}`,async()=>{const t=await r.team(slug);const wrapped=deriveWrappedSummary({team:t,period:yearPeriod(year),matches:await r.history(t.id),championships:countChampionships(t.id,await r.standings(),(await r.tournaments()).filter(t=>new Date(t.endsAt).getUTCFullYear()===year)),achievements:await achievements(r,t.id),records:(await officialRecords(r)).current.filter(record=>record.teamId===t.id)});return {...wrapped,historyIncomplete:t.legacyHistoryIncomplete,available:wrapped.available};},['competition','team:'+slug]));});
 app.get('/matches',async c=>{const status=z.enum(['scheduled','completed','live','upcoming']).parse(c.req.query('status')??'scheduled');const r=repo(c);if(status==='completed'){const history=await r.history();const winners=new Map<string,(typeof history)[number]>();for(const row of history){const prior=winners.get(row.id);if(!prior||row.placement<prior.placement)winners.set(row.id,row);}return c.json([...winners.values()]);}return c.json((await r.schedule()).filter(m=>status==='scheduled'?m.status!=='completed':m.status===status));});
 app.get('/matches/:id',async c=>{const id=paramId(c),r=repo(c),match=(await r.schedule()).find(m=>m.id===id);if(!match)throw new ServiceError(404,'MATCH_NOT_FOUND');const [t,results,teams]=await Promise.all([r.tournament(match.tournamentId),r.results(),r.teams()]);return c.json({match,tournament:{id:t.id,name:t.name,shortName:t.shortName},published:results.some(x=>x.roundId===id),teamResults:results.filter(x=>x.roundId===id).map(x=>({teamId:x.teamId,teamName:teams.find(t=>t.id===x.teamId)?.name??'',teamSlug:teams.find(t=>t.id===x.teamId)?.slug,teamLogo:teams.find(t=>t.id===x.teamId)?.logoUrl,placement:x.placement,finishes:x.finishes,placementPoints:x.placementPoints,totalPoints:x.totalPoints,wwcd:x.placement===1}))});});
 app.get('/matches/:id/calendar',async c=>{const id=paramId(c),r=repo(c),m=(await r.schedule()).find(m=>m.id===id);if(!m)throw new ServiceError(404,'MATCH_NOT_FOUND');return c.json({id,title:`${(await r.tournament(m.tournamentId)).name} · ${m.map}`,description:`${m.round}. raund`,startsAt:m.startsAt,timezone:'Asia/Baku',publicUrl:`${c.get('config').siteUrl}/matches/${id}`});});
-app.get('/leaderboards/:id',async c=>{return c.json(await repo(c).tournamentStandings(paramId(c)));});
+app.get('/leaderboards/:id',async c=>{return c.json(await cached(c,'standings:'+paramId(c),()=>repo(c).tournamentStandings(paramId(c)),['competition','tournament:'+paramId(c)]));});
 app.get('/leaderboards/:id/snapshots',async c=>c.json(await repo(c).standingSnapshots(paramId(c))));
 app.get('/leaderboards/:id/movement',async c=>{const snapshots=await repo(c).standingSnapshots(paramId(c));const current=snapshots.at(-1),previous=snapshots.at(-2);return c.json(current?.standings.map(row=>{const before=previous?.standings.find(r=>r.teamId===row.teamId);const delta=before?before.rank-row.rank:undefined;return {teamId:row.teamId,currentRank:row.rank,previousRank:before?.rank,delta:delta===undefined?undefined:Math.abs(delta),kind:delta===undefined?'new':delta===0?'unchanged':delta>0?'up':'down',previousSnapshotId:previous?.id};})??[]);});
 app.get('/search',async c=>{
