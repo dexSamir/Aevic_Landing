@@ -1,9 +1,9 @@
 import '../../styles/team-share-modal.css';
-import { BarChart3, Check, Download, Image as ImageIcon, Map, QrCode } from 'lucide-react';
+import { BarChart3, Check, Download, Map, QrCode } from 'lucide-react';
 import QRCode from 'qrcode';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ProfileCardFormat, TeamProfileCardData } from '../../types/domain';
-import { drawTeamIdentityCard, loadCardImage, teamIdentityCardBlob, teamIdentityCardSizes, selectSharecardStats, type TeamIdentityCardAssets } from '../../utils/teamIdentityCard';
+import { drawTeamIdentityCard, loadCardImage, teamIdentityCardBlob, teamIdentityCardSizes, resolveTeamCardOptions, type TeamIdentityCardAssets } from '../../utils/teamIdentityCard';
 import { Button, Switch } from '../common/primitives';
 
 export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
@@ -20,11 +20,12 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
   const [rendered, setRendered] = useState('');
   const [exporting, setExporting] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const previewRef = useRef<HTMLCanvasElement>(null);
   const exportLock = useRef(false);
   const version = JSON.stringify([data, format, extended, showMaps, showRecent, showQr, attempt]);
   const hasMaps = Boolean(data.mapStats?.some(map => map.matches > 0));
   const hasRecent = Boolean(data.recentMatches?.length);
-  const hasExtended = data.roster.length > 0 || [data.matches, data.finishes, data.wwcd, data.championships, data.podiums].some(value => typeof value === 'number');
+  const options = useMemo(() => resolveTeamCardOptions(data, { template: 'career', showStats: true, showRoster: true, showMaps, showRecent, extended, showQr }), [data, extended, showMaps, showRecent, showQr]);
 
   // Assets and fonts load once per team, never when a content switch changes.
   useEffect(() => {
@@ -43,17 +44,18 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
   }, [data.teamLogo, data.profileUrl, attempt]);
 
   useEffect(() => {
-    if (!assets) return;
     // Coalesce rapid changes; obsolete renders never become downloadable.
     const timer = window.requestAnimationFrame(() => {
       try {
         if (!canvasRef.current) return;
-        drawTeamIdentityCard(canvasRef.current, data, format, assets, { template: 'career', showStats: true, showRoster: true, showMaps: showMaps && hasMaps, showRecent: showRecent && hasRecent, extended, showQr });
+        if (previewRef.current) drawTeamIdentityCard(previewRef.current, data, format, assets ?? {}, options, true);
+        if (!assets) return;
+        drawTeamIdentityCard(canvasRef.current, data, format, assets, options);
         setRendered(version); setError('');
       } catch { setError('Önizləmə hazırlanmadı. Yenidən cəhd edin.'); }
     });
     return () => window.cancelAnimationFrame(timer);
-  }, [assets, data, format, extended, showMaps, showRecent, showQr, version, hasMaps, hasRecent]);
+  }, [assets, data, format, extended, showMaps, showRecent, showQr, version, options]);
   const ready = Boolean(assets && rendered === version && !error);
   const download = async () => {
     if (!ready || !canvasRef.current || exportLock.current) return;
@@ -69,23 +71,10 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
     } catch { setError('PNG hazırlanmadı. Yenidən cəhd edin.'); }
     finally { exportLock.current = false; setExporting(false); }
   };
-  const maps = showMaps && hasMaps ? data.mapStats!.filter(map => map.matches > 0).slice(0, extended ? 5 : 3) : [];
-  const recent = showRecent && hasRecent ? [...data.recentMatches!].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt)).slice(0, 5) : [];
-  const stats = selectSharecardStats(data, 'career');
   return <div className="team-share-studio">
     <canvas ref={canvasRef} hidden aria-hidden="true" />
     <div className="team-share-preview" data-format={format} role="img" aria-label={`${data.teamName}: kartın sxematik önizləməsi. PNG-də həqiqi ictimai məlumatlar göstərilir.`}>
-      <div className="identity-skeleton" style={{ aspectRatio: `${teamIdentityCardSizes[format].width} / ${teamIdentityCardSizes[format].height}` }} aria-hidden="true">
-        <header><strong>AEVIC</strong><span>TEAM IDENTITY // COMPETITIVE LEGACY</span>{data.year && <small>EST. {data.year}</small>}</header>
-        <div className="identity-skeleton__team"><div className="identity-skeleton__logo"><ImageIcon /></div><div><b>TEAM</b><i className="identity-skeleton__name"/><i className="identity-skeleton__tag"/></div></div>
-        <section className="identity-skeleton__roster"><b>PUBLIC ROSTER</b>{data.roster.length ? <div>{data.roster.slice(0, 5).map((member, i) => <i key={`${member.ign}-${i}`} />)}</div> : <small>İctimai heyət dərc edilməyib</small>}</section>
-        {stats.length > 0 && <div className="identity-skeleton__stats">{stats.map(stat => <div key={stat.label}><i/><small>{stat.label}</small></div>)}</div>}
-        {maps.length > 0 && <section className="identity-skeleton__maps"><b>XƏRİTƏ STATİSTİKASI</b>{maps.map(map => <div key={map.map}><ImageIcon/><span><i/><i/></span><i/><i/></div>)}</section>}
-        {recent.length > 0 && <section className="identity-skeleton__recent"><b>SON 5 MATÇ</b><div>{recent.map((match, index) => <span className={match.wwcd ? 'is-win' : ''} key={`${match.id}-${index}`}><i/></span>)}</div></section>}
-        {extended && data.sourceLabel && <small className="identity-skeleton__scope">{data.sourceLabel}</small>}
-        {showQr && <section className="identity-skeleton__qr"><div><b>SCAN // PUBLIC PROFILE</b><i/><i/></div><QrCode/></section>}
-        <span className="identity-skeleton__watermark">AEVIC</span>
-      </div>
+      <canvas ref={previewRef} className="identity-skeleton" style={{ aspectRatio: `${teamIdentityCardSizes[format].width} / ${teamIdentityCardSizes[format].height}`, '--card-ratio': teamIdentityCardSizes[format].width / teamIdentityCardSizes[format].height } as React.CSSProperties} aria-hidden="true" />
     </div>
     <aside className="team-share-controls">
       <div className="team-share-heading"><h2>Komanda kartını <em>hazırla</em></h2><p>Komandanın rəsmi paylaşım kartını öz tərzində yarat və yüklə.</p></div>
@@ -99,17 +88,17 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
         </label>)}
       </div></fieldset>
       <fieldset className="team-share-options"><legend>Kart elementləri</legend>
-        <div><QrCode aria-hidden="true"/><Switch label="QR kodu və profil linki" description="Komandanın ictimai profilinə keçid." checked={showQr} disabled={exporting} onChange={event => setShowQr(event.target.checked)}/></div>
-        <div><Map aria-hidden="true"/><Switch label="Xəritə statistikası" description={hasMaps ? 'Ən çox oynanan xəritələr və orta yer.' : 'Xəritə statistikası hələ dərc edilməyib.'} checked={showMaps && hasMaps} disabled={!hasMaps || exporting} onChange={event => setShowMaps(event.target.checked)}/></div>
-        <div><BarChart3 aria-hidden="true"/><Switch label="Son 5 matç" description={hasRecent ? 'Komandanın son 5 matçının nəticələri.' : 'Matç nəticələri hələ dərc edilməyib.'} checked={showRecent && hasRecent} disabled={!hasRecent || exporting} onChange={event => setShowRecent(event.target.checked)}/></div>
+        <div><QrCode aria-hidden="true"/><Switch label="QR kodu və profil linki" description="Komandanın ictimai profilinə keçid." checked={options.showQr} disabled={!extended || exporting} onChange={event => setShowQr(event.target.checked)}/></div>
+        <div><Map aria-hidden="true"/><Switch label="Xəritə statistikası" description={hasMaps ? 'Ən çox oynanan xəritələr və orta yer.' : 'Xəritə statistikası hələ dərc edilməyib.'} checked={options.showMaps} disabled={!extended || !hasMaps || exporting} onChange={event => setShowMaps(event.target.checked)}/></div>
+        <div><BarChart3 aria-hidden="true"/><Switch label="Son 5 matç" description={hasRecent ? 'Komandanın son 5 matçının nəticələri.' : 'Matç nəticələri hələ dərc edilməyib.'} checked={options.showRecent} disabled={!extended || !hasRecent || exporting} onChange={event => setShowRecent(event.target.checked)}/></div>
       </fieldset>
-      <fieldset className="team-share-content"><legend>Məzmun</legend><div>{[false, true].map(value => <label key={String(value)} className={extended === value ? 'is-active' : ''}><input type="radio" name={`${groupId}-mode`} checked={extended === value} onChange={() => setExtended(value)} disabled={exporting || value && !hasExtended}/><span>{value ? 'Geniş' : 'Standart'}</span></label>)}</div><small>{extended ? 'Heyət rolları, mənbə və 5-dək xəritə. Seçilmiş elementlər saxlanılır.' : 'Əsas heyət, statistika və 3-dək xəritə.'}</small></fieldset>
+      <fieldset className="team-share-content"><legend>Məzmun</legend><div>{[false, true].map(value => <label key={String(value)} className={extended === value ? 'is-active' : ''}><input type="radio" name={`${groupId}-mode`} checked={extended === value} onChange={() => setExtended(value)} disabled={exporting}/><span>{value ? 'Geniş' : 'Standart'}</span></label>)}</div><small>{extended ? 'Əlavələri seçin. Seçimlər saxlanılır.' : 'Əlavələr Geniş rejimində açılır.'}</small></fieldset>
       <div className="team-share-download">
         {warning && <p role="status">{warning}</p>}
         {error && <p role="alert">{error} <button type="button" onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</button></p>}
         {!ready && !error && <p role="status">Kart hazırlanır…</p>}
         <Button loading={exporting} disabled={!ready} icon={<Download size={18} aria-hidden="true"/>} onClick={() => void download()}>PNG yüklə</Button>
-        <small>{teamIdentityCardSizes[format].width} × {teamIdentityCardSizes[format].height} · PNG · İctimai profil üçün optimallaşdırılıb.</small>
+        <small>{teamIdentityCardSizes[format].width} × {teamIdentityCardSizes[format].height} · PNG<span className="team-share-export-note"> · İctimai profil üçün optimallaşdırılıb.</span></small>
       </div>
     </aside>
   </div>;
