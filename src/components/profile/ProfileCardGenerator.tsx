@@ -1,6 +1,7 @@
 import '../../styles/team-share-modal.css';
 import { BarChart3, Check, Download, Map, QrCode } from 'lucide-react';
 import QRCode from 'qrcode';
+import { mapArtwork } from '../../assets/maps';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ProfileCardFormat, TeamProfileCardData } from '../../types/domain';
 import { drawTeamIdentityCard, loadCardImage, teamIdentityCardBlob, teamIdentityCardSizes, resolveTeamCardOptions, type TeamIdentityCardAssets } from '../../utils/teamIdentityCard';
@@ -32,13 +33,14 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
     let active = true;
     setAssets(undefined); setError(''); setWarning('');
     void (async () => {
-      await Promise.all([document.fonts?.load('800 48px Orbitron'), document.fonts?.load('700 24px Raleway')]);
+      await Promise.all([document.fonts?.load('800 48px Orbitron'), document.fonts?.load('700 24px Raleway'), document.fonts?.load('900 200px Raleway')]);
       await document.fonts?.ready;
-      const [logo, qr] = await Promise.all([
+      const [logo, qr, maps] = await Promise.all([
         loadCardImage(data.teamLogo).catch(() => { if (active) setWarning('Loqo yüklənmədi. Kartda komandanın baş hərfləri göstərilir.'); return undefined; }),
         QRCode.toDataURL(data.profileUrl, { errorCorrectionLevel: 'H', margin: 4, width: 360, color: { dark: '#070709', light: '#ffffff' } }).then(source => loadCardImage(source, true)),
+        Promise.all(Object.entries(mapArtwork).map(async ([name, artwork]) => [name, await loadCardImage(artwork.src).catch(() => undefined)] as const)).then(Object.fromEntries),
       ]);
-      if (active) setAssets({ logo, qr });
+      if (active) setAssets({ logo, qr, maps });
     })().catch(() => { if (active) setError('Kart hazırlanmadı. Bağlantını yoxlayıb yenidən cəhd edin.'); });
     return () => { active = false; };
   }, [data.teamLogo, data.profileUrl, attempt]);

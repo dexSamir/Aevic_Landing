@@ -144,3 +144,12 @@
 .overview-participation p { margin:4px 0 0; color:var(--color-text-soft); font-size:13px; }
 .overview-participation label { display:grid; gap:4px; max-width:100%; font-size:12px; }
 .overview-participation select { max-width:100%; min-height:44px; }
+
+@media (max-width: 768px) {
+  .overview-identity nav a, .overview-section-link, .overview-section-title > a,
+  .overview-updates li, .overview-updates li time, .overview-recent p,
+  .overview-rounds small, .overview-rounds header > span,
+  .overview-standing-summary small, .overview-standings th,
+  .overview-command-time > span, .overview-command-time small { font-size: 12px; }
+  .overview-identity nav a { min-height: 44px; }
+}

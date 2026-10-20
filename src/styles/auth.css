@@ -857,3 +857,19 @@ html:has(.auth-identity)::-webkit-scrollbar, body:has(.auth-identity)::-webkit-s
 /* Google HTML configurator branding, kept distinct from AEVIC's gold action. */
 .google-auth .google-auth-button { background:#131314; color:#e3e3e3; border:1px solid #8e918f; padding:12px; gap:10px; font:500 14px/20px "Google Sans", Arial, sans-serif; }
 .google-auth-button svg { flex-shrink:0; }
+
+/* A short viewport (including an open keyboard) scrolls the form as one document. */
+@media (max-width: 1023px), (max-height: 600px) {
+  .auth-identity .auth-availability--compact summary,
+  .auth-identity .review-issues button,
+  .auth-identity .registration-review-group header button { min-height: 44px; }
+  .auth-identity .registration-agreement label { display: block; min-height: 44px; }
+  .auth-identity .field :is(input, select, textarea) { font-size: 16px; }
+  .auth-shell--register.auth-identity .register-shell { height: auto; }
+  .auth-shell--register.auth-identity .register-workspace__scroller,
+  .auth-shell--register.auth-identity .registration-team-preview { max-height: none; overflow-y: visible; }
+}
+
+@media (max-width: 600px) {
+  .auth-identity .register-login { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 6px; }
+}

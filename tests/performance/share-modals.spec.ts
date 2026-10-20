@@ -146,7 +146,7 @@ test('Standard gates optional content and Extended remembers independent selecti
 test('two columns fit desktop and all normal narrow widths without internal scrolling', async ({page}) => {
   await page.goto('/teams/caspian-wolves');await page.locator('.public-team-feature-actions button:first-child').click();
   const dialog=page.getByRole('dialog');await expect(dialog.getByRole('button',{name:'PNG yüklə'})).toBeEnabled();
-  for(const [width,height] of [[1440,900],[1536,1024],[1280,720],[1024,768],[320,640],[360,740],[375,812],[390,844],[430,932]]){
+  for(const [width,height] of [[1440,900],[1536,1024],[1280,720],[1024,768],[320,640],[360,740],[375,812],[390,844],[414,896],[430,932],[480,800]]){
     await page.setViewportSize({width,height});
     for(const mode of ['Standart','Geniş']){
       await dialog.getByRole('radio',{name:mode,exact:true}).check();
@@ -192,8 +192,9 @@ test('every option combination exports decodable pixels with text and QR above t
         const result=await dialog.locator('canvas[hidden]').evaluate((canvas:HTMLCanvasElement)=>({png:canvas.toDataURL('image/png'),ink:(window as any).__shareInk.get(canvas) as Array<{text:string;top:number;bottom:number;left:number;right:number}>}));
         expect(await sharp(Buffer.from(result.png.split(',')[1],'base64')).metadata()).toMatchObject({format:'png',width:1080,height});
         const wordmark=result.ink.at(-1)!;expect(wordmark.text).toBe('AEVIC');expect(wordmark.left).toBeGreaterThanOrEqual(0);expect(wordmark.right).toBeLessThanOrEqual(1080);
-        expect(wordmark.top).toBeGreaterThanOrEqual(height-1080*.19);expect(wordmark.bottom).toBeLessThanOrEqual(height);
-        for(const ink of result.ink.slice(0,-1)){expect(ink.bottom).toBeLessThan(height-1080*.19);expect(ink.left).toBeGreaterThanOrEqual(0);expect(ink.right).toBeLessThanOrEqual(1080);}
+        expect(wordmark.top).toBeLessThan(height);expect(wordmark.bottom).toBeGreaterThan(height);
+        expect((wordmark.top + wordmark.bottom) / 2).toBeCloseTo(height, 5);
+        for(const ink of result.ink.slice(0,-1)){expect(ink.bottom).toBeLessThan(wordmark.top);expect(ink.left).toBeGreaterThanOrEqual(0);expect(ink.right).toBeLessThanOrEqual(1080);}
         expect(result.ink.some(ink=>ink.text==='SCAN // PUBLIC PROFILE')).toBe(extended&&!!(mask&1));
         const preview=await dialog.locator('.identity-skeleton').evaluate(canvas=>(window as any).__shareInk.get(canvas) as Array<{text:string;top:number;bottom:number}>);
         for(const text of ['AEVIC','PUBLIC ROSTER','SON 5 MATÇ','XƏRİTƏ STATİSTİKASI','SCAN // PUBLIC PROFILE'])expect(preview.filter(ink=>ink.text===text)).toEqual(result.ink.filter(ink=>ink.text===text));
