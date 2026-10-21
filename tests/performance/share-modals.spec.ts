@@ -202,3 +202,62 @@ test('every option combination exports decodable pixels with text and QR above t
     }
   }
 });
+
+test('styled QR decodes from every downloaded format and matches preview pixels', async ({ page }) => {
+  await page.addInitScript(() => {
+    const draw = CanvasRenderingContext2D.prototype.drawImage;
+    (window as any).__qrDraws = new WeakMap();
+    CanvasRenderingContext2D.prototype.drawImage = function(image: CanvasImageSource, ...args: number[]) {
+      if (image instanceof HTMLImageElement && image.src.startsWith('data:image/svg+xml')) {
+        const [x, y, width, height] = args, t = this.getTransform();
+        (window as any).__qrDraws.set(this.canvas, { x: t.e + x * t.a, y: t.f + y * t.d, width: width * t.a, height: height * t.d, source: image.src });
+      }
+      return draw.apply(this, [image, ...args] as Parameters<typeof draw>);
+    };
+  });
+  await page.goto('/teams/caspian-wolves');
+  await page.locator('.public-team-feature-actions button:first-child').click();
+  const dialog = page.getByRole('dialog'), download = dialog.getByRole('button', { name: 'PNG yüklə' });
+  await dialog.getByRole('radio', { name: 'Geniş', exact: true }).check();
+  const jsQR = (await import('jsqr')).default;
+  let source = '';
+  for (const name of ['1:1 Square', '4:5 Post', '9:16 Story']) {
+    await dialog.getByRole('radio', { name }).check();
+    await expect(download).toBeEnabled();
+    const qr = await dialog.locator('canvas[hidden]').evaluate((canvas: HTMLCanvasElement) => {
+      const bounds = (window as any).__qrDraws.get(canvas);
+      const preview = document.querySelector<HTMLCanvasElement>('.identity-skeleton')!;
+      const x = Math.floor(bounds.x), y = Math.floor(bounds.y), size = Math.ceil(bounds.width) + 1;
+      const pixels = canvas.getContext('2d')!.getImageData(x, y, size, size).data;
+      const previewPixels = preview.getContext('2d')!.getImageData(x, y, size, size).data;
+      return { ...bounds, equal: pixels.every((v, i) => v === previewPixels[i]) };
+    });
+    expect(qr.equal).toBe(true);
+    if (source) expect(qr.source).toBe(source);
+    source = qr.source;
+    const event = page.waitForEvent('download'); await download.click(); const file = await event;
+    const stream = await file.createReadStream(), chunks: Buffer[] = [];
+    for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+    const { data, info } = await sharp(Buffer.concat(chunks)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const decoded = jsQR(new Uint8ClampedArray(data), info.width, info.height, { inversionAttempts: 'attemptBoth' });
+    // A camera may frame the code rather than the entire poster. Decode the original
+    // exported pixels in that region too, without upscaling or color correction.
+    const cropped = await sharp(Buffer.concat(chunks)).extract({ left: Math.floor(qr.x), top: Math.floor(qr.y), width: Math.ceil(qr.width), height: Math.ceil(qr.height) }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const focused = jsQR(new Uint8ClampedArray(cropped.data), cropped.info.width, cropped.info.height, { inversionAttempts: 'attemptBoth' });
+    expect(focused?.data, name).toBe('https://aevic-esports.netlify.app/teams/caspian-wolves');
+    if (decoded) expect(decoded.data).toBe(focused?.data);
+    await file.delete();
+  }
+  const svg = decodeURIComponent(source.split(',').slice(1).join(','));
+  const { JSDOM } = await import('jsdom');
+  const doc = new JSDOM(svg, { contentType: 'image/svg+xml' }).window.document;
+  const fills = [...doc.querySelectorAll('[fill]')];
+  expect(new Set(fills.map(node => node.getAttribute('fill')))).toEqual(new Set(['#2A2D34', '#DCE0E8', '#F3C450']));
+  const gold = fills.filter(node => node.getAttribute('fill') === '#F3C450');
+  expect(gold).toHaveLength(3);
+  for (const dot of gold) expect(dot.getAttribute('clip-path')).toContain('corners-dot');
+  expect(fills.find(node => node.getAttribute('clip-path')?.includes('background'))?.getAttribute('fill')).toBe('#2A2D34');
+  expect(fills.find(node => node.getAttribute('clip-path')?.includes('path-dot-color'))?.getAttribute('fill')).toBe('#DCE0E8');
+  const { data, info } = await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  expect(jsQR(new Uint8ClampedArray(data), info.width, info.height, { inversionAttempts: 'attemptBoth' })?.data).toBe('https://aevic-esports.netlify.app/teams/caspian-wolves');
+});

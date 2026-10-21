@@ -1,6 +1,6 @@
 import '../../styles/team-share-modal.css';
 import { BarChart3, Check, Download, Map, QrCode } from 'lucide-react';
-import QRCode from 'qrcode';
+import { loadTeamProfileQr } from '../../utils/teamProfileQr';
 import { mapArtwork } from '../../assets/maps';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ProfileCardFormat, TeamProfileCardData } from '../../types/domain';
@@ -37,7 +37,7 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
       await document.fonts?.ready;
       const [logo, qr, maps] = await Promise.all([
         loadCardImage(data.teamLogo).catch(() => { if (active) setWarning('Loqo yüklənmədi. Kartda komandanın baş hərfləri göstərilir.'); return undefined; }),
-        QRCode.toDataURL(data.profileUrl, { errorCorrectionLevel: 'H', margin: 4, width: 360, color: { dark: '#070709', light: '#ffffff' } }).then(source => loadCardImage(source, true)),
+        loadTeamProfileQr(data.profileUrl),
         Promise.all(Object.entries(mapArtwork).map(async ([name, artwork]) => [name, await loadCardImage(artwork.src).catch(() => undefined)] as const)).then(Object.fromEntries),
       ]);
       if (active) setAssets({ logo, qr, maps });
