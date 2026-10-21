@@ -112,3 +112,10 @@
 .public-identity-menu__logo img { object-fit: contain; }
 .public-identity-menu__copy { display: grid; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
 .drawer-public-nav .public-nav-actions--authenticated { display: block; }
+
+.site-header__mobile-discovery { display: none; }
+@media (max-width: 800px) {
+  .site-header--home .site-header__mobile-discovery { display: flex; gap: 8px; }
+  .site-header--home .site-header__tools > .public-rules-link { display: none; }
+  .site-header--home .site-header__mobile-discovery .icon-button { width: 44px; height: 44px; border-radius: 10px; background: var(--material-navigation-control); }
+}

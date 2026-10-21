@@ -279,14 +279,17 @@
 
 /* Planning page container and agenda; picker styles remain shared above. */
 .tournament-program__index .tournament-calendar { display: grid; grid-template-columns: minmax(0,40%) minmax(0,1fr); gap: 16px; align-items: start; background: transparent; }
-.tournament-program__index .tournament-day-list { padding: 20px; border: 0; border-radius: 12px; background: #111215; min-width: 0; display: grid; gap: 10px; }
+.tournament-program__index .tournament-day-list { padding: 20px; border: 0; border-radius: 12px; background: #17191f; min-width: 0; display: grid; gap: 10px; }
 .tournament-program__index .tournament-day-list > header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin: 0 0 6px; padding: 0; background: transparent; }
 @media (max-width: 700px) { .tournament-program__index .tournament-calendar { grid-template-columns: minmax(0,1fr); } }
 @media (max-width: 767px) { .tournament-program__index .tournament-day-list { padding: 12px; } }
 .tournament-program__index .tournament-calendar__picker nav button { border: 0; background: #222429; }
-.tournament-program__index .tournament-calendar__picker { border-radius: 12px; }
+.tournament-program__index .tournament-calendar__picker { border-radius: 12px; background: #15171c; }
 .tournament-program__index .tournament-day-list > header { padding: 4px 0 10px; }
 .tournament-program__index .tournament-day-list .empty-state { min-height: 0; padding: 20px 12px; border: 0; background: #1b1d21; }
 /* Keep the same seven-column month on narrow planning screens. */
 .tournament-program__index .tournament-calendar__month { display: block; }
 .tournament-program__index .tournament-calendar__strip { display: none; }
+
+.tournament-program__index .tournament-day-list { border-left: 0; }
+.tournament-program__index .tournament-day-list .tournament-row { background: #202228; }

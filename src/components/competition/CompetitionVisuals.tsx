@@ -48,25 +48,29 @@ export function MapRotation({
   heading,
   variant = 'standard',
   ariaLabel = 'Rəsmi xəritə rotasiyası',
+  showRoundLabels = true,
+  maps = officialRotation,
 }: {
   statuses?: MapMatchStatus[];
   compact?: boolean;
   heading?: string;
   variant?: 'standard' | 'stage' | 'program';
   ariaLabel?: string;
+  showRoundLabels?: boolean;
+  maps?: readonly string[];
 }) {
   if (variant === 'program') return <section className="map-program" aria-label={ariaLabel}>
     {heading && <header><Swords size={19} /><h2>{heading}</h2><span>4 raund</span></header>}
     <ol tabIndex={0} aria-label={ariaLabel}>
-      {officialRotation.map((map, index) => {
+      {maps.map((map, index) => {
         const status = statuses[index];
         return <li key={`${map}-${index}`} data-reveal data-reveal-variant="fade-up" style={{ '--map-index': index, transitionDelay: `${index * 50}ms` } as CSSProperties}>
           <div className="map-program__frame">
-            <div className="map-program__art"><OfficialMapImage portrait index={index} sizes="(max-width: 767px) 160px, (max-width: 1100px) 18vw, (max-width: 1440px) 17vw, 236px" alt="" /></div>
+            <div className="map-program__art"><OfficialMapImage portrait index={officialRotation[index]?.toLowerCase() === map.toLowerCase() ? index : Math.max(0, officialRotation.findIndex(name => name.toLowerCase() === map.toLowerCase()))} sizes="(max-width: 767px) 160px, (max-width: 1100px) 18vw, (max-width: 1440px) 17vw, 236px" alt="" /></div>
             <div className="map-program__scrim" aria-hidden="true" />
             <span className="map-program__ghost" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
             {status && <span className={`map-program__pill map-program__pill--${status}`}>{statusCopy[status]}</span>}
-            <div className="map-program__identity"><span className="map-program__round">Raund {String(index + 1).padStart(2, '0')}</span><strong>{map}</strong></div>
+            <div className="map-program__identity">{showRoundLabels && <span className="map-program__round">Raund {String(index + 1).padStart(2, '0')}</span>}<strong>{map}</strong></div>
           </div>
         </li>;
       })}

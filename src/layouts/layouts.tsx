@@ -7,7 +7,9 @@ Settings,
 Users,
 FileText,
 LogOut,
-Menu
+Menu,
+Search,
+Bell
 } from 'lucide-react';
 import { useCallback,useEffect,useId,useRef,useState,type CSSProperties,type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { isRouteErrorResponse,Link,NavLink,useLocation,useNavigate,useRouteError } from 'react-router-dom';
@@ -152,7 +154,7 @@ export function PublicHeader() {
   }, [pathname]);
 
   const mode = footerVisible || (transparentAtTop && !scrolled) ? 'hero-top' : scrolled ? 'scrolled' : 'standard-top';
-  return <><header className={`site-header site-header--${mode}`} data-public-header-state={mode}><div className="container site-header__inner"><BrandMark variant="navigation" /><div className="site-header__desktop"><PublicNavLinks /></div><div className="site-header__tools"><Link className="public-rules-link" aria-label="Yarış qaydaları" to={publicNavigation.rules.to} aria-current={pathname === '/regulations' ? 'page' : undefined}><FileText size={17} aria-hidden="true" /><span>{publicNavigation.rules.label}</span></Link><div className="site-header__auth"><PublicAuthActions /></div><IconButton className="site-header__menu" label="Menyunu aç" aria-expanded={menuOpen} aria-controls="public-mobile-menu" onClick={() => setMenuOpen(true)}><Menu size={21} /></IconButton></div></div></header><Drawer id="public-mobile-menu" open={menuOpen} title="AEVIC menyu" onClose={() => setMenuOpen(false)}><div className="drawer-public-nav"><PublicNavLinks drawer onNavigate={() => setMenuOpen(false)} /><Link className="public-rules-link" to={publicNavigation.rules.to} onClick={() => setMenuOpen(false)}>{publicNavigation.rules.label}</Link><PublicAuthActions onNavigate={() => setMenuOpen(false)} /></div><div className="drawer-install"><InstallAevic /></div></Drawer></>;
+  return <><header className={`site-header site-header--${mode} ${pathname === '/' ? 'site-header--home' : ''}`} data-public-header-state={mode}><div className="container site-header__inner"><BrandMark variant="navigation" /><div className="site-header__desktop"><PublicNavLinks /></div><div className="site-header__tools">{pathname === '/' && <div className="site-header__mobile-discovery"><Link className="icon-button" to="/search" aria-label="Axtar"><Search size={21} /></Link><Link className="icon-button" to="/team/notifications" aria-label="Bildirişlər"><Bell size={21} /></Link></div>}<Link className="public-rules-link" aria-label="Yarış qaydaları" to={publicNavigation.rules.to} aria-current={pathname === '/regulations' ? 'page' : undefined}><FileText size={17} aria-hidden="true" /><span>{publicNavigation.rules.label}</span></Link><div className="site-header__auth"><PublicAuthActions /></div><IconButton className="site-header__menu" label="Menyunu aç" aria-expanded={menuOpen} aria-controls="public-mobile-menu" onClick={() => setMenuOpen(true)}><Menu size={21} /></IconButton></div></div></header><Drawer id="public-mobile-menu" open={menuOpen} title="AEVIC menyu" onClose={() => setMenuOpen(false)}><div className="drawer-public-nav"><PublicNavLinks drawer onNavigate={() => setMenuOpen(false)} /><Link className="public-rules-link" to={publicNavigation.rules.to} onClick={() => setMenuOpen(false)}>{publicNavigation.rules.label}</Link><PublicAuthActions onNavigate={() => setMenuOpen(false)} /></div><div className="drawer-install"><InstallAevic /></div></Drawer></>;
 }
 
 export function PublicLayout() {

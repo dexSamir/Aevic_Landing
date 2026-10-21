@@ -249,3 +249,125 @@
 @media (max-width: 480px) {
   .home-other-tournaments__rail { grid-template-columns: minmax(0,1fr); }
 }
+
+/* Reference composition: keep the feature and date workspace together on phones.
+   Small text is bounded; only the 320px layout needs a full-width calendar. */
+@media (max-width: 800px) {
+  .home-live-hero__stage { padding-top: calc(var(--header-height) + 2rem); gap: 1.5rem; }
+  .home-live-hero__cover { padding-block: 1rem 1.5rem; }
+  .home-live-hero__copy h1 { font-size: clamp(2.5rem,7.1vw,3.5rem); }
+  .home-live-hero__copy > span { color: var(--text-primary); letter-spacing: .025em; margin-bottom: .6rem; }
+  .home-live-hero__copy > p { font-size: 14px; line-height: 1.45; margin-top: .75rem; max-width: 30ch; }
+  .home-live-hero .hero-actions { margin-top: 1rem; }
+  .home-live-hero .hero-actions .button--secondary { display: none; }
+  .home-competition-slot, .home-competition-slot > .home-competition-rail, .home-competition-slot .loading-skeleton__rail { min-height: 9rem; }
+  .home-competition-rail { margin-inline: 0; padding: 12px; gap: 10px; grid-template-columns: minmax(0,1fr) auto; border-radius: 12px 12px 0 0; }
+  .home-competition-rail__identity > span { display: none; }
+  .home-competition-rail h2 { font: 700 14px/1.35 var(--font-ui); }
+  .home-competition-rail dl, .home-competition-slot .loading-skeleton__stats { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; grid-row: 2; grid-column: 1/-1; }
+  .home-competition-rail dl > div { padding: 0; border: 0; }
+  .home-competition-rail dt { font-size: 11px; }
+  .home-competition-rail dd { font-size: 12px; overflow-wrap: anywhere; }
+  .home-competition-rail__action { grid-row: 1; grid-column: 2; font-size: 12px; }
+  .home-calendar-section, .home-teams-section { padding-block: 28px; }
+  .home-section-intro { margin-bottom: 16px; gap: 12px; }
+  .home-section-intro > div > span { font-size: 11px; }
+  .home-calendar-section .home-section-intro h2 { font-size: clamp(28px,5.8vw,40px); }
+  .home-section-intro p { font-size: 14px; margin-top: 8px; }
+  .home-calendar-section .home-section-intro > a { display: none; }
+  .home-competition-program { grid-template-columns: minmax(0,1fr) minmax(0,1.18fr); gap: 12px; }
+  .home-competition-program .competition-feature { min-height: 0; border-radius: 12px; }
+  .home-competition-program .competition-feature__identity { padding: 16px 12px; gap: 12px; justify-items: start; }
+  .home-competition-program .competition-feature__identity > .competition-feature__official { font-size: 12px; padding: 0; margin: 0; gap: 6px; background: transparent; }
+  .home-competition-program .competition-feature h2 { font-size: clamp(20px,3.5vw,30px); overflow-wrap: anywhere; }
+  .home-competition-program .competition-feature p { font-size: 12px; line-height: 1.5; }
+  .home-competition-program .competition-feature a { padding: 10px; min-height: 44px; gap: 8px; font-size: 12px; border-radius: 8px; }
+  .home-competition-program .competition-feature dl { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 12px; gap: 12px 8px; }
+  .home-competition-program .competition-feature dl > div { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .home-competition-program .competition-feature dl svg { width: 18px; height: 18px; }
+  .home-competition-program .competition-feature dd { font-size: 11px; overflow-wrap: anywhere; }
+  .home-competition-program .competition-feature dt { font-size: 10px; }
+  .home-competition-program__calendar .tournament-calendar { gap: 10px; }
+  .home-competition-program__calendar .tournament-calendar__picker,
+  .home-competition-program__calendar .tournament-calendar__agenda { padding: 10px; border-radius: 12px; }
+  .home-competition-program__calendar .tournament-calendar__picker > header { gap: 4px; margin-bottom: 8px; }
+  .home-competition-program__calendar .tournament-calendar__picker > header :is(span,strong) { font-size: 14px; }
+  .home-competition-program__calendar .tournament-calendar__picker nav { margin-left: auto; gap: 4px; }
+  .home-competition-program__calendar .tournament-calendar__picker nav button { width: 44px; height: 44px; border-radius: 8px; }
+  .home-competition-program__calendar .tournament-calendar__weekdays { font-size: 10px; }
+  .home-competition-program__calendar .tournament-calendar__days { grid-auto-rows: minmax(26px,auto); }
+  .home-competition-program__calendar .tournament-calendar__days > button { width: 100%; height: 100%; min-height: 26px; aspect-ratio: 1; font-size: 12px; border-radius: 6px; }
+  .home-competition-program__calendar .tournament-calendar__agenda { min-height: 0; }
+  .home-competition-program__calendar .calendar-event-inspector { grid-template-columns: minmax(0,1fr); gap: 10px; }
+  .home-competition-program__calendar .calendar-event-inspector__heading { grid-template-columns: minmax(0,1fr); gap: 8px; }
+  .home-competition-program__calendar .calendar-selected-label { font-size: 11px; gap: 4px; }
+  .home-competition-program__calendar .calendar-event-status { font-size: 11px; }
+  .home-competition-program__calendar .calendar-event-inspector h3 { font-size: 14px; line-height: 1.3; }
+  .home-competition-program__calendar .calendar-event-inspector dl { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px 8px; }
+  .home-competition-program__calendar .calendar-event-inspector dl :is(dt,dd) { font-size: 11px; }
+  .home-competition-program__calendar .calendar-event-inspector dl svg { width: 16px; height: 16px; }
+  .home-competition-program__calendar .calendar-details-link { min-height: 44px; font-size: 11px; gap: 4px; }
+  .home-other-tournaments__rail { display: flex; overflow-x: auto; gap: 10px; }
+  .home-other-tournaments header > div { display: flex; }
+  .home-other-tournaments h3 { font-size: 12px; text-transform: none; letter-spacing: 0; }
+  .home-other-tournament { flex: 0 0 72%; min-width: 0; padding: 8px; gap: 10px; border-radius: 10px; }
+  .home-other-tournament img { height: 64px; width: 32%; border-radius: 6px; }
+  .home-other-tournament strong { font-size: 12px; }
+  .home-other-tournament > span { gap: 4px; }
+  .home-rotation { padding-block: 24px; background: transparent; }
+  .home-rotation > .container { grid-template-columns: minmax(0,.85fr) minmax(0,2fr); gap: 12px; align-items: start; }
+  .home-rotation .home-section-intro h2 { font-size: clamp(22px,3.5vw,30px); }
+  .home-rotation .home-section-intro h2 br { display: initial; }
+  .home-rotation .home-section-intro p { font-size: 12px; }
+  .home-rotation .map-program { min-width: 0; }
+  .home-rotation .map-program > ol { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 6px; margin: 0; padding: 0; overflow: visible; }
+  .home-rotation .map-program__frame { aspect-ratio: 3/5; border-radius: 8px; min-height: 112px; }
+  .home-rotation .map-program__ghost { top: 6px; left: 4px; font-size: clamp(20px,4.5vw,38px); }
+  .home-rotation .map-program__identity { padding: 6px 4px; }
+  .home-rotation .map-program__identity strong { font-size: 12px; white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+  .home-teams-section .home-section-intro { align-items: center; flex-wrap: nowrap; }
+  .home-teams-section .home-section-intro h2 { font-size: clamp(24px,4vw,32px); }
+  .home-teams-section .home-section-intro > a { font-size: 11px; gap: 4px; }
+  .home-team-stage, .loading-skeleton__team-rail { grid-auto-columns: calc((100% - 16px)/3); gap: 8px; }
+  .home-ranked-team, .loading-skeleton__team-card { min-height: 160px; padding: 30px 8px 12px; border-radius: 10px; }
+  .home-ranked-team .team-mark { width: 44px; height: 44px; margin-bottom: 6px; }
+  .home-ranked-team strong { font-size: 11px; overflow-wrap: anywhere; }
+  .home-ranked-team .roster-team-card__info > span, .home-ranked-team small { font-size: 11px; }
+  .home-ranked-team__rank { top: 8px; left: 8px; font-size: 11px; }
+  .home-ranked-team__crown { top: 8px; right: 8px; }
+  .home-team-controls { margin-top: -8px; }
+  .home-brand-statement { display: none; }
+  .home-program-placeholder, .home-program-placeholder .loading-skeleton__media { min-height: 600px; }
+}
+@media (min-width: 600px) and (max-width: 800px) {
+  .home-competition-program { grid-template-columns: minmax(0,1.65fr) minmax(0,1fr); }
+  .home-competition-rail { grid-template-columns: minmax(0,1.3fr) minmax(0,1.7fr) auto; }
+  .home-competition-rail dl { grid-row: 1; grid-column: 2; }
+  .home-competition-rail__action { grid-column: 3; }
+  .home-competition-slot, .home-competition-slot > .home-competition-rail { min-height: 80px; }
+  .home-other-tournament { flex-basis: calc((100% - 20px)/3); }
+  .home-team-stage, .loading-skeleton__team-rail { grid-auto-columns: calc((100% - 32px)/5); }
+  .home-team-controls { display: none; }
+}
+@media (max-width: 359px) {
+  .home-competition-program { grid-template-columns: minmax(0,1fr); }
+  .home-competition-program .competition-feature { min-height: 360px; }
+  .home-competition-program .competition-feature dl { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .home-competition-program__calendar .tournament-calendar__days > button { min-height: 36px; }
+  .home-rotation > .container { grid-template-columns: minmax(0,1fr); }
+  .home-rotation .home-section-intro h2 br { display: none; }
+  .home-rotation .map-program__frame { min-height: 140px; }
+}
+@media (max-width: 800px) {
+  .home-rotation .map-program__round { font-size: 9px; letter-spacing: 0; line-height: 1.3; }
+}
+@media (min-width: 600px) and (max-width: 800px) {
+  .home-competition-program .competition-feature dl { grid-template-columns: 1.3fr 1fr 1fr .7fr; }
+  .home-competition-program__calendar .calendar-event-inspector { grid-template-columns: minmax(0,1fr) auto; }
+  .home-competition-program__calendar .calendar-event-inspector__heading { grid-template-columns: minmax(0,1fr) auto; }
+  .home-competition-program__calendar .calendar-event-inspector dl { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 6px; }
+}
+@media (min-width: 360px) and (max-width: 479px) {
+  .home-competition-program { grid-template-columns: minmax(0,1fr) minmax(184px,1.18fr); }
+  .home-competition-program__calendar .tournament-calendar__picker { padding: 8px; }
+}
