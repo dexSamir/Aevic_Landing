@@ -1,3 +1,4 @@
+import { SkipLink } from '../components/common/SkipLink';
 import { SkeletonBlock } from '../components/common/LoadingSkeleton';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
@@ -9,7 +10,7 @@ export function TeamWorkspaceFrame({ sidebar, header, children, overlays, busy =
   sidebar: ReactNode; header: ReactNode; children: ReactNode; overlays?: ReactNode; busy?: boolean;
 }) {
   return <div className="product-shell product-shell--team team-workspace-frame" aria-busy={busy || undefined}>
-    <a className="skip-link" href="#main-content">Əsas məzmuna keç</a>
+    <SkipLink target="main-content" />
     <aside className="product-sidebar">{sidebar}</aside>
     <div className="product-main">{header}<main id="main-content" className="product-page" tabIndex={-1}>{children}</main></div>
     {overlays}

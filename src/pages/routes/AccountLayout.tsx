@@ -1,3 +1,4 @@
+import { SkipLink } from '../../components/common/SkipLink';
 import { NavLink } from "react-router-dom";
 import "../../app/workspaceStyles";
 import { BrandMark } from "../../components/brand/BrandMark";
@@ -8,9 +9,7 @@ export function AccountLayout() {
   return (
     <div className="account-shell">
       <RouteSeo />
-      <a className="skip-link" href="#account-content">
-        Əsas məzmuna keç
-      </a>
+      <SkipLink target="account-content" />
       <aside>
         <BrandMark />
         <div>

@@ -29,7 +29,7 @@ describe('tournament reference planning page', () => {
   expect(view.container.querySelector('.planning-feature h2')).toHaveTextContent('AEVIC Daily Cup #24');
   expect(screen.getByRole('timer')).toHaveAttribute('aria-live', 'off');
   expect(screen.getByRole('button', { name: 'Hamısı (3)' })).toHaveAttribute('aria-pressed', 'true');
-  expect(screen.getByRole('button', { name: 'Canlı (0)' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Davam edir (0)' })).toBeInTheDocument();
   const registered=await screen.findAllByRole('button', {name:/Qeydiyyatdan keçib/});expect(registered.every(button=>button.hasAttribute('disabled'))).toBe(true);
   expect(view.container.querySelector('.home-brand-statement')).not.toBeInTheDocument();
   expect(screen.getByRole('contentinfo')).toBeInTheDocument();
@@ -39,7 +39,7 @@ describe('tournament reference planning page', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Planlaşdırılıb (1)' }));
   expect(view.container.querySelectorAll('.planning-event')).toHaveLength(1);
   fireEvent.click(screen.getByRole('button', { name: /Rising Squads Series təqvimdə seç/ }));
-  expect(view.container.querySelector('.calendar-event-inspector h3')).toHaveTextContent('Rising Squads Series');
+  expect(view.container.querySelector('.tournament-day-list h3')).toHaveTextContent('Rising Squads Series');
   expect(view.container.querySelector('.tournament-calendar__days [aria-pressed=true]')).toHaveAttribute('data-calendar-date', '2026-09-12');
   expect(view.container.querySelector('.planning-event')).toHaveAttribute('data-selected', 'true');
   fireEvent.click(screen.getByRole('button', { name: 'Hamısı (3)' }));
@@ -84,4 +84,27 @@ describe('tournament reference planning page', () => {
   expect(css).toMatch(/\.tournament-calendar :is\([^}]+border: 0;/);
   expect(css).toMatch(/button.is-selected\s*\{[^}]*background: var\(--gold-primary\)/);
  });
+});
+it('sorts discovery data in both directions and leaves selected-day rows independent of search', async () => {
+ const view = mount(); await screen.findByText('Sizin komandanız qeydiyyatdadır');
+ const names = () => [...view.container.querySelectorAll('.planning-event h3')].map(node => node.textContent);
+ fireEvent.change(screen.getByRole('combobox', { name: 'Turnirləri sırala' }), { target: { value: 'newest' } });
+ expect(names()).toEqual([...tournaments].sort((a,b) => Date.parse(b.startsAt)-Date.parse(a.startsAt)).map(t => t.name));
+ fireEvent.change(screen.getByRole('combobox', { name: 'Turnirləri sırala' }), { target: { value: 'oldest' } });
+ expect(names()).toEqual([...tournaments].sort((a,b) => Date.parse(a.startsAt)-Date.parse(b.startsAt)).map(t => t.name));
+ const day = view.container.querySelector('.tournament-day-list')!;
+ const initial = day.textContent;
+ fireEvent.change(screen.getByRole('searchbox', { name: 'Turnir axtar' }), { target: { value: 'no-such-tournament' } });
+ expect(names()).toHaveLength(0);
+ expect(day.textContent).toBe(initial);
+ expect(day.querySelectorAll('.tournament-row')).toHaveLength(tournaments.filter(t => t.startsAt.slice(0,10) === tournaments[0].startsAt.slice(0,10)).length);
+});
+it('shows all tournaments sharing a calendar day, with their real count and links', async () => {
+ const { TournamentCalendar } = await import('../src/components/competition/TournamentCalendar');
+ const sameDay = [{ ...tournaments[0] }, { ...tournaments[0], id: 'same-day-second', name: 'Second event' }];
+ const view = render(<MemoryRouter><TournamentCalendar tournaments={sameDay} planning currentTime={new Date('2026-08-04T12:00:00+04:00')} /></MemoryRouter>);
+ const agenda = view.container.querySelector('.tournament-day-list')!;
+ expect(agenda).toHaveTextContent('Bu tarixdə 2 turnir var');
+ expect(agenda.querySelectorAll('.tournament-row')).toHaveLength(2);
+ expect(within(agenda as HTMLElement).getByRole('link', { name: 'Second event detallarını aç' })).toHaveAttribute('href', '/tournaments/same-day-second');
 });

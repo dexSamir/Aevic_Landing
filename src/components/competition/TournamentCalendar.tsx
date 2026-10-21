@@ -1,3 +1,4 @@
+import { TournamentRow } from './TournamentRow';
 import { ArrowRight, CalendarClock, Check, ChevronLeft, ChevronRight, LockKeyhole, Radio, Clock3, Users, Layers3, Crown, CalendarDays } from 'lucide-react';
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
@@ -128,7 +129,7 @@ export function TournamentCalendar({ tournaments, compact = false, overview = fa
       <div className="tournament-calendar__strip" aria-label="Seçilmiş gün ətrafındakı tarixlər">{stripDays.map((date) => <button type="button" key={calendarDateKey(date)} data-calendar-date={calendarDateKey(date)} data-event-status={eventsByDay.get(calendarDateKey(date))?.[0]?.status} aria-current={calendarDateKey(date) === todayKey ? 'date' : undefined} tabIndex={calendarDateKey(date) === calendarDateKey(selectedDate) ? 0 : -1} className={`${calendarDateKey(date) === calendarDateKey(selectedDate) ? 'is-selected' : ''} ${calendarDateKey(date) === todayKey ? 'is-today' : ''}`} aria-label={`${readableDate(date)}${eventsByDay.has(calendarDateKey(date)) ? `, ${eventsByDay.get(calendarDateKey(date))!.length} turnir, ${statusCopy[eventsByDay.get(calendarDateKey(date))![0].status]}` : ', turnir yoxdur'}`} aria-pressed={calendarDateKey(date) === calendarDateKey(selectedDate)} onClick={() => selectDay(date)} onKeyDown={(event) => onDayKeyDown(event, date)}><small>{weekdayLabels[(date.getUTCDay() + 6) % 7]}</small><strong>{date.getUTCDate()}</strong>{eventsByDay.has(calendarDateKey(date)) && <i aria-hidden="true" />}</button>)}</div>
       {planning ? <div className="planning-legend" aria-label="Turnir statusları"><span><i />Qeydiyyat açıq</span><span><i />Canlı</span><span><i />Planlaşdırılıb</span><span><i />Tamamlanıb</span></div> : <div className="tournament-calendar__legend" aria-label="Turnir statusları"><span><CalendarClock size={13} />Açıq</span><span><LockKeyhole size={13} />Bağlı</span><span><Radio size={13} />Canlı</span><span><Check size={13} />Bitib</span></div>}
     </div>
-    <div className="tournament-calendar__agenda">
+    {planning ? <div className="tournament-calendar__agenda tournament-day-list" aria-live="polite"><header><time dateTime={calendarDateKey(selectedDate)}>{readableDate(selectedDate, true)}</time><span>Bu tarixdə {selectedEvents.length} turnir var</span></header>{selectedEvents.map(tournament => <TournamentRow key={tournament.id} tournament={tournament} now={now} />)}{!selectedEvents.length && <div className="tournament-calendar__empty"><CalendarClock size={24} /><strong>Bu gün turnir yoxdur.</strong><p>Başqa tarixi seçin.</p></div>}</div> : <div className="tournament-calendar__agenda">
       <header><span>{planning ? 'SEÇİLMİŞ TARİX' : 'Seçilmiş gün'}</span><time dateTime={calendarDateKey(selectedDate)}>{readableDate(selectedDate, true)}</time></header>
       {selectedTournament ? <article className="calendar-event-inspector" key={selectedTournament.id}>
         {selectedEvents.length > 1 && <div className="calendar-event-switcher" role="group" aria-label="Bu günün turnirləri">{selectedEvents.map((item) => <button key={item.id} type="button" aria-pressed={item.id === selectedTournament.id} onClick={() => { setSelectedTournamentId(item.id); onSelectionChange?.({ date: calendarDateKey(selectedDate), tournamentId: item.id }); }}>{item.shortName}</button>)}</div>}
@@ -139,6 +140,6 @@ export function TournamentCalendar({ tournaments, compact = false, overview = fa
         {cinematic && <Link className="calendar-details-link" to={`/tournaments/${selectedTournament.id}`}>Turnir detalları <ArrowRight size={17} /></Link>}
         {!overview && <small className="calendar-authority-note">Slot və uyğunluq göndərmə anında servis tərəfindən yenidən yoxlanır.</small>}
       </article> : <div className="tournament-calendar__empty"><CalendarClock size={24} /><strong>Bu gün turnir yoxdur.</strong><p>Başqa tarixi seçin və ya bütün yarış xəttinə baxın.</p><Link to="/tournaments">Bütün turnirlər <ArrowRight size={15} /></Link></div>}
-    </div>
+    </div>}
   </section>;
 }

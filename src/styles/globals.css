@@ -44,7 +44,8 @@ body {
   transition: transform var(--duration-fast) var(--ease-out);
 }
 
-.skip-link:focus-visible { transform: translateY(0); }
+.skip-link { opacity: 0; pointer-events: none; }
+.skip-link[data-keyboard="true"]:focus-visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
 
 body.drawer-open,
 body:has(.modal-backdrop[data-state="open"]) {

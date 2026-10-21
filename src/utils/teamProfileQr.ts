@@ -1,3 +1,4 @@
+import QRCode from 'qrcode';
 import QRCodeStyling from 'qr-code-styling';
 
 // Keep vector geometry until the shared card renderer draws at export resolution.
@@ -8,12 +9,15 @@ export function loadTeamProfileQr(profileUrl: string): Promise<HTMLImageElement>
   const cached = assets.get(profileUrl);
   if (cached) return cached;
   const pending = (async () => {
+    // Four quiet-zone modules, scaled to the actual encoded URL's matrix.
+    const modules = QRCode.create(profileUrl, { errorCorrectionLevel: 'M' }).modules.size;
+    const margin = 728 * 4 / (modules + 8);
     const qr = new QRCodeStyling({
-      type: 'svg', width: 728, height: 728, margin: 104,
+      type: 'svg', width: 728, height: 728, margin,
       data: profileUrl,
       // No logo occlusion: M keeps modules readable in the dense Square layout.
       qrOptions: { errorCorrectionLevel: 'M' },
-      backgroundOptions: { color: '#2A2D34' },
+      backgroundOptions: { color: '#17191E', round: .16 },
       dotsOptions: { type: 'rounded', color: '#DCE0E8', roundSize: false },
       cornersSquareOptions: { type: 'extra-rounded', color: '#DCE0E8' },
       cornersDotOptions: { type: 'rounded', color: '#F3C450' },

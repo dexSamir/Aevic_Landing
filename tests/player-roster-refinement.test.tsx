@@ -1,0 +1,27 @@
+import { fireEvent, render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { expect, it, vi } from 'vitest';
+import { PublicTeamDetail } from '../src/components/profile/PublicTeamDetail';
+import { fixtureServices } from './fixtures/component-services';
+vi.mock('../src/components/profile/PublicTeamFeatures', () => ({ PublicTeamFeatures: () => null }));
+vi.mock('../src/components/profile/PublicTeamExperience', () => ({ ShareProfileAction: () => null }));
+vi.mock('../src/components/common/BrandJoinCta', () => ({ BrandJoinCta: () => null }));
+it('preserves roster roles and photos and falls back after an image fails', async () => {
+ const profile = (await fixtureServices.profiles.teamBySlug('caspian-wolves'))!;
+ profile.team.roster[0].photoUrl = 'https://example.invalid/player.png';
+ profile.team.roster[1].photoUrl = undefined;
+ const view = render(<MemoryRouter><PublicTeamDetail team={profile.team} profile={profile} /></MemoryRouter>);
+ const cards = view.container.querySelectorAll('.public-team-roster article');
+ expect(cards).toHaveLength(profile.team.roster.length);
+ expect(cards[0]).toHaveAttribute('data-captain', 'true');
+ expect(cards[0]).toHaveTextContent('Kapitan');
+ expect(cards[1]).toHaveTextContent('Əsas heyət');
+ expect(cards[1].querySelector('.anonymous-player')).toBeInTheDocument();
+ expect(view.container.querySelector('.public-team-player-portrait > span')).toBeNull();
+ const image = cards[0].querySelector('img')!;
+ expect(image.hidden).toBe(false);
+ expect(image.src).toContain('player.png');
+ fireEvent.error(image);
+ expect(image.hidden).toBe(true);
+ expect(cards[0].querySelector('.anonymous-player')).toBeInTheDocument();
+});

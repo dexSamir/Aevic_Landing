@@ -252,11 +252,11 @@ test('styled QR decodes from every downloaded format and matches preview pixels'
   const { JSDOM } = await import('jsdom');
   const doc = new JSDOM(svg, { contentType: 'image/svg+xml' }).window.document;
   const fills = [...doc.querySelectorAll('[fill]')];
-  expect(new Set(fills.map(node => node.getAttribute('fill')))).toEqual(new Set(['#2A2D34', '#DCE0E8', '#F3C450']));
+  expect(new Set(fills.map(node => node.getAttribute('fill')))).toEqual(new Set(['#17191E', '#DCE0E8', '#F3C450']));
   const gold = fills.filter(node => node.getAttribute('fill') === '#F3C450');
   expect(gold).toHaveLength(3);
   for (const dot of gold) expect(dot.getAttribute('clip-path')).toContain('corners-dot');
-  expect(fills.find(node => node.getAttribute('clip-path')?.includes('background'))?.getAttribute('fill')).toBe('#2A2D34');
+  expect(fills.find(node => node.getAttribute('clip-path')?.includes('background'))?.getAttribute('fill')).toBe('#17191E');
   expect(fills.find(node => node.getAttribute('clip-path')?.includes('path-dot-color'))?.getAttribute('fill')).toBe('#DCE0E8');
   const { data, info } = await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   expect(jsQR(new Uint8ClampedArray(data), info.width, info.height, { inversionAttempts: 'attemptBoth' })?.data).toBe('https://aevic-esports.netlify.app/teams/caspian-wolves');

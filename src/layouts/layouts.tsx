@@ -1,3 +1,4 @@
+import { SkipLink } from '../components/common/SkipLink';
 import {
 ChevronRight,
 CircleUserRound,
@@ -158,7 +159,7 @@ export function PublicLayout() {
   const { pathname } = useLocation();
   const independentTeamProfile = /^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname);
   const needsData = !independentTeamProfile && (pathname === '/leaderboard' || ['/teams', '/tournaments', '/organizations'].some((root) => pathname === root || pathname.startsWith(root + '/')));
-  return <PublicSessionProvider><div className={`site-shell${pathname === '/tournaments' ? ' public-shell--wide' : ''}`}><RouteSeo /><OfflineNotice /><a className="skip-link" href="#main-content">Əsas məzmuna keç</a><PublicHeader /><main id="main-content" tabIndex={-1}>{settings?.maintenanceMessage&&<aside className="platform-announcement container" role="status">{settings.maintenanceMessage}</aside>}{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter registrationEnabled={settings?.registrationEnabled} showCta={pathname !== '/matches' && pathname !== '/tournaments' && pathname !== '/teams' && !/^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname)} /></div></PublicSessionProvider>;
+  return <PublicSessionProvider><div className={`site-shell${pathname === '/tournaments' ? ' public-shell--wide' : ''}`}><RouteSeo /><OfflineNotice /><SkipLink target="main-content" /><PublicHeader /><main id="main-content" tabIndex={-1}>{settings?.maintenanceMessage&&<aside className="platform-announcement container" role="status">{settings.maintenanceMessage}</aside>}{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter registrationEnabled={settings?.registrationEnabled} showCta={pathname !== '/matches' && pathname !== '/tournaments' && pathname !== '/teams' && !/^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname)} /></div></PublicSessionProvider>;
 }
 
 export function RouteError() {
