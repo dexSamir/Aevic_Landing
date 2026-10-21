@@ -77,3 +77,9 @@
 .cinematic-footer__reflection { animation: footer-reflection 14s linear infinite; }
 @keyframes footer-reflection { from { transform:translateX(0); } to { transform:translateX(4400px); } }
 @media (prefers-reduced-motion: reduce) { .cinematic-footer__reflection { animation:none; transform:translateX(1900px); } }
+
+@media (max-width: 390px) {
+  .cinematic-footer__information { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 12px; }
+  .cinematic-footer__links { grid-template-columns: minmax(0,1fr); }
+  .cinematic-footer__information > * { min-width: 0; overflow-wrap: anywhere; }
+}

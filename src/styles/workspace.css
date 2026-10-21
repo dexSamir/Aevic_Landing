@@ -394,3 +394,10 @@
   .recent-message { align-items: flex-start; }
   .recent-message > div { min-width: 0; overflow-wrap: anywhere; }
 }
+
+/* Compact facts retain their desktop row relationships at narrow widths. */
+@media (max-width: 700px) {
+  .admin-command__stats, .slot-admin-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .settings-subnav { flex-wrap: wrap; overflow: visible; }
+  .settings-subnav > a { white-space: normal; }
+}

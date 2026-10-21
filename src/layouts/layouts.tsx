@@ -9,7 +9,7 @@ FileText,
 LogOut,
 Menu
 } from 'lucide-react';
-import { useCallback,useEffect,useRef,useState,type CSSProperties,type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useCallback,useEffect,useId,useRef,useState,type CSSProperties,type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { isRouteErrorResponse,Link,NavLink,useLocation,useNavigate,useRouteError } from 'react-router-dom';
 import { publicNavigation } from '../app/publicNavigation';
 import { BrandMark } from '../components/brand/BrandMark';
@@ -70,6 +70,7 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
   const { session, team, loading, error, refresh } = usePublicSession();
   const [open, setOpen] = useState(false);
   const [logoutError, setLogoutError] = useState('');
@@ -116,12 +117,12 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
   const hasTeamArea = !isAdmin && ['captain', 'team'].includes(session.role);
   const identity = isAdmin ? (session.user.firstName || 'Admin') : team?.name || session.user.firstName || 'Hesab';
   return <div className="public-nav-actions public-nav-actions--authenticated" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
-    <button ref={buttonRef} type="button" className="public-identity-trigger" aria-label={`${identity} hesab menyusu`} aria-haspopup="menu" aria-expanded={open} aria-controls="public-identity-menu" onClick={() => setOpen((value) => !value)}>
+    <button ref={buttonRef} type="button" className="public-identity-trigger" aria-label={`${identity} hesab menyusu`} aria-haspopup="menu" aria-expanded={open} aria-controls={menuId} onClick={() => setOpen((value) => !value)}>
       {hasTeamArea && team ? <TeamLogo name={team.name} src={team.logoUrl} size="sm" /> : <CircleUserRound size={20} />}
       <span className="public-identity-label">{identity}</span><ChevronRight size={15} aria-hidden="true" />
     </button>
-    {open && <div ref={menuRef} id="public-identity-menu" className="public-identity-menu" role="menu" aria-label="Hesab əməliyyatları" onKeyDown={handleMenuKeyDown}>
-      <header><span>{isAdmin ? 'Administrator' : team?.tag || 'AEVIC hesabı'}</span><strong>{identity}</strong><small>{session.user.email}</small></header>
+    {open && <div ref={menuRef} id={menuId} className="public-identity-menu" role="menu" aria-label="Hesab əməliyyatları" onKeyDown={handleMenuKeyDown}>
+      <header><div className="public-identity-menu__logo">{team && !isAdmin ? <TeamLogo name={team.name} src={team.logoUrl} size="sm" /> : <CircleUserRound size={28} aria-hidden="true" />}</div><div className="public-identity-menu__copy"><span>{isAdmin ? 'Administrator' : team?.tag || 'AEVIC hesabı'}</span><strong>{identity}</strong><small>{session.user.email}</small></div></header>
       {isAdmin && <Link role="menuitem" tabIndex={-1} to="/admin" onClick={() => close()}><LayoutDashboard size={16} aria-hidden="true" />Admin paneli</Link>}
       {hasTeamArea && <Link role="menuitem" tabIndex={-1} to="/team" onClick={() => close()}><Users size={16} aria-hidden="true" />Komanda paneli</Link>}
       <Link role="menuitem" tabIndex={-1} to="/account/profile" onClick={() => close()}><CircleUserRound size={16} aria-hidden="true" />Hesab</Link>

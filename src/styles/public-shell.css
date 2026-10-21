@@ -105,3 +105,10 @@
 .public-identity-menu > header strong { font-size:14px; }
 .public-identity-menu > button { margin-top:8px; }
 .public-identity-menu > :is(a,button):focus-visible { background:var(--surface-hover); }
+
+.public-identity-menu > header { grid-template-columns: 52px minmax(0, 1fr); align-items: center; gap: 12px; }
+.public-identity-menu__logo { display: grid; place-items: center; width: 52px; height: 60px; border-radius: 10px; background: var(--surface-1); }
+.public-identity-menu__logo .team-logo { width: 44px; height: 44px; }
+.public-identity-menu__logo img { object-fit: contain; }
+.public-identity-menu__copy { display: grid; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
+.drawer-public-nav .public-nav-actions--authenticated { display: block; }

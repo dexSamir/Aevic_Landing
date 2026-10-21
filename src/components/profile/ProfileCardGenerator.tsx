@@ -2,7 +2,7 @@ import '../../styles/team-share-modal.css';
 import { BarChart3, Check, Download, Map, QrCode } from 'lucide-react';
 import { loadTeamProfileQr } from '../../utils/teamProfileQr';
 import { mapArtwork } from '../../assets/maps';
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ProfileCardFormat, TeamProfileCardData } from '../../types/domain';
 import { drawTeamIdentityCard, loadCardImage, teamIdentityCardBlob, teamIdentityCardSizes, resolveTeamCardOptions, type TeamIdentityCardAssets } from '../../utils/teamIdentityCard';
 import { Button, Switch } from '../common/primitives';
@@ -45,18 +45,16 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
     return () => { active = false; };
   }, [data.teamLogo, data.profileUrl, attempt]);
 
-  useEffect(() => {
-    // Coalesce rapid changes; obsolete renders never become downloadable.
-    const timer = window.requestAnimationFrame(() => {
-      try {
-        if (!canvasRef.current) return;
-        if (previewRef.current) drawTeamIdentityCard(previewRef.current, data, format, assets ?? {}, options, true);
-        if (!assets) return;
-        drawTeamIdentityCard(canvasRef.current, data, format, assets, options);
-        setRendered(version); setError('');
-      } catch { setError('Önizləmə hazırlanmadı. Yenidən cəhd edin.'); }
-    });
-    return () => window.cancelAnimationFrame(timer);
+  useLayoutEffect(() => {
+    // Paint before the browser presents the new aspect ratio. Asset loading
+    // stays independent of display options.
+    try {
+      if (!canvasRef.current) return;
+      if (previewRef.current) drawTeamIdentityCard(previewRef.current, data, format, assets ?? {}, options, true);
+      if (!assets) return;
+      drawTeamIdentityCard(canvasRef.current, data, format, assets, options);
+      setRendered(version); setError('');
+    } catch { setError('Önizləmə hazırlanmadı. Yenidən cəhd edin.'); }
   }, [assets, data, format, extended, showMaps, showRecent, showQr, version, options]);
   const ready = Boolean(assets && rendered === version && !error);
   const download = async () => {
@@ -98,7 +96,7 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
       <div className="team-share-download">
         {warning && <p role="status">{warning}</p>}
         {error && <p role="alert">{error} <button type="button" onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</button></p>}
-        {!ready && !error && <p role="status">Kart hazırlanır…</p>}
+        {!assets && !error && <p role="status">Kart hazırlanır…</p>}
         <Button loading={exporting} disabled={!ready} icon={<Download size={18} aria-hidden="true"/>} onClick={() => void download()}>PNG yüklə</Button>
         <small>{teamIdentityCardSizes[format].width} × {teamIdentityCardSizes[format].height} · PNG<span className="team-share-export-note"> · İctimai profil üçün optimallaşdırılıb.</span></small>
       </div>

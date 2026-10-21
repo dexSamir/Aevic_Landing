@@ -239,3 +239,13 @@
   .home-competition-rail dt { font-size: 12px; }
   .home-competition-slot, .home-competition-slot > .home-competition-rail, .home-competition-slot .loading-skeleton__rail { min-height: 13rem; }
 }
+
+/* Tournament discovery remains a grid on handheld screens. */
+@media (max-width: 800px) {
+  .home-other-tournaments__rail { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); overflow: visible; gap: 12px; }
+  .home-other-tournament { min-width: 0; width: auto; }
+  .home-other-tournaments header > div { display: none; }
+}
+@media (max-width: 480px) {
+  .home-other-tournaments__rail { grid-template-columns: minmax(0,1fr); }
+}

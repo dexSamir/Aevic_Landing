@@ -505,3 +505,7 @@
 .modal-backdrop { box-sizing: border-box; height: 100dvh; padding: max(var(--space-md), env(safe-area-inset-top)) max(var(--space-md), env(safe-area-inset-right)) max(var(--space-md), env(safe-area-inset-bottom)) max(var(--space-md), env(safe-area-inset-left)); backdrop-filter: blur(8px); }
 .modal-backdrop .modal { max-height: 100%; position: relative; }
 .modal__custom-header { position: absolute; right: 0; top: 0; z-index: 1; }
+
+/* Navigation choices stay in the available width instead of a hidden tab rail. */
+.tabs { flex-wrap: wrap; overflow: visible; }
+.tabs > button { min-height: 44px; white-space: normal; }

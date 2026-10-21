@@ -101,3 +101,9 @@
   .team-share-download { gap: 8px; }
   .team-share-download > .button { padding: 8px; font-size: 13px; gap: 6px; }
 }
+
+/* Reserve the same stage for every format; configuration never moves the dialog. */
+.team-share-preview { height: min(680px, var(--preview-height)); align-content: center; }
+.team-share-preview .identity-skeleton { max-height: 100%; object-fit: contain; }
+.team-share-content > small { min-height: 2.8em; }
+@media (max-width: 700px) { .team-share-preview { height: min(430px, var(--preview-height)); } }

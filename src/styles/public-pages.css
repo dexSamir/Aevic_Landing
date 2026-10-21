@@ -732,7 +732,7 @@
 .planning-list-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
 .planning-list-heading > div { margin-right: auto; }
 .planning-list-heading h2 { text-transform: uppercase; }
-.planning-sort select { min-height: 44px; max-width: 100%; border: 1px solid #303138; border-radius: 8px; background: #131518; padding: 8px 12px; font-size: 12px; }
+.planning-sort select { min-height: 44px; max-width: 100%; border: 0; border-radius: 8px; background: #222429; padding: 8px 12px; font-size: 12px; }
 .planning-events { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px 16px; }
 .planning-events > .planning-empty { grid-column: 1 / -1; }
 .planning-filters { margin-bottom: 18px; }
@@ -740,6 +740,22 @@
 @media (max-width: 767px) { .planning-events { grid-template-columns: minmax(0,1fr); } .planning-list-heading { flex-wrap: wrap; flex-direction: row; } .planning-list-heading > div { width: 100%; } .planning-search { flex: 1; width: auto; min-width: 140px; } .planning-sort { max-width: 100%; } }
 
 .planning-list-heading { flex-wrap: wrap; }
-.planning-list-heading .planning-filters { padding: 0; margin: 0; gap: 2px; border: 1px solid #25272d; border-radius: 9px; background: #131518; }
+.planning-list-heading .planning-filters { padding: 0; margin: 0; gap: 2px; border: 0; border-radius: 9px; background: #1b1d21; }
 .planning-list-heading .planning-filters button { white-space: nowrap; }
 @media (max-width: 767px) { .planning-list-heading .planning-filters { width: 100%; flex-wrap: wrap; } }
+
+.planning-search { border: 0; background: #222429; }
+.planning-search input { border: 0; background: transparent; }
+.planning-filters button { min-height: 44px; }
+@media (min-width: 480px) and (max-width: 767px) {
+  .planning-feature { grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); }
+  .planning-feature__copy, .planning-feature__info { padding: 18px; }
+  .planning-feature__visual { min-height: 300px; }
+  .planning-feature__copy h2 { font-size: clamp(32px,6vw,44px); }
+  .planning-feature__facts { grid-template-columns: minmax(0,1fr); }
+  .planning-countdown { flex-wrap: wrap; gap: 8px; }
+  .planning-countdown [role='timer'] { gap: 8px; }
+  .planning-countdown [role='timer'] b { font-size: 28px; }
+  .planning-countdown [role='timer'] small { font-size: 12px; }
+}
+.profile-anchor-nav { flex-wrap: wrap; overflow: visible; }

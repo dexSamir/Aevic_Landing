@@ -1433,3 +1433,10 @@
 .file-upload:focus-within { outline: 2px solid var(--gold-primary); outline-offset: 3px; }
 
 @media(prefers-reduced-motion:reduce) { .preview-skeleton { animation:none; } }
+
+/* Small screens retain paired facts and card grids without carousel substitutes. */
+@media (max-width: 700px) {
+  .entry-facts, .history-summary, .team-stats-visual dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .featured-cabinet__rail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; margin-inline: 0; padding-inline: 0; gap: 12px; }
+  .featured-cabinet__rail > * { min-width: 0; width: auto; }
+}
