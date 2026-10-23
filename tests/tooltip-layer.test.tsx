@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TooltipLayer } from '../src/components/common/TooltipLayer';
 import { Button, Tooltip } from '../src/components/common/primitives';
-afterEach(() => vi.useRealTimers());
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 function setup() { vi.useFakeTimers(); render(<><TooltipLayer /><Tooltip label="Əlavə məlumat"><button aria-describedby="existing">Məlumat</button></Tooltip><Button title="Yüklə">Export</Button></>); return screen.getByRole('button', { name: 'Məlumat' }); }
 describe('shared tooltip interactions', () => {
   it('delays focus hints, preserves descriptions, and dismisses with Escape', () => {
@@ -22,6 +22,25 @@ describe('shared tooltip interactions', () => {
     const button = setup();
     fireEvent.pointerOver(button, { pointerType: 'mouse' });
     fireEvent.pointerOut(button);
+    act(() => vi.advanceTimersByTime(600));
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+  it('does not open on touch-first keyboard focus or synthetic mouse events', () => {
+    const original = window.matchMedia;
+    vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ ...original(query), matches: true }));
+    const button = setup();
+    act(() => button.focus());
+    fireEvent.pointerOver(button, { pointerType: 'mouse' });
+    act(() => vi.advanceTimersByTime(600));
+    expect(screen.queryByRole('tooltip')).toBeNull();
+    expect(button).toHaveAttribute('aria-describedby', 'existing');
+  });
+  it('does not open after tapping and focusing on a hybrid device', () => {
+    const button = setup();
+    const event = new Event('pointerdown', { bubbles: true });
+    Object.defineProperty(event, 'pointerType', { value: 'touch' });
+    fireEvent(button, event);
+    act(() => button.focus());
     act(() => vi.advanceTimersByTime(600));
     expect(screen.queryByRole('tooltip')).toBeNull();
   });

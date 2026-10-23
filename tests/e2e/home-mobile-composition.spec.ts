@@ -1,9 +1,9 @@
 import { test, expect } from '../helpers/api-fixture-test';
 
 test.use({ screenshot: 'off', trace: 'off', video: 'off', reducedMotion: 'reduce' });
-const widths = [320, 360, 375, 390, 414, 430, 480, 695, 768, 1024, 1440];
+const widths = [320, 360, 375, 390, 414, 430, 480, 600, 695, 768, 1024, 1440];
 
-test('homepage retains reference composition and readable controls across viewports', async ({ page }) => {
+test('homepage stacks mobile discovery and retains readable controls across viewports', async ({ page }) => {
   test.setTimeout(90_000);
   await page.goto('/');
   await expect(page.locator('.home-other-tournament').first()).toBeVisible();
@@ -15,11 +15,13 @@ test('homepage retains reference composition and readable controls across viewpo
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${selector}@${width}`).toBeLessThanOrEqual(1);
     }
     const boxes = await page.locator('.home-tournament-visual, .home-competition-program__calendar').evaluateAll(nodes => nodes.map(n => { const b=n.getBoundingClientRect(); return { x:b.x, y:b.y, right:b.right, bottom:b.bottom }; }));
-    if ((width >= 360 && width <= 800) || width >= 1024) {
+    if (width >= 1024) {
       expect(Math.abs(boxes[0].y-boxes[1].y)).toBeLessThan(2);
       expect(boxes[1].x-boxes[0].right).toBeGreaterThanOrEqual(10);
     }
-    await expect(page.locator('.tournament-calendar__month')).toBeVisible();
+    if (width <= 800) expect(boxes[1].y - boxes[0].bottom).toBeGreaterThanOrEqual(20);
+    const pickerWidth = await page.locator('.tournament-calendar__picker').evaluate(el => el.clientWidth - parseFloat(getComputedStyle(el).paddingLeft) - parseFloat(getComputedStyle(el).paddingRight));
+    await expect(page.locator(pickerWidth < 308 ? '.tournament-calendar__date-input' : '.tournament-calendar__month')).toBeVisible();
     await expect(page.locator('.map-program li')).toHaveCount(4);
     const collisions = await page.locator('.tournament-calendar__days').evaluate(el => {
       const boxes=[...el.querySelectorAll('button')].map(n=>n.getBoundingClientRect());

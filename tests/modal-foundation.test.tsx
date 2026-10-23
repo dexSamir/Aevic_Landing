@@ -11,3 +11,33 @@ it('portals outside page ancestors and keeps focus stable during control changes
  expect(document.body.style.position).toBe('fixed');fireEvent.keyDown(document,{key:'Escape'});
  await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());expect(trigger).toHaveFocus();expect(document.body.style.position).not.toBe('fixed');
 });
+
+it('keeps drawer focus stable across updates and restores the trigger on Escape', async () => {
+ const { Drawer } = await import('../src/components/common/primitives');
+ function Example() {
+  const [open, setOpen] = useState(false), [count, setCount] = useState(0);
+  return <><button onClick={() => setOpen(true)}>Open navigation</button><Drawer open={open} title="Navigation" onClose={() => setOpen(false)}><button onClick={() => setCount(count + 1)}>Update {count}</button></Drawer></>;
+ }
+ const view = render(<Example />), trigger = screen.getByText('Open navigation');
+ trigger.focus(); fireEvent.click(trigger);
+ const dialog = await screen.findByRole('dialog', { name: 'Navigation' });
+ expect(view.container.contains(dialog)).toBe(false);
+ await waitFor(() => expect(dialog).toHaveFocus());
+ const update = screen.getByText('Update 0'); update.focus(); fireEvent.click(update);
+ await screen.findByText('Update 1'); expect(update).toHaveFocus();
+ expect(document.body.style.position).toBe('fixed');
+ fireEvent.keyDown(document, { key: 'Escape' });
+ await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Navigation' })).toBeNull());
+ expect(trigger).toHaveFocus(); expect(document.body.style.position).not.toBe('fixed');
+});
+
+it('handles Escape immediately after opening without waiting for a paint', async () => {
+ const { Drawer } = await import('../src/components/common/primitives');
+ function Example() { const [open,setOpen]=useState(false); return <><button onClick={()=>setOpen(true)}>Open immediately</button><Drawer open={open} title="Immediate navigation" onClose={()=>setOpen(false)}>Links</Drawer></>; }
+ render(<Example />);
+ const trigger=screen.getByText('Open immediately');trigger.focus();fireEvent.click(trigger);
+ fireEvent.keyDown(document,{key:'Escape'});
+ await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());
+ await waitFor(()=>expect(trigger).toHaveFocus());
+ expect(document.body.style.position).not.toBe('fixed');
+});

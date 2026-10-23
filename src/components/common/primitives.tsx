@@ -27,6 +27,7 @@ import {
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
   useEffect,
+  useLayoutEffect,
   useId,
   useRef,
   useState,
@@ -258,7 +259,7 @@ export function Toast({ tone = 'success', title, body, onClose }: { tone?: 'succ
 }
 
 export function Tooltip({ label, children }: { label: string; children: ReactNode }) {
-  return <span className="tooltip" data-tooltip={label}>{children}</span>;
+  return <span className="tooltip" data-tooltip={label}>{children}<span className="tooltip-touch-description">{label}</span></span>;
 }
 
 export function Tabs({ items, active, onChange, label = 'Bölmələr' }: { items: { id: string; label: string; count?: number; panelId?: string }[]; active: string; onChange: (id: string) => void; label?: string }) {
@@ -335,7 +336,7 @@ function useExitPresence(open: boolean) {
     };
   }, [open]);
 
-  return { rendered, visible };
+  return { rendered: open || rendered, visible };
 }
 
 export function Modal({ open, title, children, onClose, footer, className = '', customHeading = false }: { open: boolean; title: string; children: ReactNode; onClose: () => void; footer?: ReactNode; className?: string; customHeading?: boolean }) {
@@ -344,7 +345,7 @@ export function Modal({ open, title, children, onClose, footer, className = '', 
   const closeRef = useRef(onClose); closeRef.current = onClose;
   const titleId = useId();
   const { rendered, visible } = useExitPresence(open);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open || !rendered || !panelRef.current) return;
     const panel = panelRef.current;
     const previous = document.activeElement as HTMLElement | null;
@@ -360,7 +361,7 @@ export function Modal({ open, title, children, onClose, footer, className = '', 
       if (!isTopModal(panel)) return;
       if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeRef.current(); return; }
       if (event.key !== 'Tab') return;
-      const focusable = [...panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')].filter(element => !element.closest('[hidden], [inert]') && getComputedStyle(element).visibility !== 'hidden');
+      const focusable = [...panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')].filter(element => element.getClientRects().length > 0 && !element.closest('[hidden], [inert]') && getComputedStyle(element).visibility !== 'hidden');
       if (!focusable.length) { event.preventDefault(); panel.focus({ preventScroll: true }); return; }
       const first = focusable[0], last = focusable[focusable.length - 1];
       if (event.shiftKey && (document.activeElement === first || document.activeElement === panel || !panel.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
@@ -370,7 +371,7 @@ export function Modal({ open, title, children, onClose, footer, className = '', 
     return () => {
       window.cancelAnimationFrame(frame); document.removeEventListener('keydown', onKeyDown);
       viewport?.removeEventListener('resize', resize); viewport?.removeEventListener('scroll', resize);
-      leave(); if (previous?.isConnected) previous.focus({ preventScroll: true });
+      leave(); queueMicrotask(() => { if (previous?.isConnected && !previous.closest('[inert]')) previous.focus({ preventScroll: true }); });
     };
   }, [open, rendered]);
   if (!rendered) return null;
@@ -393,26 +394,36 @@ export function ConfirmDialog({ open, title, body, confirmLabel, tone = 'danger'
   return <Modal open={open} title={title} onClose={close} footer={<><Button disabled={pending} variant="ghost" onClick={close}>Ləğv et</Button><Button disabled={pending} loading={pending} variant={tone} onClick={() => void confirm()}>{confirmLabel}</Button></>}><p>{body}</p>{error && <p role="alert">{error}</p>}</Modal>;
 }
 
-export function Drawer({ id, open, title, children, onClose }: { id?: string; open: boolean; title: string; children: ReactNode; onClose: () => void }) {
+export function Drawer({ id, open, title, heading, children, onClose }: { id?: string; open: boolean; title: string; heading?: ReactNode; children: ReactNode; onClose: () => void }) {
   const panelRef = useRef<HTMLElement>(null);
+  const closeRef = useRef(onClose); closeRef.current = onClose;
   const { rendered, visible } = useExitPresence(open);
-  useEffect(() => {
-    if (!open) return;
+  useLayoutEffect(() => {
+    if (!open || !rendered || !panelRef.current) return;
+    const panel = panelRef.current;
     const previous = document.activeElement as HTMLElement | null;
-    document.body.classList.add('drawer-open');
+    const leave = enterModal(panel);
+    const frame = window.requestAnimationFrame(() => panel.focus({ preventScroll: true }));
     const handler = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-      if (event.key !== 'Tab' || !panelRef.current) return;
-      const focusable = [...panelRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
-      if (!focusable.length) { event.preventDefault(); panelRef.current.focus(); return; }
-      const first = focusable[0]; const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      if (!isTopModal(panel)) return;
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeRef.current(); return; }
+      if (event.key !== 'Tab') return;
+      const focusable = [...panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+        .filter(element => element.getClientRects().length > 0 && !element.closest('[hidden], [inert]') && getComputedStyle(element).visibility !== 'hidden');
+      if (!focusable.length) { event.preventDefault(); panel.focus(); return; }
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      const outside = document.activeElement === panel || !panel.contains(document.activeElement);
+      if (event.shiftKey && (document.activeElement === first || outside)) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (document.activeElement === last || outside)) { event.preventDefault(); first.focus(); }
     };
     document.addEventListener('keydown', handler);
-    window.requestAnimationFrame(() => panelRef.current?.focus());
-    return () => { document.body.classList.remove('drawer-open'); document.removeEventListener('keydown', handler); previous?.focus(); };
-  }, [open, onClose]);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.removeEventListener('keydown', handler);
+      leave();
+      queueMicrotask(() => { if (previous?.isConnected && !previous.closest('[inert]')) previous.focus({ preventScroll: true }); });
+    };
+  }, [open, rendered]);
   if (!rendered) return null;
-  return <div className="drawer-backdrop" data-state={visible ? 'open' : 'closed'} aria-hidden={!open} onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}><aside id={id} ref={panelRef} tabIndex={-1} className="drawer" role="dialog" aria-modal={open ? true : undefined} aria-label={title}><header><strong>{title}</strong><IconButton label="Menyunu bağla" onClick={onClose}><X size={20} /></IconButton></header>{children}</aside></div>;
+  return createPortal(<div className="drawer-backdrop" data-state={visible ? 'open' : 'closed'} aria-hidden={!open} inert={!open} onMouseDown={(event) => { if (event.currentTarget === event.target) closeRef.current(); }}><aside id={id} ref={panelRef} tabIndex={-1} className="drawer" role="dialog" aria-modal={open ? true : undefined} aria-label={title}><header>{heading ?? <strong>{title}</strong>}<IconButton label="Menyunu bağla" onClick={() => closeRef.current()}><X size={20} /></IconButton></header>{children}</aside></div>, document.body);
 }

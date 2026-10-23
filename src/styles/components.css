@@ -509,3 +509,13 @@
 /* Navigation choices stay in the available width instead of a hidden tab rail. */
 .tabs { flex-wrap: wrap; overflow: visible; }
 .tabs > button { min-height: 44px; white-space: normal; }
+
+/* Drawers share the modal portal and remain usable with short viewports. */
+.drawer-backdrop { height: 100dvh; }
+.drawer { display: flex; flex-direction: column; gap: 16px; }
+.drawer > header { flex: 0 0 auto; position: sticky; top: 0; z-index: 1; background: var(--color-bg-secondary); }
+.drawer .side-nav { flex: 1; min-height: 0; overflow-y: auto; }
+@media (max-width: 640px) {
+  .field__label { flex-wrap: wrap; }
+  .pagination { flex-wrap: wrap; }
+}

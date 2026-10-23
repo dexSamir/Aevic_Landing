@@ -135,3 +135,15 @@ div.loading-skeleton__heading{height:auto;width:100%;max-width:none;margin:0 0 2
 .loading-skeleton__comparison { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
 @media(max-width:1100px) { .loading-skeleton__planning-ledger { grid-template-columns:1fr; } .loading-skeleton__planning-ledger > .loading-skeleton__calendar { grid-template-columns:1fr 1fr; } }
 @media(max-width:767px) { .loading-skeleton__planning-feature, .loading-skeleton__record-board, .loading-skeleton__planning-ledger > .loading-skeleton__calendar { grid-template-columns:1fr; } .loading-skeleton__planning-feature .loading-skeleton__feature { min-height:350px; } }
+
+/* Placeholder children obey the same intrinsic sizing contract as loaded content. */
+.loading-skeleton :where(div, span) { min-width: 0; max-width: 100%; }
+@media (max-width: 800px) {
+ .loading-skeleton__profile-overview, .loading-skeleton__record-board { grid-template-columns: minmax(0,1fr); }
+ .loading-skeleton__feature { min-height: 420px; padding: 24px; }
+}
+@media (max-width: 600px) {
+ .loading-skeleton__profile-hero { grid-template-columns: minmax(0,1fr); }
+ .loading-skeleton__profile-brand { grid-template-columns: 72px minmax(0,1fr); align-items: center; }
+ .loading-skeleton__profile-brand > .loading-skeleton__avatar { width: 72px; height: 72px; }
+}

@@ -57,6 +57,7 @@ export async function installApiFixtures(page:Page){
     else if(key==='GET /admin/support/tickets')value=await s.support.adminPage();
     else if(key==='GET /admin/results')value=await s.results.roundEntries(q.get('roundId')!);
     else if(key==='GET /admin/audit')value=await s.operations.audit();
+    else if(key==='GET /admin/settings')value={supportEmail:'support@example.invalid',registrationEnabled:true,maintenanceMessage:'Test platform announcement'};
     else if(key==='GET /admin/users')value=await s.operations.adminUsers();
     else {
      const parts=path.split('/').filter(Boolean).map(decodeURIComponent);
@@ -64,6 +65,8 @@ export async function installApiFixtures(page:Page){
      else if(method==='PUT'&&parts[0]==='teams'&&parts[2]==='roster'){const player=fixtureTeam.roster.find(p=>p.id===`${fixtureTeam.id}:player${parts[3]}`);if(player)player.ign=body.ign;value=fixtureTeam;}
      else if(method==='GET'&&parts[0]==='admin'&&parts[1]==='tournaments'&&parts[3]==='entries')value=await s.tournaments.entries(parts[2]);
      else if(method==='GET'&&parts[0]==='admin'&&parts[1]==='verifications'&&parts.length===3)value=(await s.verifications.get(parts[2]))??null;
+     else if(method==='GET'&&parts[0]==='admin'&&parts[1]==='players'&&parts.length===3)value=await s.operations.player(parts[2]);
+     else if(method==='GET'&&parts[0]==='me'&&parts[1]==='support'&&parts[2]==='tickets'&&parts.length===4)value=await s.support.getTicket(parts[3]);
      else if(method==='GET'&&parts[0]==='teams'&&parts[2]==='authority')value=await s.teams.authority(parts[1]);
      else if(method==='GET'&&parts[0]==='roster-requests'&&parts.length===2)value=await s.rosterRequests.get(parts[1]);
      else if(method==='GET'&&parts[0]==='disputes'&&parts.length===2)value=await s.disputes.get(parts[1]);

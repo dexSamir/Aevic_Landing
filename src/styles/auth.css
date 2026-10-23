@@ -663,7 +663,7 @@
 .auth-identity .public-nav-actions .nav-login { padding-inline: 16px; }
 .auth-identity .team-step-fields { display: flex; flex-direction: column; gap: 12px; }
 .auth-identity .team-identity-fields { display: grid; grid-template-columns: minmax(0, 1fr) 165px; gap: 14px; align-items: start; }
-.auth-identity .team-identity-fields .field__label { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: nowrap; white-space: nowrap; gap: 8px; min-height: 20px; }
+.auth-identity .team-identity-fields .field__label { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; white-space: normal; gap: 8px; min-height: 20px; }
 .auth-identity .field { align-content: start; }
 .auth-identity .field__message { min-height: 18px; font-size: 12px; line-height: 1.4; }
 .auth-identity .team-availability-slot { min-height: 32px; }
@@ -871,10 +871,10 @@ html:has(.auth-identity)::-webkit-scrollbar, body:has(.auth-identity)::-webkit-s
 }
 
 @media (max-width: 600px) {
-  .auth-identity .register-login { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 6px; }
+  .auth-identity .register-login { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 6px; width: 100%; overflow-wrap: anywhere; }
 }
 
 @media (min-width: 480px) and (max-width: 749px) {
-  .auth-identity .team-identity-fields { grid-template-columns: minmax(0,1fr) minmax(100px,.45fr); }
+  .auth-identity .team-identity-fields { grid-template-columns: minmax(0,1fr); }
   .auth-identity .registration-review-groups { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }

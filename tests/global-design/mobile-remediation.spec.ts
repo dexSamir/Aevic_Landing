@@ -2,7 +2,7 @@ import { test, expect } from '../helpers/api-fixture-test';
 import { routeManifest } from '../../src/app/routeManifest';
 
 const parameters: Record<string, string> = { teamSlug: 'caspian-wolves', tournamentId: 'daily-cup-24', matchId: 'dc24-r1', organizationSlug: 'caspian-vanguard', requestId: 'RC-0021', disputeId: 'DSP-0007', badgeId: 'ach-top-four', ticketId: 'SUP-1042', year: '2026', teamId: 'team-01', resultId: 'result-1', playerId: 'p1', recordId: 'record-1', verificationId: 'verification-1' };
-const widths = [320, 360, 375, 390, 414, 430, 480, 768, 1024, 1440];
+const widths = [320, 360, 375, 390, 414, 430, 480, 600, 768, 1024, 1440];
 for (const route of routeManifest) test(`mobile route ${route.path}`, async ({ page }) => {
   const path = route.path === '*' ? '/not-a-route' : route.path.replace(/:([A-Za-z]+)/g, (_, key) => parameters[key] || 'unknown');
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -13,6 +13,9 @@ for (const route of routeManifest) test(`mobile route ${route.path}`, async ({ p
   await page.evaluate(() => document.fonts.ready);
   for (const width of widths) {
     await page.setViewportSize({ width, height: width === 375 ? 480 : 900 });
+    // Let responsive styles and font metrics settle before measuring the new viewport.
+    await page.clock.runFor(32);
+    await page.evaluate(() => document.fonts.ready);
     const problems = await page.evaluate(() => {
       const visible = (el: Element) => el.getBoundingClientRect().width > 0 && getComputedStyle(el).visibility !== 'hidden';
       const locallyScrolled = (el: Element) => {
@@ -24,7 +27,7 @@ for (const route of routeManifest) test(`mobile route ${route.path}`, async ({ p
       const escaped = [...document.querySelectorAll('main *')].filter(el => visible(el) && !locallyScrolled(el) && (el.getBoundingClientRect().right > innerWidth + 2 || el.getBoundingClientRect().left < -2));
       const controls = [...document.querySelectorAll('main button, main input, main select, main textarea')].map(el => el instanceof HTMLInputElement && ['checkbox','radio','file'].includes(el.type) ? el.labels?.[0] ?? el : el).filter(el => visible(el) && !locallyScrolled(el) && el.getBoundingClientRect().width < 28);
       const clipped = [...document.querySelectorAll<HTMLElement>('main h1,main h2,main h3,main p,main button,main label,main dt,main dd')].filter(el => visible(el) && !locallyScrolled(el) && getComputedStyle(el).textOverflow !== 'ellipsis' && el.scrollWidth > el.clientWidth + 2);
-      return { clipped: clipped.slice(0, 8).map(el => `${el.tagName}.${el.className}: ${el.textContent?.slice(0,40)}`), overflow: document.documentElement.scrollWidth - innerWidth,
+      return { clipped: clipped.slice(0, 8).map(el => `${el.tagName}.${el.className} (${el.clientWidth}/${el.scrollWidth}; ${getComputedStyle(el).display}): ${el.textContent?.slice(0,40)}`), overflow: document.documentElement.scrollWidth - innerWidth,
         escaped: escaped.slice(0, 8).map(el => `${el.tagName}.${el.className}`),
         tiny: controls.slice(0, 8).map(el => `${el.tagName}.${el.className}`) };
     });

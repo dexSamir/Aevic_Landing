@@ -31,14 +31,14 @@ describe('UX architecture reset contracts', () => {
     await screen.findByRole('heading', { name: 'Caspian Wolves' });
     const command = view.container.querySelector('.overview-next-action')!;
     expect(command).toBeInTheDocument();
-    for (const selector of ['.overview-operations', '.overview-recent']) {
+    for (const selector of ['.team-intelligence', '.overview-operations', '.overview-recent']) {
       const later = view.container.querySelector(selector)!;
       expect(later).toBeInTheDocument();
       expect(command.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     }
     expect(view.container.querySelector('.overview-statistics, .overview-stat-grid, .dashboard-quick-links')).not.toBeInTheDocument();
     expect(view.container.querySelectorAll('.overview-status-grid > a')).toHaveLength(0);
-    expect([...view.container.querySelectorAll('.overview-recent li')].map(el => el.textContent)).toEqual(matchHistory.slice(0, 5).map(match => String(match.placement)));
+    expect([...view.container.querySelectorAll('.overview-recent li')].map(el => el.textContent)).toEqual(matchHistory.slice(0, 5).map(match => match.placement === 1 ? 'WWCD' : String(match.placement)));
     expect(view.container.querySelector('.overview-standings table')).not.toBeInTheDocument();
     expect(screen.getByText('Komandanız üçün cari sıralama dərc edilməyib.')).toBeInTheDocument();
     expect(view.container.querySelectorAll('.overview-rounds li')).toHaveLength(matchSchedule.length);

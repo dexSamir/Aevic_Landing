@@ -35,10 +35,13 @@
 .tournament-calendar button[data-event-status='completed'] > i { background: var(--color-success); }
 .tournament-calendar button[data-event-status='registration-closed'] > i { background: var(--color-text-muted); }
 
-.tournament-calendar__strip { display: none; }
+.tournament-calendar__strip, .tournament-calendar__date-input { display: none; }
 /* Seven 44px dates need 308px. Use the existing adjacent-day picker when
    the actual panel is narrower, including when text scaling adds padding. */
 @container (width < 308px) {
+  .tournament-calendar__date-input { display: grid; gap: 6px; margin-bottom: 12px; font-size: 14px; color: var(--text-secondary); }
+  .tournament-calendar__date-input input { width: 100%; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border-default); border-radius: var(--control-radius); background: var(--surface-2); color: var(--text-primary); font-size: 16px; }
+
   .tournament-calendar__month { display: none; }
   .tournament-calendar__strip { display: grid; grid-template-columns: repeat(3, minmax(44px, 1fr)); gap: 8px; }
   .tournament-calendar__strip > button { position: relative; min-height: 64px; display: grid; align-content: center; justify-items: center; padding: 8px; }
@@ -255,8 +258,8 @@
 @media(max-width:420px) { .tournament-calendar--cinematic .calendar-event-inspector__heading { grid-template-columns:1fr; gap:8px; } .tournament-calendar--cinematic .calendar-event-inspector { grid-template-columns:1fr; } .tournament-calendar--cinematic .calendar-event-inspector dl { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; } }
 @media(prefers-reduced-motion:reduce) { .tournament-calendar__month, .tournament-calendar--cinematic .calendar-event-inspector { animation:none; } }
 
-.tournament-calendar--cinematic .tournament-calendar__month { display:block; min-width:0; }
-.tournament-calendar--cinematic .tournament-calendar__strip { display:none; }
+.tournament-calendar--cinematic .tournament-calendar__month { min-width:0; }
+
 .tournament-calendar--cinematic .calendar-event-inspector dt,
 .tournament-calendar--cinematic .calendar-event-inspector dd { font-size:12px; }
 
@@ -271,12 +274,6 @@
 }
 .tournament-calendar .tournament-calendar__days > button:focus-visible { outline:2px solid var(--text-primary); outline-offset:-3px; }
 .tournament-calendar .tournament-calendar__days > button:focus-visible > i { background:var(--text-on-gold); }
-@container (max-width:307px) {
-  .tournament-calendar .tournament-calendar__days > button { width:100%; height:auto; aspect-ratio:1; border-radius:8px; font-size:clamp(10px,6cqw,16px); }
-  .tournament-calendar .tournament-calendar__days { grid-auto-rows:auto; }
-  .tournament-calendar__days > button > i { width:3px; height:3px; bottom:2px; }
-}
-
 /* Planning page container and agenda; picker styles remain shared above. */
 .tournament-program__index .tournament-calendar { display: grid; grid-template-columns: minmax(0,40%) minmax(0,1fr); gap: 16px; align-items: start; background: transparent; }
 .tournament-program__index .tournament-day-list { padding: 20px; border: 0; border-radius: 12px; background: #17191f; min-width: 0; display: grid; gap: 10px; }
@@ -287,9 +284,14 @@
 .tournament-program__index .tournament-calendar__picker { border-radius: 12px; background: #15171c; }
 .tournament-program__index .tournament-day-list > header { padding: 4px 0 10px; }
 .tournament-program__index .tournament-day-list .empty-state { min-height: 0; padding: 20px 12px; border: 0; background: #1b1d21; }
-/* Keep the same seven-column month on narrow planning screens. */
-.tournament-program__index .tournament-calendar__month { display: block; }
-.tournament-program__index .tournament-calendar__strip { display: none; }
-
+/* Planning reuses the shared compact date picker in narrow containers. */
 .tournament-program__index .tournament-day-list { border-left: 0; }
 .tournament-program__index .tournament-day-list .tournament-row { background: #202228; }
+
+@media (max-width: 800px) {
+  .tournament-calendar--cinematic .calendar-event-inspector { grid-template-columns: minmax(0,1fr); }
+  .tournament-calendar--cinematic .calendar-event-inspector dl { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+  .tournament-calendar--cinematic .calendar-event-inspector dd { font-size: 14px; }
+  .tournament-calendar--cinematic .calendar-event-inspector__heading { grid-template-columns: minmax(0,1fr); }
+  .tournament-calendar--cinematic .calendar-details-link { justify-content: flex-start; font-size: 14px; }
+}

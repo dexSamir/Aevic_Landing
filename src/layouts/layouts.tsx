@@ -14,7 +14,7 @@ Bell
 import { useCallback,useEffect,useId,useRef,useState,type CSSProperties,type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { isRouteErrorResponse,Link,NavLink,useLocation,useNavigate,useRouteError } from 'react-router-dom';
 import { publicNavigation } from '../app/publicNavigation';
-import { BrandMark } from '../components/brand/BrandMark';
+import { BrandEmblem, BrandMark } from '../components/brand/BrandMark';
 import { RouteTransitionOutlet } from '../components/common/Motion';
 import { Drawer,IconButton,TeamLogo,LoadingSkeleton } from '../components/common/primitives';
 import { RouteSeo } from '../components/common/Seo';
@@ -67,7 +67,7 @@ function PublicNavLinks({ onNavigate, drawer = false }: { onNavigate?: () => voi
   return <nav ref={navRef} className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya" data-indicator-ready={indicator.ready || undefined} style={drawer ? undefined : indicatorStyle}>{!drawer && <span className="public-nav-indicator" aria-hidden="true" />}{publicNavigation.primary.map((link) => { const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} ref={(node) => { if (node) itemRefs.current.set(link.to, node); else itemRefs.current.delete(link.to); }} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}><span>{link.label}</span></NavLink>; })}</nav>;
 }
 
-function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
+function PublicAuthActions({ onNavigate, drawer = false }: { onNavigate?: () => void; drawer?: boolean }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -89,7 +89,7 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
   }, [open]);
 
   if (loading) return <div className="public-nav-actions"><LoadingSkeleton variant="navigation" label="Sessiya yoxlanılır" /></div>;
-  if (session === undefined) return <div className="public-nav-actions"><button type="button" className="button button--secondary button--sm" onClick={refresh} aria-label="Sessiya yoxlanmadı. Yenidən yoxla" title={error?.message}>Sessiyanı yoxla</button></div>;
+  if (session === undefined) return <div className="public-nav-actions"><button type="button" className="button button--secondary button--sm" onClick={refresh} aria-label="Sessiya yoxlanmadı. Yenidən yoxla" aria-description={error?.message}>Sessiyanı yoxla</button></div>;
   if (!session) return <div className="public-nav-actions"><Link aria-current={pathname === '/login' ? 'page' : undefined} className={`nav-login button button--secondary button--sm ${pathname === '/login' ? 'is-active' : ''}`} to={publicNavigation.login.to} onClick={onNavigate}>{publicNavigation.login.label}</Link><Link aria-current={pathname === '/register' ? 'page' : undefined} className={`nav-cta button button--primary button--sm ${pathname === '/register' ? 'is-active' : ''}`} to={publicNavigation.register.to} onClick={onNavigate}>{publicNavigation.register.label}</Link></div>;
 
   const close = (restoreFocus = false) => {
@@ -119,17 +119,17 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
   const hasTeamArea = !isAdmin && ['captain', 'team'].includes(session.role);
   const identity = isAdmin ? (session.user.firstName || 'Admin') : team?.name || session.user.firstName || 'Hesab';
   return <div className="public-nav-actions public-nav-actions--authenticated" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
-    <button ref={buttonRef} type="button" className="public-identity-trigger" aria-label={`${identity} hesab menyusu`} aria-haspopup="menu" aria-expanded={open} aria-controls={menuId} onClick={() => setOpen((value) => !value)}>
+    {!drawer && <button ref={buttonRef} type="button" className="public-identity-trigger" aria-label={`${identity} hesab menyusu`} aria-haspopup="menu" aria-expanded={open} aria-controls={menuId} onClick={() => setOpen((value) => !value)}>
       {hasTeamArea && team ? <TeamLogo name={team.name} src={team.logoUrl} size="sm" /> : <CircleUserRound size={20} />}
       <span className="public-identity-label">{identity}</span><ChevronRight size={15} aria-hidden="true" />
-    </button>
-    {open && <div ref={menuRef} id={menuId} className="public-identity-menu" role="menu" aria-label="Hesab əməliyyatları" onKeyDown={handleMenuKeyDown}>
+    </button>}
+    {(open || drawer) && <div ref={menuRef} id={menuId} className="public-identity-menu" role={drawer ? undefined : "menu"} aria-label="Hesab əməliyyatları" onKeyDown={handleMenuKeyDown}>
       <header><div className="public-identity-menu__logo">{team && !isAdmin ? <TeamLogo name={team.name} src={team.logoUrl} size="sm" /> : <CircleUserRound size={28} aria-hidden="true" />}</div><div className="public-identity-menu__copy"><span>{isAdmin ? 'Administrator' : team?.tag || 'AEVIC hesabı'}</span><strong>{identity}</strong><small>{session.user.email}</small></div></header>
-      {isAdmin && <Link role="menuitem" tabIndex={-1} to="/admin" onClick={() => close()}><LayoutDashboard size={16} aria-hidden="true" />Admin paneli</Link>}
-      {hasTeamArea && <Link role="menuitem" tabIndex={-1} to="/team" onClick={() => close()}><Users size={16} aria-hidden="true" />Komanda paneli</Link>}
-      <Link role="menuitem" tabIndex={-1} to="/account/profile" onClick={() => close()}><CircleUserRound size={16} aria-hidden="true" />Hesab</Link>
-      <Link role="menuitem" tabIndex={-1} to={isAdmin ? '/admin/settings' : hasTeamArea ? '/team/settings' : '/account/security'} onClick={() => close()}><Settings size={16} aria-hidden="true" />Ayarlar</Link>
-      <button role="menuitem" tabIndex={-1} type="button" disabled={loggingOut} onClick={() => void logout()}><LogOut size={16} /> {loggingOut ? 'Çıxış edilir…' : 'Çıxış'}</button>
+      {isAdmin && <Link role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} to="/admin" onClick={() => close()}><LayoutDashboard size={16} aria-hidden="true" />Admin paneli</Link>}
+      {hasTeamArea && <Link role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} to="/team" onClick={() => close()}><Users size={16} aria-hidden="true" />Komanda paneli</Link>}
+      <Link role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} to="/account/profile" onClick={() => close()}><CircleUserRound size={16} aria-hidden="true" />Hesab</Link>
+      <Link role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} to={isAdmin ? '/admin/settings' : hasTeamArea ? '/team/settings' : '/account/security'} onClick={() => close()}><Settings size={16} aria-hidden="true" />Ayarlar</Link>
+      <button role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} type="button" disabled={loggingOut} onClick={() => void logout()}><LogOut size={16} /> {loggingOut ? 'Çıxış edilir…' : 'Çıxış'}</button>
       {logoutError && <p role="alert">{logoutError}</p>}
     </div>}
   </div>;
@@ -137,7 +137,9 @@ function PublicAuthActions({ onNavigate }: { onNavigate?: () => void }) {
 
 export function PublicHeader() {
   const { pathname } = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuLocation, setMenuLocation] = useState<string>();
+  const menuOpen = menuLocation === pathname;
+  const setMenuOpen = (open: boolean) => setMenuLocation(open ? pathname : undefined);
   const [scrolled, setScrolled] = useState(false);
   const footerVisible = useFooterVisibility(pathname);
   const transparentAtTop = pathname === '/' || pathname === '/teams' || /^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname);
@@ -153,8 +155,12 @@ export function PublicHeader() {
     return () => { window.cancelAnimationFrame(frame); window.removeEventListener('scroll', update); };
   }, [pathname]);
 
+  // A completed navigation closes its old drawer without closing one just
+  // reopened on the destination while lazy route content was loading.
+  useEffect(() => setMenuLocation(current => current === pathname ? current : undefined), [pathname]);
+
   const mode = footerVisible || (transparentAtTop && !scrolled) ? 'hero-top' : scrolled ? 'scrolled' : 'standard-top';
-  return <><header className={`site-header site-header--${mode} ${pathname === '/' ? 'site-header--home' : ''}`} data-public-header-state={mode}><div className="container site-header__inner"><BrandMark variant="navigation" /><div className="site-header__desktop"><PublicNavLinks /></div><div className="site-header__tools">{pathname === '/' && <div className="site-header__mobile-discovery"><Link className="icon-button" to="/search" aria-label="Axtar"><Search size={21} /></Link><Link className="icon-button" to="/team/notifications" aria-label="Bildirişlər"><Bell size={21} /></Link></div>}<Link className="public-rules-link" aria-label="Yarış qaydaları" to={publicNavigation.rules.to} aria-current={pathname === '/regulations' ? 'page' : undefined}><FileText size={17} aria-hidden="true" /><span>{publicNavigation.rules.label}</span></Link><div className="site-header__auth"><PublicAuthActions /></div><IconButton className="site-header__menu" label="Menyunu aç" aria-expanded={menuOpen} aria-controls="public-mobile-menu" onClick={() => setMenuOpen(true)}><Menu size={21} /></IconButton></div></div></header><Drawer id="public-mobile-menu" open={menuOpen} title="AEVIC menyu" onClose={() => setMenuOpen(false)}><div className="drawer-public-nav"><PublicNavLinks drawer onNavigate={() => setMenuOpen(false)} /><Link className="public-rules-link" to={publicNavigation.rules.to} onClick={() => setMenuOpen(false)}>{publicNavigation.rules.label}</Link><PublicAuthActions onNavigate={() => setMenuOpen(false)} /></div><div className="drawer-install"><InstallAevic /></div></Drawer></>;
+  return <><header className={`site-header site-header--${mode} ${pathname === '/' ? 'site-header--home' : ''}`} data-public-header-state={mode}><div className="container site-header__inner"><BrandMark variant="navigation" /><div className="site-header__desktop"><PublicNavLinks /></div><div className="site-header__tools"><div className="site-header__mobile-discovery"><Link className="icon-button" to="/search" aria-label="Axtar"><Search size={21} /></Link><Link className="icon-button" to="/team/notifications" aria-label="Bildirişlər"><Bell size={21} /></Link></div><Link className="public-rules-link" aria-label="Yarış qaydaları" to={publicNavigation.rules.to} aria-current={pathname === '/regulations' ? 'page' : undefined}><FileText size={17} aria-hidden="true" /><span>{publicNavigation.rules.label}</span></Link><div className="site-header__auth"><PublicAuthActions /></div><IconButton className="site-header__menu" label="Menyunu aç" aria-expanded={menuOpen} aria-controls="public-mobile-menu" onClick={() => setMenuOpen(true)}><Menu size={21} /></IconButton></div></div></header><Drawer id="public-mobile-menu" open={menuOpen} title="AEVIC menyu" heading={<span className="drawer-brand"><BrandEmblem variant="navigation" /><span className="sr-only">AEVIC Esports</span></span>} onClose={() => setMenuOpen(false)}><div className="drawer-public-nav"><PublicNavLinks drawer onNavigate={() => setMenuOpen(false)} /><Link className="public-rules-link" to={publicNavigation.rules.to} onClick={() => setMenuOpen(false)}>{publicNavigation.rules.label}</Link><PublicAuthActions drawer onNavigate={() => setMenuOpen(false)} /></div><div className="drawer-install"><InstallAevic /></div></Drawer></>;
 }
 
 export function PublicLayout() {

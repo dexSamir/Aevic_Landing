@@ -15,7 +15,7 @@ export function DirectoryTeamCard({ team, ordinal, compareMode, selected, ownTea
     <TeamLogoTile logoSizes="92px" revealVariant="names-only" id={team.id} name={team.name} tag={team.tag} logoUrl={team.logoUrl} profileHref={`/teams/${team.slug}`} selected={selected} onSelect={compareMode ? onToggle : undefined} meta={[`${team.rosterSize} oyunçu`, team.tier, team.sourceStatus].filter(Boolean).join(" · ")} />
     {team.verificationLevel && <div className="directory-verification"><VerificationCrest level={team.verificationLevel} /></div>}
     {team.legacyHistoryIncomplete && <small>Tam yarış tarixçəsi hələ əlçatan deyil.</small>}
-    <div className="directory-competitive"><span><strong>{record?.wwcd ?? '—'}</strong> WWCD</span><span tabIndex={0} data-tooltip="Dərc edilmiş matçlarda ilk üç yer"><strong>{podiums ?? '—'}</strong> PODİUM</span></div>
+    <div className="directory-competitive"><span><strong>{record?.wwcd ?? '—'}</strong> WWCD</span><span tabIndex={0} data-tooltip="Dərc edilmiş matçlarda ilk üç yer"><strong>{podiums ?? '—'}</strong> PODİUM<span className="tooltip-touch-description">Dərc edilmiş matçlarda ilk üç yer</span></span></div>
     <div className="directory-recent"><span>Son nəticələr</span><div>{form.length ? <RecentPlacementStrip results={form} /> : <small>{historyAvailable === false ? 'Nəticə formatı dəstəklənmir' : team.form === undefined ? 'Nəticələrə profildə baxın' : 'Dərc edilmiş nəticə yoxdur'}</small>}</div></div>
     {compareMode && <Link className="directory-profile-link" to={`/teams/${team.slug}`}>Public profil</Link>}
   </div>;

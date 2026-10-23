@@ -59,7 +59,7 @@
  .tournament-detail-teams { grid-template-columns: repeat(3,minmax(0,1fr)); }
 }
 @media (max-width:800px) {
- .tournament-detail-hero__stage { grid-template-columns: minmax(0,1fr) 300px; gap: 22px; padding-top: calc(var(--header-height) + 40px); }
+ .tournament-detail-hero__stage { grid-template-columns: minmax(0,1fr); gap: 28px; padding-top: calc(var(--header-height) + 40px); }
  .tournament-detail-hero h1 { font-size: 56px; }
  .tournament-detail-hero__copy > p { font-size: 16px; }
  .tournament-detail-tabs > div { gap: 30px; }
@@ -71,9 +71,9 @@
 @media (max-width:600px) {
  .tournament-detail-hero { background-position: 54% top; background-size: auto 550px; background-repeat: no-repeat; }
  .tournament-detail-hero__stage { grid-template-columns: 1fr; padding-bottom: 28px; gap: 32px; }
- .tournament-detail-hero h1 { font-size: clamp(52px,14vw,72px); }
+ .tournament-detail-hero h1 { font-size: clamp(40px,11vw,64px); }
  .tournament-detail-meta { font-size: 13px; gap: 16px; }
- .tournament-detail-tabs > div { gap: 0; justify-content: space-between; }
+ .tournament-detail-tabs > div { gap: 0 20px; flex-wrap: wrap; }
  .tournament-detail-tabs a { font-size: 13px; min-height: 52px; }
  .tournament-detail-format { gap: 12px; }
  .tournament-detail-format > div { padding: 16px 12px; grid-template-columns: 1fr; gap: 8px; min-height: 165px; }

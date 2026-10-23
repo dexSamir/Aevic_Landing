@@ -1,5 +1,5 @@
 /* Public shell owner: integrated top navigation, scrolled graphite and footer. */
-.site-shell { --header-height: 5.25rem; --public-text-readable: var(--text-secondary); min-height: 100vh; overflow: clip; background: var(--bg-page); }
+.site-shell { --header-height: 5.25rem; --public-text-readable: var(--text-secondary); min-height: 100vh; background: var(--bg-page); }
 .site-shell > main > .motion-page > .page-section { padding-top: calc(var(--header-height) + var(--space-2xl)); }
 .site-shell :is(.page-header h1, .section-heading h2) { font-family: var(--font-public-display); }
 .site-shell .section-heading h2 { font-size: clamp(1.7rem,3vw,2.6rem); line-height: 1.15; }
@@ -20,7 +20,7 @@
 .site-header:not(.site-header--scrolled) .public-nav-capsule a:hover::after { transform: scaleX(1); }
 .site-header--scrolled .public-nav-capsule a:hover { background: var(--material-navigation-highlight); }
 .public-nav-indicator { position: absolute; z-index: 0; top: 6px; bottom: 6px; left: 0; width: var(--nav-indicator-width, 0); transform: translate3d(var(--nav-indicator-x, 0), 0, 0); border-radius: var(--radius-sm); background: var(--material-navigation-active); opacity: 0; pointer-events: none; transition: transform var(--motion-nav) var(--ease-nav), opacity var(--motion-fast); }
-.site-header--scrolled { background: transparent; }
+.site-header--scrolled { background: var(--surface-command); }
 .site-header--scrolled .public-nav-capsule {background: var(--material-navigation); border-color: var(--material-navigation-edge); box-shadow: none; backdrop-filter: var(--material-blur-navigation); -webkit-backdrop-filter: var(--material-blur-navigation);  justify-self: start; }
 .site-header--scrolled .public-nav-capsule[data-indicator-ready='true'] .public-nav-indicator { opacity: 1; }
 /* Both home and ordinary routes are integrated at the top, without an outer pill. */
@@ -46,7 +46,7 @@
 .site-header__menu { display: none; background: var(--material-navigation-control); }
 .drawer-public-nav { display: grid; gap: var(--space-md); }
 .public-nav-capsule--drawer { display: grid; width: 100%; height: auto; padding: 0; border: 0; background: transparent; }
-.public-nav-capsule--drawer a { justify-content: start; min-height: 52px; border-bottom: 0; border-radius: 0; }
+.public-nav-capsule--drawer a { justify-content: start; min-height: 52px; border-bottom: 0; border-radius: 12px; }
 .public-nav-capsule--drawer a.active { background: var(--surface-2); }
 .drawer-public-nav .public-nav-actions { display: grid; grid-template-columns: 1fr 1fr; }
 .drawer-install { margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 0; }
@@ -70,7 +70,7 @@
   .site-header__desktop, .site-header__auth { display: none; }
   .site-header__menu { display: grid; }
   .site-header .brand-mark--navigation, .site-header .brand-emblem--navigation { width: 56px; min-width: 56px; height: 56px; min-height: 56px; }
-  .site-header--scrolled { background: transparent; }
+  .site-header--scrolled { background: var(--surface-command); }
 }
 @media (max-width: 640px) {
   .participation-band > .container { grid-template-columns: 1fr; align-items: start; }
@@ -114,8 +114,22 @@
 .drawer-public-nav .public-nav-actions--authenticated { display: block; }
 
 .site-header__mobile-discovery { display: none; }
-@media (max-width: 800px) {
-  .site-header--home .site-header__mobile-discovery { display: flex; gap: 8px; }
-  .site-header--home .site-header__tools > .public-rules-link { display: none; }
-  .site-header--home .site-header__mobile-discovery .icon-button { width: 44px; height: 44px; border-radius: 10px; background: var(--material-navigation-control); }
+@media (max-width: 1023px) {
+  .site-header .site-header__mobile-discovery { display: flex; gap: 8px; }
+  .site-header .site-header__tools > .public-rules-link { display: none; }
+  .site-header .site-header__mobile-discovery .icon-button { width: 44px; height: 44px; border-radius: 10px; background: var(--material-navigation-control); }
 }
+
+/* Account choices inside the navigation drawer participate in its scroll area. */
+.drawer-public-nav .public-identity-menu { position: static; width: 100%; max-height: none; margin-top: 8px; box-shadow: none; }
+
+/* Mobile navigation is a single scrollable destination list, including account actions. */
+#public-mobile-menu { background: linear-gradient(160deg, #1c1d22, #121317 65%); }
+#public-mobile-menu > header { margin-bottom: 8px; padding-bottom: 12px; border-bottom: 1px solid #ffffff0d; background: #1b1c20; }
+#public-mobile-menu .public-nav-capsule a { min-height: 52px; padding-inline: 16px; font-size: 16px; }
+#public-mobile-menu .public-nav-capsule a.active { color: var(--gold-primary); background: #f2c94c0d; box-shadow: none; }
+#public-mobile-menu .public-rules-link { min-height: 48px; padding-inline: 16px; }
+#public-mobile-menu .public-identity-menu { background: #ffffff04; border: 1px solid #ffffff0d; border-radius: 16px; padding: 12px; }
+#public-mobile-menu .public-identity-menu :is(a, button) { min-height: 48px; }
+#public-mobile-menu .public-identity-menu__copy { min-width: 0; overflow-wrap: anywhere; }
+#public-mobile-menu .drawer-install { margin-top: auto; }

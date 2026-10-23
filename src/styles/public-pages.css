@@ -707,7 +707,7 @@
 .public-match-award { color:var(--gold-primary); }
 @media(max-width:1200px) { .public-team-overview { grid-template-columns:1fr; } .public-team-index { display:flex; flex-wrap:wrap; gap:8px 20px; border:0; } .public-team-index > span { width:100%; } .public-team-index a[aria-current]::before { inset:auto 0 0; width:auto; height:2px; } }
 @media(max-width:760px) { .public-team-overview__main { grid-template-columns:1fr; gap:8px; } .public-match-history a { grid-template-columns:44px minmax(0,1fr) auto; gap:12px; padding:16px; } .public-match-history time { grid-column:2; grid-row:2; } .public-match-history dl { grid-column:3; grid-row:1 / 3; gap:12px; } .public-match-award { grid-column:1; grid-row:2; justify-self:center; } }
-@media(max-width:440px) { .public-team-stats { grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px 12px; } }
+@media(max-width:800px) { .public-team-stats { grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px 12px; } }
 @media(prefers-reduced-motion:reduce) { .public-match-history a { transition:none; } }
 
 /* Portrait roster fallback: deterministic alternating team colors, captain always gold. */
@@ -747,15 +747,40 @@
 .planning-search { border: 0; background: #222429; }
 .planning-search input { border: 0; background: transparent; }
 .planning-filters button { min-height: 44px; }
-@media (min-width: 480px) and (max-width: 767px) {
-  .planning-feature { grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); }
-  .planning-feature__copy, .planning-feature__info { padding: 18px; }
-  .planning-feature__visual { min-height: 300px; }
-  .planning-feature__copy h2 { font-size: clamp(32px,6vw,44px); }
-  .planning-feature__facts { grid-template-columns: minmax(0,1fr); }
-  .planning-countdown { flex-wrap: wrap; gap: 8px; }
-  .planning-countdown [role='timer'] { gap: 8px; }
-  .planning-countdown [role='timer'] b { font-size: 28px; }
-  .planning-countdown [role='timer'] small { font-size: 12px; }
-}
 .profile-anchor-nav { flex-wrap: wrap; overflow: visible; }
+
+@media (max-width: 767px) {
+  .planning-feature__copy { padding: 24px; }
+  .planning-feature__copy h2 { font-size: clamp(32px,9vw,44px); }
+  .planning-feature__info { padding: 20px; }
+  .planning-feature__facts { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+  .planning-feature__facts dd, .planning-event__meta > span { font-size: 14px; }
+  .planning-search input { font-size: 16px; }
+  .planning-filters button { font-size: 13px; }
+  .planning-event { min-height: 0; padding: 20px; }
+  .planning-event h3 { font-size: 26px; margin-bottom: 16px; }
+  .planning-event__meta > span { white-space: normal; min-width: 0; }
+  .planning-event__arrow { margin: 0; }
+  .directory-hero p { font-size: 16px; }
+  .public-match-history a { grid-template-columns: 44px minmax(0,1fr); }
+  .public-match-history dl { grid-column: 2; grid-row: auto; justify-content: start; flex-wrap: wrap; }
+}
+
+@media (max-width: 600px) {
+  .public-team-hero__grid { min-height: 0; gap: 24px; padding-top: calc(var(--header-height) + 28px); }
+  .public-team-brand { grid-template-columns: 72px minmax(0,1fr); align-items: center; justify-items: start; gap: 16px; }
+  .public-team-brand > .team-logo { width: 72px; height: 72px; font-size: 40px; }
+  .public-team-social { justify-content: flex-start; gap: 8px; }
+  .public-team-hero h1 { font-size: clamp(36px,10vw,52px); }
+  .public-team-bio { display: block; overflow: visible; }
+  .public-team-tagline { gap: 8px 16px; }
+  .public-team-tagline > strong { padding-inline: 0; }
+  .public-team-meta { gap: 12px 20px; }
+  .tournament-destination .tournament-detail-schedule > ol { grid-template-columns: minmax(0,1fr); }
+  .tournament-destination .tournament-detail-schedule li > a { min-height: 220px; }
+  .tournament-map-status, .tournament-destination .tournament-map-copy time { font-size: 13px; }
+  .match-metrics b, .match-metrics span { font-size: 12px; }
+}
+
+.match-tabs button { min-width: 44px; min-height: 44px; }
+.public-team-stats dt { overflow-wrap: anywhere; }

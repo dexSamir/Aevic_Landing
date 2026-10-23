@@ -157,7 +157,7 @@
 @media (max-width: 640px) {
   .account-shell > aside { padding: var(--space-md); }
   .account-shell > aside > .brand-mark, .account-shell > aside > div { display: none; }
-  .account-shell > aside nav { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
+  .account-shell > aside nav { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
   .account-shell > aside nav a { flex: 0 0 auto; scroll-snap-align: start; }
   .account-shell__team-link { font-size: var(--text-sm); }
   .account-shell > main { padding: var(--space-md); }

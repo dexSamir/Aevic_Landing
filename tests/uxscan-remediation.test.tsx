@@ -34,7 +34,7 @@ describe('UXScan remediation contracts', () => {
   it('owns route styles through static imports in lazy route modules', () => {
     const router = readFileSync('src/app/router.tsx', 'utf8');
     expect(router).not.toContain('loadRouteStyles');
-    expect(router).toContain("lazy: () => import('./TeamRoute')");
+    expect(router).toMatch(/lazy:\s*\(\) => import\(['"]\.\/TeamRoute['"]\)/);
     const teamRoute = readFileSync('src/app/TeamRoute.tsx', 'utf8');
     expect(teamRoute).toContain("import './workspaceStyles';");
     expect(teamRoute).toContain("import '../styles/team-workspace.css';");
