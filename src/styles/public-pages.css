@@ -784,3 +784,34 @@
 
 .match-tabs button { min-width: 44px; min-height: 44px; }
 .public-team-stats dt { overflow-wrap: anywhere; }
+
+/* Compact listing only: discovery controls and hero retain their mobile layout. */
+@media (max-width: 600px) {
+  .teams-directory .team-directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .teams-directory .team-directory-card { padding: 8px; border-radius: 8px; }
+  .teams-directory .directory-card-top { min-height: 44px; gap: 2px; }
+  .teams-directory .directory-card-top > span:first-child { font-size: 18px; }
+  .teams-directory .directory-follow button { min-height: 44px; min-width: 44px; padding: 4px; gap: 3px; }
+  .teams-directory .directory-card-badges { grid-column: 1 / -1; grid-row: 2; padding: 0; }
+  .teams-directory .directory-follow { grid-column: 3; grid-row: 1; }
+  .teams-directory .team-logo-tile > :is(button,.team-logo-tile__destination) { min-height: 112px; padding: 4px 0; gap: 6px; }
+  .teams-directory .team-logo-tile .team-mark { width: 52px; height: 52px; font-size: 22px; }
+  .teams-directory .team-logo-tile__label strong { font-size: 13px; overflow-wrap: anywhere; }
+  .teams-directory .team-logo-tile__label small { font-size: 10px; overflow-wrap: anywhere; }
+  .teams-directory .team-directory-card > small { font-size: 11px; text-align: center; }
+  .teams-directory .directory-competitive { font-size: 10px; gap: 3px; padding: 8px 0; }
+  .teams-directory .directory-recent { padding-top: 6px; font-size: 11px; }
+  .teams-directory .directory-recent > div { flex-wrap: wrap; gap: 4px; }
+  .teams-directory .recent-placement-strip { --placement-size: clamp(19px, 5vw, 28px); --placement-gap: 3px; --placement-font-size: 10px; }
+  .teams-directory .recent-placement-details { width: 100%; }
+  .teams-directory .recent-placement-details summary { justify-content: center; font-size: 10px; }
+}
+@media (max-width: 767px) {
+  .planning-list-heading .planning-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; background: transparent; }
+  .planning-list-heading .planning-filters button { white-space: normal; padding: 6px 4px; font-size: 11px; background: var(--surface-1); }
+  .planning-list-heading .planning-filters button[aria-pressed='true'] { background: var(--gold-primary); }
+  .planning-list-heading .planning-search { min-height: 44px; }
+}
+
+.directory-profile-link--mobile { display: none; }
+@media (max-width: 600px) { .directory-profile-link--mobile { display: flex; } }

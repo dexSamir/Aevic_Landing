@@ -269,3 +269,7 @@
   .home-team-stage, .loading-skeleton__team-rail { grid-auto-columns: 40%; }
   .home-other-tournament { flex-basis: 65%; }
 }
+
+@media (min-width: 769px) {
+  .home-rotation .map-program > ol { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 75%; margin-left: auto; }
+}

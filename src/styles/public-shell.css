@@ -20,7 +20,7 @@
 .site-header:not(.site-header--scrolled) .public-nav-capsule a:hover::after { transform: scaleX(1); }
 .site-header--scrolled .public-nav-capsule a:hover { background: var(--material-navigation-highlight); }
 .public-nav-indicator { position: absolute; z-index: 0; top: 6px; bottom: 6px; left: 0; width: var(--nav-indicator-width, 0); transform: translate3d(var(--nav-indicator-x, 0), 0, 0); border-radius: var(--radius-sm); background: var(--material-navigation-active); opacity: 0; pointer-events: none; transition: transform var(--motion-nav) var(--ease-nav), opacity var(--motion-fast); }
-.site-header--scrolled { background: var(--surface-command); }
+.site-header--scrolled { background: transparent; }
 .site-header--scrolled .public-nav-capsule {background: var(--material-navigation); border-color: var(--material-navigation-edge); box-shadow: none; backdrop-filter: var(--material-blur-navigation); -webkit-backdrop-filter: var(--material-blur-navigation);  justify-self: start; }
 .site-header--scrolled .public-nav-capsule[data-indicator-ready='true'] .public-nav-indicator { opacity: 1; }
 /* Both home and ordinary routes are integrated at the top, without an outer pill. */
@@ -70,7 +70,7 @@
   .site-header__desktop, .site-header__auth { display: none; }
   .site-header__menu { display: grid; }
   .site-header .brand-mark--navigation, .site-header .brand-emblem--navigation { width: 56px; min-width: 56px; height: 56px; min-height: 56px; }
-  .site-header--scrolled { background: var(--surface-command); }
+  .site-header--scrolled { background: transparent; }
 }
 @media (max-width: 640px) {
   .participation-band > .container { grid-template-columns: 1fr; align-items: start; }
@@ -133,3 +133,12 @@
 #public-mobile-menu .public-identity-menu :is(a, button) { min-height: 48px; }
 #public-mobile-menu .public-identity-menu__copy { min-width: 0; overflow-wrap: anywhere; }
 #public-mobile-menu .drawer-install { margin-top: auto; }
+
+/* Compact desktop shell; mobile touch targets retain their existing geometry. */
+@media (min-width: 1024px) {
+  .site-shell { --header-height: 4.75rem; }
+  .site-header .brand-mark--navigation, .site-header .brand-emblem--navigation { width: 64px; min-width: 64px; height: 64px; min-height: 64px; }
+  .site-header .public-nav-capsule { height: 52px; padding: 4px; }
+  .site-header .public-nav-capsule a { padding-block: .5rem; }
+  .site-header .public-nav-indicator { top: 4px; bottom: 4px; }
+}

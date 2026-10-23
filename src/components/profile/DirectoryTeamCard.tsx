@@ -17,6 +17,6 @@ export function DirectoryTeamCard({ team, ordinal, compareMode, selected, ownTea
     {team.legacyHistoryIncomplete && <small>Tam yarış tarixçəsi hələ əlçatan deyil.</small>}
     <div className="directory-competitive"><span><strong>{record?.wwcd ?? '—'}</strong> WWCD</span><span tabIndex={0} data-tooltip="Dərc edilmiş matçlarda ilk üç yer"><strong>{podiums ?? '—'}</strong> PODİUM<span className="tooltip-touch-description">Dərc edilmiş matçlarda ilk üç yer</span></span></div>
     <div className="directory-recent"><span>Son nəticələr</span><div>{form.length ? <RecentPlacementStrip results={form} /> : <small>{historyAvailable === false ? 'Nəticə formatı dəstəklənmir' : team.form === undefined ? 'Nəticələrə profildə baxın' : 'Dərc edilmiş nəticə yoxdur'}</small>}</div></div>
-    {compareMode && <Link className="directory-profile-link" to={`/teams/${team.slug}`}>Public profil</Link>}
+    <Link className={`directory-profile-link${compareMode ? "" : " directory-profile-link--mobile"}`} to={`/teams/${team.slug}`}>Public profil</Link>
   </div>;
 }

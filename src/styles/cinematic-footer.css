@@ -48,20 +48,24 @@
   .cinematic-footer__information { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
   .cinematic-footer__statement { min-height: 23rem; }
 }
-@container (max-width: 600px) {
-  .cinematic-footer__scene { padding: 28px 20px 24px; background: radial-gradient(ellipse at 0 0, #25262d 0, transparent 65%), #101114; }
-  .cinematic-footer__top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 16px; }
-  .cinematic-footer__top p { font-size: 14px; line-height: 1.6; }
-  .cinematic-footer__statement { position: relative; z-index: 1; min-height: 0; margin-block: 28px; padding: 24px 16px; gap: 16px; border: 1px solid #ffffff0b; border-radius: 18px; background: linear-gradient(135deg, #ffffff07, #ffffff02); font-size: clamp(18px, 5cqi, 24px); line-height: 1.3; }
-  .cinematic-footer__information { gap: 24px 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .cinematic-footer__information > * { min-width: 0; overflow-wrap: anywhere; }
-  .cinematic-footer__information > :first-child { grid-column: 1 / -1; }
-  .cinematic-footer__information > :last-child { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
-  .cinematic-footer__information > :last-child h2 { grid-column: 1 / -1; }
+/* Mobile composition shared by every existing footer route. */
+@container (max-width: 768px) {
+  .cinematic-footer__scene { padding: 32px 16px 24px; background: #0b0b0d; }
+  .cinematic-footer__top { grid-template-columns: 1fr 1fr 1.35fr auto; gap: 8px; }
+  .cinematic-footer__top p { font-size: clamp(10px, 2.5cqi, 18px); line-height: 1.45; }
+  .cinematic-footer__top > :not(:first-child) { border-left: 1px solid #ffffff08; padding-left: 8px; }
+  .cinematic-footer__follow { grid-column: auto; grid-row: auto; gap: 4px; font-size: clamp(9px, 2.2cqi, 16px); letter-spacing: 0; }
+  .cinematic-footer__follow svg { width: 20px; }
+  .cinematic-footer__statement { min-height: 0; margin: 0; padding: clamp(44px, 11cqi, 84px) 0; gap: 4px; font-size: clamp(16px, 3.4cqi, 26px); line-height: 1.3; }
+  .cinematic-footer__information { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; }
+  .cinematic-footer .cinematic-footer__group h2 { font-size: clamp(10px, 2.2cqi, 16px); margin-bottom: 10px; }
   .cinematic-footer__links { grid-template-columns: minmax(0, 1fr); }
-  .cinematic-footer__group a { font-size: 14px; }
-  .cinematic-footer__bottom { align-items: flex-start; flex-direction: column; gap: 12px; font-size: 12px; letter-spacing: 0; padding-top: 28px; }
-  .cinematic-footer__wordmark { position: absolute; inset: auto 20px 64px; width: calc(100% - 40px); margin: 0; opacity: .42; filter: none; }
+  .cinematic-footer__group a, .cinematic-footer__unavailable { font-size: clamp(12px, 2.8cqi, 20px); }
+  .cinematic-footer__group .cinematic-footer__email { gap: 4px; }
+  .cinematic-footer__email svg { width: 14px; }
+  .cinematic-footer__wordmark { position: relative; width: calc(100% + 16px); margin: 24px -8px 0; opacity: 1; }
+  .cinematic-footer__bottom { gap: 8px; padding-top: 12px; font-size: clamp(9px, 2.3cqi, 16px); letter-spacing: 0; }
+  .cinematic-footer__bottom > span { font-size: .8em; letter-spacing: .1em; }
   .cinematic-footer__reflection { animation: none; transform: translateX(1900px); }
 }
 
