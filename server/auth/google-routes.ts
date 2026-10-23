@@ -9,7 +9,7 @@ import {platform,tokenDigest,captainCookieName} from '../platform/context';
 import {transaction,audit} from '../platform/competition';
 import {lockAccount} from '../platform/account-store';
 import {consumeFactor} from '../platform/mfa';
-import {verifyPassword,makeSession} from '../captain/crypto';
+import {hashPassword,verifyPassword,makeSession} from '../captain/crypto';
 import {issueTokens,saveTokens,tokensEnabled} from './platform-tokens';
 import {persistentLimit} from './persistent-limit';
 import {randomToken,pkceChallenge,exchangeGoogleCode} from './google-provider';
@@ -51,13 +51,12 @@ app.get('/auth/google/callback',async c=>{
   const next=randomToken();
   await platform(c).sql`insert into aevic_platform.google_flows(token_digest,browser_digest,nonce,verifier,expires_at,phase,subject,email,first_name,last_name) values(${tokenDigest(randomToken())},${tokenDigest(next)},'','',now()+interval '10 minutes','continuation',${identity.subject},${identity.email},${identity.firstName},${identity.lastName})`;
   setCookie(c,googleCookie(c),next,{path:'/',httpOnly:true,secure:config.secureCookies,sameSite:'Lax',maxAge:600});
-  const linked=await platform(c).sql`select account_id from aevic_platform.google_identities where subject=${identity.subject}`;
-  if(linked.length){
-   try { const result=await completeGoogle(c,next,{remember:false},false); return c.redirect(result.redirectTo,303); }
-   catch(error){ if(error instanceof ServiceError&&error.code==='MFA_REQUIRED')return c.redirect('/login?google=continue&mfa=required',303); throw error; }
+  try { const result=await completeGoogle(c,next,{remember:false},false,true); return c.redirect(result.redirectTo,303); }
+  catch(error){
+   if(error instanceof ServiceError&&error.code==='MFA_REQUIRED')return c.redirect('/login?google=continue&mfa=required',303);
+   if(error instanceof ServiceError&&error.code==='GOOGLE_REGISTRATION_REQUIRED')return c.redirect('/login?google=continue',303);
+   throw error;
   }
-  const matching=await platform(c).sql`select id from aevic_platform.account_identity where lower(btrim(email))=${identity.email}`;
-  return c.redirect(linked.length||matching.length?'/login?google=continue':'/register?google=continue',303);
  }catch{
   clearGoogle(c);clearGoogleReturn(c);return c.redirect('/login?google=failed',303);
  }
@@ -76,21 +75,34 @@ app.post('/auth/google/complete',async c=>{
  const input=await body(c,z.object({password:z.string().max(128).optional(),otp:z.string().max(40).optional(),remember:z.boolean().default(false)}).strict());
  return c.json(await completeGoogle(c,browser,input,true));
 });
-async function completeGoogle(c:ApiContext,browser:string,input:{password?:string;otp?:string;remember:boolean},allowLink:boolean){
+async function completeGoogle(c:ApiContext,browser:string,input:{password?:string;otp?:string;remember:boolean},allowLink:boolean,allowCreate=false){
  const config=c.get('config');
  const sql=platform(c).sql;
  await persistentLimit(c,sql,'google-complete',c.req.header('x-nf-client-connection-ip')??'local',10,true);
  const pending=await continuation(sql,browser);
  await persistentLimit(c,sql,'google-account',pending.subject,10,true);
  const result=await transaction(sql,async tx=>{
+  // Match registration's lock order: shared email lock before the continuation row.
+  if(allowCreate)await tx`select pg_advisory_xact_lock(184621,1)`;
   const flow=await continuation(tx,browser,true);
   await tx`select pg_advisory_xact_lock(hashtextextended(${'google:'+flow.subject},0))`;
   const [linked]=await tx`select account_id::text from aevic_platform.google_identities where subject=${flow.subject}`;
   const matching=linked?[]:await tx`select id::text from aevic_platform.account_identity where lower(btrim(email))=${flow.email} limit 2`;
-  if(!linked&&(!allowLink||matching.length!==1))throw new ServiceError(409,'GOOGLE_REGISTRATION_REQUIRED');
-  const row=await lockAccount(tx,linked?.account_id??matching[0].id);
+  let createdId:string|undefined;
+  if(!linked&&matching.length===0&&allowCreate){
+   const [setting]=await tx`select value from aevic_platform.settings where key='platform'`;
+   if(setting?.value.registrationEnabled===false)throw new ServiceError(409,'REGISTRATION_CLOSED');
+   // A random, undisclosed credential satisfies the existing session/recovery model.
+   // No team or administrator authority is created by social authentication.
+   const hash=await hashPassword(randomToken()+randomToken());
+   const [created]=await tx`insert into aevic_platform.accounts(email,password_hash,captain_name,email_verified_at) values(${flow.email},${hash},${[flow.first_name,flow.last_name].filter(Boolean).join(' ')},clock_timestamp()) returning id::text`;
+   createdId=created.id;
+   await audit(tx,{accountId:createdId},'account.google-register','account',createdId!);
+  }
+  if(!linked&&!createdId&&(!allowLink||matching.length!==1))throw new ServiceError(409,'GOOGLE_REGISTRATION_REQUIRED');
+  const row=await lockAccount(tx,linked?.account_id??createdId??matching[0].id);
   if(row.status==='banned')throw new ServiceError(401,'LOGIN_FAILED');
-  if(!linked&&(String(row.email).trim().toLowerCase()!==flow.email||!await verifyPassword(input.password??'',row.password_hash)))throw new ServiceError(401,'LOGIN_FAILED');
+  if(!linked&&!createdId&&(String(row.email).trim().toLowerCase()!==flow.email||!await verifyPassword(input.password??'',row.password_hash)))throw new ServiceError(401,'LOGIN_FAILED');
   const verified=await consumeFactor(tx,{teamId:row.id},config.sessionSecret??'',input.otp);
   if(!linked){
    const conflict=await tx`select subject from aevic_platform.google_identities where account_id=${row.id}`;

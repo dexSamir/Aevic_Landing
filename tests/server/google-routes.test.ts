@@ -11,7 +11,7 @@ import {exchangeGoogleCode} from '../../server/auth/google-provider';
 vi.mock('../../server/platform/mfa',()=>({consumeFactor:vi.fn().mockResolvedValue(false)}));
 vi.mock('../../server/auth/google-provider',async original=>({...await original<typeof import('../../server/auth/google-provider')>(),exchangeGoogleCode:vi.fn().mockResolvedValue({subject:'google-sub',email:'captain@example.com',firstName:'Name',lastName:'Surname'})}));
 const config={supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'fixture',siteUrl:'http://localhost:8888',secureCookies:false,sessionSecret:'fixture-secret-at-least-32-characters',google:{clientId:'client',clientSecret:'private-client-secret'}};
-let flow:any,linked=false,existing=true,consumed=false,workspace=true,banned=false,queries:string[],hash:string;
+let flow:any,linked=false,existing=true,consumed=false,workspace=true,banned=false,registrationOpen=true,queries:string[],hash:string;
 const sql:any=async(parts:TemplateStringsArray,...args:any[])=>{
  const q=parts.join('?');queries.push(q);
  if(q.includes('authentication_limits')&&q.includes('returning hits'))return [{hits:1}];
@@ -23,6 +23,8 @@ const sql:any=async(parts:TemplateStringsArray,...args:any[])=>{
  if(q.includes('from aevic_platform.team_authority'))return workspace?[{team_id:'16',role:'OWNER'}]:[];
  if(q.includes('select original_team_id'))return [{original_team_id:16}];
  if(q.includes('from aevic_platform.account_identity'))return existing?[{id:'16',email:'captain@example.com',password_hash:hash,status:banned?'banned':'approved'}]:[];
+ if(q.includes("from aevic_platform.settings"))return [{value:{registrationEnabled:registrationOpen}}];
+ if(q.includes('insert into aevic_platform.accounts(')){existing=true;hash=args[1];return [{id:'16'}];}
  if(q.includes('insert into aevic_platform.google_identities')){linked=true;return [];}
  if(q.includes("set phase='consumed'")){consumed=true;return [];}
  return [];
@@ -31,7 +33,7 @@ sql.begin=(work:any)=>work(sql);
 sql.json=(value:any)=>value;
 const app=(overrides:Partial<import('../../server/config').ServerConfig>={})=>{const a=createHttpApp({...config,...overrides});a.use('*',async(c,next)=>{c.set('platform',{sql,actor:{}} as any);await next();});a.route('/',routes);return a;};
 const request=(path:string,data:any={},cookie='aevic-google=browser')=>app().request('/api'+path,{method:'POST',headers:{origin:config.siteUrl,'content-type':'application/json',cookie},body:JSON.stringify(data)});
-beforeEach(async()=>{queries=[];flow=undefined;linked=false;existing=true;consumed=false;workspace=true;banned=false;hash=await hashPassword('ValidPassword1');vi.mocked(consumeFactor).mockResolvedValue(false);vi.mocked(exchangeGoogleCode).mockClear();});
+beforeEach(async()=>{queries=[];flow=undefined;linked=false;existing=true;consumed=false;workspace=true;banned=false;registrationOpen=true;hash=await hashPassword('ValidPassword1');vi.mocked(consumeFactor).mockResolvedValue(false);vi.mocked(exchangeGoogleCode).mockClear();});
 function pending(){flow={token_digest:'continuation',browser_digest:tokenDigest('browser'),phase:'continuation',subject:'google-sub',email:'captain@example.com',expires_at:Date.now()+600000};}
 it('keeps disabled Google routes inert and preserves the existing logout handler',async()=>{
  const disabled=app({google:undefined,sessionMode:'legacy'});
@@ -53,11 +55,14 @@ it('rejects wrong state, expired callbacks and replay before provider exchange',
  flow={token_digest:tokenDigest('state'),browser_digest:tokenDigest('browser'),expires_at:Date.now()+10000,nonce:'nonce',verifier:'verifier'};
  const wrong=await app().request('/api/auth/google/callback?state=wrong&code=code',{headers:{cookie:'aevic-google=browser'}});expect(wrong.headers.get('location')).toBe('/login?google=failed');expect(exchangeGoogleCode).not.toHaveBeenCalled();
 });
-it('sends new users to registration without inserting any account or session',async()=>{
- existing=false;flow={token_digest:tokenDigest('state'),browser_digest:tokenDigest('browser'),expires_at:Date.now()+10000,nonce:'nonce',verifier:'verifier'};
+it('automatically creates a regular account without a team, consumes the flow and rejects replay',async()=>{
+ existing=false;workspace=false;flow={token_digest:tokenDigest('state'),browser_digest:tokenDigest('browser'),expires_at:Date.now()+10000,nonce:'nonce',verifier:'verifier'};
  const a=app(),url='/api/auth/google/callback?state=state&code=code',options={headers:{cookie:'aevic-google=browser'}};
- expect((await a.request(url,options)).headers.get('location')).toBe('/register?google=continue');
- expect(queries.some(q=>q.includes('insert into public.teams')||q.includes('insert into aevic_platform.sessions'))).toBe(false);
+ expect((await a.request(url,options)).headers.get('location')).toBe('/account');
+ expect(queries.some(q=>q.includes('insert into aevic_platform.accounts('))).toBe(true);
+ expect(queries.some(q=>q.includes('insert into aevic_platform.sessions'))).toBe(true);
+ expect(queries.some(q=>q.includes('insert into public.teams')||q.includes('admin_accounts')||q.includes('insert into aevic_platform.team_authority'))).toBe(false);
+ expect(linked).toBe(true);expect(consumed).toBe(true);
  expect((await a.request(url,options)).headers.get('location')).toBe('/login?google=failed');expect(exchangeGoogleCode).toHaveBeenCalledTimes(1);
 });
 it('requires password proof to link a verified matching email',async()=>{pending();expect((await request('/auth/google/complete',{password:'wrong'})).status).toBe(401);expect(linked).toBe(false);expect(consumed).toBe(false);const r=await request('/auth/google/complete',{password:'ValidPassword1'});expect(r.status).toBe(200);expect(linked).toBe(true);expect(consumed).toBe(true);expect(r.headers.get('set-cookie')).toContain('aevic-captain=');expect(await r.json()).toEqual({sessionMode:'legacy',redirectTo:'/team'});});
@@ -134,4 +139,22 @@ it('bridges Supabase Google identity into the same linked AEVIC account and sess
 });
 it('fails closed if provider selection changes during authorization',async()=>{
  callbackFlow();const r=await app({google:{provider:'supabase'}}).request('/api/auth/google/callback?state=state&code=code',{headers:{cookie:'aevic-google=browser'}});expect(r.headers.get('location')).toBe('/login?google=failed');
+});
+
+it('honors closed registration without creating an account or session',async()=>{
+ existing=false;workspace=false;registrationOpen=false;callbackFlow();
+ expect((await callback()).headers.get('location')).toBe('/login?google=failed');
+ expect(queries.some(q=>q.includes('insert into aevic_platform.accounts(')||q.includes('insert into aevic_platform.sessions'))).toBe(false);
+});
+it('automatically registers a verified Supabase user with the existing token session protocol',async()=>{
+ existing=false;workspace=false;callbackFlow();flow.nonce='supabase:nonce';
+ const response=await app({google:{provider:'supabase'},sessionMode:'tokens'}).request('/api/auth/google/callback?state=state&code=code',{headers:{cookie:'aevic-google=browser'}});
+ expect(response.headers.get('location')).toBe('/account');expect(response.headers.get('set-cookie')).toContain('aevic-refresh-v2=');
+ expect(queries.filter(q=>q.includes('insert into aevic_platform.accounts('))).toHaveLength(1);
+ expect(queries.some(q=>q.includes('email_verified_at'))).toBe(true);
+ expect(queries.some(q=>q.includes('insert into aevic_platform.refresh_tokens'))).toBe(true);
+ // A later login recognizes the subject and does not duplicate the account.
+ consumed=false;callbackFlow();flow.nonce='supabase:nonce';
+ await app({google:{provider:'supabase'}}).request('/api/auth/google/callback?state=state&code=another',{headers:{cookie:'aevic-google=browser'}});
+ expect(queries.filter(q=>q.includes('insert into aevic_platform.accounts('))).toHaveLength(1);
 });

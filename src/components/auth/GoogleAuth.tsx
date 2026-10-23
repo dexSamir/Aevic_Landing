@@ -1,3 +1,4 @@
+import {navigateGoogleOAuth} from '../../utils/googleOAuthRedirect';
 import {useEffect,useState} from 'react';
 import {Button,Input,PasswordInput} from '../common/primitives';
 import {sessionTransport} from '../../services/tokenSession';
@@ -19,7 +20,7 @@ export function GoogleAuth({registration=false}:{registration?:boolean}){
  },[registration]);
  const start=async()=>{
   setBusy(true);setError('');
-  try{const result=await sessionTransport(root).request<{url:string}>('/auth/google/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({returnTo:safeAuthReturn(new URLSearchParams(window.location.search).get('returnTo'))})});const target=new URL(result.url);if(target.origin!=='https://accounts.google.com'||target.pathname!=='/o/oauth2/v2/auth')throw new Error('Invalid Google redirect');window.location.assign(target.href);}
+  try{const result=await sessionTransport(root).request<{url:string}>('/auth/google/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({returnTo:safeAuthReturn(new URLSearchParams(window.location.search).get('returnTo'))})});navigateGoogleOAuth(result.url);}
   catch{setError('Google girişi hazırda əlçatan deyil. Yenidən cəhd edin.');setBusy(false);}
  };
  const complete=async()=>{
