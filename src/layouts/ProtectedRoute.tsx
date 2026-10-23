@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { TeamWorkspacePlaceholder } from './TeamWorkspaceFrame';
 import { BrandEmblem } from '../components/brand/BrandMark';
@@ -6,6 +6,9 @@ import { RouteSkeleton } from '../components/common/LoadingSkeleton';
 import { EmptyState, Button } from '../components/common/primitives';
 import { serviceCapabilities, services } from '../services';
 import { invalidateQuery, usePlatformQuery } from '../services/queryCache';
+
+const ProtectedSessionContext = createContext<Awaited<ReturnType<typeof services.auth.getSession>>>(null);
+export const useProtectedSession = () => useContext(ProtectedSessionContext);
 
 export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'account'; children: ReactNode }) {
   // Private, in-memory navigation state only. Every protected API still verifies
@@ -32,5 +35,5 @@ export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'a
   const session = query.data;
   const accepted = area === 'admin' ? session?.role === 'admin' : area === 'account' ? Boolean(session) : Boolean(session && ['captain', 'team', 'admin'].includes(session.role));
   if (!accepted) return <Navigate to={session ? '/forbidden' : loginPath} replace />;
-  return <div key={session?.user.id} data-protected-area={area}>{children}</div>;
+  return <div key={session?.user.id} data-protected-area={area}><ProtectedSessionContext.Provider value={session ?? null}>{children}</ProtectedSessionContext.Provider></div>;
 }

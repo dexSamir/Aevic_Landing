@@ -33,3 +33,13 @@ it('names the actual metrics and updates title and unit with the chosen series',
  expect(screen.getByRole('heading',{name:'Xəritələr üzrə orta kill / matç'})).toBeInTheDocument();
  expect(screen.getAllByRole('button',{name:/PNG yüklə/})).toHaveLength(4);
 });
+it('keeps compact informational values and links for incomplete and unavailable states', async () => {
+ source=await fixtureServices.snapshots.team();
+ source={...source,matchHistory:[],historyAvailable:false,participations:[],unavailable:{competition:true,room:true,notifications:true},currentTeam:{...source.currentTeam,roster:source.currentTeam.roster.slice(0,2)}};
+ const view=render(<MemoryRouter><TeamIntelligence /></MemoryRouter>);
+ expect(screen.getByText('2/4 oyunçu')).toBeInTheDocument();
+ expect(screen.getByText('Cədvəl əlçatan deyil')).toBeInTheDocument();
+ expect(screen.getByRole('link',{name:/MATÇ OTAĞI/})).toHaveAttribute('href','/team/tournaments');
+ expect(view.container.querySelectorAll('.intelligence-card p')).toHaveLength(0);
+ expect(view.container.querySelectorAll('.intelligence-card-action')).toHaveLength(4);
+});

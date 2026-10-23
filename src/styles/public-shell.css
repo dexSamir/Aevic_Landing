@@ -144,3 +144,8 @@
 }
 
 @media (min-width: 1024px) and (max-width: 1199px) { .site-header .public-nav-capsule a { padding-inline: .65rem; } }
+
+/* Concentric corners: the 4px desktop inset is subtracted from the outer radius. */
+@media(min-width:1024px) {
+ .site-header .public-nav-capsule a,.site-header .public-nav-indicator { border-radius:calc(var(--radius-lg) - 4px); }
+}

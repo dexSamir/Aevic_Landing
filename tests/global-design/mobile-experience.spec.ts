@@ -51,31 +51,26 @@ test('narrow calendar supports arbitrary dates without miniature targets',async(
 });
 
 for (const viewport of [{width:320,height:568},{width:360,height:740},{width:375,height:667},{width:390,height:844},{width:414,height:896},{width:430,height:932},{width:480,height:740},{width:768,height:360}]) {
- test(`public drawer touch and footer journey ${viewport.width}`, async ({browser,baseURL}) => {
+ test(`public bottom navigation touch and footer journey ${viewport.width}`, async ({browser,baseURL}) => {
   const context=await browser.newContext({viewport,isMobile:true,hasTouch:true,reducedMotion:'reduce'});
   const page=await context.newPage();
   const {installApiFixtures}=await import('../helpers/api-fixture-test');
   await installApiFixtures(page);
   await page.goto(`${baseURL}/`);
-  const trigger=page.getByRole('button',{name:'Menyunu aç',exact:true});
+  const nav=page.getByRole('navigation',{name:'Mobil əsas naviqasiya'});
+  const trigger=nav.getByRole('button');
+  await expect(trigger).toContainText('Komandam');
   await trigger.click();
-  const drawer=page.getByRole('dialog',{name:'AEVIC menyu'});
-  await expect(drawer).toBeVisible();
-  await expect(drawer.getByRole('link',{name:'Komanda paneli',exact:true})).toBeVisible();
-  await drawer.getByRole('link',{name:'Turnirlər',exact:true}).click();
+  const menu=page.getByRole('navigation',{name:'Hesab əməliyyatları'});
+  await expect(menu.getByRole('link',{name:'Komanda paneli',exact:true})).toBeVisible();
+  await page.keyboard.press('Escape');await expect(menu).toHaveCount(0);await expect(trigger).toBeFocused();
+  await nav.getByRole('link',{name:'Turnirlər',exact:true}).click();
   await expect(page).toHaveURL(/\/tournaments$/);
-  await expect(drawer).toHaveCount(0);
-  await trigger.click();
-  await drawer.getByRole('link',{name:'Hesab',exact:true}).click();
+  await trigger.click();await menu.getByRole('link',{name:'Hesabım',exact:true}).click();
   await expect(page).toHaveURL(/\/account\/profile$/);
   await page.goto(`${baseURL}/`);
-  await trigger.click();await expect(drawer).toBeVisible();await page.keyboard.press('Escape');await page.clock.runFor(300);
-  await expect(trigger).toBeFocused();
-  await trigger.click();await expect(drawer).toBeVisible();await page.locator('.drawer-backdrop').click({position:{x:2,y:100}});await page.clock.runFor(300);
-  await expect(drawer).toHaveCount(0);
-  await trigger.focus();await page.clock.runFor(700);
-  await expect(page.getByRole('tooltip')).toHaveCount(0);
-  await expect(page.locator('[title]')).toHaveCount(0);
+  await trigger.click();await expect(menu).toBeVisible();
+  await page.locator('.site-header .brand-mark').click();await expect(menu).toHaveCount(0);
   const footer=page.locator('.cinematic-footer');await footer.scrollIntoViewIfNeeded();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
   const wordmark=footer.locator('.cinematic-footer__wordmark');
@@ -148,8 +143,8 @@ test('mobile owner signs in and manages roster, participation and preferences', 
  await page.getByLabel('Şifrə',{exact:true}).fill('test-fixture');
  await page.getByRole('button',{name:'Daxil ol',exact:true}).click();
  await expect(page).toHaveURL(/\/team$/);
- await page.goto('/');await page.getByRole('button',{name:'Menyunu aç',exact:true}).click();
- await page.getByRole('dialog').getByRole('link',{name:'Komanda paneli',exact:true}).click();
+ await page.goto('/');await page.getByRole('navigation',{name:'Mobil əsas naviqasiya'}).getByRole('button').click();
+ await page.getByRole('navigation',{name:'Hesab əməliyyatları'}).getByRole('link',{name:'Komanda paneli',exact:true}).click();
  await page.getByRole('button',{name:'Naviqasiyanı aç'}).click();
  await page.getByRole('dialog').getByRole('link',{name:'Heyət',exact:true}).click();
  await page.getByRole('button',{name:'Dəyiş',exact:true}).first().click();

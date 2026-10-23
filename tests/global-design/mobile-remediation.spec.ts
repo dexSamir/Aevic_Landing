@@ -86,10 +86,12 @@ test('wordmark raster is bisected by the card edge for all compositions and rost
 test('short viewports keep navigation and form focus reachable', async ({page}) => {
   await page.setViewportSize({width:320,height:360});
   await page.goto('/');
-  await page.getByRole('button',{name:'Menyunu aç',exact:true}).click();
-  const menu=page.getByRole('dialog',{name:'AEVIC menyu'});
+  const nav=page.getByRole('navigation',{name:'Mobil əsas naviqasiya'});
+  await nav.getByRole('button').click();
+  const menu=page.getByRole('navigation',{name:'Hesab əməliyyatları'});
   await expect(menu).toBeVisible();
-  await menu.getByRole('link',{name:'Komandalar',exact:true}).click();
+  const bounds=await menu.boundingBox();expect(bounds!.y).toBeGreaterThanOrEqual(0);
+  await nav.getByRole('link',{name:'Komandalar',exact:true}).click();
   await expect(page).toHaveURL(/\/teams$/);
   await expect(menu).toHaveCount(0);
   for(const path of ['/login','/register','/team/profile']) {
