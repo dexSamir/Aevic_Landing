@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { type CSSProperties, useEffect, useId, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { House, Trophy, Users, Swords, CircleUserRound, LogOut } from 'lucide-react';
 import { TeamLogo } from '../components/common/primitives';
@@ -31,6 +31,7 @@ export function MobileBottomNav({ session, team, loading, refresh }: Props) {
   const menuId = useId();
   const accountActive = ['/account', '/team', '/login', '/register', '/forgot-password', '/reset-password'].some(path => inFamily(location.pathname, path));
   const active = accountActive ? '' : activePublicRoute(location.pathname);
+  const activeIndex = accountActive || open ? 4 : publicNavigation.primary.findIndex(item => item.to === active);
   const isAdmin = session?.role === 'admin';
   const workspace = !isAdmin && team;
   const identity = workspace ? team.name : session?.user.firstName || 'Hesab';
@@ -62,13 +63,13 @@ export function MobileBottomNav({ session, team, loading, refresh }: Props) {
         <strong>{identity}</strong>
         {loading ? <p role="status">Sessiya yoxlanılır…</p> : session === undefined ? <button onClick={refresh}>Sessiyanı yenidən yoxla</button> : session ? <>
           <Link to="/account/profile">Hesabım</Link>
-          {workspace ? <><Link to="/team">Komanda paneli</Link><Link to="/team/profile">Komanda profili</Link><Link to="/team/roster">Heyəti idarə et</Link><Link to="/team/tournaments">Turnirlərim</Link><Link to="/team/settings">Komanda ayarları</Link></> : !isAdmin && <Link to="/register">Komanda yarat</Link>}
-          <Link to="/account/security">Təhlükəsizlik</Link>
+          {workspace ? <><Link to="/team">Komanda paneli</Link><Link to="/team/roster">Heyəti idarə et</Link></> : !isAdmin && <Link to="/register">Komanda yarat</Link>}
           <button disabled={busy} onClick={() => void logout()}><LogOut size={18} aria-hidden="true" />{busy ? 'Çıxış edilir…' : 'Çıxış'}</button>
         </> : <><Link to={publicNavigation.login.to}>{publicNavigation.login.label}</Link><Link to={publicNavigation.register.to}>{publicNavigation.register.label}</Link></>}
         {error && <p role="alert">{error}</p>}
       </nav>}
-      <nav className="mobile-nav__items" aria-label="Mobil əsas naviqasiya">
+      <nav className="mobile-nav__items" aria-label="Mobil əsas naviqasiya" style={{ '--mobile-active-index': activeIndex } as CSSProperties} >
+        <span className="mobile-nav__indicator" aria-hidden="true" hidden={activeIndex < 0} />
         {publicNavigation.primary.map((item, index) => { const Icon = icons[index]; return <Link key={item.to} to={item.to} aria-current={active === item.to ? 'page' : undefined}><Icon size={22} strokeWidth={1.8} aria-hidden="true" /><span>{item.label}</span></Link>; })}
         <button ref={trigger} type="button" className={accountActive || open ? 'is-active' : undefined} aria-label={`${identity} hesab menyusu`} aria-expanded={open} aria-controls={open ? menuId : undefined} onClick={() => setOpen(value => !value)}>
           {workspace ? <TeamLogo name={team.name} src={team.logoUrl} size="sm" /> : <CircleUserRound size={22} strokeWidth={1.8} aria-hidden="true" />}<span>{workspace ? 'Komandam' : 'Hesab'}</span>

@@ -22,3 +22,22 @@
 .map-performance-badge { position:absolute; top:30px; left:30px; display:inline-flex; align-items:center; gap:10px; max-width:calc(100% - 60px); padding:10px 16px; border-radius:999px; background:#080a0bc9; color:var(--gold-primary); font-size:11px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; }
 .map-performance-sample { margin:14px 0 0; font-size:12px; color:#c5c5cb; }
 @media(max-width:900px) { .map-performance { grid-auto-rows:minmax(220px,auto); gap:12px; } .map-performance-card--featured { min-height:480px; } .map-performance-content { padding:22px; } .map-performance-content dl { gap:10px; } .map-performance-content dl > div + div { padding-left:10px; } }
+
+@media (max-width:1023px) {
+  .public-team-detail .map-performance-scroll { overflow:visible; margin-top:20px; }
+  .public-team-detail .map-performance { min-width:0; grid-template-columns:minmax(0,1fr); grid-auto-rows:auto; gap:12px; }
+  .public-team-detail .map-performance-card { min-height:220px; border-radius:16px; }
+  .public-team-detail .map-performance-card--featured { grid-row:auto; min-height:280px; }
+  .public-team-detail .map-performance-content { padding:20px 16px; }
+  .public-team-detail .map-performance-card--featured .map-performance-content { padding-top:76px; }
+  .public-team-detail .map-performance-identity h3 { font-size:clamp(30px,7vw,48px); }
+  .public-team-detail .map-performance-card--featured h3 { font-size:clamp(38px,9vw,60px); }
+  .public-team-detail .map-performance-identity small { font-size:10px; letter-spacing:.24em; }
+  .public-team-detail .map-performance-content dl { margin-top:24px; gap:8px; grid-template-columns:1fr 1fr 1fr; align-items:end; }
+  .public-team-detail .map-performance-content dl > div { min-width:0; }
+  .public-team-detail .map-performance-content dl > div + div { padding-left:10px; }
+  .public-team-detail .map-performance-content dt { font-size:12px; white-space:normal; }
+  .public-team-detail .map-performance-content dd { font-size:clamp(24px,6.5vw,36px); }
+  .public-team-detail .map-performance-card--featured .map-performance-average dd { font-size:clamp(32px,8vw,46px); }
+  .public-team-detail .map-performance-badge { top:16px; left:16px; max-width:calc(100% - 32px); padding:8px 12px; font-size:10px; gap:8px; border:1px solid var(--gold-primary); }
+}

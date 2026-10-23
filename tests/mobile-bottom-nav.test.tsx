@@ -15,3 +15,12 @@ describe('mobile account navigation',()=>{
  it('can retry an unavailable session',()=>{const refresh=vi.fn();show({session:undefined,refresh});open();fireEvent.click(screen.getByText('Sessiyanı yenidən yoxla'));expect(refresh).toHaveBeenCalledOnce();});
  for(const [path,active] of [['/','/'],['/tournaments/cup','/tournaments'],['/teams/team','/teams'],['/matches/match','/matches'],['/team/roster',''],['/account/security','']])it(`selects one route family for ${path}`,()=>{const {container}=show({},path);const selected=container.querySelectorAll('[aria-current]');expect(selected).toHaveLength(active?1:0);if(active)expect(selected[0]).toHaveAttribute('href',active);else expect(container.querySelector('.is-active')).toBeInTheDocument();});
 });
+
+it('keeps only essential workspace links and restores focus on Escape',()=>{
+ show({team:{name:'Active Team'} as Team});open();
+ const panel=screen.getByRole('navigation',{name:'Hesab əməliyyatları'});
+ expect([...panel.querySelectorAll('a')].map(a=>a.getAttribute('href'))).toEqual(['/account/profile','/team','/team/roster']);
+ fireEvent.keyDown(document,{key:'Escape'});
+ expect(screen.queryByRole('navigation',{name:'Hesab əməliyyatları'})).toBeNull();
+ expect(screen.getByRole('button',{name:/hesab menyusu/})).toHaveFocus();
+});

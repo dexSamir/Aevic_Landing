@@ -16,13 +16,13 @@ export function MapPerformance({ specialization }: { specialization: PublicTeamP
       || (a.matches && b.matches ? a.averagePlacement - b.averagePlacement : 0)
       || b.matches - a.matches || a.map.localeCompare(b.map, 'en');
   });
-  return <div className="map-performance-scroll" role="region" aria-label="Xəritə performansı — kiçik ekranda üfüqi sürüşdürün" tabIndex={0}>
+  return <div className="map-performance-scroll" role="region" aria-label="Xəritə performansı" tabIndex={0}>
     <div className="map-performance">{ranked.map((map, index) => {
       const artwork = mapArtwork[map.map.toLowerCase()];
       const featured = index === 0;
       const comparable = map.matches >= minimumSampleSize && map.matches > 0;
       return <article className={`map-performance-card${featured ? ' map-performance-card--featured' : ''}`} key={map.map} aria-label={`${map.map} statistikası`}>
-        {artwork && <img className="map-performance-image" {...artwork} sizes={featured ? '(max-width: 760px) 440px, 58vw' : '(max-width: 760px) 320px, 40vw'} alt="" loading="lazy" decoding="async" width="1672" height="940" />}
+        {artwork && <img className="map-performance-image" {...artwork} sizes={featured ? '(max-width: 1023px) 100vw, 58vw' : '(max-width: 1023px) 100vw, 40vw'} alt="" loading="lazy" decoding="async" width="1672" height="940" />}
         {featured && comparable && comparison && <span className="map-performance-badge"><Crown size={19} aria-hidden="true" />Ən yaxşı orta yer</span>}
         <div className="map-performance-content">
           <header className="map-performance-identity"><span aria-hidden="true">{String(index + 1).padStart(2, '0')} <i /></span><h3>{map.map}</h3><small>AEVIC ESPORTS</small></header>

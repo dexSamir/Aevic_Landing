@@ -21,3 +21,12 @@
 }
 @keyframes mobile-profile-enter { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 @media(prefers-reduced-motion:reduce) { .mobile-profile-panel { animation:none; } .mobile-nav__items > :is(a,button) { transition:none; } }
+
+@media (max-width:1023px) {
+  /* Equal grid tracks keep the shared indicator aligned without layout reads. */
+  .mobile-nav__items { position:relative; isolation:isolate; }
+  .mobile-nav__indicator { position:absolute; z-index:-1; top:6px; bottom:6px; left:6px; width:calc((100% - 20px) / 5); border-radius:14px; background:#f3c45012; transform:translateX(calc(var(--mobile-active-index) * (100% + 2px))); transition:transform 240ms cubic-bezier(.22,.75,.25,1); pointer-events:none; }
+  .mobile-nav__items > :is([aria-current],.is-active) { background:transparent; }
+  .mobile-profile-panel { padding:8px; border-radius:16px; }
+}
+@media (prefers-reduced-motion:reduce) { .mobile-nav__indicator { transition:none !important; } }

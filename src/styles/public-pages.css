@@ -815,3 +815,82 @@
 
 .directory-profile-link--mobile { display: none; }
 @media (max-width: 600px) { .directory-profile-link--mobile { display: flex; } }
+
+/* Mobile refinements share the bottom-navigation breakpoint; desktop stays intact. */
+@media (max-width:1023px) {
+  .site-header--team-detail { display:none; }
+  .teams-directory .directory-hero { min-height:0; }
+  .teams-directory .directory-hero > .container { padding-top:calc(var(--header-height) + 24px); padding-bottom:20px; }
+  .teams-directory .directory-hero__media { left:0; }
+  .teams-directory .directory-hero h1 { font-size:clamp(44px,10vw,72px); margin:12px 0; }
+  .teams-directory .directory-hero p { max-width:34ch; font-size:14px; line-height:1.5; }
+  .teams-directory .directory-hero .container > small { display:none; }
+  .teams-directory .teams-directory__discovery { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:16px; padding-block:8px; }
+  .teams-directory .teams-directory__search { grid-column:1 / -1; max-width:none; border-radius:12px; padding-inline:14px; }
+  .teams-directory .teams-directory__search input { font-size:16px; min-width:0; }
+  .teams-directory .teams-directory__discovery .field select { width:100%; font-size:14px; }
+  .teams-directory .teams-directory__compare-control .button { width:100%; padding-inline:8px; font-size:13px; white-space:normal; }
+  .teams-directory .teams-directory__compare-control { flex-wrap:wrap; }
+  .teams-directory .teams-directory__count { padding:8px 12px; border-radius:12px; }
+  .teams-directory .teams-directory__count strong { font-size:20px; }
+  .teams-directory .team-directory-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .teams-directory .team-directory-card { padding:10px; border-radius:14px; }
+  .teams-directory .directory-card-top { min-height:44px; gap:2px; }
+  .teams-directory .directory-card-top > span:first-child { font-size:22px; }
+  .teams-directory .directory-card-badges { grid-column:1 / -1; grid-row:2; padding:0; }
+  .teams-directory .directory-follow { grid-column:3; grid-row:1; }
+  .teams-directory .directory-follow button { min-width:44px; min-height:44px; padding:4px; }
+  .teams-directory .team-logo-tile > :is(button,.team-logo-tile__destination) { min-height:112px; padding:4px 0; gap:8px; }
+  .teams-directory .team-logo-tile .team-mark { width:56px; height:56px; font-size:24px; }
+  .teams-directory .team-logo-tile__label strong { font:600 clamp(15px,3.5vw,21px)/1.3 var(--font-public-display); overflow-wrap:anywhere; }
+  .teams-directory .team-logo-tile__label small { font-size:11px; overflow-wrap:anywhere; }
+  .teams-directory .directory-competitive { font-size:11px; gap:4px; padding:8px 0; }
+  .teams-directory .directory-recent { padding-top:4px; font-size:11px; }
+  .teams-directory .directory-recent > div { flex-wrap:wrap; gap:4px; }
+  .teams-directory .recent-placement-strip { --placement-size:clamp(19px,5vw,32px); --placement-gap:3px; --placement-font-size:12px; }
+  .teams-directory .recent-placement-details { width:100%; }
+  .teams-directory .recent-placement-details summary { justify-content:center; font-size:11px; }
+  .teams-directory .directory-profile-link--mobile { display:flex; }
+  .public-team-detail .public-team-index { display:none; }
+  .public-team-detail .public-team-hero__grid { min-height:0; padding-top:calc(28px + env(safe-area-inset-top,0px)); padding-bottom:24px; gap:24px; grid-template-columns:minmax(0,1fr); }
+  .public-team-detail .public-team-hero h1 { font-size:clamp(38px,10vw,64px); }
+  .public-team-detail .public-team-brand { grid-template-columns:88px minmax(0,1fr); justify-items:start; align-items:center; gap:16px; }
+  .public-team-detail .public-team-brand > .team-logo { width:88px; height:88px; min-width:0; font-size:40px; }
+  .public-team-detail .public-team-social { justify-content:flex-start; }
+  .public-team-detail .public-team-overview { grid-template-columns:minmax(0,1fr); padding-block:24px; }
+  .public-team-detail .public-team-overview__main { grid-template-columns:minmax(0,1fr); }
+  .public-team-detail .public-team-section:not(#form) { padding-block:22px; }
+  .public-team-detail .public-team-stats { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:16px; }
+  .public-team-detail .public-team-stats > div { padding:12px; border-radius:10px; background:var(--surface-1); }
+  .public-team-detail .public-team-stats dd { font-size:26px; margin-bottom:6px; }
+  .public-team-detail .public-team-stats dt { font-size:12px; }
+  .public-team-detail .public-team-roster { display:grid; grid-auto-flow:column; grid-auto-columns:140px; grid-template-columns:none; gap:10px; overflow-x:auto; overscroll-behavior-inline:contain; scroll-snap-type:x proximity; padding-bottom:10px; }
+  .public-team-detail .public-team-roster article { scroll-snap-align:start; aspect-ratio:.71; }
+  .public-team-detail .public-team-player-copy { padding:28px 10px 12px; gap:6px; }
+  .public-team-detail .public-team-player-copy h3 { font-size:14px; }
+  .public-team-detail .public-team-player-copy p { font-size:12px; }
+  .public-team-detail .map-performance-headline { max-width:16ch; font:700 clamp(30px,7.8vw,48px)/1.12 var(--font-public-display); margin-block:14px; }
+  .public-team-detail #performance > h2 { font-size:14px; color:var(--gold-primary); }
+  .public-team-detail #performance > h2::before { content:'// '; }
+  .public-team-detail #performance > .public-team-note { margin-top:12px; font-size:14px; line-height:1.5; }
+  .public-team-detail .public-team-features { gap:20px; }
+  .public-team-detail :is(.public-team-wrapped,.public-team-official) { min-height:0; padding:20px; border-radius:16px; }
+  .public-team-detail .public-team-wrapped .public-team-feature-copy { width:100%; }
+  .public-team-detail .public-team-wrapped-visual { display:none; }
+  .public-team-detail .public-team-wrapped-tagline { display:none; }
+  .public-team-detail .public-team-feature-copy h2 { font-size:28px; overflow-wrap:anywhere; }
+  .public-team-detail .public-team-feature-copy p { font-size:14px; }
+  .public-team-detail .public-team-wrapped-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-block:16px; }
+  .public-team-detail .public-team-wrapped-stats > div { padding:12px; background:var(--surface-2); border-radius:10px; }
+  .public-team-detail .public-team-wrapped-stats dd { font-size:28px; }
+  .public-team-detail .public-team-official { grid-template-columns:minmax(0,1fr); gap:20px; }
+  .public-team-detail .public-team-feature-actions { flex-wrap:wrap; gap:8px; }
+  .public-team-detail .public-team-feature-actions .button { min-height:44px; }
+  .public-team-detail .public-team-card-preview { min-width:0; width:100%; }
+}
+@media (min-width:600px) and (max-width:1023px) {
+  .teams-directory .teams-directory__discovery { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@media (max-width:1023px) {
+  .teams-directory .directory-secondary-meta { display:none; }
+}

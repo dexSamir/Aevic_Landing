@@ -11,7 +11,7 @@ export interface RecentPlacement {
   finishes?: number;
 }
 /** A single visual and formatting contract for published, newest-first form. */
-export function RecentPlacementStrip({ results, empty = 'Dərc edilmiş nəticə yoxdur.' }: { results: readonly RecentPlacement[]; empty?: ReactNode }) {
+export function RecentPlacementStrip({ results, showDetails = true, empty = 'Dərc edilmiş nəticə yoxdur.' }: { results: readonly RecentPlacement[]; showDetails?: boolean; empty?: ReactNode }) {
   const seen = new Set<string>();
   const rows = results.filter(result => {
     const id = result.matchId ?? result.id;
@@ -29,8 +29,8 @@ export function RecentPlacementStrip({ results, empty = 'Dərc edilmiş nəticə
     const valid = Number.isInteger(result.placement) && Number(result.placement) > 0;
     const label = [valid ? `${result.placement}-ci yer` : 'Yer məlum deyil', result.map, result.tournamentName, result.playedAt, result.finishes !== undefined ? `${result.finishes} kill` : undefined].filter(Boolean).join(' · ');
     return <li key={result.matchId ?? result.id ?? index} className="recent-placement-tile" data-winner={valid && result.placement === 1 || undefined} tabIndex={0} aria-label={label} data-tooltip={label}><span aria-hidden="true">{result.placement === 1 ? <span className="placement-wwcd"><span>WW</span><span>CD</span></span> : valid ? result.placement : '—'}</span></li>;
-  })}</ol><details className="recent-placement-details" onClick={event => event.stopPropagation()}>
+  })}</ol>{showDetails && <details className="recent-placement-details" onClick={event => event.stopPropagation()}>
     <summary>Matç detalları</summary>
     {rows.map((result, index) => <p key={result.matchId ?? result.id ?? index}>{[`${result.placement}-ci yer`, result.map, result.tournamentName, result.playedAt ? new Date(result.playedAt).toLocaleDateString('az-AZ', {timeZone:'Asia/Baku'}) : undefined, result.finishes !== undefined ? `${result.finishes} kill` : undefined].filter(Boolean).join(' · ')}</p>)}
-  </details></>;
+  </details>}</>;
 }

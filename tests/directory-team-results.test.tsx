@@ -13,3 +13,13 @@ it('reserves the gold result treatment for WWCD and uses supplied placements', (
   expect(screen.getByLabelText(/1-ci yer · Miramar/)).toHaveAttribute('data-winner','true');
   expect(screen.getByLabelText(/1-ci yer · Miramar/)).toHaveTextContent('WWCD');
 });
+
+it('can remove the disclosure without changing result values or other callers', async () => {
+  const { RecentPlacementStrip } = await import('../src/components/common/RecentPlacementStrip');
+  const results = [{matchId:'scope',placement:1,map:'Rondo',finishes:8,playedAt:'2026-08-04'}];
+  const {container,rerender}=render(<RecentPlacementStrip results={results} showDetails={false}/>);
+  expect(container.querySelector('details')).toBeNull();
+  expect(container.querySelector('[data-winner]')).toHaveAccessibleName(/1-ci yer · Rondo.*8 kill/);
+  rerender(<RecentPlacementStrip results={results}/>);
+  expect(container.querySelector('summary')).toHaveTextContent('Matç detalları');
+});
