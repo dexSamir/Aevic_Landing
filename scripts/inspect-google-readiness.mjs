@@ -1,7 +1,7 @@
 /** Read-only metadata only. Never print environment values, cookies or records. */
 import postgres from 'postgres';
-const site = process.env.SITE_URL || process.env.URL || 'https://aevic-demo.netlify.app';
-console.log(JSON.stringify({googleEnabled:process.env.AEVIC_GOOGLE_ENABLED==='true',sessionMode:process.env.AEVIC_SESSION_MODE||'legacy',clientIdPresent:Boolean(process.env.GOOGLE_CLIENT_ID),clientSecretPresent:Boolean(process.env.GOOGLE_CLIENT_SECRET),callbackMatchesExpected:new URL(site).origin+'/api/auth/google/callback'==='https://aevic-demo.netlify.app/api/auth/google/callback'}));
+const site = process.env.PUBLIC_SITE_URL || 'https://aevic-esports.netlify.app';
+console.log(JSON.stringify({googleEnabled:process.env.AEVIC_GOOGLE_ENABLED==='true',googleProvider:process.env.AEVIC_GOOGLE_PROVIDER||'direct',sessionMode:process.env.AEVIC_SESSION_MODE||'legacy',clientIdPresent:Boolean(process.env.GOOGLE_CLIENT_ID),clientSecretPresent:Boolean(process.env.GOOGLE_CLIENT_SECRET),callbackMatchesExpected:new URL(site).origin+'/api/auth/google/callback'==='https://aevic-esports.netlify.app/api/auth/google/callback'}));
 if(!process.env.AEVIC_DATABASE_URL) { console.log('Database metadata unavailable: no configured connection'); process.exit(0); }
 const sql=postgres(process.env.AEVIC_DATABASE_URL,{max:1,connect_timeout:8,idle_timeout:1,onnotice:()=>{}});
 try {

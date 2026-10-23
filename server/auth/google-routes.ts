@@ -1,3 +1,4 @@
+import {supabaseGoogleUrl,exchangeSupabaseGoogle} from './supabase-google';
 import {Hono} from 'hono';
 import {getCookie,setCookie} from 'hono/cookie';
 import {z} from 'zod';
@@ -25,11 +26,12 @@ app.post('/auth/google/start',async c=>{
  saveGoogleReturn(c,input.returnTo);
  const sql=platform(c).sql;
  await persistentLimit(c,sql,'google-start',c.req.header('x-nf-client-connection-ip')??'local',10,true);
- const state=randomToken(),browser=randomToken(),nonce=randomToken(),verifier=randomToken();
+ const state=randomToken(),browser=randomToken(),nonce=(google.provider==='supabase'?'supabase:':'')+randomToken(),verifier=randomToken();
  await sql`delete from aevic_platform.google_flows where expires_at<now()`;
  const old=googleBrowser(c);if(old)await sql`delete from aevic_platform.google_flows where browser_digest=${tokenDigest(old)}`;
  await sql`insert into aevic_platform.google_flows(token_digest,browser_digest,nonce,verifier,expires_at) values(${tokenDigest(state)},${tokenDigest(browser)},${nonce},${verifier},now()+interval '10 minutes')`;
  setCookie(c,googleCookie(c),browser,{path:'/',httpOnly:true,secure:config.secureCookies,sameSite:'Lax',maxAge:600});
+ if(google.provider==='supabase')return c.json({url:supabaseGoogleUrl(config,state,verifier).href});
  const url=new URL('https://accounts.google.com/o/oauth2/v2/auth');
  url.search=new URLSearchParams({client_id:google.clientId,redirect_uri:config.siteUrl+'/api/auth/google/callback',response_type:'code',scope:'openid email profile',state,nonce,code_challenge:pkceChallenge(verifier),code_challenge_method:'S256',prompt:'select_account'}).toString();
  return c.json({url:url.href});
@@ -42,7 +44,10 @@ app.get('/auth/google/callback',async c=>{
   const [flow]=await platform(c).sql`delete from aevic_platform.google_flows where token_digest=${tokenDigest(state)} and browser_digest=${tokenDigest(browser)} and phase='authorization' and expires_at>clock_timestamp() returning *`;
   if(!flow||c.req.query('error'))throw new ServiceError(401,'GOOGLE_STATE_INVALID');
   const code=c.req.query('code');if(!code||code.length>4096)throw new ServiceError(401,'GOOGLE_STATE_INVALID');
-  const identity=await exchangeGoogleCode(config.google,code,flow.verifier,flow.nonce,config.siteUrl+'/api/auth/google/callback');
+  if(flow.nonce.startsWith('supabase:')!==(config.google.provider==='supabase'))throw new ServiceError(401,'GOOGLE_STATE_INVALID');
+  const identity=config.google.provider==='supabase'
+   ?await exchangeSupabaseGoogle(config,code,flow.verifier)
+   :await exchangeGoogleCode(config.google,code,flow.verifier,flow.nonce,config.siteUrl+'/api/auth/google/callback');
   const next=randomToken();
   await platform(c).sql`insert into aevic_platform.google_flows(token_digest,browser_digest,nonce,verifier,expires_at,phase,subject,email,first_name,last_name) values(${tokenDigest(randomToken())},${tokenDigest(next)},'','',now()+interval '10 minutes','continuation',${identity.subject},${identity.email},${identity.firstName},${identity.lastName})`;
   setCookie(c,googleCookie(c),next,{path:'/',httpOnly:true,secure:config.secureCookies,sameSite:'Lax',maxAge:600});

@@ -139,6 +139,8 @@
   .site-shell { --header-height: 4.75rem; }
   .site-header .brand-mark--navigation, .site-header .brand-emblem--navigation { width: 64px; min-width: 64px; height: 64px; min-height: 64px; }
   .site-header .public-nav-capsule { height: 52px; padding: 4px; }
-  .site-header .public-nav-capsule a { padding-block: .5rem; }
+  .site-header .public-nav-capsule a { padding: .5rem .75rem; }
   .site-header .public-nav-indicator { top: 4px; bottom: 4px; }
 }
+
+@media (min-width: 1024px) and (max-width: 1199px) { .site-header .public-nav-capsule a { padding-inline: .65rem; } }

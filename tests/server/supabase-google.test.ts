@@ -1,0 +1,14 @@
+import {afterEach,expect,it,vi} from 'vitest';
+import {exchangeSupabaseGoogle,supabaseGoogleUrl} from '../../server/auth/supabase-google';
+import {readConfig} from '../../server/config';
+const env={SUPABASE_URL:'https://nmjjibifcuzjlsvfcaaz.supabase.co',SUPABASE_PUBLISHABLE_KEY:'public-fixture',PUBLIC_SITE_URL:'https://aevic-esports.netlify.app',AEVIC_DATABASE_URL:'postgres://fixture',AEVIC_SESSION_SECRET:'fixture-secret-longer-than-thirty-two',AEVIC_GOOGLE_ENABLED:'true',AEVIC_GOOGLE_PROVIDER:'supabase'};
+const config=readConfig(env);
+afterEach(()=>vi.unstubAllGlobals());
+it('opts in without Google credentials while preserving direct default',()=>{expect(config.google).toEqual({provider:'supabase'});expect(()=>readConfig({...env,AEVIC_GOOGLE_PROVIDER:undefined})).toThrow();expect(()=>readConfig({...env,AEVIC_GOOGLE_PROVIDER:'unknown'})).toThrow();});
+it('binds the exact callback state and PKCE verifier without exposing a secret',()=>{const url=supabaseGoogleUrl(config,'browser-state','private-verifier');expect(url.origin).toBe(config.supabaseUrl);expect(url.searchParams.get('provider')).toBe('google');expect(url.searchParams.get('code_challenge_method')).toBe('s256');expect(url.href).not.toContain('private-verifier');expect(url.searchParams.get('redirect_to')).toBe(config.siteUrl+'/api/auth/google/callback?state=browser-state');});
+function provider(identity:Record<string,unknown>={sub:'stable-google-sub',email:'user@example.com',email_verified:true},provider='google'){
+ const fetcher=vi.fn().mockResolvedValueOnce(Response.json({access_token:'provider-session'})).mockResolvedValueOnce(Response.json({id:'different-supabase-uuid',email:'user@example.com',email_confirmed_at:'2026-01-01',identities:[{provider,identity_data:identity}]}));vi.stubGlobal('fetch',fetcher);return fetcher;
+}
+it('uses a verified Google subject, never the Supabase UUID, for existing ownership',async()=>{const f=provider();expect(await exchangeSupabaseGoogle(config,'code','verifier')).toMatchObject({subject:'stable-google-sub',email:'user@example.com'});expect(JSON.parse(f.mock.calls[0][1].body)).toEqual({auth_code:'code',code_verifier:'verifier'});expect(f.mock.calls[1][1].headers.Authorization).toBe('Bearer provider-session');});
+it('rejects non-Google, unverified and mismatched identities',async()=>{for(const [identity,name] of [[{sub:'s',email:'user@example.com',email_verified:false},'google'],[{sub:'s',email:'other@example.com',email_verified:true},'google'],[{sub:'s',email:'user@example.com',email_verified:true},'github']] as const){provider(identity,name);await expect(exchangeSupabaseGoogle(config,'code','verifier')).rejects.toThrow();}});
+it('rejects failed or replayed code exchange before identity lookup',async()=>{const f=vi.fn().mockResolvedValue(new Response('',{status:400}));vi.stubGlobal('fetch',f);await expect(exchangeSupabaseGoogle(config,'code','verifier')).rejects.toThrow();expect(f).toHaveBeenCalledTimes(1);});

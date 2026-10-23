@@ -10,11 +10,11 @@ if (env.AEVIC_SESSION_SECRET.length < 32) throw new Error('Session secret too sh
 const values = Object.fromEntries(names.map(name => [name, env[name]]));
 values.PUBLIC_SITE_URL = 'https://aevic-esports.netlify.app';
 values.AEVIC_GOOGLE_ENABLED = env.AEVIC_GOOGLE_ENABLED === 'true' ? 'true' : 'false';
-if (values.AEVIC_GOOGLE_ENABLED === 'true') {
-  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) throw new Error('Google provider credentials are missing');
-  values.GOOGLE_CLIENT_ID = env.GOOGLE_CLIENT_ID;
-  values.GOOGLE_CLIENT_SECRET = env.GOOGLE_CLIENT_SECRET;
-}
+values.AEVIC_GOOGLE_PROVIDER = env.AEVIC_GOOGLE_PROVIDER || 'direct';
+if (!['direct', 'supabase'].includes(values.AEVIC_GOOGLE_PROVIDER)) throw new Error('Invalid Google provider');
+if (values.AEVIC_GOOGLE_ENABLED === 'true' && values.AEVIC_GOOGLE_PROVIDER === 'direct' && (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET)) throw new Error('Google provider credentials are missing');
+// Preserve rollback credentials until the owner verifies the Supabase cutover.
+for (const key of ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET']) if (env[key]) values[key] = env[key];
 for (const key of ['AEVIC_SESSION_MODE', 'AEVIC_LEGACY_SESSION_UNTIL']) if (env[key]) values[key] = env[key];
 if (env.EMAIL_FROM) values.EMAIL_FROM = env.EMAIL_FROM;
 // Literal single quotes protect $, #, and backslashes in existing credentials.

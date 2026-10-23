@@ -1,3 +1,5 @@
+import {exchangeSupabaseGoogle} from '../../server/auth/supabase-google';
+vi.mock('../../server/auth/supabase-google',async original=>({...await original<typeof import('../../server/auth/supabase-google')>(),exchangeSupabaseGoogle:vi.fn().mockResolvedValue({subject:'google-sub',email:'captain@example.com',firstName:'Name',lastName:'Surname'})}));
 import {beforeEach,it,expect,vi} from 'vitest';
 import {createHttpApp} from '../../server/http';
 import routes from '../../server/auth/google-routes';
@@ -119,4 +121,17 @@ it('preserves signed safe return URLs and ignores tampered navigation cookies',a
  expect(await tampered.json()).toMatchObject({redirectTo:'/team'});
  consumed=false;pending();workspace=false;
  expect(await (await request('/auth/google/complete',{},'aevic-google=browser; '+navigation)).json()).toMatchObject({redirectTo:'/account'});
+});
+
+it('starts Supabase PKCE only on opt-in and keeps the browser/state binding',async()=>{
+ const r=await app({google:{provider:'supabase'}}).request('/api/auth/google/start',{method:'POST',headers:{origin:config.siteUrl,'content-type':'application/json'},body:'{}'});
+ expect(r.status).toBe(200);const url=new URL((await r.json()).url);expect(url.origin).toBe(config.supabaseUrl);expect(url.pathname).toBe('/auth/v1/authorize');expect(url.searchParams.get('provider')).toBe('google');expect(new URL(url.searchParams.get('redirect_to')!).pathname).toBe('/api/auth/google/callback');expect(flow.nonce).toMatch(/^supabase:/);
+});
+it('bridges Supabase Google identity into the same linked AEVIC account and session',async()=>{
+ linked=true;callbackFlow();flow.nonce='supabase:nonce';
+ const r=await app({google:{provider:'supabase'}}).request('/api/auth/google/callback?state=state&code=code',{headers:{cookie:'aevic-google=browser'}});
+ expect(r.headers.get('location')).toBe('/team');expect(r.headers.get('set-cookie')).toContain('aevic-captain=');expect(exchangeSupabaseGoogle).toHaveBeenCalled();expect(exchangeGoogleCode).not.toHaveBeenCalled();expect(queries.some(q=>q.includes('admin_accounts'))).toBe(false);
+});
+it('fails closed if provider selection changes during authorization',async()=>{
+ callbackFlow();const r=await app({google:{provider:'supabase'}}).request('/api/auth/google/callback?state=state&code=code',{headers:{cookie:'aevic-google=browser'}});expect(r.headers.get('location')).toBe('/login?google=failed');
 });
