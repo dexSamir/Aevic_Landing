@@ -822,7 +822,6 @@
   .teams-directory .directory-competitive { font-size:11px; gap:4px; padding:8px 0; }
   .teams-directory .directory-recent { padding-top:4px; font-size:11px; }
   .teams-directory .directory-recent > div { flex-wrap:wrap; gap:4px; }
-  .teams-directory .recent-placement-strip { --placement-size:clamp(19px,5vw,32px); --placement-gap:3px; --placement-font-size:12px; }
 
 
 
@@ -894,7 +893,9 @@
   .teams-directory .directory-recent > span { display: none; }
   .teams-directory .directory-recent > div { margin-top: 0; min-height: 28px; }
   .teams-directory .directory-recent small { font-size: 12px; line-height: 1.4; }
-  .teams-directory .recent-placement-strip { --placement-size: clamp(20px, 5vw, 32px); --placement-gap: 3px; --placement-font-size: 12px; flex-wrap: nowrap; }
+  .teams-directory .directory-recent { container-type: inline-size; }
+  /* Reserve five slots; scale toward 1.75× only as far as the card permits. */
+  .teams-directory .recent-placement-strip { --placement-size: min(clamp(35px, 8.75vw, 56px), calc((100cqi - 8px) / 5)); --placement-gap: 2px; --placement-font-size: min(21px, calc(var(--placement-size) * .6)); --placement-radius: calc(var(--placement-size) * .28); flex-wrap: nowrap; }
   .public-team-detail .public-team-roster { scrollbar-width: none; }
   .public-team-detail .public-team-roster::-webkit-scrollbar { display: none; }
 }

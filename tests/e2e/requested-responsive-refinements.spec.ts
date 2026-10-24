@@ -1,3 +1,6 @@
+import { fixtureServices } from '../fixtures/component-services';
+import { currentTeam, leaderboard, matchHistory } from '../fixtures/platform-data';
+import { deriveTeamForm } from '../../src/utils/competitionAnalytics';
 import {test, expect} from '../helpers/api-fixture-test';
 
 test.use({screenshot:'off',trace:'off',video:'off'});
@@ -75,4 +78,78 @@ test('Google controls have no divider and mobile navigation stays operable',asyn
  await expect(page.locator('#public-mobile-menu')).toBeVisible();
  await page.locator('#public-mobile-menu .public-nav-capsule a[href="/teams"]').click();
  await expect(page).toHaveURL(/\/teams$/);
+});
+
+test('targeted mobile surfaces, carousel controls and result options', async ({page}) => {
+ test.setTimeout(180000);
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.route('**/api/public/context', async route => {
+  const snapshot = await fixtureServices.snapshots.public();
+  await route.fulfill({json:{...snapshot,teams:snapshot.teams.map(team=>({...team,form:deriveTeamForm(matchHistory)}))}});
+ });
+ await page.route('**/api/team/tournaments/summer-final-25/result-export', route=>route.fulfill({json:{teamId:currentTeam.id,result:leaderboard.find(row=>row.teamId===currentTeam.id&&row.tournamentId==='summer-final-25')}}));
+ const measurements = [];
+ for (const [width,height] of [[320,568],[360,740],[375,714],[390,844],[430,932],[768,1024],[1024,768],[1440,900]]) {
+  await page.setViewportSize({width,height});
+  await page.goto('/');
+  await expect(page.locator('.home-ranked-team').first()).toBeVisible();
+  await page.evaluate(()=>document.fonts.ready);
+  const rail = page.locator('.home-competition-rail').first();
+  await expect(rail).toHaveCSS('border-top-width', '0px');
+  if(width > 800) await expect(rail).toHaveCSS('backdrop-filter','none');
+  const heading = await page.locator('.home-teams-section h2').boundingBox();
+  const controls = await page.locator('.home-team-controls').boundingBox();
+  if(width <= 800) expect(Math.abs(heading!.y+heading!.height/2-controls!.y-controls!.height/2)).toBeLessThan(2);
+  const maps=page.locator('.home-rotation .map-program > ol');
+  await expect(maps.locator(':scope > li')).toHaveCount(4);
+  if(width <= 768) {
+   await expect(maps).toHaveCSS('scroll-snap-type','x mandatory');
+   const frame = await page.locator('.home-rotation .map-program__frame').first().boundingBox();
+   const previousWidth = Math.min(width * .78, 320);
+   expect(frame!.width / previousWidth).toBeLessThan(.95);
+   expect(frame!.width / previousWidth).toBeGreaterThan(.9);
+   await maps.evaluate(e=>e.scrollTo({left:e.scrollWidth,behavior:'instant'}));
+   expect(await maps.evaluate(e=>e.scrollLeft)).toBeGreaterThan(0);
+  }
+  await page.getByRole('button',{name:'Növbəti komandalar'}).click();
+  await page.clock.runFor(1000);
+  await expect.poll(()=>page.locator('.home-team-stage').evaluate(e=>e.scrollLeft)).toBeGreaterThan(0);
+  await page.getByRole('button',{name:'Əvvəlki komandalar'}).click();
+  await page.clock.runFor(1000);
+  for(const route of ['/teams','/tournaments/summer-final-25']) {
+   await page.goto(route);
+   if(route==='/teams') {
+    await expect(page.locator('.recent-placement-tile').first()).toBeVisible();
+    const values=await page.locator('.team-directory-card').evaluateAll(cards=>cards.map(card=>{
+     const tiles=[...card.querySelectorAll<HTMLElement>('.recent-placement-tile')];
+     return {fits:card.scrollWidth<=card.clientWidth+1 && tiles.every(t=>t.getBoundingClientRect().right<=card.getBoundingClientRect().right),size:tiles[0]?.getBoundingClientRect().width,font:tiles[0]&&getComputedStyle(tiles[0]).fontSize};
+    }));
+    expect(values.every(v=>v.fits)).toBe(true);
+    const measured=values.find(v=>v.size)!;
+    if(width<=800) {
+     expect(measured.size!).toBeGreaterThan(Math.max(20,Math.min(width*.05,32)));
+     expect(parseFloat(measured.font!)).toBeLessThanOrEqual(21);
+    }
+    if(width<=430) expect(await page.locator('.team-directory-grid').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').length)).toBe(2);
+    measurements.push({width,...measured});
+   } else {
+    await page.getByRole('button',{name:'Nəticələri yüklə'}).click();
+    const dialog=page.getByRole('dialog');
+    await expect(dialog.getByRole('radio')).toHaveCount(2);
+    await expect(dialog.getByRole('radio',{name:'Komanda nəticəsi'})).toBeEnabled();
+    await page.clock.runFor(500);
+    const boxes=await dialog.getByRole('radio').evaluateAll(nodes=>nodes.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};}));
+    expect(Math.abs(boxes[0].y-boxes[1].y)).toBeLessThan(1);
+    if(width<=800)expect(boxes.every(b=>b.width>b.height)).toBe(true);
+    expect(await dialog.evaluate(e=>e.scrollWidth<=e.clientWidth+1)).toBe(true);
+    await dialog.getByRole('radio',{name:'Turnir cədvəli'}).focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(dialog.getByRole('radio',{name:'Komanda nəticəsi'})).toHaveAttribute('aria-checked','true');
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+   }
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+  }
+ }
+ console.log('Placement dimensions',JSON.stringify(measurements));
 });
