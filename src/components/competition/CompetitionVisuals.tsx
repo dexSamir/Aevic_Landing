@@ -66,7 +66,7 @@ export function MapRotation({
         const status = statuses[index];
         return <li key={`${map}-${index}`} data-reveal data-reveal-variant="fade-up" style={{ '--map-index': index, transitionDelay: `${index * 50}ms` } as CSSProperties}>
           <div className="map-program__frame">
-            <div className="map-program__art"><OfficialMapImage portrait index={officialRotation[index]?.toLowerCase() === map.toLowerCase() ? index : Math.max(0, officialRotation.findIndex(name => name.toLowerCase() === map.toLowerCase()))} sizes="(max-width: 767px) 160px, (max-width: 1100px) 18vw, (max-width: 1440px) 17vw, 236px" alt="" /></div>
+            <div className="map-program__art"><OfficialMapImage portrait index={officialRotation[index]?.toLowerCase() === map.toLowerCase() ? index : Math.max(0, officialRotation.findIndex(name => name.toLowerCase() === map.toLowerCase()))} sizes="(max-width: 768px) 78vw, (max-width: 1100px) 18vw, (max-width: 1440px) 17vw, 236px" alt="" /></div>
             <div className="map-program__scrim" aria-hidden="true" />
             <span className="map-program__ghost" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
             {status && <span className={`map-program__pill map-program__pill--${status}`}>{statusCopy[status]}</span>}

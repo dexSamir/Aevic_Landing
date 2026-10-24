@@ -34,7 +34,7 @@ test('homepage stacks mobile discovery and retains readable controls across view
 test('mobile homepage navigation and calendar selection remain connected', async ({ page }) => {
   await page.setViewportSize({width:390,height:844});
   await page.goto('/');
-  await expect(page.getByRole('link',{name:'Axtar',exact:true})).toHaveAttribute('href','/search');
+  await expect(page.getByRole('link',{name:'Axtar',exact:true})).toHaveCount(0);
   await expect(page.getByRole('link',{name:'Bildirişlər',exact:true})).toHaveAttribute('href','/team/notifications');
   await page.getByRole('button',{name:'Menyunu aç'}).click();
   await expect(page.getByRole('dialog')).toBeVisible();

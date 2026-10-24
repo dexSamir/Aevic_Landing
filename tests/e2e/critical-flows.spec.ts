@@ -26,7 +26,7 @@ test('captain lifecycle: registration, tournament, check-in, room, dispute, and 
   await expect(page.getByRole('heading', { name: /problemi izah edin/i })).toBeVisible();
 });
 
-test('public competition graph: tournament, participant team, results, match center, and search stay connected', async ({ page }) => {
+test('public competition graph: tournament, participant team, results and match center stay connected without public search', async ({ page }) => {
   await page.goto('/tournaments/daily-cup-24');
   await expect(page.getByRole('heading', { name: /daily cup #24/i })).toBeVisible();
   await expect(page.locator('.tournament-detail-teams')).toBeVisible();
@@ -50,10 +50,8 @@ test('public competition graph: tournament, participant team, results, match cen
   await expect(page.locator('.public-rules-link')).toHaveAttribute('href', '/regulations');
   await expect(page.locator('.global-search-trigger')).toHaveCount(0);
   await page.goto('/search?q=Caspian');
-  const searchResult = page.locator('.search-results-ledger').getByRole('link', { name: /Caspian Wolves/i }).first();
-  await expect(searchResult).toBeVisible();
-  await searchResult.click();
-  await expect(page).toHaveURL(/\/teams\/caspian-wolves/);
+  await expect(page.locator('.search-results-ledger')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: /bu səhifə yarış cədvəlində yoxdur/i })).toBeVisible();
 });
 
 test('identity lifecycle: profile, share card, removed player route, invitations, and organization', async ({ page }) => {

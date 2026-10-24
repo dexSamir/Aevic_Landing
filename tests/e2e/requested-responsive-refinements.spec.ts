@@ -39,20 +39,20 @@ test('requested responsive compositions across public routes', async({page})=>{
  }
 });
 
-test('directory and discovery search, filtering and compact content remain usable',async({page})=>{
+test('directory filtering and discovery search and compact content remain usable',async({page})=>{
  await page.setViewportSize({width:320,height:568});
  await page.goto('/teams');
  const cards=page.locator('.team-directory-card');await expect(cards.first()).toBeVisible();
  const count=await cards.count();
- await page.getByRole('textbox',{name:'Komanda adı ilə axtar'}).fill('no-matching-team-xyz');
- await expect(cards).toHaveCount(0);
- await page.getByRole('textbox',{name:'Komanda adı ilə axtar'}).fill('');
+ await expect(page.getByRole('textbox',{name:'Komanda adı ilə axtar'})).toHaveCount(0);
+ await page.getByRole('combobox',{name:'Status',exact:true}).selectOption('approved');
+ await page.getByRole('combobox',{name:'Status',exact:true}).selectOption('all');
  await expect(cards).toHaveCount(count);
  await page.getByRole('combobox',{name:'Sırala',exact:true}).selectOption('name');
  await expect(cards).toHaveCount(count);
  await cards.first().locator('.team-logo-tile__label strong').evaluate(e=>e.textContent='Uzun komanda adı — Azərbaycan Esports Çempionları');
  expect(await cards.first().evaluate(e=>e.scrollWidth<=e.clientWidth+1)).toBe(true);
- await cards.first().locator('.directory-profile-link').click();await expect(page).toHaveURL(/\/teams\/.+/);
+ await cards.first().locator('.team-logo-tile__destination').click();await expect(page).toHaveURL(/\/teams\/.+/);
  await page.goto('/tournaments');
  const search=page.locator('.planning-search input');await search.fill('no-matching-tournament-xyz');
  await expect(page.locator('.tournament-row--discovery')).toHaveCount(0);await search.fill('');

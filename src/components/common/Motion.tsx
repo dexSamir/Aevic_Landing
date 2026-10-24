@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation, useNavigationType, useOutlet } from 'react-router-dom';
 
 export type PageFamily = 'editorial' | 'competition' | 'team' | 'admin' | 'auth' | 'account';
@@ -134,27 +134,38 @@ export function RouteTransitionOutlet({ family }: { family?: PageFamily }) {
   const outlet = useOutlet();
   const resolvedFamily = family ?? pageFamilyForPath(location.pathname);
   const arrivedRef = useRef(false);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
-    const shouldArrangeArrival = arrivedRef.current;
+    const shouldArrangeArrival = arrivedRef.current || location.state?.bottomNavigation;
     arrivedRef.current = true;
     const restoredTop = navigationType === 'POP' ? routeScrollPositions.get(location.key) ?? 0 : 0;
-    const frame = shouldArrangeArrival ? window.requestAnimationFrame(() => {
+    let restoring = Boolean(shouldArrangeArrival && navigationType === 'POP' && !location.hash);
+    let observer: ResizeObserver | undefined;
+    const arrange = () => {
       const hashTarget = routeArrivalTarget(location.hash);
-      if (hashTarget) hashTarget.scrollIntoView({ block: 'start' });
-      else if (navigationType === 'POP') window.scrollTo({ top: restoredTop });
-      else window.scrollTo({ top: 0 });
+      if (hashTarget) hashTarget.scrollIntoView({ block: 'start', behavior: 'instant' });
+      else window.scrollTo({ top: restoredTop, left: 0, behavior: 'instant' });
+      if (window.scrollY >= restoredTop - 1) { restoring = false; observer?.disconnect(); }
+    };
+    if (shouldArrangeArrival) {
+      arrange();
       document.getElementById('main-content')?.focus({ preventScroll: true });
-    }) : undefined;
-    const settle = shouldArrangeArrival ? window.setTimeout(() => {
-      if (navigationType === 'POP' && !location.hash) window.scrollTo({ top: restoredTop });
-    }, 120) : undefined;
-    const rememberScroll = () => routeScrollPositions.set(location.key, window.scrollY);
+      // History may return before lazy route content has enough height to restore.
+      if (restoring && typeof ResizeObserver !== 'undefined') {
+        observer = new ResizeObserver(arrange);
+        observer.observe(document.body);
+      }
+    }
+    const stopRestoring = () => { restoring = false; observer?.disconnect(); };
+    const rememberScroll = () => { if (!restoring) routeScrollPositions.set(location.key, window.scrollY); };
     window.addEventListener('scroll', rememberScroll, { passive: true });
+    window.addEventListener('wheel', stopRestoring, { passive: true });
+    window.addEventListener('touchstart', stopRestoring, { passive: true });
     return () => {
-      if (frame !== undefined) window.cancelAnimationFrame(frame);
-      if (settle !== undefined) window.clearTimeout(settle);
+      observer?.disconnect();
       window.removeEventListener('scroll', rememberScroll);
+      window.removeEventListener('wheel', stopRestoring);
+      window.removeEventListener('touchstart', stopRestoring);
     };
   }, [location.hash, location.key, navigationType]);
   return <PageTransition routeKey={location.pathname} family={resolvedFamily}>{outlet}</PageTransition>;

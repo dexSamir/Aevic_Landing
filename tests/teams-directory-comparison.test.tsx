@@ -27,8 +27,8 @@ describe('Public Teams deliberate comparison', () => {
   });
   it('retains hidden selections through filtering and clears them on cancel', async () => {
     const user = setup(); await user.click(screen.getByRole('button', { name: 'Müqayisə et', exact: true })); await user.click(card('Caspian Wolves'));
-    await user.type(screen.getByRole('textbox', { name: 'Komanda adı ilə axtar' }), 'Baku'); await user.click(card('Baku Sentinels')); expect(screen.getByRole('status', { name: 'Müqayisə seçimi' })).toHaveTextContent('2 / 2');
-    await user.clear(screen.getByRole('textbox', { name: 'Komanda adı ilə axtar' })); await user.click(card('Caspian Wolves')); expect(screen.getByRole('status', { name: 'Müqayisə seçimi' })).toHaveTextContent('1 / 2'); expect(screen.queryByRole('button', { name: 'Komandaları müqayisə et' })).not.toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('Status'), 'approved'); await user.click(card('Baku Sentinels')); expect(screen.getByRole('status', { name: 'Müqayisə seçimi' })).toHaveTextContent('2 / 2');
+    await user.selectOptions(screen.getByLabelText('Status'), 'all'); await user.click(card('Caspian Wolves')); expect(screen.getByRole('status', { name: 'Müqayisə seçimi' })).toHaveTextContent('1 / 2'); expect(screen.queryByRole('button', { name: 'Komandaları müqayisə et' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Ləğv et' })); expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Müqayisə et', exact: true })); expect(screen.getByRole('status', { name: 'Müqayisə seçimi' })).toHaveTextContent('0 / 2');
   });

@@ -1,3 +1,4 @@
+import { PublicRecentMatches } from './PublicRecentMatches';
 import { AnonymousPlayer } from './AnonymousPlayer';
 import { MapPerformance } from './MapPerformance';
 import { RecentPlacementStrip } from '../common/RecentPlacementStrip';
@@ -31,9 +32,7 @@ export function PublicTeamDetail({ team, profile }: { team: Team | PublicTeamSum
   const fullTeam = profile?.team;
   const roster = [...(fullTeam?.roster ?? [])].sort((a, b) => ({ captain: 0, starter: 1, substitute: 2 }[a.role] - { captain: 0, starter: 1, substitute: 2 }[b.role]));
   const captain = roster.find(player => player.role === 'captain');
-  const matches = [...(profile?.recentMatches ?? [])].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt));
   const form = [...(profile?.form ?? [])].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt)).slice(0, 5);
-  const best = [...matches].sort((a, b) => a.placement - b.placement || b.finishes - a.finishes)[0];
   const maps = profile?.mapSpecialization.metrics ?? [];
   const liveTournamentId = profile?.upcomingMatch?.status === 'live' ? profile.upcomingMatch.tournamentId : undefined;
   useEffect(() => {
@@ -63,7 +62,7 @@ export function PublicTeamDetail({ team, profile }: { team: Team | PublicTeamSum
         </div>
       </div>
       <section id="roster" className="public-team-section"><h2>Aktiv heyət</h2>{roster.length ? <div className="public-team-roster" role="region" aria-label="Aktiv heyət" tabIndex={0}>{roster.map(player => <article key={player.id} data-captain={player.role === 'captain'}><div className="public-team-player-portrait" aria-hidden="true"><AnonymousPlayer />{player.photoUrl && <img src={player.photoUrl} srcSet={publicImageSrcSet(player.photoUrl, [160, 320, 640])} sizes="(max-width: 768px) 45vw, 240px" decoding="async" alt="" loading="lazy" referrerPolicy="no-referrer" onError={event => { if (!restoreOriginalUpload(event.currentTarget)) event.currentTarget.hidden = true; }} />}</div>{player.role === 'captain' && <Crown className="public-team-captain" size={20} aria-label="Kapitan" />}<div className="public-team-player-copy">{player.role === 'captain' ? <Crown size={20} /> : <CirclePlus size={18} />}<div><h3>{player.ign}</h3><p>{player.role === 'captain' ? 'Kapitan' : player.role === 'starter' ? 'Əsas heyət' : 'Əvəzedici'}</p></div></div></article>)}</div> : <p className="public-team-empty">İctimai heyət məlumatı hələ dərc edilməyib.</p>}</section>
-      <section id="matches" className="public-team-section"><h2>Son matçlar</h2>{matches.length ? <ol className="public-match-history" aria-label="Dərc edilmiş komanda nəticələri">{matches.slice(0, 5).map(match => <li key={match.id}><Link className={match.placement === 1 ? 'is-winner' : ''} to={`/tournaments/${match.tournamentId}#results`} state={{ roundId: match.id }}><span className="public-match-placement" aria-label={`${match.placement}-ci yer`}>{match.placement}</span><div className="public-match-identity"><strong>{match.map}</strong><span>{match.tournamentName}</span><small>{match.stageLabel}</small></div><time dateTime={match.playedAt}>{new Date(match.playedAt).toLocaleDateString('az-AZ')}</time><dl><div><dt>Kill</dt><dd>{match.finishes}</dd></div><div><dt>Xal</dt><dd>{match.points}</dd></div></dl>{match.id === best?.id && <Trophy className="public-match-award" size={18} aria-label="Ən yaxşı nəticə" />}</Link></li>)}</ol> : <p className="public-team-empty">{profile?.historyAvailable === false ? 'Matç nəticələrinin formatı hələ dəstəklənmir.' : 'Komandanın mövcud nəticələr sahəsində matç yoxdur. Digər tarixçə mənbələri hələ əlçatan deyil.'}</p>}</section>
+      <PublicRecentMatches matches={profile?.recentMatches ?? []} historyAvailable={profile?.historyAvailable} />
       <section id="performance" className="public-team-section"><h2>Xəritə statistikası</h2><p className="map-performance-headline">Hər xəritə, <em>fərqli</em> performans.</p><p className="public-team-note">Orta yer — aşağı göstərici daha yaxşıdır. Qələbə faizi birinci yerlərin payıdır.</p>{maps.length ? <MapPerformance specialization={profile!.mapSpecialization} /> : <p className="public-team-empty">Xəritə statistikası dərc edilmiş matçlardan sonra görünəcək.</p>}</section>
       <PublicTeamFeatures team={team} profile={profile} />
     </div>

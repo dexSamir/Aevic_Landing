@@ -156,13 +156,6 @@ export const routes = applyRouteCapabilities([
             }),
           },
           {
-            path: routePath("search"),
-            lazy: async () => ({
-              Component: (await import("../pages/routes/SearchResultsPage"))
-                .SearchResultsPage,
-            }),
-          },
-          {
             path: routePath("following"),
             lazy: async () => ({
               Component: (await import("../pages/routes/FollowingPage"))

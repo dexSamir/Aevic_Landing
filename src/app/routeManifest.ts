@@ -287,17 +287,6 @@ export const routeManifest = [
     indexable: false,
   },
   {
-    id: "search",
-    path: "/search",
-    family: "PUBLIC",
-    title: "Axtarış",
-    description: "Axtarış — AEVIC ictimai və yarış iş axını.",
-    section: "public",
-    navigation: "",
-    capability: "publicSearch",
-    indexable: false,
-  },
-  {
     id: "following",
     path: "/following",
     family: "PUBLIC",

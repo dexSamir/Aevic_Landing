@@ -70,7 +70,15 @@ export function MobileBottomNav({ session, team, loading, refresh }: Props) {
       </nav>}
       <nav className="mobile-nav__items" aria-label="Mobil əsas naviqasiya" style={{ '--mobile-active-index': activeIndex } as CSSProperties} >
         <span className="mobile-nav__indicator" aria-hidden="true" hidden={activeIndex < 0} />
-        {publicNavigation.primary.map((item, index) => { const Icon = icons[index]; return <Link key={item.to} to={item.to} aria-current={active === item.to ? 'page' : undefined}><Icon size={22} strokeWidth={1.8} aria-hidden="true" /><span>{item.label}</span></Link>; })}
+        {publicNavigation.primary.map((item, index) => { const Icon = icons[index]; return <Link key={item.to} to={item.to} state={{ bottomNavigation: true }} onClick={event => {
+          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          if (location.pathname === item.to && !location.search && !location.hash) {
+            event.preventDefault();
+            setOpen(false);
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            document.getElementById('main-content')?.focus({ preventScroll: true });
+          }
+        }} aria-current={active === item.to ? 'page' : undefined}><Icon size={22} strokeWidth={1.8} aria-hidden="true" /><span>{item.label}</span></Link>; })}
         <button ref={trigger} type="button" className={accountActive || open ? 'is-active' : undefined} aria-label={`${identity} hesab menyusu`} aria-expanded={open} aria-controls={open ? menuId : undefined} onClick={() => setOpen(value => !value)}>
           {workspace ? <TeamLogo name={team.name} src={team.logoUrl} size="sm" /> : <CircleUserRound size={22} strokeWidth={1.8} aria-hidden="true" />}<span>{workspace ? 'Komandam' : 'Hesab'}</span>
         </button>

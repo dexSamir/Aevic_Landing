@@ -1,4 +1,4 @@
-import { ArrowRight,GitCompareArrows,Search,X } from 'lucide-react';
+import { ArrowRight,GitCompareArrows,X } from 'lucide-react';
 import { useEffect,useMemo,useState } from 'react';
 import { Link,useNavigate } from 'react-router-dom';
 import { featuredTournamentArtwork } from '../../assets/tournaments';
@@ -6,12 +6,13 @@ import { MediaBackdrop } from '../../components/common/MediaBackdrop';
 import { Button,EmptyState,Select } from '../../components/common/primitives';
 import { DirectoryTeamCard } from '../../components/profile/DirectoryTeamCard';
 import { competitionNow,serviceCapabilities,services } from '../../services';
+import { useOptionalPublicSession } from '../../services/PublicSessionContext';
 import { usePublicPlatformData } from '../../services/PublicPlatformDataContext';
 import '../../styles/public-pages.css';
 import { resolveTournamentTemporalPhase } from '../../utils/tournamentTime';
 import { emptyDirectoryTournaments } from './ProfilePagesShared';
 export function TeamsDirectoryPage() {
-  const { teams: teamsList, teamComparisonRecords = [], tournaments = emptyDirectoryTournaments } = usePublicPlatformData(); const [query, setQuery] = useState('');
+  const { teams: teamsList, teamComparisonRecords = [], tournaments = emptyDirectoryTournaments } = usePublicPlatformData();
   const navigate = useNavigate();
   const [compareMode, setCompareMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -27,17 +28,20 @@ export function TeamsDirectoryPage() {
   };
   const cancelCompare = () => { setCompareMode(false); setSelectedIds([]); setFeedback(''); };
 
-  const visible = useMemo(() => teamsList.filter((team) => team.name.toLocaleLowerCase('az').includes(query.trim().toLocaleLowerCase('az')) && (status === 'all' || (team.sourceStatus ?? team.verificationLevel) === status)).sort((a, b) => sort === 'name' ? a.name.localeCompare(b.name, 'az') : sort === 'roster' ? b.rosterSize - a.rosterSize : 0), [query, teamsList, status, sort]);
-  const [ownTeamId, setOwnTeamId] = useState<string>();
+  const visible = useMemo(() => teamsList.filter((team) => (status === 'all' || (team.sourceStatus ?? team.verificationLevel) === status)).sort((a, b) => sort === 'name' ? a.name.localeCompare(b.name, 'az') : sort === 'roster' ? b.rosterSize - a.rosterSize : 0), [teamsList, status, sort]);
+  const identity = useOptionalPublicSession();
+  const sharedIdentity = identity !== undefined;
+  const [fallbackTeamId, setOwnTeamId] = useState<string>();
+  const ownTeamId = sharedIdentity ? identity.team?.id : fallbackTeamId;
   const [registrations, setRegistrations] = useState<Record<string, { label: string; tournamentId: string }>>({});
   useEffect(() => {
     let active = true;
-    if (serviceCapabilities.publicSession) void services.auth.getSession().then(async session => {
+    if (!sharedIdentity && serviceCapabilities.publicSession) void services.auth.getSession().then(async session => {
       const team = session && ['captain', 'team'].includes(session.role) ? await services.teams.current() : undefined;
       if (active) setOwnTeamId(team?.id);
     }).catch(() => { if (active) setOwnTeamId(undefined); });
     return () => { active = false; };
-  }, []);
+  }, [sharedIdentity]);
   useEffect(() => {
     let active = true;
     const now = competitionNow();
@@ -54,5 +58,5 @@ export function TeamsDirectoryPage() {
     return () => { active = false; };
   }, [tournaments]);
   const sourceEmpty = teamsList.length === 0;
-  return <><section className="teams-directory"><header className="directory-hero"><MediaBackdrop {...featuredTournamentArtwork} className="directory-hero__media" focalDesktop="15% center" focalMobile="24% center" sizes="100vw" priority /><div className="container"><span>// &nbsp; PUBLIC TEAMS</span><h1>AEVIC<br /><em>Komandaları</em></h1><p>Mövcud komanda qeydiyyatları, heyətlər və qeydiyyat statusları.<br />PUBG Mobile icmasında ən yaxşı komandaları kəşf et.</p><small>AD AETERNAM VICTORIAM.</small></div></header><div className="container">{!sourceEmpty && <div className={`teams-directory__discovery${compareMode ? ' is-comparing' : ''}`}><label className="search-field teams-directory__search"><Search size={18} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Komanda adı ilə axtar..." aria-label="Komanda adı ilə axtar" /></label><Select label="Status" value={status} onChange={event => setStatus(event.target.value)}><option value="all">Hamısı</option><option value="pending">Gözləmədə</option><option value="approved">Təsdiqlənmiş</option></Select><Select label="Sırala" value={sort} onChange={event => setSort(event.target.value)}><option value="default">Standart</option><option value="name">Ad üzrə</option><option value="roster">Heyət sayı</option></Select><div className="teams-directory__compare-control">{!compareMode ? <Button size="lg" variant="secondary" icon={<GitCompareArrows size={17} />} onClick={() => setCompareMode(true)}>Müqayisə et</Button> : <><span className="teams-directory__compare-progress" role="status" aria-label="Müqayisə seçimi">{selectedIds.length} / 2 seçilib<span className="sr-only">{feedback && ` · ${feedback}`}</span></span><Button className="directory-compare-cancel" size="lg" variant="secondary" aria-label="Ləğv et" title="Müqayisəni ləğv et" icon={<X size={17} />} onClick={cancelCompare}><span className="sr-only">Ləğv et</span></Button>{selectedTeams.length === 2 && <Button size="lg" onClick={() => navigate(`/teams/compare?${new URLSearchParams({ team: selectedTeams[0].slug, opponent: selectedTeams[1].slug })}`)}>Komandaları müqayisə et</Button>}</>}</div><div className="teams-directory__count" role="status" aria-label="Axtarış nəticəsi" aria-atomic="true"><span>Axtarış nəticəsi</span><strong>{visible.length}{' '}<small>komanda</small></strong></div></div>}{visible.length ? <div className="team-directory-grid" role="list" aria-label={`${visible.length} public komanda`}>{visible.map((team, index) => <DirectoryTeamCard key={team.id} team={team} ordinal={index + 1} compareMode={compareMode} selected={compareMode && selectedIds.includes(team.id)} ownTeam={ownTeamId === team.id} registration={registrations[team.id]} record={teamComparisonRecords.find(record => record.teamId === team.id)} onToggle={toggleTeam} onOpen={() => navigate(`/teams/${team.slug}`)} />)}</div> : sourceEmpty ? <EmptyState title="İlk komanda kimlikləri üçün yer açıqdır" body="Hazırda kataloqda komanda profili yoxdur. Komandanızı yaradın və ya iştirak şərtləri ilə tanış olun." action={<Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/regulations#rule-1'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'İştirak şərtlərinə bax'}</span><ArrowRight size={17} /></Link>} /> : <EmptyState title="Axtarışa uyğun komanda tapılmadı" body="Başqa komanda adı yazın və ya filtrləri sıfırlayın." action={<Button variant="secondary" onClick={() => { setQuery(''); setStatus('all'); }}>Filtrləri sıfırla</Button>} />}</div></section></>;
+  return <><section className="teams-directory"><header className="directory-hero"><MediaBackdrop {...featuredTournamentArtwork} className="directory-hero__media" focalDesktop="15% center" focalMobile="24% center" sizes="100vw" priority /><div className="container"><span>// &nbsp; PUBLIC TEAMS</span><h1>AEVIC<br /><em>Komandaları</em></h1><p>Mövcud komanda qeydiyyatları, heyətlər və qeydiyyat statusları.<br />PUBG Mobile icmasında ən yaxşı komandaları kəşf et.</p><small>AD AETERNAM VICTORIAM.</small></div></header><div className="container">{!sourceEmpty && <div className={`teams-directory__discovery${compareMode ? ' is-comparing' : ''}`}><Select label="Status" value={status} onChange={event => setStatus(event.target.value)}><option value="all">Hamısı</option><option value="pending">Gözləmədə</option><option value="approved">Təsdiqlənmiş</option></Select><Select label="Sırala" value={sort} onChange={event => setSort(event.target.value)}><option value="default">Standart</option><option value="name">Ad üzrə</option><option value="roster">Heyət sayı</option></Select><div className="teams-directory__compare-control">{!compareMode ? <Button size="lg" variant="secondary" icon={<GitCompareArrows size={17} />} onClick={() => setCompareMode(true)}>Müqayisə et</Button> : <><span className="teams-directory__compare-progress" role="status" aria-label="Müqayisə seçimi">{selectedIds.length} / 2 seçilib<span className="sr-only">{feedback && ` · ${feedback}`}</span></span><Button className="directory-compare-cancel" size="lg" variant="secondary" aria-label="Ləğv et" title="Müqayisəni ləğv et" icon={<X size={17} />} onClick={cancelCompare}><span className="sr-only">Ləğv et</span></Button>{selectedTeams.length === 2 && <Button size="lg" onClick={() => navigate(`/teams/compare?${new URLSearchParams({ team: selectedTeams[0].slug, opponent: selectedTeams[1].slug })}`)}>Komandaları müqayisə et</Button>}</>}</div><div className="teams-directory__count" role="status" aria-label="Komandalar" aria-atomic="true"><span>Komandalar</span><strong>{visible.length}{' '}<small>komanda</small></strong></div></div>}{visible.length ? <div className="team-directory-grid" role="list" aria-label={`${visible.length} public komanda`}>{visible.map((team, index) => <DirectoryTeamCard key={team.id} team={team} ordinal={index + 1} compareMode={compareMode} selected={compareMode && selectedIds.includes(team.id)} ownTeam={ownTeamId === team.id} registration={registrations[team.id]} record={teamComparisonRecords.find(record => record.teamId === team.id)} onToggle={toggleTeam} onOpen={() => navigate(`/teams/${team.slug}`)} />)}</div> : sourceEmpty ? <EmptyState title="İlk komanda kimlikləri üçün yer açıqdır" body="Hazırda kataloqda komanda profili yoxdur. Komandanızı yaradın və ya iştirak şərtləri ilə tanış olun." action={<Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/regulations#rule-1'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'İştirak şərtlərinə bax'}</span><ArrowRight size={17} /></Link>} /> : <EmptyState title="Filtrə uyğun komanda tapılmadı" body="Başqa status seçin və ya filtrləri sıfırlayın." action={<Button variant="secondary" onClick={() => { setStatus('all'); }}>Filtrləri sıfırla</Button>} />}</div></section></>;
 }

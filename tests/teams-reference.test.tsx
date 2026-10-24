@@ -27,8 +27,7 @@ describe('updated Teams reference', () => {
   expect(badge.closest('.team-directory-card')).toHaveTextContent(currentTeam.name);
   expect(screen.getAllByRole('link', { name: /Qeydiyyatda:/ })).toHaveLength(1);
   expect(view.container.querySelector('.teams-directory__count strong')).toHaveTextContent(`${screen.getAllByRole('listitem').length} komanda`);
-  fireEvent.change(screen.getByRole('textbox', { name: 'Komanda adı ilə axtar' }), { target: { value: currentTeam.name } });
-  expect(view.container.querySelector('.teams-directory__count strong')).toHaveTextContent('1 komanda');
+  expect(screen.queryByRole('textbox', { name: 'Komanda adı ilə axtar' })).not.toBeInTheDocument();
   expect(screen.getByRole('contentinfo')).toBeInTheDocument();
   expect(view.container.querySelector('.home-brand-statement')).not.toBeInTheDocument();
  });

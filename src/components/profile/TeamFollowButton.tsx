@@ -1,3 +1,4 @@
+import { useOptionalPublicSession } from '../../services/PublicSessionContext';
 import { BellPlus } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +8,9 @@ import { Button } from '../common/primitives';
 
 export function TeamFollowButton({teamId}:{teamId:string}) {
  const navigate=useNavigate(),[busy,setBusy]=useState(false),[failure,setFailure]=useState('');
- const session=usePlatformQuery({key:'following:session',query:()=>services.auth.getSession(),staleTime:30000});
+ const identity=useOptionalPublicSession();
+ const fallbackSession=usePlatformQuery({key:'following:session',query:()=>services.auth.getSession(),enabled:identity===undefined,staleTime:30000});
+ const session=identity ? {data:identity.session,loading:identity.loading,error:identity.error,refetch:identity.refresh} : fallbackSession;
  const eligible=Boolean(session.data&&session.data.role!=='admin');
  const follows=usePlatformQuery({key:'following:teams',query:()=>services.follows!.list(),enabled:eligible,staleTime:30000});
  const following=Boolean(follows.data?.some(item=>item.entityId===teamId&&item.following));
