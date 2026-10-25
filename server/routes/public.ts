@@ -2,7 +2,7 @@ import {publicRead,existingPublicRead} from '../platform/public-cache';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { Env,ApiContext } from '../types';
-import { Repository,summary,countChampionships } from '../services/data';
+import { Repository,summary,countChampionships,rankResults } from '../services/data';
 import { ServiceError,dbError } from '../errors';
 import { text } from '../validation/input';
 import { deriveWrappedSummary,yearPeriod } from '../../src/utils/wrapped';
@@ -66,7 +66,31 @@ app.get('/public/teams/:id/map-performance',async c=>{const p=await profile(c,pa
 app.get('/public/teams/:id/seasons',async c=>{const id=paramId(c),rows=await history(c,id);return c.json([...new Set(rows.map(m=>new Date(m.playedAt).getUTCFullYear()))].map(year=>{const matches=rows.filter(m=>new Date(m.playedAt).getUTCFullYear()===year);return{teamId:id,seasonId:String(year),seasonName:String(year),matches:matches.length,finishes:matches.reduce((s,m)=>s+m.finishes,0),wwcd:matches.filter(m=>m.wwcd).length,points:matches.reduce((s,m)=>s+m.points,0)};}));});
 app.get('/teams/:slug/wrapped',async c=>{const r=repo(c),slug=text(1,110).parse(c.req.param('slug'));const year=z.coerce.number().int().min(2000).max(2100).parse(c.req.query('year')??c.req.query('seasonId'));return c.json(await cached(c,`wrapped:${slug}:${year}`,async()=>{const t=await r.team(slug);const wrapped=deriveWrappedSummary({team:t,period:yearPeriod(year),matches:await r.history(t.id),championships:countChampionships(t.id,await r.standings(),(await r.tournaments()).filter(t=>new Date(t.endsAt).getUTCFullYear()===year)),achievements:await achievements(r,t.id),records:(await officialRecords(r)).current.filter(record=>record.teamId===t.id)});return {...wrapped,historyIncomplete:t.legacyHistoryIncomplete,available:wrapped.available};},['competition','team:'+slug]));});
 app.get('/matches',async c=>{const status=z.enum(['scheduled','completed','live','upcoming']).parse(c.req.query('status')??'scheduled');const r=repo(c);if(status==='completed'){const history=await r.history();const winners=new Map<string,(typeof history)[number]>();for(const row of history){const prior=winners.get(row.id);if(!prior||row.placement<prior.placement)winners.set(row.id,row);}return c.json([...winners.values()]);}return c.json((await r.schedule()).filter(m=>status==='scheduled'?m.status!=='completed':m.status===status));});
-app.get('/matches/:id',async c=>{const id=paramId(c),r=repo(c),match=(await r.schedule()).find(m=>m.id===id);if(!match)throw new ServiceError(404,'MATCH_NOT_FOUND');const [t,results,teams]=await Promise.all([r.tournament(match.tournamentId),r.results(),r.teams()]);return c.json({match,tournament:{id:t.id,name:t.name,shortName:t.shortName},published:results.some(x=>x.roundId===id),teamResults:results.filter(x=>x.roundId===id).map(x=>({teamId:x.teamId,teamName:teams.find(t=>t.id===x.teamId)?.name??'',teamSlug:teams.find(t=>t.id===x.teamId)?.slug,teamLogo:teams.find(t=>t.id===x.teamId)?.logoUrl,placement:x.placement,finishes:x.finishes,placementPoints:x.placementPoints,totalPoints:x.totalPoints,wwcd:x.placement===1}))});});
+app.get('/matches/:id', async c => {
+ const id = paramId(c), r = repo(c);
+ const match = (await r.schedule()).find(match => match.id === id);
+ if (!match) throw new ServiceError(404, 'MATCH_NOT_FOUND');
+ const [tournament, entries, teams, matches] = await Promise.all([
+  r.tournament(match.tournamentId), r.results(), r.teams(), r.rows('matches'),
+ ]);
+ // Check both publication gates even when an administrative repository is supplied.
+ const published = matches.some(row => row.id === id && row.published_at);
+ const results = published ? entries.filter(row => row.published && row.roundId === id && row.tournamentId === match.tournamentId) : [];
+ const identities = new Map(teams.map(team => [team.id, team]));
+ return c.json({
+  match,
+  tournament: { id: tournament.id, name: tournament.name, shortName: tournament.shortName },
+  standings: rankResults(results),
+  published: results.length > 0,
+  // Preserve in-game placement for existing consumers; standings carries point ranking.
+  teamResults: results.map(row => ({
+   teamId: row.teamId, teamName: identities.get(row.teamId)?.name ?? '',
+   teamSlug: identities.get(row.teamId)?.slug, teamLogo: identities.get(row.teamId)?.logoUrl,
+   placement: row.placement, finishes: row.finishes, placementPoints: row.placementPoints,
+   totalPoints: row.totalPoints, wwcd: row.placement === 1,
+  })),
+ });
+});
 app.get('/matches/:id/calendar',async c=>{const id=paramId(c),r=repo(c),m=(await r.schedule()).find(m=>m.id===id);if(!m)throw new ServiceError(404,'MATCH_NOT_FOUND');return c.json({id,title:`${(await r.tournament(m.tournamentId)).name} · ${m.map}`,description:`${m.round}. raund`,startsAt:m.startsAt,timezone:'Asia/Baku',publicUrl:`${c.get('config').siteUrl}/matches/${id}`});});
 app.get('/leaderboards/:id',async c=>{return c.json(await cached(c,'standings:'+paramId(c),()=>repo(c).tournamentStandings(paramId(c)),['competition','tournament:'+paramId(c)]));});
 app.get('/leaderboards/:id/snapshots',async c=>c.json(await repo(c).standingSnapshots(paramId(c))));

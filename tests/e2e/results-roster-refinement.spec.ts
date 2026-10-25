@@ -6,14 +6,15 @@ import { currentTeam, leaderboard } from '../fixtures/platform-data';
 
 test('desktop and touch roster states preserve navigation without hover requests', async ({ page, browser }) => {
   await page.goto('/tournaments/daily-cup-24');
+  const hoverCapable = await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches);
   const card = page.locator('.tournament-detail-teams .roster-team-card').first();
   await expect(card).toBeVisible();
   await expect(card.locator('.roster-team-card__players')).toBeHidden();
   let requests = 0;
   page.on('request', request => { if (request.url().includes('/api/')) requests++; });
   await card.hover();
-  await expect(card.locator('.roster-team-card__players')).toBeVisible();
-  await expect(card.locator('.team-mark')).toHaveCSS('opacity', '0.25');
+  await expect(card.locator('.roster-team-card__players')).toBeVisible({ visible: hoverCapable });
+  await expect(card.locator('.team-mark')).toHaveCSS('opacity', hoverCapable ? '0.25' : '1');
   await expect(card).toHaveCSS('border-top-width', '0px');
   expect(requests).toBe(0);
   await page.route('**/api/public/context', async route => {
@@ -23,8 +24,8 @@ test('desktop and touch roster states preserve navigation without hover requests
   await page.goto('/');
   const topCard = page.locator('.home-ranked-team').filter({ hasText: currentTeam.name });
   await topCard.hover();
-  await expect(topCard.locator('.roster-team-card__players')).toBeVisible();
-  await expect(topCard.locator('.team-mark')).toHaveCSS('opacity', '0.25');
+  await expect(topCard.locator('.roster-team-card__players')).toBeVisible({ visible: hoverCapable });
+  await expect(topCard.locator('.team-mark')).toHaveCSS('opacity', hoverCapable ? '0.25' : '1');
   await expect(page.locator('.home-brand-statement')).toHaveCount(0);
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const touchPage = await mobile.newPage();

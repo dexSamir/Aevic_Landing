@@ -300,6 +300,8 @@ export interface PublicMatchTeamResult {
 }
 
 export interface PublicMatchDetail {
+  /** Official point ranking; placement in teamResults remains the in-game finish. */
+  standings?: TeamTournamentResult[];
   match: MatchScheduleItem | MatchHistoryEntry;
   tournament: Pick<Tournament, 'id' | 'name' | 'shortName'>;
   published: boolean;

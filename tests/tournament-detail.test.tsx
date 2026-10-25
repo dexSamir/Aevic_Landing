@@ -4,6 +4,7 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import { TournamentDetailPage } from '../src/pages/PublicPages';
 import * as platform from '../src/services';
 import { fixtureServices } from './fixtures/component-services';
+import { placementPointGroups } from '../src/utils/scoring';
 import { clearQueryCache } from '../src/services/queryCache';
 import { currentTeam, tournaments, teams, matchSchedule } from './fixtures/platform-data';
 
@@ -33,8 +34,8 @@ it('renders actual tournament values, sanctioned teams, rotation and unpublished
  expect(screen.getByRole('heading', { name: 'Ümumi sıralama dərc edilməyib' })).toBeInTheDocument();
  expect(screen.getByRole('link', { name: 'Tam qaydaları oxu' })).toHaveAttribute('href','/regulations');
  expect(screen.getByRole('link', { name: 'Matç Mərkəzində aç' })).toHaveAttribute('href','/matches');
- for (const placement of tournaments[0].pointFormula.placement) {
-  const cell = within(view.container.querySelector('.tournament-detail-scoring') as HTMLElement).getByText(`#${placement.placement}`).parentElement!;
+ for (const placement of placementPointGroups(tournaments[0].pointFormula, tournaments[0].maxSlots)) {
+  const cell = within(view.container.querySelector('.tournament-detail-scoring') as HTMLElement).getByText(`#${placement.first}${placement.last !== placement.first ? `–${placement.last}` : ''}`).parentElement!;
   expect(cell.querySelector('dd')).toHaveTextContent(`${placement.points}xal`);
  }
  const tabs = screen.getByRole('navigation', { name: 'Daily Cup #24 bölmələri' });
@@ -56,8 +57,8 @@ it('shows a closed registration window and disables joining after its deadline',
 });
 it('keeps dates unpublished when the schedule has not been supplied', async () => {
  vi.mocked(platform.services.publicMatches.schedule).mockResolvedValue([]); const view = mount();
- await waitFor(() => expect(view.container.querySelectorAll('.tournament-map-status')).toHaveLength(4));
- expect(screen.getAllByText('Vaxt təsdiq gözləyir')).toHaveLength(4);
+ await screen.findByRole('heading', { name: 'Matç cədvəli hələ dərc edilməyib' });
+ expect(view.container.querySelectorAll('.tournament-map-status')).toHaveLength(0);
  expect(view.container.querySelector('.tournament-detail-schedule time')).toBeNull();
 });
 it('preserves a real service failure and allows recovery without reloading the page', async () => {

@@ -39,7 +39,7 @@ describe('retained normalized Hono modules with isolated Supabase response fixtu
 });
 describe('public tournament contract isolation',()=>{
  it('filters standings by tournament and excludes draft results',async()=>{
-  database({tournaments:[{id:cup},{id:'10000000-0000-4000-8000-000000000002'}],team_match_results:[{id:'r',team_id:team,tournament_id:cup,placement:1,published:true},{id:'draft',team_id:team,tournament_id:cup,placement:1,published:false}]});
+  database({tournaments:[{id:cup},{id:'10000000-0000-4000-8000-000000000002'}],team_match_results:[{id:'r',team_id:team,tournament_id:cup,match_id:'published-match',placement:1,published:true},{id:'draft',team_id:team,tournament_id:cup,placement:1,published:false}]});
   expect(await(await app.request('/api/leaderboards/10000000-0000-4000-8000-000000000002')).json()).toEqual([]);
   expect(await(await app.request(`/api/leaderboards/${cup}`)).json()).toMatchObject([{teamId:team,matches:1,tournamentId:cup}]);
  });

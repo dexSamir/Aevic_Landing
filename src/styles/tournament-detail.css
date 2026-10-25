@@ -112,3 +112,42 @@
 .tournament-results .is-own-team { background: color-mix(in srgb, var(--gold-primary) 9%, var(--surface-1)); }
 .tournament-results .is-own-team td:first-child { box-shadow: inset 3px 0 var(--gold-primary); }
 .tournament-results .team-cell small { color: var(--gold-primary); font-size: 11px; }
+
+/* Graphite information cards retain a two-column mobile reading order. */
+.tournament-detail-format > div { display: block; min-height: 230px; padding: clamp(16px,2.2vw,30px); border: 0; border-radius: 18px; background: linear-gradient(135deg,#15171a,#101114); }
+.tournament-detail-format dt { font-size: 15px; }
+.tournament-detail-format dt svg { position: static; display: block; transform: none; width: 52px; height: 52px; padding: 12px; margin-bottom: 16px; border-radius: 14px; background: #ffffff05; }
+.tournament-detail-format dd { margin-top: 14px; font-size: clamp(24px,2.4vw,36px); line-height: 1.25; }
+.tournament-detail-format > div:first-child dd { color: var(--text-primary); }
+.tournament-detail-format dd small { margin-top: 12px; font-size: 13px; line-height: 1.55; }
+.tournament-scoring-cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.tournament-scoring-cards > article { padding: 24px; border-radius: 18px; background: linear-gradient(135deg,#15171a,#101114); }
+.tournament-scoring-cards h3 { display: flex; gap: 10px; align-items: center; color: var(--detail-gold); font: 600 17px/1.4 var(--font-ui); margin: 0 0 16px; }
+.tournament-scoring-cards .tournament-detail-scoring { display: block; padding: 0; background: none; }
+.tournament-scoring-cards .tournament-detail-scoring > div { display: flex; justify-content: space-between; min-height: 0; padding: 7px 0; border-bottom: 1px solid #ffffff06; }
+.tournament-scoring-cards .tournament-detail-scoring dt, .tournament-scoring-cards .tournament-detail-scoring dd { font: 500 14px/1.5 var(--font-ui); font-variant-numeric: tabular-nums; }
+.tournament-scoring-cards .tournament-detail-scoring small { display: inline; margin-left: 4px; }
+.tournament-scoring-example { margin-top: 28px; padding: 20px; background: #090a0c70; border-radius: 12px; }
+.tournament-scoring-example h4 { color: var(--detail-gold); margin: 0 0 14px; }
+.tournament-scoring-example p { display: flex; justify-content: space-between; gap: 12px; margin: 8px 0; }
+.tournament-scoring-example p:last-child { padding-top: 14px; border-top: 1px solid #ffffff10; }
+.tournament-result-tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 4px 3px 12px; }
+.tournament-result-tabs::-webkit-scrollbar { display: none; }
+.tournament-result-tabs button { flex: 0 0 auto; min-height: 44px; padding: 10px 18px; border: 0; border-radius: 10px; background: #17191d; color: var(--text-muted); font: 600 14px/1.4 var(--font-ui); cursor: pointer; }
+.tournament-result-tabs button[aria-selected='true'] { background: var(--detail-gold,var(--gold-primary)); color: #15120b; }
+.tournament-result-tabs button:focus-visible, .tournament-detail-schedule > ol:focus-visible { outline: 2px solid var(--gold-primary); outline-offset: 2px; }
+.tournament-result-context { color: var(--text-muted); margin: 8px 0 16px; }
+.tournament-results .team-cell { min-width: 0; overflow-wrap: anywhere; }
+@media(max-width:600px) {
+ .tournament-detail-format > div { min-height: 210px; padding: 16px 12px; border-radius: 16px; }
+ .tournament-detail-format dt { font-size: 13px; }
+ .tournament-detail-format dt svg { width: 42px; height: 42px; padding: 9px; margin-bottom: 12px; }
+ .tournament-detail-format dd { font-size: clamp(22px,5.8vw,30px); }
+ .tournament-detail-format dd small { font-size: 12px; }
+ .tournament-destination .tournament-detail-body .tournament-detail-schedule > ol { display: flex; overflow-x: auto; gap: 12px; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 3px 3px 10px; }
+ .tournament-destination .tournament-detail-body .tournament-detail-schedule > ol::-webkit-scrollbar { display: none; }
+ .tournament-destination .tournament-detail-schedule li { flex: 0 0 86%; scroll-snap-align: start; }
+ .tournament-destination .tournament-detail-schedule li > a { min-height: 280px; aspect-ratio: 1; }
+ .tournament-scoring-cards { grid-template-columns: minmax(0,1fr); gap: 12px; }
+ .tournament-scoring-cards > article { padding: 20px; }
+}

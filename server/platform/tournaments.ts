@@ -1,3 +1,4 @@
+import { scoreMatch } from '../../src/utils/scoring';
 import {captureStandings} from './standings';
 import {z} from 'zod';
 import type {Sql} from 'postgres';
@@ -48,7 +49,7 @@ export async function saveResults(sql:Sql,actor:Actor,roundId:string,entries:Res
  for(const entry of entries){
   if(entry.roundId!==roundId||entry.tournamentId!==m.tournament_id)throw new ServiceError(422,'RESULT_MATCH_MISMATCH');
   const [eligible]=await tx`select id from aevic_platform.tournament_registrations where tournament_id=${m.tournament_id} and team_id=${entry.teamId} and status='confirmed' for share`;if(!eligible)throw new ServiceError(422,'TEAM_NOT_REGISTERED');
-  const formula=t.point_formula,placement=Number(formula.placement.find((p:{placement:number})=>p.placement===entry.placement)?.points??0)+(entry.placement===1?Number(formula.wwcdBonus??0):0),finish=entry.finishes*Number(formula.finishPointValue);
+  const { placementPoints: placement, finishPoints: finish } = scoreMatch(t.point_formula, entry.placement, entry.finishes);
   await tx`insert into aevic_platform.team_match_results(match_id,tournament_id,team_id,placement,finishes,placement_points,finish_points,penalties,notes) values(${roundId},${m.tournament_id},${entry.teamId},${entry.placement},${entry.finishes},${placement},${finish},${entry.penalties},${entry.notes??null}) on conflict(match_id,team_id) do update set placement=excluded.placement,finishes=excluded.finishes,placement_points=excluded.placement_points,finish_points=excluded.finish_points,penalties=excluded.penalties,notes=excluded.notes,updated_at=now()`;
  }
  await audit(tx,actor,'results.save','match',roundId);

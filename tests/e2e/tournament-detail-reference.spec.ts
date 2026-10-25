@@ -13,7 +13,8 @@ test('tournament dossier follows the reference at desktop, tablet and mobile wid
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   const schedule = await page.locator('#matches').boundingBox();
   const lastCard = await page.locator('.tournament-detail-schedule li > a').last().boundingBox();
-  expect(lastCard!.x + lastCard!.width).toBeLessThanOrEqual(schedule!.x + schedule!.width + 1);
+  if (width > 600) expect(lastCard!.x + lastCard!.width).toBeLessThanOrEqual(schedule!.x + schedule!.width + 1);
+  else expect(await page.locator('#matches > ol').evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
   await page.locator('#matches').scrollIntoViewIfNeeded();
   await expect.poll(() => page.locator('.tournament-detail-schedule img').evaluateAll((images: HTMLImageElement[]) => images.every(image => image.complete && image.naturalWidth > 0))).toBeTruthy();
   await page.evaluate(() => { window.scrollTo(0,0); (document.activeElement as HTMLElement)?.blur(); });

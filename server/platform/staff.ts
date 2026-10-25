@@ -1,3 +1,4 @@
+import { scoreMatch } from '../../src/utils/scoring';
 import {captureStandings} from './standings';
 import {Hono} from 'hono';
 import {z} from 'zod';
@@ -69,7 +70,7 @@ app.post('/admin/results/:id/corrections',async c=>{
   const next=input.result;if(next.teamId!==r.team_id||next.roundId!==r.match_id||next.tournamentId!==r.tournament_id)throw new ServiceError(422,'RESULT_IDENTITY_IMMUTABLE');
   const duplicate=await tx`select id from aevic_platform.team_match_results where match_id=${m.id} and placement=${next.placement} and id<>${id}`;if(duplicate.length)throw new ServiceError(409,'DUPLICATE_PLACEMENT');
   const old=roundResult(r);await tx`insert into aevic_platform.result_versions(result_id,version,result,reason,actor_id) values(${id},${r.version},${tx.json(JSON.parse(JSON.stringify(old)))},${input.reason},${actor(c).adminId!})`;
-  const formula=t.point_formula,placement=Number(formula.placement.find((p:{placement:number})=>p.placement===next.placement)?.points??0)+(next.placement===1?Number(formula.wwcdBonus??0):0),finishes=next.finishes*Number(formula.finishPointValue);
+  const { placementPoints: placement, finishPoints: finishes } = scoreMatch(t.point_formula, next.placement, next.finishes);
   const [updated]=await tx`update aevic_platform.team_match_results set placement=${next.placement},finishes=${next.finishes},placement_points=${placement},finish_points=${finishes},penalties=${next.penalties},notes=${next.notes??null},version=version+1,updated_at=now() where id=${id} returning *,team_id::text`;
   await tx`update aevic.matches set dispute_deadline_at=now()+${t.dispute_duration_minutes}*interval '1 minute',updated_at=now() where id=${m.id}`;
   const entries=await tx`select team_id::text from aevic_platform.tournament_registrations where tournament_id=${t.id} and status='confirmed'`;
