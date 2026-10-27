@@ -1,4 +1,4 @@
-import { scoreMatch } from '../../src/utils/scoring';
+import { internationalFormula, scoreMatch } from '../../src/utils/scoring';
 import {captureStandings} from './standings';
 import {z} from 'zod';
 import type {Sql} from 'postgres';
@@ -16,7 +16,7 @@ function validate(input:Input){
 }
 export async function createTournament(sql:Sql,actor:Actor,input:Input,key?:string){validate(input);return idempotent(sql,actor,key,'tournament.create',input,async tx=>{
  const id=crypto.randomUUID(),slug=`tournament-${id}`;
- await tx`insert into aevic.tournaments(id,slug,name,short_name,description,starts_at,ends_at,registration_opens_at,registration_deadline,check_in_opens_at,check_in_closes_at,max_slots,rules,map_rotation,rounds_per_day) values(${id},${slug},${input.name},${input.shortName},${input.description},${input.startsAt},${input.endsAt},${input.registrationOpensAt},${input.registrationDeadline},${input.checkInOpensAt},${input.checkInClosesAt},${input.maxSlots},${input.rules},${input.rounds.map(r=>r.map)},${input.rounds.length})`;
+ await tx`insert into aevic.tournaments(id,slug,name,short_name,description,starts_at,ends_at,registration_opens_at,registration_deadline,check_in_opens_at,check_in_closes_at,max_slots,rules,map_rotation,rounds_per_day,point_formula) values(${id},${slug},${input.name},${input.shortName},${input.description},${input.startsAt},${input.endsAt},${input.registrationOpensAt},${input.registrationDeadline},${input.checkInOpensAt},${input.checkInClosesAt},${input.maxSlots},${input.rules},${input.rounds.map(r=>r.map)},${input.rounds.length},${tx.json(JSON.parse(JSON.stringify(internationalFormula)))})`;
  for(const [index,r] of input.rounds.entries())await tx`insert into aevic.matches(tournament_id,round,map,scheduled_at,room_release_at) values(${id},${index+1},${r.map},${r.startsAt},${r.startsAt}::timestamptz-interval '10 minutes')`;
  await audit(tx,actor,'tournament.create','tournament',id);return{id};
 });}

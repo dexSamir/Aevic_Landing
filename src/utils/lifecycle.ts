@@ -1,3 +1,4 @@
+import { scoreMatch } from './scoring.js';
 import { sanitizeOutboundUrl } from './outboundUrl.js';
 import type { PointFormula, SocialPlatform } from '../types/domain';
 
@@ -49,8 +50,7 @@ export function reviewRoundResults(rows: RoundReviewRow[], formula: PointFormula
     if (!Number.isInteger(row.placement) || row.placement < 1) issues.push(`${row.teamId}: placement etibarlı deyil.`);
     if (!Number.isInteger(row.finishes) || row.finishes < 0) issues.push(`${row.teamId}: kill sayı etibarlı deyil.`);
     if (row.penalty < 0) issues.push(`${row.teamId}: penalty mənfi ola bilməz.`);
-    const placementPoints = formula.placement.find((item) => item.placement === row.placement)?.points ?? 0;
-    const expected = placementPoints + row.finishes * formula.finishPointValue + (row.placement === 1 ? formula.wwcdBonus : 0) - row.penalty;
+    const expected = scoreMatch(formula, row.placement, row.finishes, row.penalty).totalPoints;
     if (row.total !== expected) issues.push(`${row.teamId}: total point formula ilə uyğun gəlmir.`);
   });
   return { valid: issues.length === 0, issues };

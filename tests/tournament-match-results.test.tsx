@@ -30,15 +30,15 @@ it('switches actual results, caches revisits, supports keyboard selection and pr
  const get = vi.spyOn(services.publicMatches, 'get').mockImplementation(async id => ({ match: matchSchedule.find(row => row.id === id)!, tournament: tournaments[0], published: id === matchSchedule[0].id, standings: [matchRow], teamResults: [] }));
  mount();
  expect(screen.getByRole('tab', { name: 'Ümumi' })).toHaveAttribute('aria-selected', 'true');
- expect(screen.getByText('90 xal')).toBeInTheDocument();
+ expect(screen.getByText('90')).toBeInTheDocument();
  fireEvent.click(screen.getByRole('tab', { name: 'Matç 1' }));
- await screen.findByText('13 xal');
- expect(screen.queryByText('90 xal')).not.toBeInTheDocument();
+ await screen.findByText('13');
+ expect(screen.queryByText('90')).not.toBeInTheDocument();
  fireEvent.keyDown(screen.getByRole('tab', { name: 'Matç 1' }), { key: 'ArrowRight' });
  await screen.findByRole('heading', { name: 'Bu matçın nəticələri hələ elan edilməyib.' });
- expect(screen.queryByText('13 xal')).not.toBeInTheDocument();
+ expect(screen.queryByText('13')).not.toBeInTheDocument();
  fireEvent.click(screen.getByRole('tab', { name: 'Matç 1' }));
- await screen.findByText('13 xal');
+ await screen.findByText('13');
  expect(get).toHaveBeenCalledTimes(2);
 });
 it('honors direct match links and recovers from failures', async () => {
@@ -47,7 +47,7 @@ it('honors direct match links and recovers from failures', async () => {
  await screen.findByRole('heading', { name: 'Nəticələr yüklənmədi' });
  fireEvent.click(screen.getByRole('button', { name: 'Yenidən cəhd et' }));
  await waitFor(() => expect(get).toHaveBeenCalledTimes(2));
- await screen.findByText('13 xal');
+ await screen.findByText('13');
 });
 
 it('groups only adjacent equal placement rules, including unscored remaining slots', () => {

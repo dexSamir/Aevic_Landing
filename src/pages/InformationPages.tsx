@@ -1,17 +1,11 @@
+import { Link } from 'react-router-dom';
+import { regulationSections, rulebookVersion } from '../content/regulations';
 import '../styles/regulations.css';
 import '../styles/public-pages.css';
 import { PageHeader } from '../components/common/primitives';
 export function RegulationsPage() {
-  const sections = [
-    ['İştirak şərtləri', 'İştirak uyğunluğu, heyət tələbləri və qadağalar hər turnirin təsdiqlənmiş şərtlərində göstərilməlidir.'],
-    ['Heyət və UID', 'Heyət qeydiyyatın son tarixində kilidlənir. Dəyişiklik yalnız göstərilən vaxtdan əvvəl və yoxlanıla bilən sorğu ilə mümkündür.'],
-    ['Check-in', 'Check-in açıq olduqda komanda hazır olduğunu təsdiqləyir. Gecikmə ilə bağlı qərar turnirin dərc edilmiş qaydalarından asılıdır.'],
-    ['Otaq məlumatları', 'Otaq ID-si və şifrə yalnız uyğun komandalara təyin edilmiş açılış vaxtında göstərilir. İctimai paylaşım qadağandır.'],
-    ['Xal sistemi', 'Yer və kill xalları turnir formulu ilə hesablanır; cərimə ayrıca göstərilir və yekun xaldan çıxılır.'],
-    ['Ədalətli oyun', 'İcazəsiz proqram, razılaşdırılmış oyun, hesab paylaşımı və nəticəyə təsir edən digər pozuntular yoxlama və qadağa ilə nəticələnə bilər.'],
-    ['Etirazlar', 'Nəticə etirazı admin mesajında göstərilən müddətdə raund, komanda və sübut istinadı ilə verilməlidir.'],
-  ];
-  return <section className="page-section regulations-page"><div className="container regulations-layout"><PageHeader title="Turnir reqlamenti" description="İlkin yarış bələdçisidir, yekun reqlament deyil. Hər turnirin təsdiqlənmiş şərtləri ayrıca dərc olunmalıdır." /><aside><span>AEVIC YARIŞ BƏLƏDÇİSİ</span><strong>İlkin izah</strong><p>Yekun hüquqi və yarış təsdiqi gözlənilir.</p><nav>{sections.map(([title], index) => <a key={title} href={`#rule-${index + 1}`}>{String(index + 1).padStart(2, '0')} {title}</a>)}</nav></aside><article><p className="regulations-disclosure">Bu mətn ilkin məlumat bələdçisidir; dərc olunacaq qaydalar hüquqi və yarış üzrə təsdiq tələb edir.</p>{sections.map(([title, body], index) => <section id={`rule-${index + 1}`} key={title}><span>{String(index + 1).padStart(2, '0')}</span><div><h2>{title}</h2><p>{body}</p>{index === 4 && <ul><li>Nümunə: WWCD üçün 10 yerləşmə xalı</li><li>Nümunə: hər kill üçün 1 xal</li><li>Bərabərlik meyarı turnirin təsdiqlənmiş formulunda göstərilməlidir</li></ul>}</div></section>)}</article></div></section>;
+  const sections = regulationSections;
+  return <section className="page-section regulations-page"><div className="container regulations-layout"><PageHeader title="Turnir reqlamenti" description="AEVIC platforma və yarış qaydaları. Hüquqi və əməliyyat təsdiqi üçün hazırlanmış layihə." /><aside><span>AEVIC YARIŞ BƏLƏDÇİSİ</span><strong>{rulebookVersion}</strong><p>Qüvvəyə minmə tarixi təsdiq gözləyir.</p><nav aria-label="Reqlament bölmələri">{sections.map(({title}, index) => <a key={title} href={`#rule-${index + 1}`}>{String(index + 1).padStart(2, '0')} {title}</a>)}</nav></aside><article><p className="regulations-disclosure">Bu mətn sahibin hüquqi və yarış üzrə təsdiqini tələb edən layihədir. Yaş, mükafat, media istifadəsi və məlumat siyasəti yekun təsdiq gözləyir.</p>{sections.map(({title, paragraphs}, index) => <section id={`rule-${index + 1}`} key={title}><span>{String(index + 1).padStart(2, '0')}</span><div><h2>{title}</h2>{paragraphs.map(body => <p key={body}>{body}</p>)}</div></section>)}<p><Link to="/privacy">Məxfilik məlumatı</Link> · <Link to="/terms">İstifadə şərtləri</Link> · <Link to="/contact">Əlaqə</Link></p><p>Mənbələr: <a href="https://esports.pubgmobile.com/static/doc/PUBGMOfficialCompetitionRulebookV1.6.0.pdf">PUBG Mobile rəsmi qaydaları</a> · <a href="https://resources.esportsworldcup.com/en/competitive-ops/rulebooks/pubg-mobile">EWC 2026 PUBG Mobile</a> · <a href="https://resources.esportsworldcup.com/en">EWC resurs mərkəzi</a></p></article></div></section>;
 }
 
 function InformationPage({ title, description, sections }: { title: string; description: string; sections: [string, string][] }) {

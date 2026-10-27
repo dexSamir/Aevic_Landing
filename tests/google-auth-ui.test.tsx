@@ -14,7 +14,7 @@ it('requires explicit password proof for linking and exposes MFA when required',
  render(<GoogleAuth/>);
  const button=await screen.findByRole('button',{name:'Hesabı əlaqələndir və daxil ol'});expect(button).toBeDisabled();
  fireEvent.change(screen.getByLabelText('Mövcud AEVIC şifrəsi'),{target:{value:'Password1'}});fireEvent.click(button);
- expect(await screen.findByLabelText('Doğrulama və ya bərpa kodu')).toBeInTheDocument();
+ expect(await screen.findByLabelText('Authenticator kodu')).toBeInTheDocument();
  const call=request.mock.calls.find(([path])=>path==='/auth/google/complete')!;expect(JSON.parse(call[1].body)).toEqual({password:'Password1'});
 });
 it('a linked identity does not ask for a password again',async()=>{

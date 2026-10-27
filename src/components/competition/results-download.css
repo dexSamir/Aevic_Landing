@@ -45,7 +45,7 @@
 @media (max-width: 800px) {
   .modal:has(.results-download-options) > header { position: sticky; top: 0; z-index: 3; background: var(--color-bg-elevated); padding: 24px 20px 20px; }
   .modal:has(.results-download-options) .modal__body { padding: 20px 20px 36px; }
-  .results-download-options > button { min-height: 124px; }
+  .results-download-options > button { min-height: 156px; }
   .results-download-help { margin-block: 20px 30px; font-size: 13px; line-height: 1.6; }
   .modal:has(.results-download-options) .studio-actions .button { min-height: 48px; }
 }

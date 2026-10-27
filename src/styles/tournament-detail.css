@@ -166,3 +166,20 @@
  .tournament-destination .tournament-results > .section-heading { flex-wrap:wrap; }
  .tournament-destination .tournament-results > .section-heading .button { margin-left:auto; max-width:none; }
 }
+
+/* One semantic competition table at every width; only its own viewport scrolls. */
+@media(max-width:767px) {
+ .tournament-results .data-table-wrap { display:block; width:100%; max-width:100%; overflow-x:auto; }
+ .tournament-results table { min-width:620px; width:100%; font-size:12px; font-variant-numeric:tabular-nums; }
+ .tournament-results th, .tournament-results td { padding:9px 8px; height:44px; text-align:right; white-space:nowrap; }
+ .tournament-results th:nth-child(2), .tournament-results td:nth-child(2) { text-align:left; min-width:150px; }
+ .tournament-results .team-cell { gap:7px; }
+ .tournament-results .team-cell strong { max-width:150px; overflow:hidden; text-overflow:ellipsis; }
+ .tournament-results .team-logo { width:26px; height:26px; flex-shrink:0; }
+ .tournament-results__summary { gap:8px; margin-bottom:12px; }
+ .tournament-results__summary > span { padding:10px; }
+}
+
+@media(max-width:767px) {
+ .tournament-results .data-table th:last-child, .tournament-results .data-table td:last-child { position: sticky; right: 0; background: var(--color-bg-deep, #101012); box-shadow: -5px 0 12px #0002; color: var(--gold-primary); }
+}

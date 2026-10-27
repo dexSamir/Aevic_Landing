@@ -407,3 +407,13 @@
 .password-strength ul { padding-left:0; list-style:none; }
 .two-factor-setup img { max-width:100%; height:auto; }
 .recovery-codes code { white-space:pre-wrap; overflow-wrap:anywhere; }
+
+.password-strength { --strength-color: #f05252; }
+.password-strength[data-strength="2"] { --strength-color: #f47b48; }
+.password-strength[data-strength="3"] { --strength-color: #f4bf36; }
+.password-strength[data-strength="4"] { --strength-color: #65d866; }
+.password-strength[data-strength="5"] { --strength-color: #36d6a0; }
+.password-strength__bar { height: 7px; background: #ffffff20; border-radius: 8px; overflow: hidden; }
+.password-strength__bar span { display: block; height: 100%; background: var(--strength-color); transition: width 180ms ease, background-color 180ms ease; }
+.password-strength > p { color: var(--strength-color); font-weight: 600; }
+@media(prefers-reduced-motion: reduce) { .password-strength__bar span { transition: none; } }

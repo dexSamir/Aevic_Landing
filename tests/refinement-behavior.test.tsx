@@ -13,7 +13,7 @@ describe('standings identity', () => {
     session.team = { id: 'b' };
     const { container } = render(<MemoryRouter><TournamentResults standings={standings} teams={teams} teamNames={[]} tournamentId="cup" /></MemoryRouter>);
     const highlighted = container.querySelectorAll('.is-own-team');
-    expect(highlighted).toHaveLength(2);
+    expect(highlighted).toHaveLength(1);
     expect(within(highlighted[0] as HTMLElement).getByRole('link')).toHaveAttribute('href', '/teams/second');
     expect(screen.getAllByRole('link', { name: /Same name/ }).some(link => link.getAttribute('href') === '/teams/first')).toBe(true);
   });

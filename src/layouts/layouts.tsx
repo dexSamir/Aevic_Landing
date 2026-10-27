@@ -88,7 +88,7 @@ function PublicAuthActions({ onNavigate, drawer = false }: { onNavigate?: () => 
     return () => document.removeEventListener('pointerdown', closeFromOutside);
   }, [open]);
 
-  if (loading) return <div className="public-nav-actions"><LoadingSkeleton variant="navigation" label="Sessiya yoxlanılır" /></div>;
+  if (loading) return <div className="public-nav-actions"><span className="public-session-status" role="status" aria-label="Sessiya yoxlanılır">Hesab yoxlanılır…</span></div>;
   if (session === undefined) return <div className="public-nav-actions"><button type="button" className="button button--secondary button--sm" onClick={refresh} aria-label="Sessiya yoxlanmadı. Yenidən yoxla" aria-description={error?.message}>Sessiyanı yoxla</button></div>;
   if (!session) return <div className="public-nav-actions"><Link aria-current={pathname === '/login' ? 'page' : undefined} className={`nav-login button button--secondary button--sm ${pathname === '/login' ? 'is-active' : ''}`} to={publicNavigation.login.to} onClick={onNavigate}>{publicNavigation.login.label}</Link><Link aria-current={pathname === '/register' ? 'page' : undefined} className={`nav-cta button button--primary button--sm ${pathname === '/register' ? 'is-active' : ''}`} to={publicNavigation.register.to} onClick={onNavigate}>{publicNavigation.register.label}</Link></div>;
 

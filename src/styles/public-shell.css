@@ -149,3 +149,5 @@
 @media(min-width:1024px) {
  .site-header .public-nav-capsule a,.site-header .public-nav-indicator { border-radius:calc(var(--radius-lg) - 4px); }
 }
+
+.public-session-status { display: inline-flex; align-items: center; min-height: 44px; min-width: 150px; color: var(--color-text-muted); font-size: 13px; }

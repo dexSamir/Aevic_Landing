@@ -878,3 +878,21 @@ html:has(.auth-identity)::-webkit-scrollbar, body:has(.auth-identity)::-webkit-s
   .auth-identity .team-identity-fields { grid-template-columns: minmax(0,1fr); }
   .auth-identity .registration-review-groups { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
+
+/* Auth chrome must be available before the lazy form route loads. */
+.auth-session-check { width: 100%; min-height: 40vh; display: grid; place-content: center; justify-items: center; gap: 16px; background: transparent; color: var(--color-text-muted); }
+.auth-session-check__spinner { width: 24px; height: 24px; border: 2px solid #ffffff24; border-top-color: var(--gold-primary); border-radius: 50%; animation: session-spin 1s linear infinite; }
+@keyframes session-spin { to { transform: rotate(360deg); } }
+.mfa-challenge { display: grid; gap: 16px; min-width: 0; }
+.mfa-challenge h2 { font: 600 1.25rem/1.4 var(--font-ui); }
+.mfa-challenge button { color: var(--gold-primary); min-height: 44px; }
+.login-card[data-google-continuation] > .auth-form, .login-card[data-google-continuation] > .auth-note, .login-card[data-google-continuation] > .auth-switch { display: none; }
+@media(prefers-reduced-motion: reduce) { .auth-session-check__spinner { animation: none; } }
+
+.auth-identity > main { align-content: start; }
+.google-auth > form { display: grid; gap: 16px; }
+
+.mfa-challenge > button, .google-auth > form > button:not(.button) { background: transparent; border: 0; border-radius: 8px; min-height: 44px; padding: 8px; cursor: pointer; font: inherit; }
+.mfa-challenge > button:hover, .google-auth > form > button:not(.button):hover { background: #ffffff08; }
+.google-auth > form > button:not(.button) { color: var(--color-text-muted); }
+.mfa-challenge input[inputmode="numeric"] { font-variant-numeric: tabular-nums; letter-spacing: .22em; font-size: 20px; }

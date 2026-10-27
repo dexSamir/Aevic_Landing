@@ -134,9 +134,12 @@ export function RouteTransitionOutlet({ family }: { family?: PageFamily }) {
   const outlet = useOutlet();
   const resolvedFamily = family ?? pageFamilyForPath(location.pathname);
   const arrivedRef = useRef(false);
+  const previousRoute = useRef({ pathname: location.pathname, hash: location.hash });
   useLayoutEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
-    const shouldArrangeArrival = arrivedRef.current || location.state?.bottomNavigation;
+    const sameDocument = previousRoute.current.pathname === location.pathname && previousRoute.current.hash === location.hash;
+    const shouldArrangeArrival = (!sameDocument && arrivedRef.current) || location.state?.bottomNavigation;
+    previousRoute.current = { pathname: location.pathname, hash: location.hash };
     arrivedRef.current = true;
     const restoredTop = navigationType === 'POP' ? routeScrollPositions.get(location.key) ?? 0 : 0;
     let restoring = Boolean(shouldArrangeArrival && navigationType === 'POP' && !location.hash);
@@ -167,6 +170,6 @@ export function RouteTransitionOutlet({ family }: { family?: PageFamily }) {
       window.removeEventListener('wheel', stopRestoring);
       window.removeEventListener('touchstart', stopRestoring);
     };
-  }, [location.hash, location.key, navigationType]);
+  }, [location.pathname, location.hash, location.key, navigationType]);
   return <PageTransition routeKey={location.pathname} family={resolvedFamily}>{outlet}</PageTransition>;
 }

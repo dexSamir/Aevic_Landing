@@ -501,6 +501,7 @@ export interface PlacementPoint {
 }
 
 export interface PointFormula {
+  presetId?: string;
   placement: PlacementPoint[];
   finishPointValue: number;
   wwcdBonus: number;

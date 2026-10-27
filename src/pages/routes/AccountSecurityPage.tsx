@@ -1,3 +1,4 @@
+import { useProtectedSession } from '../../layouts/ProtectedRoute';
 import { ApiError } from '../../services/apiError';
 import { passwordFeedback } from '../../utils/passwordStrength';
 import {
@@ -45,7 +46,8 @@ export function AccountSecurityPage() {
     finally { setStatusLoading(false); }
   };
   useEffect(() => { void loadStatus(); }, []);
-  const strength = passwordFeedback(password);
+  const identity = useProtectedSession();
+  const strength = passwordFeedback(password, [identity?.user.email ?? '']);
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (loading) return;
@@ -165,8 +167,8 @@ export function AccountSecurityPage() {
             autoComplete="new-password"
             required
           />
-          <div className="password-strength" role="status" aria-live="polite">
-            <meter min={0} max={3} value={strength.score} aria-label="Şifrə gücü" />
+          <div className="password-strength" data-strength={strength.score} role="status" aria-live="polite">
+            <div className="password-strength__bar" role="meter" aria-valuemin={0} aria-valuemax={5} aria-valuenow={strength.score} aria-valuetext={strength.label} aria-label="Şifrə gücü"><span style={{ width: `${strength.score * 20}%` }} /></div>
             <p>{strength.label}</p>
             <ul>{strength.requirements.map(rule => <li key={rule.label}>{rule.met ? '✓' : '○'} {rule.label}</li>)}</ul>
             {confirmation && confirmation !== password && <p role="alert">Şifrələr uyğun gəlmir.</p>}

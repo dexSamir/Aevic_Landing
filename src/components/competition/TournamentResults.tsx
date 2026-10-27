@@ -6,7 +6,7 @@ import type { PublicTeamSummary, TeamTournamentResult } from '../../types/domain
 import type { TournamentMatch } from '../../utils/tournamentMatches';
 import { services } from '../../services';
 import { queryPolicy, usePlatformQuery } from '../../services/queryCache';
-import { DataTable, EmptyState, LoadingSkeleton, MobileDataList, SectionHeading, TeamLogo } from '../common/primitives';
+import { DataTable, EmptyState, LoadingSkeleton, SectionHeading, TeamLogo } from '../common/primitives';
 
 const ResultsDownloadModal = lazy(async () => ({ default: (await import('./ResultsDownloadModal')).ResultsDownloadModal }));
 
@@ -61,7 +61,7 @@ export function TournamentResults({ standings, teams, tournamentName, tournament
         <p className="tournament-result-context">{label}{selectedIndex >= 0 && ` · ${matches[selectedIndex].map}`} · {ordered.length} komanda</p>
         <div className="tournament-results__summary"><span><Trophy size={18} aria-hidden="true" /><strong>{teamFor(ordered[0]).name}</strong><small>Lider</small></span><span><BarChart3 size={18} aria-hidden="true" /><strong>{Math.max(...ordered.map(row => row.matches))}</strong><small>dərc edilmiş matç</small></span><span><strong>{ordered.reduce((sum, row) => sum + row.wwcd, 0)}</strong><small>ümumi WWCD</small></span></div>
         <DataTable rowClassName={index => ownRow(ordered[index]) ? 'is-own-team' : undefined} caption={`${label} — rəsmi sıralama`} headers={['Yer', 'Komanda', 'Kill', 'WWCD', 'Yer xalı', 'Kill xalı', 'Cərimə', 'Ümumi xal']} rows={ordered.map(result => [<b className="result-rank">#{result.placement}</b>, identity(result), result.finishes, result.wwcd, result.placementPoints, result.finishPoints, result.penalties ? `−${result.penalties}` : '—', <strong>{result.totalPoints}</strong>])} />
-        <MobileDataList items={ordered.map(result => ({ className: ownRow(result) ? 'is-own-team' : undefined, title: <><span className="mobile-rank">#{result.placement}</span>{identity(result)}</>, meta: `${result.finishes} kill · ${result.wwcd} WWCD · ${result.matches} matç`, value: `${result.totalPoints} xal`, details: <span>Yer xalı {result.placementPoints} · Kill xalı {result.finishPoints}{result.penalties ? ` · Cərimə −${result.penalties}` : ''}</span> }))} />
+
       </> : <EmptyState title={selected ? 'Bu matçın nəticələri hələ elan edilməyib.' : 'Ümumi sıralama dərc edilməyib'} body={selected ? 'Yalnız təsdiqlənmiş və dərc edilmiş nəticələr burada görünür.' : 'Dərc edilmiş matçların ümumi sıralaması burada görünəcək.'} />}
     </div>
     {downloadOpen && <Suspense fallback={<p role="status">Yükləmə pəncərəsi açılır…</p>}><ResultsDownloadModal open={downloadOpen} onClose={closeDownload} standings={overall} teams={teams} tournamentId={tournamentId} tournamentName={tournamentName} publishedAt={publishedAt} /></Suspense>}

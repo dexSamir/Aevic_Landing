@@ -80,7 +80,7 @@ app.get('/matches/:id', async c => {
  return c.json({
   match,
   tournament: { id: tournament.id, name: tournament.name, shortName: tournament.shortName },
-  standings: rankResults(results),
+  standings: rankResults(results, { [tournament.id]: tournament.pointFormula }, [id]),
   published: results.length > 0,
   // Preserve in-game placement for existing consumers; standings carries point ranking.
   teamResults: results.map(row => ({

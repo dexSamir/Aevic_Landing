@@ -449,7 +449,11 @@ describe('original-team competition persistence',()=>{
   await expect(publishMatch(sql,actor,matchId)).rejects.toMatchObject({code:'INCOMPLETE_RESULTS'});
   expect(await new PlatformRepository(client,sql).history()).toEqual([]);
   await saveResults(sql,actor,matchId,[draft(entries[1].team_id,2)]);await publishMatch(sql,actor,matchId);
-  const standings=await new PlatformRepository(client,sql).standings(tournamentId);expect(standings.map(r=>r.totalPoints)).toEqual([14,10]);
+  const repository=new PlatformRepository(client,sql);
+  expect((await repository.tournament(tournamentId)).pointFormula.presetId).toBe('pubgm-international-v1');
+  const standings=await repository.standings(tournamentId);expect(standings.map(r=>r.totalPoints)).toEqual([14,10]);
+  expect(await repository.tournamentStandings(tournamentId)).toEqual(standings);
+  expect((await repository.history()).filter(r=>r.tournamentId===tournamentId).map(r=>r.points).sort((a,b)=>b-a)).toEqual([14,10]);
   await expect(saveResults(sql,actor,matchId,[draft(entries[0].team_id,2)])).rejects.toMatchObject({code:'USE_RESULT_CORRECTION'});
  });
  it('preserves published standings when a result is corrected',async()=>{

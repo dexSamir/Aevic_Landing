@@ -24,13 +24,13 @@ export class PlatformRepository extends Repository {
  // A public leaderboard needs no registration/capacity reads or other tournaments' results.
  // One scoped statement also avoids opening parallel pooler sessions for this endpoint.
  async tournamentStandings(id:string) {
-  const rows=await this.sql`select t.id::text,coalesce(jsonb_agg(to_jsonb(r) || jsonb_build_object('team_id',r.team_id::text)) filter (where r.id is not null),'[]'::jsonb) as results
+  const rows=await this.sql`select t.id::text,t.point_formula,coalesce(jsonb_agg(to_jsonb(r) || jsonb_build_object('team_id',r.team_id::text) order by m.scheduled_at,m.id) filter (where r.id is not null),'[]'::jsonb) as results
    from aevic.tournaments t
    left join aevic.matches m on m.tournament_id=t.id and m.published_at is not null
    left join aevic_platform.team_match_results r on r.match_id=m.id and r.tournament_id=t.id and r.published
    where t.id=${id} and t.status<>'draft' and t.archived_at is null group by t.id`;
   if(!rows.length)throw new ServiceError(404,'TOURNAMENT_NOT_FOUND');
-  return rankResults((rows[0].results as Row[]).map(roundResult));
+  return rankResults((rows[0].results as Row[]).map(roundResult), { [id]: rows[0].point_formula }, (rows[0].results as Row[]).map(r=>String(r.match_id)));
  }
  protected tournamentCapacity(){return this.capacityCache??=(async()=>normalize(await this.sql`select tournament_id::text,count(*)::int as used_slots from aevic_platform.tournament_registrations where status in ('pending','confirmed') group by tournament_id`) as Array<{tournament_id:string;used_slots:number}>)();}
  async rows(table:string):Promise<Row[]> {

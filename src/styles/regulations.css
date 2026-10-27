@@ -39,3 +39,5 @@
 @media (max-width: 640px) {
   .regulations-layout article > section { grid-template-columns: 2rem 1fr; gap: var(--space-sm); }
 }
+
+@media(min-width:901px) { .regulations-layout > aside { max-height: calc(100dvh - var(--header-height) - 4rem); overflow-y: auto; } }

@@ -26,7 +26,7 @@ it('does not rerender a tournament page each second between lifecycle boundaries
   expect(renders).toBe(settled);
 });
 
-it('deduplicates concurrent session reads but revalidates subsequent reads', async () => {
+it('deduplicates session reads, reuses verified identity and invalidates on identity changes', async () => {
   const actual = await vi.importActual<typeof import('../src/services')>('../src/services');
   let resolve!: (response: Response) => void;
   const fetcher = vi.fn((url:string) => url.endsWith('/auth/refresh')?Promise.resolve(Response.json({sessionMode:'legacy'})):new Promise<Response>(done => { resolve = done; }));
@@ -35,6 +35,9 @@ it('deduplicates concurrent session reads but revalidates subsequent reads', asy
   await vi.waitFor(()=>expect(fetcher).toHaveBeenCalledTimes(2));
   resolve(new Response('null', { headers: { 'content-type': 'application/json' } }));
   await expect(Promise.all(reads)).resolves.toEqual([null, null, null]);
+  await expect(actual.services.auth.getSession()).resolves.toBeNull();
+  expect(fetcher).toHaveBeenCalledTimes(2);
+  window.dispatchEvent(new Event('aevic:session-change'));
   const next = actual.services.auth.getSession();
   expect(fetcher).toHaveBeenCalledTimes(3);
   resolve(new Response('null', { headers: { 'content-type': 'application/json' } }));

@@ -1,3 +1,4 @@
+import { rankPublishedResults as rankResults } from '../../src/utils/scoring';
 import type { DbClient } from '../db';
 import { dbError,ServiceError } from '../errors';
 import type { Team, Tournament, TeamTournamentResult, MatchHistoryEntry, MatchScheduleItem, PublicTeamSummary, PublicTeamProfile, TeamPlatformSnapshot, Notification, AdminMessage, ResultDispute, RosterChangeRequest, RoundResult, TeamComparisonRecord } from '../../src/types/domain';
@@ -66,14 +67,16 @@ export class Repository {
  }
  async tournamentStandings(id:string) {await this.tournament(id);return this.standings(id);}
  async standings(tournamentId?:string):Promise<TeamTournamentResult[]> {
-  return rankResults((await this.results()).filter(r=>!tournamentId||r.tournamentId===tournamentId));
+  const [results, tournaments, schedule] = await Promise.all([this.results(), this.tournaments(), this.schedule()]);
+  return rankResults(results.filter(r=>!tournamentId||r.tournamentId===tournamentId), Object.fromEntries(tournaments.map(t=>[t.id,t.pointFormula])), schedule.map(m=>m.id));
  }
  async standingSnapshots(tournamentId:string):Promise<import('../../src/types/domain').LeaderboardSnapshot[]> {
-  await this.tournament(tournamentId);
+  const tournament = await this.tournament(tournamentId);
   const [matches,results]=await Promise.all([this.rows('matches'),this.results()]);
   const published=matches.filter(m=>m.tournament_id===tournamentId&&m.published_at).sort((a,b)=>s(a,'published_at').localeCompare(s(b,'published_at'))||s(a,'id').localeCompare(s(b,'id')));
+  const matchOrder = [...matches].sort((a,b)=>s(a,'scheduled_at').localeCompare(s(b,'scheduled_at'))||s(a,'id').localeCompare(s(b,'id'))).map(m=>s(m,'id'));
   const ids=new Set<string>();
-  return published.map(match=>{ids.add(s(match,'id'));return {id:s(match,'id'),tournamentId,publishedAt:s(match,'published_at'),standings:rankResults(results.filter(r=>r.tournamentId===tournamentId&&ids.has(r.roundId))).map(r=>({teamId:r.teamId,rank:r.placement,totalPoints:r.totalPoints}))};});
+  return published.map(match=>{ids.add(s(match,'id'));return {id:s(match,'id'),tournamentId,publishedAt:s(match,'published_at'),standings:rankResults(results.filter(r=>r.tournamentId===tournamentId&&ids.has(r.roundId)), { [tournamentId]: tournament.pointFormula }, matchOrder).map(r=>({teamId:r.teamId,rank:r.placement,totalPoints:r.totalPoints}))};});
  }
  async history(teamId?:string):Promise<MatchHistoryEntry[]> {
   const [results,matches,tournaments]=await Promise.all([this.results(),this.rows('matches'),this.tournaments()]);
@@ -144,11 +147,6 @@ function deriveCareerSummary(teamId:string,matches:MatchHistoryEntry[],champions
 }
 
 /** The same official ranking and tie breaks power current and cumulative standings. */
-export function rankResults(results:RoundResult[]):TeamTournamentResult[] {
- const grouped=new Map<string,TeamTournamentResult>();
-  for(const r of results){const key=r.tournamentId+':'+r.teamId;const v=grouped.get(key)??{tournamentId:r.tournamentId,teamId:r.teamId,placement:0,matches:0,wwcd:0,finishes:0,placementPoints:0,finishPoints:0,penalties:0,totalPoints:0,bestFinish:100};v.matches++;v.wwcd+=Number(r.placement===1);v.finishes+=r.finishes;v.placementPoints+=r.placementPoints;v.finishPoints+=r.finishPoints;v.penalties+=r.penalties;v.totalPoints+=r.totalPoints;v.bestFinish=Math.min(v.bestFinish,r.placement);grouped.set(key,v);}
-  const all=[...grouped.values()]; const tournaments=new Set(all.map(r=>r.tournamentId));
-  return [...tournaments].flatMap(id=>all.filter(r=>r.tournamentId===id).sort((a,b)=>b.totalPoints-a.totalPoints||b.wwcd-a.wwcd||b.finishes-a.finishes||a.bestFinish-b.bestFinish||a.teamId.localeCompare(b.teamId)).map((r,i)=>({...r,placement:i+1})));
-}
+export { rankPublishedResults as rankResults } from '../../src/utils/scoring';
 
 export function countChampionships(teamId:string,standings:TeamTournamentResult[],tournaments:Tournament[]) { return standings.filter(r=>r.teamId===teamId&&r.placement===1&&tournaments.some(t=>t.id===r.tournamentId&&t.status==='completed')).length; }
