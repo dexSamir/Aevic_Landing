@@ -16,8 +16,7 @@ import {randomToken,pkceChallenge,exchangeGoogleCode} from './google-provider';
 import {googleCookie,googleBrowser,clearGoogle,continuation} from './google-continuation';
 import {selectWorkspace} from '../platform/workspace';
 import type {Actor} from '../platform/repository';
-import {authorizedAuthReturn} from '../../src/utils/authReturn';
-import {saveGoogleReturn,readGoogleReturn,clearGoogleReturn} from './google-return';
+import {saveGoogleReturn,clearGoogleReturn} from './google-return';
 const app=new Hono<Env>();
 app.get('/auth/google/status',c=>c.json({enabled:Boolean(c.get('config').google)}));
 app.post('/auth/google/start',async c=>{
@@ -113,7 +112,7 @@ async function completeGoogle(c:ApiContext,browser:string,input:{password?:strin
   await tx`update aevic_platform.google_flows set phase='consumed' where token_digest=${flow.token_digest}`;
   const identity:Actor={accountId:row.id};
   await selectWorkspace(tx,identity,getCookie(c,'aevic-workspace'));
-  const redirectTo=authorizedAuthReturn(readGoogleReturn(c),Boolean(identity.teamId));
+  const redirectTo='/';
   if(tokensEnabled(c))return {redirectTo,issued:await issueTokens(c,tx,{accountId:row.id},row.password_hash,input.remember,verified)};
   const cookie=makeSession(row.id,row.password_hash,config.sessionSecret??'',input.remember?30*86400:8*3600);
   await tx`insert into aevic_platform.sessions(token_digest,team_id,expires_at,device,mfa_verified_at) values(${tokenDigest(cookie)},${row.id},to_timestamp(${Number(cookie.split('.')[1])}),${(c.req.header('user-agent')??'Browser').slice(0,300)},case when ${verified} then clock_timestamp() else null end)`;

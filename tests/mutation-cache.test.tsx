@@ -27,3 +27,11 @@ it('team edits refresh only competition projections containing that team',async(
  render(<Tables/>);await screen.findByText('affected unrelated');act(()=>invalidateMutation('/teams/16'));
  await waitFor(()=>expect(first).toHaveBeenCalledTimes(2));expect(second).toHaveBeenCalledTimes(1);
 });
+it('MFA enrollment and password change preserve the mounted session guard and refresh account data only',async()=>{
+ const session=vi.fn(async()=>'verified'),account=vi.fn(async()=>'account');
+ function Security(){const s=usePlatformQuery({key:'session:guard',query:session});const a=usePlatformQuery({key:'account:security',query:account});return <p>{s.data} {a.data}</p>;}
+ render(<Security/>);await screen.findByText('verified account');
+ for(const path of ['/me/2fa/setup','/me/2fa/setup/verification','/me/2fa/recovery-codes','/me/account/password']){
+  const before=account.mock.calls.length;act(()=>invalidateMutation(path));await waitFor(()=>expect(account).toHaveBeenCalledTimes(before+1));expect(session).toHaveBeenCalledTimes(1);
+ }
+});

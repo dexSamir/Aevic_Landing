@@ -50,4 +50,4 @@ export function competitionNow() { return new Date(); }
 const submitRegistration=services.registration.submit;
 services.registration.submit=async(...args)=>{const receipt=await submitRegistration(...args);await services.auth.getSession().catch(()=>null);channel?.postMessage('changed');notifyIdentity();return receipt;};
 const changePassword=services.account.changePassword;
-services.account.changePassword=async(...args)=>{await changePassword(...args);identityRevision++;synchronizeSessionCache(null);clearQueryCache();channel?.postMessage('changed');notifyIdentity();};
+services.account.changePassword=async(...args)=>{await changePassword(...args);identityRevision++;channel?.postMessage('changed');};

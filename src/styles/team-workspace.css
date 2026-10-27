@@ -269,7 +269,7 @@
 .product-shell--team :is(.field--error .field__message,.field__error) { color:#ffb4b4; }
 .product-shell--team .field--success .field__message { color:#a3dbbd; }
 .product-shell--team .field__message { color:var(--team-text-muted); line-height:1.5; }
-.product-shell--team :is(input,select,textarea):disabled { opacity:.6; cursor:not-allowed; }
+.product-shell--team :is(input:not([type='checkbox']):not([type='radio']),select,textarea):disabled { opacity:.6; cursor:not-allowed; }
 .product-shell--team .button { white-space:normal; min-width:0; text-align:center; }
 .product-shell--team .button > svg { flex-shrink:0; }
 .product-shell--team .button--primary { background:var(--color-brand-primary); border-color:transparent; color:#16140d; }

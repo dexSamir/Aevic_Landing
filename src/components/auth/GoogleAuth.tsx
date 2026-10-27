@@ -18,14 +18,16 @@ export function GoogleAuth({registration=false}:{registration?:boolean}){
   if(!registration&&query.get('google')==='continue')googleContinuation().then(r=>{if(active)setPending(r);}).catch(()=>{if(active)setError('Google təsdiqinin müddəti bitib. Yenidən başlayın.');});
   return()=>{active=false;};
  },[registration]);
+ useEffect(() => { const restored = () => setBusy(false); window.addEventListener('pageshow', restored); return () => window.removeEventListener('pageshow', restored); }, []);
  const start=async()=>{
+  if (busy) return;
   setBusy(true);setError('');
   try{const result=await sessionTransport(root).request<{url:string}>('/auth/google/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({returnTo:safeAuthReturn(new URLSearchParams(window.location.search).get('returnTo'))})});navigateGoogleOAuth(result.url);}
   catch{setError('Google girişi hazırda əlçatan deyil. Yenidən cəhd edin.');setBusy(false);}
  };
  const complete=async()=>{
   setBusy(true);setError('');
-  try{const result=await sessionTransport(root).request<{redirectTo:string}>('/auth/google/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pending?.mode==='link'?password:undefined,otp:otp||undefined})});window.location.assign(safeAuthReturn(result.redirectTo)??'/account');}
+  try{const result=await sessionTransport(root).request<{redirectTo:string}>('/auth/google/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pending?.mode==='link'?password:undefined,otp:otp||undefined})});window.location.replace(result.redirectTo === '/' ? '/' : safeAuthReturn(result.redirectTo) ?? '/');}
   catch(e){if(e instanceof ApiError&&['MFA_REQUIRED','MFA_INVALID'].includes(e.code)){setNeedsOtp(true);setError('Doğrulama və ya bərpa kodunu daxil edin.');}else setError('Giriş tamamlanmadı. Şifrəni yoxlayın və ya Google təsdiqini yenidən başladın.');setBusy(false);}
  };
  if(!enabled&&!error&&!pending)return null;

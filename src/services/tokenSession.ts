@@ -32,7 +32,8 @@ export function createTokenTransport(root:string){
   if(['/auth/login','/auth/admin/login','/auth/google/complete','/registrations'].includes(path))generation++;
   receive(result);
   if(['/auth/login','/auth/admin/login','/auth/google/complete','/registrations'].includes(path))channel?.postMessage('identity-changed');
-  if(path==='/auth/logout'||path==='/me/account/password'||path==='/auth/password-reset/confirm'){clear();channel?.postMessage('identity-changed');}
+  if(path==='/auth/logout'||path==='/auth/password-reset/confirm'){clear();channel?.postMessage('identity-changed');}
+  if(path==='/me/account/password')channel?.postMessage('identity-changed');
   return result;
  }
  return {request,dispose:()=>channel?.close()};

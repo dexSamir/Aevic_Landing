@@ -22,6 +22,7 @@
     "src/config/publicSocial.ts",
     "src/utils/lifecycle.ts",
     "src/utils/outboundUrl.ts",
-    "src/utils/authReturn.ts"
+    "src/utils/authReturn.ts",
+    "src/utils/passwordStrength.ts"
   ]
 }

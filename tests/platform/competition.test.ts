@@ -281,7 +281,7 @@ describe('original-team competition persistence',()=>{
   const download=await app.request(`/me/data-export/${exported.id}/download`);expect(download.status).toBe(200);const content=await download.text();expect(content).not.toMatch(/password_hash|token_digest|reset_digest|foreign-captain/);expect(JSON.parse(content).profile.user.email).toBe('admin@example.invalid');
   const deletion=await (await app.request('/me/deletion',{method:'POST'})).json();expect(deletion.blocked).toBe(true);
   const changed=await app.request('/me/account/password',{method:'PUT',headers:{...headers,'content-type':'application/json'},body:JSON.stringify({currentPassword:'IsolatedNewPassword42',newPassword:'ChangedAdminPassword42'})});expect(changed.status).toBe(204);
-  const active=await sql`select id from aevic_platform.sessions where admin_id=${actor.adminId} and revoked_at is null`;expect(active).toHaveLength(0);
+  const active=await sql`select id from aevic_platform.sessions where admin_id=${actor.adminId} and revoked_at is null`;expect(active).toHaveLength(1);
   const [untouched]=await sql`select revoked_at from aevic_platform.sessions where id=${foreign.id}`;expect(untouched.revoked_at).toBeNull();
  });
  it('enrolls MFA and consumes recovery codes once while revoking other sessions',async()=>{
@@ -594,7 +594,7 @@ it('rotates memory-access session families, serializes refresh and detects delay
  expect((await call('/me/account',undefined,'',restored.accessToken)).status).toBe(401);
  const final=await call('/auth/login',{email:'tokens@example.invalid',password});const last=await final.json();
  expect((await call('/me/account/password',{currentPassword:password,newPassword:'TokenChangedPassword42'},'',last.accessToken,'PUT')).status).toBe(204);
- expect((await call('/me/account',undefined,'',last.accessToken)).status).toBe(401);
+ expect((await call('/me/account',undefined,'',last.accessToken)).status).toBe(200);
 });
 
 it('persists immutable Cloudinary artwork across fresh repository reads and preserves references on failure',async()=>{

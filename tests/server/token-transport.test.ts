@@ -59,3 +59,16 @@ it('omits cookies and bearer tokens on anonymous public reads without affecting 
  expect(fetcher.mock.calls.filter(([url])=>url.endsWith('/auth/refresh'))).toHaveLength(1);
  transport.dispose();
 });
+it('keeps the current in-memory token after an authenticated password change',async()=>{
+ let refreshes=0;
+ vi.stubGlobal('fetch',vi.fn(async(url:string,options:RequestInit)=>{
+  if(url.endsWith('/auth/refresh')){refreshes++;return Response.json(envelope());}
+  if(url.endsWith('/me/account/password'))return new Response(null,{status:204});
+  return Response.json({authorization:new Headers(options.headers).get('authorization')});
+ }));
+ const transport=createTokenTransport('/api');
+ await transport.request('/me/account');
+ await transport.request('/me/account/password',{method:'PUT'});
+ expect(await transport.request('/me/account')).toEqual({authorization:'Bearer fixture-memory-token'});
+ expect(refreshes).toBe(1);transport.dispose();
+});

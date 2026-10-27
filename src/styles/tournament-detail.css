@@ -151,3 +151,18 @@
  .tournament-scoring-cards { grid-template-columns: minmax(0,1fr); gap: 12px; }
  .tournament-scoring-cards > article { padding: 20px; }
 }
+
+/* Keep the result action alongside its title; wrap deliberately on tiny phones. */
+.tournament-destination .tournament-results > .section-heading { display:flex; flex-direction:row; align-items:center; flex-wrap:nowrap; }
+.tournament-destination .tournament-results > .section-heading > div { min-width:0; }
+.tournament-destination .tournament-results > .section-heading .button { flex-shrink:0; }
+@media(max-width:640px) {
+ .tournament-destination .tournament-results > .section-heading { gap:12px; }
+ .tournament-destination .tournament-results > .section-heading h2 { font-size:20px; }
+ .tournament-destination .tournament-results > .section-heading p { font-size:12px; }
+ .tournament-destination .tournament-results > .section-heading .button { padding:10px; min-height:44px; font-size:12px; gap:6px; white-space:normal; max-width:122px; }
+}
+@media(max-width:359px) {
+ .tournament-destination .tournament-results > .section-heading { flex-wrap:wrap; }
+ .tournament-destination .tournament-results > .section-heading .button { margin-left:auto; max-width:none; }
+}

@@ -33,7 +33,7 @@ async function lockCredential(tx:TransactionSql,a:Actor,expected:string){
 const app=new Hono<Env>(),limit=createAttemptLimiter();
 const currentDigest=(c:ApiContext)=>currentSessionDigest(c);
 const master=(c:ApiContext)=>c.get('config').sessionSecret??'';
-app.get('/me/2fa',async c=>{const key=actorKey(actor(c)),[f]=await platform(c).sql`select enabled_at,cardinality(recovery_digests) as remaining from aevic_platform.mfa_factors where actor_key=${key}`;return c.json({enabled:Boolean(f?.enabled_at),required:false,setupAvailable:true,backupCodesRemaining:f?.remaining??0});});
+app.get('/me/2fa',async c=>{const key=actorKey(actor(c)),[f]=await platform(c).sql`select enabled_at,cardinality(recovery_digests) as remaining from aevic_platform.mfa_factors where actor_key=${key}`;return c.json({enabled:Boolean(f?.enabled_at),required:false,setupAvailable:master(c).length>=32,backupCodesRemaining:f?.remaining??0});});
 app.post('/me/2fa/setup',async c=>{
  const a=actor(c),key=actorKey(a),sql=platform(c).sql;limit('mfa-setup',key,3);await persistentLimit(c,sql,'mfa-setup',key,3);
  const input=await body(c,z.object({password:z.string().min(1).max(128)}).strict());

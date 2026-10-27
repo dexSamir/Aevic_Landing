@@ -30,9 +30,9 @@
 .results-download-options > button[aria-checked='true'] strong { color:var(--gold-primary); }
 @media (max-width: 800px) {
   .results-download-options { gap: 8px; }
-  .results-download-options > button { padding: 8px; gap: 6px; align-content: center; }
+  .results-download-options > button { padding: 12px 8px; gap: 12px; align-content: center; }
   .results-download-options strong { font-size: 12px; line-height: 1.25; }
-  .results-download-preview { height: 24px; aspect-ratio: auto; padding: 3px 8px; gap: 2px; border-radius: 4px; }
+  .results-download-preview { height: auto; min-height: 52px; aspect-ratio: 2.2; padding: 8px; gap: 3px; border-radius: 4px; }
   .results-download-preview i { min-height: 2px; border-radius: 1px; }
   .results-download-preview .preview-heading { margin-bottom: 0; }
   .results-download-preview .preview-logo { width: 6px; flex: 0 0 6px; }
@@ -45,7 +45,7 @@
 @media (max-width: 800px) {
   .modal:has(.results-download-options) > header { position: sticky; top: 0; z-index: 3; background: var(--color-bg-elevated); padding: 24px 20px 20px; }
   .modal:has(.results-download-options) .modal__body { padding: 20px 20px 36px; }
-  .results-download-options > button { min-height: 72px; }
+  .results-download-options > button { min-height: 124px; }
   .results-download-help { margin-block: 20px 30px; font-size: 13px; line-height: 1.6; }
   .modal:has(.results-download-options) .studio-actions .button { min-height: 48px; }
 }

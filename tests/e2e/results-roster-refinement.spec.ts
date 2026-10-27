@@ -10,6 +10,8 @@ test('desktop and touch roster states preserve navigation without hover requests
   const card = page.locator('.tournament-detail-teams .roster-team-card').first();
   await expect(card).toBeVisible();
   await expect(card.locator('.roster-team-card__players')).toBeHidden();
+  // Measure hover-triggered requests after the initial identity/results reads settle.
+  await page.waitForLoadState('networkidle');
   let requests = 0;
   page.on('request', request => { if (request.url().includes('/api/')) requests++; });
   await card.hover();

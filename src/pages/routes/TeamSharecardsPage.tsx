@@ -14,6 +14,7 @@ PageHeader
 import { CareerNav,TeamWrappedEntry } from '../../components/team/TeamCareerNav';
 import { useTeamCompetitionContexts,useTeamPlatformData } from '../../services/PlatformDataContext';
 import type { TeamProfileCardData } from '../../types/domain';
+import { summarizeMapPerformance } from '../../utils/competitionAnalytics';
 import { publicTeamUrl } from '../../utils/publicUrl';
 import { deriveTournamentResultBreakdown } from '../../utils/resultBreakdown';
 import { LazyProfileCardGenerator,LazySharecardGenerator } from './TeamPagesShared';
@@ -29,7 +30,7 @@ export function TeamSharecardsPage() {
   const provenance = result?.stage && result.occurredAt ? { tournamentId: result.tournamentId, occurredAt: result.occurredAt, stageLabel: result.stage === 'final' ? 'Final sıralaması' : result.stage, sourceLabel: 'Dərc edilmiş nəticə' } : null;
   const standings = leaderboard.filter((row) => row.tournamentId === resultTournament?.id).sort((a, b) => a.placement - b.placement).map((row) => ({ tournamentId: row.tournamentId, teamId: row.teamId, rank: row.placement, team: teams.find((team) => team.id === row.teamId)?.name ?? 'Komanda adı yoxdur', wwcd: row.wwcd, placementPoints: row.placementPoints, killPoints: row.finishPoints, totalPoints: row.totalPoints }));
   const metric = (key: string) => careerSummary.metrics.find((item) => item.key === key)?.value;
-  const identityData: TeamProfileCardData = { teamId: currentTeam.id, teamName: currentTeam.name, teamLogo: currentTeam.logoUrl, teamTag: currentTeam.tag, country: currentTeam.country, profileUrl: publicTeamUrl(currentTeam.slug ?? currentTeam.id), matches: metric('matches'), finishes: metric('finishes'), wwcd: metric('wwcd'), championships: metric('championships'), podiums: metric('podiums'), roster: currentTeam.roster.map(({ ign, role }) => ({ ign, role })), sourceLabel: currentTeam.legacyHistoryIncomplete ? 'Recorded official results · Earlier history may be incomplete' : 'Published official results' };
+  const identityData: TeamProfileCardData = { teamId: currentTeam.id, teamName: currentTeam.name, teamLogo: currentTeam.logoUrl, teamTag: currentTeam.tag, country: currentTeam.country, profileUrl: publicTeamUrl(currentTeam.slug ?? currentTeam.id), matches: metric('matches'), finishes: metric('finishes'), wwcd: metric('wwcd'), championships: metric('championships'), podiums: metric('podiums'), mapStats: summarizeMapPerformance(currentTeam.id, matchHistory).metrics, recentMatches: [...matchHistory].sort((a,b) => Date.parse(b.playedAt) - Date.parse(a.playedAt)).slice(0,5), roster: currentTeam.roster.map(({ ign, role }) => ({ ign, role })), sourceLabel: currentTeam.legacyHistoryIncomplete ? 'Recorded official results · Earlier history may be incomplete' : 'Published official results' };
   const assetTypes = [
     { id: 'identity' as const, label: 'Komanda kimliyi', description: 'Daimi profil aktivi', icon: ShieldCheck },
     { id: 'result' as const, label: 'Turnir nəticəsi', description: 'Dərc edilmiş yekun', icon: Trophy },

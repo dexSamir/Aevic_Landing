@@ -94,7 +94,7 @@ export function PasswordInput(props: InputHTMLAttributes<HTMLInputElement> & Fie
       <span className={`password-field__control input-control ${leadingIcon ? "input-control--icon" : ""}`}>
         {leadingIcon && <span className="input-control__icon">{leadingIcon}</span>}
         <input {...inputProps} id={id} aria-invalid={Boolean(error)} aria-describedby={(error || hint || success) ? descriptionId : undefined} type={visible ? 'text' : 'password'} />
-        <IconButton type="button" className="password-field__toggle" label={visible ? 'Şifrəni gizlət' : 'Şifrəni göstər'} onClick={() => setVisible((value) => !value)}>
+        <IconButton type="button" className="password-field__toggle" aria-pressed={visible} onMouseDown={event => event.preventDefault()} label={visible ? 'Şifrəni gizlət' : 'Şifrəni göstər'} onClick={() => setVisible((value) => !value)}>
           {visible ? <EyeOff size={18} /> : <Eye size={18} />}
         </IconButton>
       </span>

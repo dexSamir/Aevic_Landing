@@ -1,3 +1,4 @@
+import { passwordFeedback } from '../../src/utils/passwordStrength';
 import {persistentLimit} from '../auth/persistent-limit';
 import {issueTokens,saveTokens,tokensEnabled,clearTokenCookies,tokenMode} from '../auth/platform-tokens';
 import {makeSession} from '../captain/crypto';
@@ -108,7 +109,7 @@ export function captainRoutes(deps:CaptainDependencies={}) {
   const updated=await auth.update(cookie(c),row.id,{captain_name:`${input.firstName} ${input.lastName}`,captain_contact:input.phone});return c.json({user:privateTeam(updated).captain,emailVerified:false,dataExportStatus:'backend-required'});
  });
  app.put('/me/account/password',async c=>{
-  attempt(c,'password');const input=await body(c,z.object({currentPassword:z.string().min(1).max(128),newPassword:password}).strict());await service(c).changePassword(cookie(c),input.currentPassword,input.newPassword);clear(c);return c.body(null,204);
+  attempt(c,'password');const input=await body(c,z.object({currentPassword:z.string().min(1).max(128),newPassword:password.refine(value => passwordFeedback(value).valid)}).strict());const fresh=await service(c).changePassword(cookie(c),input.currentPassword,input.newPassword);save(c,fresh,false);return c.body(null,204);
  });
  app.get('/media/:id',async c=>{
   const id=z.uuid().parse(c.req.param('id'));const reference=await store(c).publicMedia(id);if(!reference)throw new ServiceError(404,'MEDIA_NOT_FOUND');

@@ -50,7 +50,7 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
     // stays independent of display options.
     try {
       if (!canvasRef.current) return;
-      if (previewRef.current) drawTeamIdentityCard(previewRef.current, data, format, assets ?? {}, options, true);
+      if (previewRef.current) drawTeamIdentityCard(previewRef.current, data, format, assets ?? {}, options);
       if (!assets) return;
       drawTeamIdentityCard(canvasRef.current, data, format, assets, options);
       setRendered(version); setError('');
@@ -62,7 +62,7 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
     exportLock.current = true;
     setExporting(true);
     try {
-      // The hidden canvas contains real public data; the visible skeleton describes its sections.
+      // The preview and export use the same public data and composition.
       const blob = await teamIdentityCardBlob(canvasRef.current);
       const name = data.teamName.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '') || 'team';
       const url = URL.createObjectURL(blob), link = document.createElement('a');
@@ -73,7 +73,7 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
   };
   return <div className="team-share-studio">
     <canvas ref={canvasRef} hidden aria-hidden="true" />
-    <div className="team-share-preview" data-format={format} role="img" aria-label={`${data.teamName}: kartın sxematik önizləməsi. PNG-də həqiqi ictimai məlumatlar göstərilir.`}>
+    <div className="team-share-preview" data-format={format} role="img" aria-label={`${data.teamName}: kartın önizləməsi. PNG eyni məlumatları ehtiva edir.`}>
       <canvas ref={previewRef} className="identity-skeleton" style={{ aspectRatio: `${teamIdentityCardSizes[format].width} / ${teamIdentityCardSizes[format].height}`, '--card-ratio': teamIdentityCardSizes[format].width / teamIdentityCardSizes[format].height } as React.CSSProperties} aria-hidden="true" />
     </div>
     <aside className="team-share-controls">

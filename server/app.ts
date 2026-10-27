@@ -1,3 +1,4 @@
+import passwordChangeRoutes from './platform/password-change';
 import googleRoutes from './auth/google-routes';
 import tokenRoutes from './auth/token-routes';
 import type { ServerConfig } from './config';
@@ -46,6 +47,7 @@ export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process
   app.route('/',playerRoutes);
   app.route('/',organizationRoutes);
   app.route('/',registrationRoutes);
+  app.route('/',passwordChangeRoutes);
   app.route('/',adminAccountRoutes);
   app.route('/',mfaRoutes);
   app.route('/',communityRoutes);

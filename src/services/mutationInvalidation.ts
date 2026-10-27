@@ -3,6 +3,9 @@ import { clearQueryCache, invalidateQuery, invalidateTeamProfile, invalidateTeam
 /** Mutation families correspond to public projections; private snapshots remain isolated. */
 export function mutationResources(path: string): string[] {
   if (/^\/auth\//.test(path)) return [];
+  // These endpoints preserve the verified current session. Rechecking the guard
+  // unmounts enrollment and discards its one-time QR/recovery state.
+  if (path === '/me/account/password' || /^\/me\/2fa(?:\/|$)/.test(path)) return ['account:'];
   if (/\/(support|notifications|following|follows|favorites)(\/|$)/.test(path)) return [path.includes('support') ? 'support:' : 'following:'];
   if (/^\/me\/(account|sessions|2fa|data-export|deletion)(\/|$)/.test(path)) return ['account:', 'session:'];
   const tournament = path.match(/^\/(?:admin\/)?tournaments\/([^/]+)/)?.[1];
@@ -18,7 +21,7 @@ export function invalidateMutation(path: string) {
   const teamId = path.match(/^\/(?:admin\/)?teams\/([^/]+)/)?.[1];
   if (teamId) { invalidateTeamProfile(decodeURIComponent(teamId)); invalidateTeamDependents(decodeURIComponent(teamId)); for (const prefix of ['tournament:', 'wrapped:', 'organization:']) invalidateQuery(prefix, 'private'); }
   for (const prefix of mutationResources(path)) invalidateQuery(prefix);
-  if (!/^\/auth\//.test(path)) {
+  if (!/^\/auth\//.test(path) && path !== '/me/account/password' && !/^\/me\/2fa(?:\/|$)/.test(path)) {
     invalidateQuery('snapshot:team', 'private');
     invalidateQuery('snapshot:admin', 'private');
   }

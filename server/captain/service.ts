@@ -71,7 +71,9 @@ export class CaptainService {
  async changePassword(cookie:string|undefined,current:string,next:string) {
   const row=await this.authenticate(cookie);
   if(!await verifyPassword(current,row.password_hash))throw new ServiceError(401,'LOGIN_FAILED_RESET_AVAILABLE');
-  if(!await this.store.changeHash(row.id,row.password_hash,await hashPassword(next)))throw new ServiceError(401,'UNAUTHORIZED');
+  const hash=await hashPassword(next);
+  if(!await this.store.changeHash(row.id,row.password_hash,hash))throw new ServiceError(401,'UNAUTHORIZED');
+  return this.sessionCookie({...row,password_hash:hash});
  }
  async register(values:TeamPatch,password:string) {
   await this.ready();return this.store.register({...values,password_hash:await hashPassword(password),status:'pending',tier:'entry'});

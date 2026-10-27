@@ -23,7 +23,7 @@ function QueryBoundary<T>({ query, children }: { query: { data?: T; loading: boo
 
 export function PublicPlatformProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
-  const query = usePlatformQuery({ key: 'snapshot:public', scope: 'public', query: (signal) => services.snapshots.public(signal), staleTime: queryPolicy.publicCompetition, maxDataAge: 5 * 60_000, retry: 2, refetchOnFocus:true });
+  const query = usePlatformQuery({ key: 'snapshot:public', scope: 'public', query: (signal) => services.snapshots.public(signal), staleTime: /^\/(teams|organizations)(\/|$)/.test(pathname) ? queryPolicy.publicDirectory : queryPolicy.publicCompetition, maxDataAge: 5 * 60_000, retry: 2, refetchOnFocus:true });
   return <QueryBoundary query={query}>{(value) => <PublicContext.Provider value={value}>{value.unavailable && /^\/(tournaments|leaderboard|matches|archive|records|organizations)(\/|$)|^\/teams\/compare$/.test(pathname) ? <div className="page-section container"><EmptyState heading="h1" title="Yarış məlumatları hələ əlçatan deyil" body="Komanda profilləri əlçatandır. Turnir, matç və sıralama məlumatlarının bağlantısı hələ tamamlanmayıb." /></div> : <>{children}{value.unavailable && <p role="status" className="container public-team-note">Komanda məlumatları mövcud bazadan göstərilir. Yarış məlumatlarının bağlantısı hələ tamamlanmayıb.</p>}</>}</PublicContext.Provider>}</QueryBoundary>;
 }
 

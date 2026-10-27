@@ -401,3 +401,9 @@
   .settings-subnav { flex-wrap: wrap; overflow: visible; }
   .settings-subnav > a { white-space: normal; }
 }
+
+.password-strength { color:var(--color-text-muted); font-size:.85rem; line-height:1.6; }
+.password-strength meter { width:100%; height:8px; accent-color:var(--color-brand-primary); }
+.password-strength ul { padding-left:0; list-style:none; }
+.two-factor-setup img { max-width:100%; height:auto; }
+.recovery-codes code { white-space:pre-wrap; overflow-wrap:anywhere; }

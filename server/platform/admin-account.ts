@@ -1,9 +1,10 @@
+import { passwordFeedback } from '../../src/utils/passwordStrength';
+import { digest } from '../captain/crypto';
 import {currentSessionDigest} from './context';
 import {Hono} from 'hono';
-import {getCookie,deleteCookie} from 'hono/cookie';
 import {z} from 'zod';
 import type {Env,ApiContext} from '../types';
-import {platform,adminCookieName,tokenDigest,actor} from './context';
+import {platform,actor} from './context';
 import {body,text} from '../validation/input';
 import {hashPassword,verifyPassword} from '../captain/crypto';
 import {createAttemptLimiter} from '../captain/limit';
@@ -19,12 +20,12 @@ app.patch('/me/account',async(c,next)=>{
 });
 app.put('/me/account/password',async(c,next)=>{
  const id=adminId(c);if(!id)return next();limit('admin-password',id,5);
- const input=await body(c,z.object({currentPassword:z.string().min(1).max(128),newPassword:z.string().min(8).max(128).regex(/[A-ZƏÖÜĞÇŞİ]/).regex(/[0-9]/)}).strict());
+ const input=await body(c,z.object({currentPassword:z.string().min(1).max(128),newPassword:z.string().refine(value => passwordFeedback(value).valid)}).strict());
  const sql=platform(c).sql,[row]=await sql`select password_hash from aevic_platform.admin_accounts where id=${id} and active`;
  if(!row||!await verifyPassword(input.currentPassword,row.password_hash))throw new ServiceError(401,'PASSWORD_CHANGE_FAILED');
  const hash=await hashPassword(input.newPassword);
- await transaction(sql,async tx=>{const updated=await tx`update aevic_platform.admin_accounts set password_hash=${hash},reset_digest=null,reset_expires_at=null where id=${id} and active and password_hash=${row.password_hash} returning id`;if(!updated.length)throw new ServiceError(409,'ACCOUNT_CHANGED');await tx`update aevic_platform.sessions set revoked_at=now() where admin_id=${id} and revoked_at is null`;await audit(tx,actor(c),'admin.password-change','admin',id);});
- deleteCookie(c,adminCookieName(c),{path:'/',secure:c.get('config').secureCookies});return c.body(null,204);
+ await transaction(sql,async tx=>{const updated=await tx`update aevic_platform.admin_accounts set password_hash=${hash},reset_digest=null,reset_expires_at=null where id=${id} and active and password_hash=${row.password_hash} returning id`;if(!updated.length)throw new ServiceError(409,'ACCOUNT_CHANGED');await tx`update aevic_platform.sessions set revoked_at=now() where admin_id=${id} and token_digest<>${currentSessionDigest(c)} and revoked_at is null`;await tx`update aevic_platform.sessions set credential_digest=${digest(c.get('config').sessionSecret??'','credential-v2',hash)} where admin_id=${id} and token_digest=${currentSessionDigest(c)} and revoked_at is null`;await audit(tx,actor(c),'admin.password-change','admin',id);});
+ return c.body(null,204);
 });
 app.get('/me/sessions',async(c,next)=>{
  const id=adminId(c);if(!id)return next();const current=currentSessionDigest(c);

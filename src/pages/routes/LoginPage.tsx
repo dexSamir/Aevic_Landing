@@ -24,7 +24,7 @@ export function LoginPage({ admin = false }: { admin?: boolean }) {
     setError('');
     if (!serviceCapabilities.login) { setError('Admin girişi hazırda əlçatan deyil.'); setUnavailableAttempted(true); return; }
     setLoading(true);
-    try { const session = await services.auth.login(email, password, remember, admin,otp||undefined); navigate(admin ? '/admin' : session.role === 'visitor' ? '/account/legacy-claim' : '/team'); }
+    try { await services.auth.login(email, password, remember, admin,otp||undefined); navigate(admin ? '/admin' : '/', { replace: true }); }
     catch (nextError) {
       if(nextError instanceof ApiError&&['MFA_REQUIRED','MFA_INVALID'].includes(nextError.code)){setNeedsOtp(true);setError('Doğrulama tətbiqindəki kodu və ya birdəfəlik bərpa kodunu daxil edin.');}
       else if (nextError instanceof ApiError && nextError.code === 'ACCOUNT_LOCKED') setError('Hesab müvəqqəti kilidlənib. Dəstək xidməti ilə əlaqə saxlayın.');
