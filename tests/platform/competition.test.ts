@@ -1,3 +1,4 @@
+import nodemailer from 'nodemailer';
 import communityRoutes from '../../server/platform/community';
 import publicRoutes from '../../server/routes/public';
 import platformRoutes from '../../server/platform/routes';
@@ -116,7 +117,7 @@ describe('original-team competition persistence',()=>{
 
  it('guards admin permissions and applies bulk review atomically without sending real mail',async()=>{
   const deliveries:string[]=[];
-  const appFor=(identity:Actor)=>{const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,identity));c.set('config',{supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'isolated',siteUrl:'http://localhost',secureCookies:false,emailFrom:'test@example.invalid',resendKey:'not-a-real-key'});await next();});app.route('/',adminManagementRoutes(async(_sql,_config,id)=>{deliveries.push(id);}));app.onError((e,c)=>c.json({code:e instanceof ServiceError?e.code:'ERROR'},e instanceof ServiceError?e.status:500));return app;};
+  const appFor=(identity:Actor)=>{const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,identity));c.set('config',{supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'isolated',siteUrl:'http://localhost',secureCookies:false,emailFrom:'test@example.invalid',smtp:{host:'smtp.example.invalid',port:587,user:'fixture',pass:'fixture'}});await next();});app.route('/',adminManagementRoutes(async(_sql,_config,id)=>{deliveries.push(id);}));app.onError((e,c)=>c.json({code:e instanceof ServiceError?e.code:'ERROR'},e instanceof ServiceError?e.status:500));return app;};
   const staff=appFor(actor),captain=appFor({teamId:'1'}),limited=appFor({adminId:actor.adminId,role:'result-operator'}),write=(body:unknown,method='POST')=>({method,headers:{'content-type':'application/json'},body:JSON.stringify(body)});
   const invitation={email:'invited-admin@example.invalid',firstName:'Invited',lastName:'Admin',role:'support-moderator'};
   expect((await captain.request('/admin/users',write(invitation))).status).toBe(403);expect((await limited.request('/admin/users',write(invitation))).status).toBe(403);
@@ -548,22 +549,22 @@ it('consumes email tokens once and classifies expired and invalid tokens in SQL'
 it('registration sends a digest-backed expiring link through an isolated mail transport', async () => {
   await sql`update aevic_platform.settings set value=jsonb_set(value,'{registrationEnabled}','true') where key='platform'`;
   const app=new Hono<Env>();
-  app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,{}));c.set('config',{supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'fixture',siteUrl:'https://fixture.test',secureCookies:true,sessionSecret:'isolated-registration-delivery-secret-00000',emailFrom:'fixture@example.invalid',resendKey:'fixture'});await next();});
+  app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,{}));c.set('config',{supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'fixture',siteUrl:'https://fixture.test',secureCookies:true,sessionSecret:'isolated-registration-delivery-secret-00000',emailFrom:'fixture@example.invalid',smtp:{host:'smtp.example.invalid',port:587,user:'fixture',pass:'fixture'}});await next();});
   app.route('/',registrationRoutes);
-  const mail=vi.fn(async(url:unknown,init?:RequestInit)=>{expect(url).toBe('https://api.resend.com/emails');return Response.json({id:'isolated-mail'});});
-  vi.stubGlobal('fetch',mail);
+  const mail=vi.fn(async(message: {text:string})=>({accepted:['delivery@example.invalid']}));
+  const transport=vi.spyOn(nodemailer,'createTransport').mockReturnValue({sendMail:mail,close:vi.fn()} as unknown as ReturnType<typeof nodemailer.createTransport>);
   try {
     const input={idempotencyKey:'registration-delivery-fixture',password:'RegistrationFixture42',draft:{teamName:'Delivery Fixture',tag:'MAIL',firstName:'Fixture',lastName:'Captain',phone:'0000000',email:'delivery@example.invalid',players:[{ign:'One',uid:'910000001',role:'captain'},{ign:'Two',uid:'910000002',role:'starter'},{ign:'Three',uid:'910000003',role:'starter'},{ign:'Four',uid:'910000004',role:'starter'},{ign:'',uid:'',role:'substitute'}]}};
     const result=await app.request('/registrations',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(input)});
     expect(result.status).toBe(201);expect(mail).toHaveBeenCalledTimes(1);
     const receipt=await result.json();
-    const message=JSON.parse(String(mail.mock.calls[0][1]!.body));
+    const message=mail.mock.calls[0][0];
     const token=/#token=([A-Za-z0-9_-]{43})/.exec(message.text)![1];
     const [stored]=await sql`select token_digest,expires_at,created_at from aevic_platform.email_verifications where team_id=${receipt.registrationId}`;
     expect(stored.token_digest).toBe(tokenDigest(token));expect(stored.token_digest).not.toBe(token);
     expect(new Date(stored.expires_at).getTime()-new Date(stored.created_at).getTime()).toBe(1800000);
     await expect(requireVerifiedEmail(sql,receipt.registrationId)).rejects.toMatchObject({code:'EMAIL_VERIFICATION_REQUIRED'});
-  } finally {vi.unstubAllGlobals();}
+  } finally {transport.mockRestore();}
 });
 
 it('rotates memory-access session families, serializes refresh and detects delayed reuse',async()=>{

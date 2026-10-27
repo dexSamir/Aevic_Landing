@@ -26,7 +26,7 @@ export function createTokenTransport(root:string){
   try{result=await send();}catch(error){
    if(error instanceof ApiError&&error.code==='ACCESS_EXPIRED'&&['GET','HEAD'].includes(method)&&protectedRequest){await refresh();try{result=await send();}catch(retry){if(retry instanceof ApiError&&nullStatuses.includes(retry.status))return undefined as T;throw retry;}}
    else {if(protectedRequest&&error instanceof ApiError&&error.code==='ACCESS_EXPIRED')expires=0;
-    if(protectedRequest&&error instanceof ApiError&&['SESSION_REVOKED','MFA_REQUIRED','UNAUTHORIZED'].includes(error.code)&&access){clear();negotiated=true;if(typeof window!=='undefined')window.dispatchEvent(new Event('aevic:session-change'));}
+    if(protectedRequest&&error instanceof ApiError&&['SESSION_REVOKED','MFA_REQUIRED','UNAUTHORIZED'].includes(error.code)&&(access || path !== '/me/session')){clear();negotiated=true;if(typeof window!=='undefined')window.dispatchEvent(new Event('aevic:session-change'));}
     if(error instanceof ApiError&&nullStatuses.includes(error.status))return undefined as T;throw error;}
   }
   if(['/auth/login','/auth/admin/login','/auth/google/complete','/registrations'].includes(path))generation++;

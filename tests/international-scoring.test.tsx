@@ -37,7 +37,7 @@ describe('international PUBG Mobile preset', () => {
  });
  it('covers A–N and derives rulebook scoring from the same preset', () => {
   expect(regulationSections).toHaveLength(14);
-  expect(regulationSections.map(s=>s.title[0]).join('')).toBe('ABCDEFGHIJKLMN');
-  expect(regulationSections[8].paragraphs.join(' ')).toContain('2-ci yer — 6');
+  expect(regulationSections.map(s=>s.letter).join('')).toBe('ABCDEFGHIJKLMN');
+  expect(regulationSections[8].subsections.map(s=>s.body).join(' ')).toContain('2-ci yer — 6');
  });
 });

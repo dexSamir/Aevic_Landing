@@ -22,7 +22,7 @@ import { InstallAevic,OfflineNotice } from '../components/pwa/PwaExperience';
 import { serviceCapabilities,services } from '../services';
 import { PublicPlatformProvider } from '../services/PublicPlatformDataContext';
 import '../styles/public-shell.css';
-import { PublicSessionProvider, usePublicSession } from '../services/PublicSessionContext';
+import { usePublicSession } from '../services/PublicSessionContext';
 import { activePublicRoute } from '../utils/routes';
 import { PublicFooter } from './PublicFooter';
 import { useFooterVisibility } from './useFooterVisibility';
@@ -168,7 +168,7 @@ export function PublicLayout() {
   const { pathname } = useLocation();
   const independentTeamProfile = /^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname);
   const needsData = !independentTeamProfile && (pathname === '/leaderboard' || ['/teams', '/tournaments', '/organizations'].some((root) => pathname === root || pathname.startsWith(root + '/')));
-  return <PublicSessionProvider><div className={`site-shell${pathname === '/tournaments' ? ' public-shell--wide' : ''}`}><RouteSeo /><OfflineNotice /><SkipLink target="main-content" /><PublicHeader /><main id="main-content" tabIndex={-1}>{settings?.maintenanceMessage&&<aside className="platform-announcement container" role="status">{settings.maintenanceMessage}</aside>}{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter registrationEnabled={settings?.registrationEnabled} showCta={pathname !== '/matches' && pathname !== '/tournaments' && pathname !== '/teams' && !/^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname)} /><PublicMobileBottomNav /></div></PublicSessionProvider>;
+  return <div className={`site-shell${pathname === '/tournaments' ? ' public-shell--wide' : ''}`}><RouteSeo /><OfflineNotice /><SkipLink target="main-content" /><PublicHeader /><main id="main-content" tabIndex={-1}>{settings?.maintenanceMessage&&<aside className="platform-announcement container" role="status">{settings.maintenanceMessage}</aside>}{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter registrationEnabled={settings?.registrationEnabled} showCta={pathname !== '/matches' && pathname !== '/tournaments' && pathname !== '/teams' && !/^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname)} /><PublicMobileBottomNav /></div>;
 }
 
 export function RouteError() {

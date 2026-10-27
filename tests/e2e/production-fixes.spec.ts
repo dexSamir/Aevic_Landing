@@ -21,7 +21,7 @@ test('responsive results, download options and rulebook at all requested sizes',
   await page.keyboard.press('Escape');
   await page.goto('/regulations');await expect(page.locator('.regulations-layout article > section')).toHaveCount(14);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth),`rules ${width}`).toBeLessThanOrEqual(1);
-  await page.locator('nav[aria-label="Reqlament bölmələri"] a').nth(8).click();await expect(page).toHaveURL(/#rule-9$/);
+  if(width<=900)await page.getByLabel('Bölməyə keç').selectOption('rule-9');else await page.locator('nav[aria-label="Reqlament bölmələri"] a').nth(8).click();await expect(page).toHaveURL(/#rule-9$/);
  }
 });
 test('match tabs and browser history preserve results viewport and page instance',async({page})=>{
@@ -48,7 +48,7 @@ test('guest slash routes and dedicated Google MFA stay below navigation at every
   await expect(page.getByLabel('E-poçt',{exact:true})).toBeHidden();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
   if(width===390||width===1440)await page.screenshot({path:`/tmp/aevic-mfa-${width}.png`});
-  const header=await page.locator('.site-header').boundingBox(), title=await page.locator('.auth-header').boundingBox();
+  const header=await page.locator('.site-header').boundingBox(), title=await page.locator('.mfa-challenge h2').boundingBox();
   expect(title!.y).toBeGreaterThanOrEqual(header!.y+header!.height-1);
   await code.fill('123456');await expect(code).toHaveValue('123456');
   await page.getByRole('button',{name:'Bərpa kodundan istifadə et'}).click();await expect(page.getByLabel('Bərpa kodu',{exact:true})).toBeVisible();

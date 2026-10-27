@@ -1,9 +1,4 @@
 /* Authoritative auth styles. Rules retain original cascade order within each owner. */
-.password-field__control { position: relative; display: block; }
-.password-field__control > input { padding-right: 3.35rem; }
-.password-field__toggle { position: absolute; top: 50%; right: 0.2rem; transform: translateY(-50%); }
-.password-field__toggle:active:not(:disabled) { transform: translateY(calc(-50% + 1px)) scale(var(--press-scale)); }
-.password-field__toggle:focus-visible { outline-offset: -2px; }
 .auth-shell__media .media-backdrop__shade { background: linear-gradient(90deg, rgba(6, 5, 9, 0.38), rgba(6, 5, 9, 0.76) 54%, rgba(6, 5, 9, 0.94)), linear-gradient(180deg, rgba(6, 5, 9, 0.32), rgba(6, 5, 9, 0.75)); }
 .auth-shell { position: relative; height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr); isolation: isolate; overflow: hidden; background: var(--color-bg-deep); }
 .auth-shell__artwork, .auth-shell__veil { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -885,14 +880,28 @@ html:has(.auth-identity)::-webkit-scrollbar, body:has(.auth-identity)::-webkit-s
 @keyframes session-spin { to { transform: rotate(360deg); } }
 .mfa-challenge { display: grid; gap: 16px; min-width: 0; }
 .mfa-challenge h2 { font: 600 1.25rem/1.4 var(--font-ui); }
-.mfa-challenge button { color: var(--gold-primary); min-height: 44px; }
+.mfa-challenge .mfa-method-switch { color: var(--gold-primary); min-height: 44px; }
 .login-card[data-google-continuation] > .auth-form, .login-card[data-google-continuation] > .auth-note, .login-card[data-google-continuation] > .auth-switch { display: none; }
 @media(prefers-reduced-motion: reduce) { .auth-session-check__spinner { animation: none; } }
 
 .auth-identity > main { align-content: start; }
 .google-auth > form { display: grid; gap: 16px; }
 
-.mfa-challenge > button, .google-auth > form > button:not(.button) { background: transparent; border: 0; border-radius: 8px; min-height: 44px; padding: 8px; cursor: pointer; font: inherit; }
-.mfa-challenge > button:hover, .google-auth > form > button:not(.button):hover { background: #ffffff08; }
+.mfa-challenge > button:not(.button), .google-auth > form > button:not(.button) { background: transparent; border: 0; border-radius: 8px; min-height: 44px; padding: 8px; cursor: pointer; font: inherit; }
+.mfa-challenge > button:not(.button):hover, .google-auth > form > button:not(.button):hover { background: #ffffff08; }
 .google-auth > form > button:not(.button) { color: var(--color-text-muted); }
 .mfa-challenge input[inputmode="numeric"] { font-variant-numeric: tabular-nums; letter-spacing: .22em; font-size: 20px; }
+
+.otp-control { position:relative; min-width:0; }
+.otp-slots { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; }
+.otp-slots span { display:grid; place-items:center; height:56px; border:1px solid var(--color-border); border-radius:10px; background:var(--color-bg-deep); font:600 24px/1 var(--font-ui); font-variant-numeric:tabular-nums; }
+.otp-control:focus-within .otp-slots span[data-active='true'] { border-color:var(--gold-primary); box-shadow:0 0 0 2px color-mix(in srgb,var(--gold-primary) 25%,transparent); }
+.otp-control > input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:text; }
+.mfa-challenge { gap:12px; }
+.mfa-challenge p { margin:0; font-size:14px; }
+.auth-form:has(> .mfa-challenge), .google-auth > form:has(.mfa-challenge) { display:flex; flex-direction:column; gap:16px; }
+.mfa-challenge { display:grid; }
+.mfa-challenge .mfa-method-switch { font-size:14px; }
+.auth-form:has(> .mfa-challenge) > button:not(.button), .google-auth > form:has(.mfa-challenge) > button:not(.button) { order:3; font-size:13px; }
+.auth-form-shell:has(.mfa-challenge) > .auth-header { display:none; }
+@media(max-width:380px) { .otp-slots { gap:5px; } .otp-slots span { height:48px; } }

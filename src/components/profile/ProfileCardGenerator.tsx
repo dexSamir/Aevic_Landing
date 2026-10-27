@@ -1,14 +1,17 @@
+import { ShareSheet } from '../common/ShareSheet';
 import '../../styles/team-share-modal.css';
-import { BarChart3, Check, Download, Map, QrCode } from 'lucide-react';
+import { BarChart3, Check, Download, Share2, Map, QrCode } from 'lucide-react';
 import { loadTeamProfileQr } from '../../utils/teamProfileQr';
 import { mapArtwork } from '../../assets/maps';
-import { useEffect, useLayoutEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ProfileCardFormat, TeamProfileCardData } from '../../types/domain';
 import { drawTeamIdentityCard, loadCardImage, teamIdentityCardBlob, teamIdentityCardSizes, resolveTeamCardOptions, type TeamIdentityCardAssets } from '../../utils/teamIdentityCard';
 import { Button, Switch } from '../common/primitives';
 
 export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
   const groupId = useId();
+  const [shareOpen, setShareOpen] = useState(false);
+  const closeShare = useCallback(() => setShareOpen(false), []);
   const [format, setFormat] = useState<ProfileCardFormat>('square');
   const [extended, setExtended] = useState(false);
   const [showMaps, setShowMaps] = useState(true);
@@ -71,7 +74,14 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
     } catch { setError('PNG hazırlanmadı. Yenidən cəhd edin.'); }
     finally { exportLock.current = false; setExporting(false); }
   };
+  const createFile = useCallback(async () => {
+    if (!ready || !canvasRef.current) throw new Error('Image not ready');
+    const blob = await teamIdentityCardBlob(canvasRef.current);
+    return new File([blob], `AEVIC-${data.teamId}-${format}.png`, { type:'image/png' });
+  }, [ready, version]);
   return <div className="team-share-studio">
+    <ShareSheet open={shareOpen} onClose={closeShare} title={`${data.teamName} · AEVIC`} url={data.profileUrl} createFile={createFile}/>
+
     <canvas ref={canvasRef} hidden aria-hidden="true" />
     <div className="team-share-preview" data-format={format} role="img" aria-label={`${data.teamName}: kartın önizləməsi. PNG eyni məlumatları ehtiva edir.`}>
       <canvas ref={previewRef} className="identity-skeleton" style={{ aspectRatio: `${teamIdentityCardSizes[format].width} / ${teamIdentityCardSizes[format].height}`, '--card-ratio': teamIdentityCardSizes[format].width / teamIdentityCardSizes[format].height } as React.CSSProperties} aria-hidden="true" />
@@ -97,7 +107,7 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
         {warning && <p role="status">{warning}</p>}
         {error && <p role="alert">{error} <button type="button" onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</button></p>}
         {!assets && !error && <p role="status">Kart hazırlanır…</p>}
-        <Button loading={exporting} disabled={!ready} icon={<Download size={18} aria-hidden="true"/>} onClick={() => void download()}>PNG yüklə</Button>
+        <Button variant="secondary" icon={<Share2 size={18}/>} disabled={!ready || exporting} onClick={() => setShareOpen(true)}>Paylaş</Button><Button loading={exporting} disabled={!ready} icon={<Download size={18} aria-hidden="true"/>} onClick={() => void download()}>PNG yüklə</Button>
         <small>{teamIdentityCardSizes[format].width} × {teamIdentityCardSizes[format].height} · PNG<span className="team-share-export-note"> · İctimai profil üçün optimallaşdırılıb.</span></small>
       </div>
     </aside>

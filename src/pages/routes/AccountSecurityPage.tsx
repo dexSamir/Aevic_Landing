@@ -188,11 +188,10 @@ export function AccountSecurityPage() {
                 : "Server xidməti tələb olunur"}
           </h2>
           <p>
-            Məxfi açar və bərpa kodları serverdə yaradılır, birdəfəlik kod orada
-            yoxlanılır. Kodlar audit jurnalına daxil edilmir.
+            Hesabınızı authenticator tətbiqindəki birdəfəlik kodla qoruyun.
           </p>
           {statusError && <div role="alert"><p>{statusError}</p><Button variant="secondary" loading={statusLoading} onClick={() => void loadStatus()}>Statusu yenidən yoxla</Button></div>}
-          {!setup&&status?.setupAvailable&&<PasswordInput label="2FA əməliyyatı üçün cari şifrə" hint="Aktivləşdirmək üçün bu sahəyə cari şifrənizi daxil edin. Google ilə yaradılmış hesab üçün əvvəlcə şifrə bərpasından istifadə edin." autoComplete="current-password" value={factorPassword} onChange={event=>setFactorPassword(event.target.value)}/>}
+          {!setup&&status?.setupAvailable&&<PasswordInput label="2FA əməliyyatı üçün cari şifrə" hint="Google ilə qeydiyyatdan keçmisinizsə, əvvəlcə şifrə bərpası ilə şifrə yaradın." autoComplete="current-password" value={factorPassword} onChange={event=>setFactorPassword(event.target.value)}/>}
           {setup ? (
             <div className="two-factor-setup">
               <p>Google Authenticator, Microsoft Authenticator və ya uyğun tətbiqdə QR kodunu skan edin, sonra kodu təsdiqləyin.</p>
@@ -220,7 +219,7 @@ export function AccountSecurityPage() {
               </Button>
               <Button variant="secondary" disabled={twoFactorLoading} onClick={()=>{setSetup(undefined);setOtp('');}}>Qurulmanı yenidən başlat</Button>
             </div>
-          ) : (
+          ) : !status?.enabled && (
             <Button
               loading={twoFactorLoading}
               disabled={statusLoading || !status?.setupAvailable || status?.enabled}
@@ -229,7 +228,7 @@ export function AccountSecurityPage() {
               {status?.enabled ? "2FA aktivdir" : "2FA-nı aktiv et"}
             </Button>
           )}
-          {status?.enabled&&<div className="two-factor-actions"><p>{status.backupCodesRemaining??0} bərpa kodu qalıb.</p><Input label="Doğrulama və ya bərpa kodu" value={factorCode} onChange={event=>setFactorCode(event.target.value.trim())} autoComplete="one-time-code" maxLength={40}/><Button disabled={!factorPassword||!factorCode||twoFactorLoading} onClick={()=>void changeFactor(false)}>Bərpa kodlarını yenilə</Button><Button variant="danger" disabled={!factorPassword||!factorCode||twoFactorLoading} onClick={()=>void changeFactor(true)}>2FA-nı deaktiv et</Button></div>}
+          {status?.enabled&&<div className="two-factor-actions"><p>{status.backupCodesRemaining??0} bərpa kodu qalıb.</p><Input label="Doğrulama və ya bərpa kodu" value={factorCode} onChange={event=>setFactorCode(event.target.value.trim())} autoComplete="one-time-code" maxLength={40}/><Button variant="secondary" disabled={!factorPassword||!factorCode||twoFactorLoading} onClick={()=>void changeFactor(false)}>Bərpa kodlarını yenilə</Button><Button variant="danger" disabled={!factorPassword||!factorCode||twoFactorLoading} onClick={()=>void changeFactor(true)}>2FA-nı deaktiv et</Button></div>}
           {recovery && (
             <div className="recovery-codes" role="status">
               <strong>Birdəfəlik bərpa kodları</strong>

@@ -25,8 +25,8 @@ it('uses seasonal facts and opens a public export studio before any download', a
  expect(view.container.querySelector('.public-team-wrapped img')).toHaveAttribute('src', expect.stringContaining('team-wrapped-phone-1024.webp'));
  await waitFor(() => expect(drawPublicTeamIdentityCard).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ teamName: currentTeam.name, teamTag: currentTeam.tag }), expect.anything()));
  fireEvent.click(screen.getByRole('button', { name: 'Paylaş', exact: true }));
- expect(await screen.findByRole('dialog', {name:'Komanda kartını hazırla'})).toBeInTheDocument();
- expect(await screen.findByText('Export controls')).toBeInTheDocument();
+ expect(await screen.findByRole('dialog', {name:'Paylaş'})).toBeInTheDocument();
+ expect(screen.getByRole('link', {name:'WhatsApp'})).toBeInTheDocument();
  expect(copy).not.toHaveBeenCalled();
  expect(teamIdentityCardBlob).not.toHaveBeenCalled();
 });

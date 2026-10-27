@@ -45,7 +45,7 @@ app.post('/auth/password-reset',async(c,next)=>{
  limit('admin-reset-ip',c.req.header('x-nf-client-connection-ip')??'local',5);
  try{limit('admin-reset-account',input.email,3);}catch{return c.body(null,204);}
  const config=c.get('config');
- if(!(config.smtp||config.resendKey)||!z.email().safeParse(config.emailFrom).success)throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
+ if(!config.smtp||!z.email().safeParse(config.emailFrom).success)throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
  const start=Date.now();
  try{await issueAdminSetup(sql,config,row.id);}catch{console.warn('AEVIC_RESET_DELIVERY_FAILED');}
  await new Promise(resolve=>setTimeout(resolve,Math.max(0,2000-(Date.now()-start))));

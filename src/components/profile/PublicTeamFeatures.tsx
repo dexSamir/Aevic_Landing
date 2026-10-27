@@ -1,3 +1,4 @@
+import { ShareSheet } from '../common/ShareSheet';
 import { ArrowRight, Download, Share2 } from 'lucide-react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -30,6 +31,9 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
 
   const [notice, setNotice] = useState('');
   const [studioOpen, setStudioOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [cardReady, setCardReady] = useState(false);
+  const closeShare = useCallback(() => setShareOpen(false), []);
   const closeStudio = useCallback(() => setStudioOpen(false), []);
   const data = useMemo<TeamProfileCardData>(() => {
     const metric = (key: string) => profile?.career?.metrics.find(item => item.key === key)?.value;
@@ -37,6 +41,7 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
     return { teamId: team.id, teamName: team.name, teamTag: team.tag, teamLogo: team.logoUrl, country: team.country, profileUrl: publicTeamUrl(slug), matches: metric('matches'), finishes: metric('finishes'), wwcd: metric('wwcd'), championships: metric('championships'), year: founded && Number.isFinite(founded) ? founded : undefined, roster: (profile?.team.roster ?? team.roster ?? []).map(({ign, role}) => ({ign, role})), mapStats: profile?.mapSpecialization.metrics, recentMatches: [...(profile?.recentMatches ?? [])].sort((a,b) => Date.parse(b.playedAt) - Date.parse(a.playedAt)).slice(0,5), podiums: metric('podiums'), sourceLabel: profile?.career?.scopeLabel };
   }, [team, profile, slug]);
   useEffect(() => {
+    setCardReady(false);
     if (!visible) return;
     let cancelled = false;
     void (async () => {
@@ -45,9 +50,15 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
       const [background, logo] = await Promise.all([loadCardImage(artwork), loadCardImage(data.teamLogo).catch(() => undefined)]);
       if (cancelled || !canvas.current) return;
       drawPublicTeamIdentityCard(canvas.current, data, { background, logo });
+      setCardReady(true);
     })().catch(() => { if (!cancelled) setNotice('Kart yüklənmədi. Səhifəni yeniləyib cəhd edin.'); });
     return () => { cancelled = true; };
   }, [data, visible]);
+  const createFile = useCallback(async () => {
+    if (!cardReady || !canvas.current) throw new Error('Image not ready');
+    const { teamIdentityCardBlob } = await import('../../utils/teamIdentityCard');
+    return new File([await teamIdentityCardBlob(canvas.current)], `AEVIC-${team.id}.png`, { type:'image/png' });
+  }, [cardReady, data]);
   return <div ref={region} className="public-team-features">
     <section className="public-team-wrapped" aria-labelledby="team-wrapped-title">
       <div className="public-team-feature-copy"><span className="public-team-eyebrow">// SEZON XÜLASƏSİ</span><h2 id="team-wrapped-title">{`${year} mövsümünün rəsmi nəticələri`}</h2><p>{team.legacyHistoryIncomplete ? "İcmal yalnız sistemdə qeydə alınmış rəsmi nəticələri əhatə edir. Əvvəlki tarixçə tam olmaya bilər." : "Bu mövsümün hekayəsini yenidən yaşa."}</p>
@@ -58,9 +69,10 @@ export function PublicTeamFeatures({ team, profile }: { team: Team | PublicTeamS
       <p className="public-team-wrapped-tagline">SAYILAR<br />OYNAYIR<br />HEKAYƏNİ<br />DANIŞIR.</p>
     </section>
     <section className="public-team-official" aria-labelledby="team-official-title">
-      <div className="public-team-feature-copy"><span className="public-team-eyebrow">// RƏSMİ KOMANDA KARTI</span><h2 id="team-official-title">{team.name}</h2><span className="public-team-identity-line">TEAM IDENTITY // COMPETITIVE LEGACY</span><p>Rəsmi komanda kartınızı paylaş və AEVIC icmasında təmsil et.</p><div className="public-team-feature-actions"><Button onClick={() => setStudioOpen(true)} icon={<Share2 size={18} />}>Paylaş<ArrowRight size={18} /></Button><Button variant="secondary" onClick={() => setStudioOpen(true)} icon={<Download size={18} />}>PNG-ni yüklə</Button></div>{notice && <p role="status" className="public-team-feature-notice">{notice}</p>}</div>
+      <div className="public-team-feature-copy"><span className="public-team-eyebrow">// RƏSMİ KOMANDA KARTI</span><h2 id="team-official-title">{team.name}</h2><span className="public-team-identity-line">TEAM IDENTITY // COMPETITIVE LEGACY</span><p>Rəsmi komanda kartınızı paylaş və AEVIC icmasında təmsil et.</p><div className="public-team-feature-actions"><Button onClick={() => setShareOpen(true)} icon={<Share2 size={18} />}>Paylaş<ArrowRight size={18} /></Button><Button variant="secondary" onClick={() => setStudioOpen(true)} icon={<Download size={18} />}>PNG-ni yüklə</Button></div>{notice && <p role="status" className="public-team-feature-notice">{notice}</p>}</div>
       <div className="public-team-card-preview"><canvas ref={canvas} width="1200" height="660" role="img" aria-label={`${team.name} rəsmi komanda kartı: ${data.matches ?? '—'} matç, ${data.finishes ?? '—'} kill, ${data.wwcd ?? '—'} WWCD, ${data.championships ?? '—'} çempionluq`} /><button type="button" aria-label="Rəsmi komanda kartını paylaş" onClick={() => setStudioOpen(true)}><ArrowRight size={28} /></button></div>
     </section>
+    <ShareSheet open={shareOpen} onClose={closeShare} title={`${team.name} · AEVIC`} url={data.profileUrl} createFile={cardReady ? createFile : undefined}/>
     <Modal className="team-share-modal" customHeading open={studioOpen} onClose={closeStudio} title="Komanda kartını hazırla">{studioOpen && <Suspense fallback={<p role="status">Studiya yüklənir…</p>}><ProfileCardGenerator data={data}/></Suspense>}</Modal>
   </div>;
 }

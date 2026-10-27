@@ -519,3 +519,10 @@
   .field__label { flex-wrap: wrap; }
   .pagination { flex-wrap: wrap; }
 }
+
+/* PasswordInput owns these styles on every route. */
+.password-field__control { position: relative; display: block; }
+.password-field__control > input { padding-right: 3.35rem; }
+.password-field__toggle { position: absolute; top: 50%; right: 0.2rem; transform: translateY(-50%); }
+.password-field__toggle:active:not(:disabled) { transform: translateY(calc(-50% + 1px)) scale(var(--press-scale)); }
+.password-field__toggle:focus-visible { outline-offset: -2px; }

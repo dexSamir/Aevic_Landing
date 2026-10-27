@@ -7,7 +7,7 @@ import type {CaptainRow,CaptainStore,TeamPatch} from '../../server/captain/store
 import {ServiceError} from '../../server/errors';
 import {validateImage,SupabaseCaptainMedia} from '../../server/captain/media';
 
-// In-memory fixtures only. No SQL, SMTP, Resend, Supabase or production writes.
+// In-memory fixtures only. No SQL, SMTP, Supabase or production writes.
 class MemoryStore implements CaptainStore {
  rows=new Map<string,CaptainRow>();
  async ready(){}

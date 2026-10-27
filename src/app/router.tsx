@@ -1,3 +1,9 @@
+import { Outlet, useLocation } from 'react-router-dom';
+import { PublicSessionProvider } from '../services/PublicSessionContext';
+function SessionRoot() {
+  const { pathname } = useLocation();
+  return <PublicSessionProvider enrichTeam={!/^\/(?:login|register|admin|account|team|forgot-password|reset-password)(?:\/|$)/.test(pathname)}><Outlet /></PublicSessionProvider>;
+}
 import { PublicLayout, RouteError } from "../layouts/layouts";
 import { HomePage } from "../pages/HomePage";
 import { AevicHydrationFallback } from "../components/common/AevicHydrationFallback";
@@ -11,6 +17,7 @@ async function loadLifecyclePages() {
 export const routes = applyRouteCapabilities([
   {
     id: "root",
+    element: <SessionRoot />,
     errorElement: <RouteError />,
     HydrateFallback: AevicHydrationFallback,
     children: [

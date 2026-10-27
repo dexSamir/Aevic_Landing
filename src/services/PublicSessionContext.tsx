@@ -13,8 +13,9 @@ export function PublicSessionProvider({ children, enrichTeam = true }: { childre
   const lastRead = useRef(0);
   const [attempt, setAttempt] = useState(0);
   const pending = useRef(false);
+  const teamCache = useRef<{ key: string; team: Team | undefined; at: number } | undefined>(undefined);
   const retryAt = useRef(0);
-  const refresh = useCallback(() => { if (!pending.current && Date.now() >= retryAt.current) { invalidateVerifiedSession(); setAttempt(value => value + 1); } }, []);
+  const refresh = useCallback(() => { if (!pending.current && Date.now() >= retryAt.current) { invalidateVerifiedSession(); teamCache.current = undefined; setAttempt(value => value + 1); } }, []);
   const [identity, setIdentity] = useState<Identity>(() => ({ session: knownSession(), loading: knownSession() === undefined }));
   useEffect(() => {
     lastRead.current = Date.now();
@@ -32,7 +33,11 @@ export function PublicSessionProvider({ children, enrichTeam = true }: { childre
         setIdentity({ session, loading: false });
         let team: Team | undefined;
         if (enrichTeam && session && ['captain', 'team'].includes(session.role)) {
-          try { team = await services.teams.current(); }
+          try {
+            const cached = teamCache.current;
+            team = cached?.key === session.user.id && Date.now() - cached.at < 60_000 ? cached.team : await services.teams.current();
+            if (active) teamCache.current = { key: session.user.id, team, at: Date.now() };
+          }
           catch (error) {
             // An authenticated spectator can legitimately have no workspace.
             // A failed enrichment keeps authentication, but exports/join offer retry.
@@ -57,12 +62,14 @@ export function PublicSessionProvider({ children, enrichTeam = true }: { childre
     return () => { active = false; pending.current = false; controller.abort(); };
   }, [attempt, enrichTeam]);
   useEffect(() => {
-    const revalidate = () => { if (Date.now() - lastRead.current >= 60_000) refresh(); };
-    const changed = () => { retryAt.current = 0; setIdentity({ session: undefined, loading: true }); setAttempt(value => value + 1); };
+    const revalidate = () => { if (document.visibilityState !== 'hidden' && Date.now() - lastRead.current >= 60_000) refresh(); };
+    const timer = window.setInterval(revalidate, 60_000);
+    document.addEventListener('visibilitychange', revalidate);
+    const changed = () => { teamCache.current = undefined; retryAt.current = 0; setIdentity({ session: undefined, loading: true }); setAttempt(value => value + 1); };
     window.addEventListener('aevic:session-change', changed);
     window.addEventListener('focus', revalidate);
     window.addEventListener('online', revalidate);
-    return () => { window.removeEventListener('aevic:session-change', changed); window.removeEventListener('focus', revalidate); window.removeEventListener('online', revalidate); };
+    return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', revalidate); window.removeEventListener('aevic:session-change', changed); window.removeEventListener('focus', revalidate); window.removeEventListener('online', revalidate); };
   }, [refresh]);
   return <PublicSessionContext.Provider value={{ ...identity, refresh }}>{children}</PublicSessionContext.Provider>;
 }

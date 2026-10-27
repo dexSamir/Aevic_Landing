@@ -26,7 +26,7 @@ const app=new Hono<Env>(),limit=createAttemptLimiter();
 app.post('/auth/legacy-activation',async c=>{
  const start=performance.now(),input=await body(c,z.object({email,password}).strict()),config=c.get('config');
  limit('activation-ip',c.req.header('x-nf-client-connection-ip')??'local',5);limit('activation-email',input.email,3);
- if(!config.emailFrom||!(config.smtp||config.resendKey))throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
+ if(!config.emailFrom||!config.smtp)throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
  try{const created=await createStandaloneAccount(platform(c).sql,input.email,input.password);if(created){const link=new URL('/verify-email',config.siteUrl);link.hash=new URLSearchParams({token:created.token}).toString();try{await sendVerification(config,input.email,link.href);}catch{console.warn('AEVIC_ACTIVATION_DELIVERY_FAILED');}}}
  finally{await delay(Math.max(0,2000-(performance.now()-start)));}
  return c.json({accepted:true},202);

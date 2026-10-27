@@ -107,7 +107,7 @@ export function RecordsCenterPage() {
             title="İlk rekord üçün rəsmi nəticə lazımdır"
             body="Təsdiqlənmiş rekordlar mənbəyi ilə burada görünəcək. Xalın necə hesablandığı ilə indidən tanış olun."
             action={
-              <Link className="text-link" to="/regulations#rule-5">
+              <Link className="text-link" to="/regulations#rule-9">
                 Xal qaydalarına bax
               </Link>
             }

@@ -1,3 +1,4 @@
+import { useOptionalPublicSession } from '../services/PublicSessionContext';
 import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { TeamWorkspacePlaceholder } from './TeamWorkspaceFrame';
@@ -13,7 +14,9 @@ export const useProtectedSession = () => useContext(ProtectedSessionContext);
 export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'account'; children: ReactNode }) {
   // Private, in-memory navigation state only. Every protected API still verifies
   // credentials, revocation and membership on the server.
-  const query = usePlatformQuery({ key: 'session:guard', scope: 'private', query: signal => services.auth.getSession(signal), staleTime: 10_000, retry: 2, enabled: serviceCapabilities.publicSession });
+  const shared = useOptionalPublicSession();
+  const fallback = usePlatformQuery({ key: 'session:guard', scope: 'private', query: signal => services.auth.getSession(signal), staleTime: 10_000, retry: 2, enabled: serviceCapabilities.publicSession && !shared });
+  const query = shared ? { data: shared.session, loading: shared.loading, refreshing: false, error: shared.error, retryAfterSeconds: 0, refetch: shared.refresh } : fallback;
   useEffect(() => {
     const changed = () => invalidateQuery('session:guard');
     window.addEventListener('aevic:session-change', changed);

@@ -67,9 +67,6 @@ div.loading-skeleton__heading{height:auto;width:100%;max-width:none;margin:0 0 2
 .loading-skeleton__career { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:16px; margin-top:24px; }
 .loading-skeleton__career .loading-skeleton__value { width:70%; }
 .loading-skeleton__career .loading-skeleton__short { width:90%; }
-.loading-skeleton__map-composition { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; min-width:0; overflow:hidden; margin:24px 0; }
-.loading-skeleton__map-composition > .loading-skeleton__media { height:100%; aspect-ratio:auto; }
-.loading-skeleton__map-composition > div { display:grid; gap:16px; }
 .loading-skeleton__directory-hero { min-height:414px; padding:120px var(--page-gutter,32px) 36px; }
 .loading-skeleton__directory-hero .loading-skeleton__heading { height:64px; }
 .loading-skeleton__identity { display:flex; align-items:center; gap:16px; }
@@ -147,3 +144,5 @@ div.loading-skeleton__heading{height:auto;width:100%;max-width:none;margin:0 0 2
  .loading-skeleton__profile-brand { grid-template-columns: 72px minmax(0,1fr); align-items: center; }
  .loading-skeleton__profile-brand > .loading-skeleton__avatar { width: 72px; height: 72px; }
 }
+.loading-skeleton__map-composition { margin:24px 0; }
+.loading-skeleton__map-composition > .loading-skeleton__media { height:100%; aspect-ratio:auto; }

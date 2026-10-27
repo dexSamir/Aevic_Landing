@@ -183,3 +183,20 @@
 @media(max-width:767px) {
  .tournament-results .data-table th:last-child, .tournament-results .data-table td:last-child { position: sticky; right: 0; background: var(--color-bg-deep, #101012); box-shadow: -5px 0 12px #0002; color: var(--gold-primary); }
 }
+
+@media(max-width:767px) {
+ .tournament-results .data-table-wrap { border-radius:12px; border:1px solid #ffffff0d; scrollbar-width:thin; overscroll-behavior-inline:contain; }
+ .tournament-results .data-table { border-collapse:separate; border-spacing:0; table-layout:auto; }
+ .tournament-results .data-table th { background:var(--surface-1); color:var(--color-text-muted); font-size:10px; font-weight:600; letter-spacing:.03em; height:36px; }
+ .tournament-results .data-table td { background:var(--color-bg-primary); border-bottom:1px solid #ffffff09; font-weight:500; }
+ .tournament-results .data-table tr:nth-child(even) td { background:var(--surface-1); }
+ .tournament-results .data-table .is-own-team td { background:color-mix(in srgb,var(--gold-primary) 9%,var(--color-bg-primary)); }
+ .tournament-results .data-table :is(th,td):first-child { text-align:center; width:40px; }
+ .tournament-results .data-table :is(th,td):last-child { min-width:68px; background:var(--surface-1); font-weight:750; }
+ .tournament-results .result-rank { color:var(--color-text-muted); font:600 12px/1 var(--font-ui); }
+ .tournament-results tbody tr:first-child .result-rank { color:var(--gold-primary); }
+ .tournament-results .team-cell { display:flex; align-items:center; gap:8px; }
+ .tournament-results .team-cell strong { font-weight:600; font-size:12px; }
+ .tournament-results .team-cell small { font-size:9px; color:var(--gold-primary); }
+ .tournament-result-context { font-size:12px; color:var(--gold-primary); }
+}

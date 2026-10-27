@@ -2,6 +2,7 @@ import { Crown } from 'lucide-react';
 import { mapArtwork } from '../../assets/maps';
 import type { PublicTeamProfile } from '../../types/domain';
 import './map-performance.css';
+import '../common/map-composition.css';
 
 export function MapPerformance({ specialization }: { specialization: PublicTeamProfile['mapSpecialization'] }) {
   const { metrics, minimumSampleSize } = specialization;
@@ -17,12 +18,12 @@ export function MapPerformance({ specialization }: { specialization: PublicTeamP
       || b.matches - a.matches || a.map.localeCompare(b.map, 'en');
   });
   return <div className="map-performance-scroll" role="region" aria-label="Xəritə performansı" tabIndex={0}>
-    <div className="map-performance">{ranked.map((map, index) => {
+    <div className="map-performance map-composition">{ranked.map((map, index) => {
       const artwork = mapArtwork[map.map.toLowerCase()];
       const featured = index === 0;
       const comparable = map.matches >= minimumSampleSize && map.matches > 0;
       return <article className={`map-performance-card${featured ? ' map-performance-card--featured' : ''}`} key={map.map} aria-label={`${map.map} statistikası`}>
-        {artwork && <img className="map-performance-image" {...artwork} sizes={featured ? '(max-width: 1023px) 100vw, 58vw' : '(max-width: 1023px) 100vw, 40vw'} alt="" loading="lazy" decoding="async" width="1672" height="940" />}
+        {artwork && <img className="map-performance-image" {...artwork} sizes={featured ? '(max-width: 1023px) 55vw, 58vw' : '(max-width: 1023px) 40vw, 40vw'} alt="" loading="lazy" decoding="async" width="1672" height="940" />}
         {featured && comparable && comparison && <span className="map-performance-badge"><Crown size={19} aria-hidden="true" />Ən yaxşı orta yer</span>}
         <div className="map-performance-content">
           <header className="map-performance-identity"><span aria-hidden="true">{String(index + 1).padStart(2, '0')} <i /></span><h3>{map.map}</h3><small>AEVIC ESPORTS</small></header>

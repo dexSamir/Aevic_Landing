@@ -50,7 +50,7 @@ const app=new Hono<Env>(),limit=createAttemptLimiter();
 app.post('/registrations',async c=>{
  limit('registration-ip',c.req.header('x-nf-client-connection-ip')??'local',5);
  const input=await body(c,registrationInput),config=c.get('config');
- if(!config.emailFrom||!(config.smtp||config.resendKey))throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
+ if(!config.emailFrom||!config.smtp)throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
  if(input.googleContinuation&&!config.google)throw new ServiceError(503,'GOOGLE_NOT_CONFIGURED');
  const result=await registerOriginalTeam(platform(c).sql,config.sessionSecret??'',input,googleBrowser(c));
  // Replayed registration must never bypass a subsequently enabled second factor.

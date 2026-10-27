@@ -66,7 +66,7 @@ export function captainRoutes(deps:CaptainDependencies={}) {
  app.post('/auth/password-reset',async c=>{
   attempt(c,'reset');const input=await body(c,z.object({email}).strict());
   // Sender setup is checked for every request, independently of account existence.
-  if(!deps.mailer&&(!(c.get('config').smtp||c.get('config').resendKey)||!z.email().safeParse(c.get('config').emailFrom).success))throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
+  if(!deps.mailer&&(!c.get('config').smtp||!z.email().safeParse(c.get('config').emailFrom).success))throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
   // Account-specific throttles never reveal whether a record exists.
   try{limit('reset-account',input.email,3);}catch{return c.body(null,204);}
   await service(c).requestReset(input.email);return c.body(null,204);

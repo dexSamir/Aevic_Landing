@@ -16,14 +16,14 @@ export function adminManagementRoutes(deliver:typeof issueAdminSetup=issueAdminS
  app.get('/admin/users',async c=>{admin(c,['super-admin']);return c.json(await users(platform(c).sql));});
  app.post('/admin/users',async c=>{
   const reviewer=admin(c,['super-admin']),input=await body(c,z.object({email,firstName:text(1,80),lastName:text(1,80),role:roles}).strict()),config=c.get('config');limit('admin-invite',reviewer,10);
-  if(!config.emailFrom||!(config.smtp||config.resendKey))throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
+  if(!config.emailFrom||!config.smtp)throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
   const id=await transaction(platform(c).sql,async tx=>{await currentSuper(tx,reviewer);if((await tx`select id from aevic_platform.admin_accounts where email=${input.email}`).length)throw new ServiceError(409,'ADMIN_ALREADY_EXISTS');const [r]=await tx`insert into aevic_platform.admin_accounts(email,first_name,last_name,role) values(${input.email},${input.firstName},${input.lastName},${input.role}) returning id`;await audit(tx,actor(c),'admin.invite','admin',r.id,{role:input.role});return r.id;});
   try{await deliver(platform(c).sql,config,id);}catch{throw new ServiceError(503,'ADMIN_SETUP_DELIVERY_FAILED');}
   return c.json((await users(platform(c).sql)).find(u=>u.id===id),201);
  });
  app.post('/admin/users/:id/setup-email',async c=>{
   const reviewer=admin(c,['super-admin']),id=z.uuid().parse(c.req.param('id'));limit('admin-setup-resend',reviewer,5);
-  const config=c.get('config');if(!config.emailFrom||!(config.smtp||config.resendKey))throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
+  const config=c.get('config');if(!config.emailFrom||!config.smtp)throw new ServiceError(503,'EMAIL_NOT_CONFIGURED');
   await transaction(platform(c).sql,async tx=>{await currentSuper(tx,reviewer);if(!(await tx`select id from aevic_platform.admin_accounts where id=${id} and active and password_hash is null`).length)throw new ServiceError(409,'INVITATION_NOT_PENDING');await audit(tx,actor(c),'admin.setup-resend','admin',id);});
   await deliver(platform(c).sql,config,id);return c.body(null,204);
  });

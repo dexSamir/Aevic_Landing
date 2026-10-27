@@ -175,3 +175,12 @@
   .danger-ledger .button { justify-self: start; }
   .player-profile__actions { justify-items: start; }
 }
+
+.account-security-grid .account-form { gap:20px; }
+.account-security-grid .section-heading { margin-bottom:4px; }
+.account-security-grid > *, .two-factor-panel .field { min-width:0; }
+.two-factor-actions { display:grid; gap:12px; }
+.two-factor-actions .button { width:100%; white-space:normal; }
+.account-security-grid .password-strength ul { display:grid; gap:4px; margin-top:8px; }
+.account-security-grid .password-strength { font-size:13px; }
+@media(max-width:1100px) { .account-security-grid { grid-template-columns:minmax(0,1fr); } }

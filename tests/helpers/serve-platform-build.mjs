@@ -1,3 +1,4 @@
+import nodemailer from 'nodemailer';
 // Real application + disposable local PostgreSQL. Never accepts a database URL.
 import {execFileSync} from 'node:child_process';
 import {readFileSync,readdirSync,statSync} from 'node:fs';
@@ -11,7 +12,8 @@ const command=(name,args)=>execFileSync(`${bin}/${name}`,['-h','/tmp','-p','5543
 const sql=postgres({host:'/tmp',port:55432,database,max:2,prepare:false,onnotice:()=>{}});
 const mail=[];
 // Only the external delivery boundary is intercepted; token creation/consumption stays real.
-globalThis.fetch=async(input,init)=>{if(String(input)!=='https://api.resend.com/emails')throw new Error('External network is forbidden in isolated platform tests');mail.push(JSON.parse(init.body));return Response.json({id:'isolated-mail'});};
+globalThis.fetch=async()=>{throw new Error('External network is forbidden in isolated platform tests');};
+nodemailer.createTransport=()=>({sendMail:async(message)=>{mail.push(message);return {accepted:message.to};},close(){}});
 let vite,http,created=false,roleCreated=false,closing=false;
 async function close(){if(closing)return;closing=true;http?.close();await vite?.close();await sql.end({timeout:2});if(created)command('dropdb',['--force',database]);if(roleCreated)command('psql',['-d','postgres','-c',`drop role ${role}`]);process.exit();}
 process.on('SIGINT',close);process.on('SIGTERM',close);
@@ -28,7 +30,7 @@ try{
  await sql`insert into aevic_platform.team_authority(team_id,account_id,role) select id,id,'OWNER' from public.teams`;
  await sql`insert into aevic_platform.admin_accounts(id,email,password_hash,role) values('11111111-1111-4111-8111-111111111111','admin@example.invalid',${password},'super-admin')`;
  const {createApp}=await vite.ssrLoadModule('/server/app.ts');
- const app=createApp({supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'isolated-fixture-key',siteUrl:origin,secureCookies:false,indexableDeployment:false,resendKey:'isolated-delivery-key',emailFrom:'test@example.invalid',databaseUrl:`postgres://${role}@127.0.0.1:55432/${database}`,sessionSecret:'isolated-browser-session-key-not-production-00000000'},{});
+ const app=createApp({supabaseUrl:'https://nmjjibifcuzjlsvfcaaz.supabase.co',publishableKey:'isolated-fixture-key',siteUrl:origin,secureCookies:false,indexableDeployment:false,smtp:{host:'smtp.example.invalid',port:587,user:'fixture',pass:'fixture'},emailFrom:'test@example.invalid',databaseUrl:`postgres://${role}@127.0.0.1:55432/${database}`,sessionSecret:'isolated-browser-session-key-not-production-00000000'},{});
  const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.woff2':'font/woff2','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.avif':'image/avif'};
  const csp=readFileSync(resolve(root,'_headers'),'utf8').match(/Content-Security-Policy: (.+)/)[1];
  http=serve({hostname:'127.0.0.1',port,fetch:async request=>{

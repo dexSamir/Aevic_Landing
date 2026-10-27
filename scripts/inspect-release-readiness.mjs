@@ -16,7 +16,7 @@ try{
   const versions=history.present?await tx`select version from supabase_migrations.schema_migrations order by version`:[];
   return {relations,columns,indexes,grants,policies,applicationConnectionRole:role,migrationHistoryPresent:history.present,migrationVersions:versions.map(x=>x.version)};
  });
- const env=process.env,names=['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_ANON_KEY','PUBLIC_SITE_URL','AEVIC_DATABASE_URL','AEVIC_SESSION_SECRET','ADMIN_SERVER_KEY','RESEND_API_KEY','EMAIL_FROM','SMTP_HOST','SMTP_PORT','SMTP_USER','SMTP_PASS','SUPABASE_SERVICE_ROLE_KEY','TEAM_MEDIA_BUCKET'];
+ const env=process.env,names=['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_ANON_KEY','PUBLIC_SITE_URL','AEVIC_DATABASE_URL','AEVIC_SESSION_SECRET','ADMIN_SERVER_KEY','EMAIL_FROM','SMTP_HOST','SMTP_PORT','SMTP_USER','SMTP_PASS','SUPABASE_SERVICE_ROLE_KEY','TEAM_MEDIA_BUCKET'];
  const present=Object.fromEntries(names.map(n=>[n,Boolean(env[n])]));
  const publicSecretNames=Object.keys(env).filter(n=>n.startsWith('VITE_')&&/SECRET|SERVICE_ROLE|DATABASE|PASSWORD|SMTP_PASS|RESEND_API_KEY|ADMIN_SERVER_KEY/i.test(n));
  const origin=env.PUBLIC_SITE_URL?new URL(env.PUBLIC_SITE_URL).origin:null;

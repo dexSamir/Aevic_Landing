@@ -1,10 +1,12 @@
+import { ShareSheet } from '../common/ShareSheet';
+import { publicSiteOrigin } from '../../utils/publicUrl';
 import { CalendarClock, Crown, GitCompareArrows, Share2, Swords, Trophy } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './public-roster.css';
 import { TeamFollowButton } from './TeamFollowButton';
 import type { MatchHistoryEntry, MatchScheduleItem, TeamMember } from '../../types/domain';
-import { Button, EmptyState, StatusBadge, Toast } from '../common/primitives';
+import { Button, EmptyState, StatusBadge } from '../common/primitives';
 import { CalendarAction } from '../competition/CalendarAction';
 
 export function FollowTeamEntry({ teamId }: { teamId: string }) {
@@ -12,29 +14,10 @@ export function FollowTeamEntry({ teamId }: { teamId: string }) {
 }
 
 export function ShareProfileAction({ teamName }: { teamName: string }) {
-  const [copied, setCopied] = useState(false);
-  const [error, setError] = useState<'copy' | 'share'>();
-  const [busy, setBusy] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  useEffect(() => () => clearTimeout(timer.current), []);
-  const copy = async () => {
-    if (busy) return;
-    setBusy(true); setCopied(false); setError(undefined); clearTimeout(timer.current);
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true); timer.current = setTimeout(() => setCopied(false), 3500);
-    } catch { setError('copy'); }
-    finally { setBusy(false); }
-  };
-  const share = async () => {
-    if (busy) return;
-    setBusy(true); setError(undefined); setCopied(false); clearTimeout(timer.current);
-    try { await navigator.share({title:`${teamName} · AEVIC`,url:window.location.href}); }
-    catch (failure) { if (!(failure instanceof DOMException && failure.name === 'AbortError')) setError('share'); }
-    finally { setBusy(false); }
-  };
-  return <>{error && <Toast tone="error" title={error === 'copy' ? 'Link kopyalanmadı' : 'Paylaşım tamamlanmadı'} body="Yenidən cəhd edin və ya ünvan sətrindən keçidi kopyalayın." onClose={() => setError(undefined)} />}{copied && <Toast title="Link kopyalandı" body="Komanda profilinin keçidi mübadilə buferinə köçürüldü." onClose={() => setCopied(false)} />}<Button variant="ghost" disabled={busy} icon={<Share2 size={17} />} onClick={() => void (typeof navigator.share === 'function' ? share() : copy())}>Paylaş</Button></>;
-
+  const [open, setOpen] = useState(false);
+  const close = useCallback(() => setOpen(false), []);
+  const url = new URL(window.location.pathname, publicSiteOrigin()).toString();
+  return <><Button variant="ghost" icon={<Share2 size={17}/>} onClick={() => setOpen(true)}>Paylaş</Button><ShareSheet open={open} onClose={close} title={`${teamName} · AEVIC`} url={url}/></>;
 }
 
 export function PublicRoster({ roster }: { roster: TeamMember[] }) {

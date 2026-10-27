@@ -1,12 +1,8 @@
 import { Link } from 'react-router-dom';
-import { regulationSections, rulebookVersion } from '../content/regulations';
 import '../styles/regulations.css';
 import '../styles/public-pages.css';
 import { PageHeader } from '../components/common/primitives';
-export function RegulationsPage() {
-  const sections = regulationSections;
-  return <section className="page-section regulations-page"><div className="container regulations-layout"><PageHeader title="Turnir reqlamenti" description="AEVIC platforma və yarış qaydaları. Hüquqi və əməliyyat təsdiqi üçün hazırlanmış layihə." /><aside><span>AEVIC YARIŞ BƏLƏDÇİSİ</span><strong>{rulebookVersion}</strong><p>Qüvvəyə minmə tarixi təsdiq gözləyir.</p><nav aria-label="Reqlament bölmələri">{sections.map(({title}, index) => <a key={title} href={`#rule-${index + 1}`}>{String(index + 1).padStart(2, '0')} {title}</a>)}</nav></aside><article><p className="regulations-disclosure">Bu mətn sahibin hüquqi və yarış üzrə təsdiqini tələb edən layihədir. Yaş, mükafat, media istifadəsi və məlumat siyasəti yekun təsdiq gözləyir.</p>{sections.map(({title, paragraphs}, index) => <section id={`rule-${index + 1}`} key={title}><span>{String(index + 1).padStart(2, '0')}</span><div><h2>{title}</h2>{paragraphs.map(body => <p key={body}>{body}</p>)}</div></section>)}<p><Link to="/privacy">Məxfilik məlumatı</Link> · <Link to="/terms">İstifadə şərtləri</Link> · <Link to="/contact">Əlaqə</Link></p><p>Mənbələr: <a href="https://esports.pubgmobile.com/static/doc/PUBGMOfficialCompetitionRulebookV1.6.0.pdf">PUBG Mobile rəsmi qaydaları</a> · <a href="https://resources.esportsworldcup.com/en/competitive-ops/rulebooks/pubg-mobile">EWC 2026 PUBG Mobile</a> · <a href="https://resources.esportsworldcup.com/en">EWC resurs mərkəzi</a></p></article></div></section>;
-}
+export { RegulationsPage } from './RegulationsPage';
 
 function InformationPage({ title, description, sections }: { title: string; description: string; sections: [string, string][] }) {
   return <section className="page-section information-page"><div className="container"><PageHeader title={title} description={description} /><div className="information-page__body">{sections.map(([heading, body]) => <section key={heading}><h2>{heading}</h2><p>{body}</p></section>)}</div></div></section>;
