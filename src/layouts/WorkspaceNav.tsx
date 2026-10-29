@@ -7,8 +7,8 @@ import type { LucideIcon } from 'lucide-react';
 type SideNavLink = { to: string; label: string; icon: LucideIcon; group?: string };
 
 export function SidebarNav({ links, onNavigate, unread = 0, label = 'Məhsul naviqasiyası', revealActive = false }: { revealActive?: boolean; links: SideNavLink[]; onNavigate?: () => void; unread?: number; label?: string }) {
-  const { pathname } = useLocation();
-  const active = links.filter(({ to }) => pathname === to || pathname.startsWith(to + '/')).sort((a, b) => b.to.length - a.to.length)[0]?.to;
+  const { pathname, hash } = useLocation();
+  const active = links.filter(({ to }) => pathname + hash === to || (!to.includes('#') && (pathname === to || pathname.startsWith(to + '/')))).sort((a, b) => b.to.length - a.to.length)[0]?.to;
   const activeGroup = links.find((link) => link.to === active)?.group;
   const groups: { name?: string; items: SideNavLink[] }[] = [];
   links.forEach((link) => {

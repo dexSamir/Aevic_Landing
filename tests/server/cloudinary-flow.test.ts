@@ -18,6 +18,7 @@ function harness({ actor = 'fixture-team', failUpload = false, failPersistence=f
   }, { json: (value: unknown) => value, begin: vi.fn(async (work: (tx: unknown) => Promise<unknown>) =>{if(failPersistence)throw Object.assign(new Error('isolated persistence failure'),{code:'ECONNRESET'});return work(sql);}) });
   const app = createHttpApp(config, {});
   app.use('*', async (c, next) => { c.set('platform', { actor: actor ? { teamId: actor } : {}, sql: sql as unknown as Sql } as PlatformRepository); await next(); });
+  app.post('/auth/refresh', c => c.json({sessionMode:'legacy'}));
   app.route('/', mediaRoutes);
   const vendorCalls: string[] = [];
   const fetcher = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {

@@ -10,15 +10,18 @@ import { RosterTeamCard } from '../src/components/common/RosterTeamCard';
 import { currentTeam } from './fixtures/platform-data';
 import type { TeamTournamentResult } from '../src/types/domain';
 import { ApiError } from '../src/services/apiError';
-import { toPng } from 'html-to-image';
+import { toCanvas } from 'html-to-image';
 
-vi.mock('html-to-image', () => ({ toPng: vi.fn().mockResolvedValue('data:image/png;base64,' + 'a'.repeat(100)) }));
+vi.mock('html-to-image', () => ({ toCanvas: vi.fn().mockImplementation(async () => document.createElement('canvas')) }));
 const rows: TeamTournamentResult[] = Array.from({ length: 12 }, (_, index) => ({ tournamentId: 'export-test', teamId: index === 0 ? currentTeam.id : `other-${index}`, placement: index + 1, matches: 4, wwcd: 1, finishes: 8, placementPoints: 12, finishPoints: 8, penalties: 2, totalPoints: 18 }));
 const teams = [{ id: currentTeam.id, slug: 'current', name: currentTeam.name, rosterSize: currentTeam.roster.length }];
 function mountResults() {
   return render(<MemoryRouter><PublicSessionProvider><TournamentResults standings={rows} teams={teams} teamNames={[]} tournamentId="export-test" tournamentName="Export test" publishedAt="2026-10-06T12:00:00Z" /></PublicSessionProvider></MemoryRouter>);
 }
 beforeEach(() => {
+ vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({ drawImage:vi.fn(), getImageData:()=>({data:new Uint8ClampedArray([0,0,0,255,255,255,255,255])}) } as unknown as CanvasRenderingContext2D);
+ vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue('data:image/png;base64,' + 'a'.repeat(100));
+ vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(600);
   vi.spyOn(services.auth, 'getSession').mockResolvedValue(null);
   vi.spyOn(services.results, 'ownExport').mockResolvedValue({ teamId: currentTeam.id, result: rows[0] });
   vi.spyOn(services.teams, 'current').mockResolvedValue({ ...currentTeam, logoUrl: undefined });
@@ -50,8 +53,8 @@ it('opens the modal, exports all standings through the existing renderer, and re
   const download = await within(dialog).findByRole('button', { name: 'Yüklə' });
   expect(dialog.querySelectorAll('.generated-poster--leaderboard li')).toHaveLength(12);
   fireEvent.click(download);
-  await waitFor(() => expect(toPng).toHaveBeenCalled());
-  expect(vi.mocked(toPng).mock.calls.at(-1)?.[0]).toHaveClass('generated-poster--leaderboard');
+  await waitFor(() => expect(toCanvas).toHaveBeenCalled());
+  expect(vi.mocked(toCanvas).mock.calls.at(-1)?.[0]).toHaveClass('generated-poster--leaderboard');
   fireEvent.keyDown(document, { key: 'Escape' });
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   expect(trigger).toHaveFocus();
@@ -69,7 +72,7 @@ it('selects the authenticated team result by keyboard and exports authoritative 
   expect(poster).toHaveTextContent(currentTeam.name);
   expect(poster).toHaveTextContent('18'); expect(poster).toHaveTextContent('−2');
   fireEvent.click(download);
-  await waitFor(() => expect(vi.mocked(toPng).mock.calls.at(-1)?.[0]).toHaveClass('generated-poster--result'));
+  await waitFor(() => expect(vi.mocked(toCanvas).mock.calls.at(-1)?.[0]).toHaveClass('generated-poster--result'));
 });
 it('keeps the team option disabled for an authenticated team without a result', async () => {
   vi.mocked(services.auth.getSession).mockResolvedValue({ user: currentTeam.captain, role: 'team' });
@@ -109,10 +112,10 @@ it('rechecks authorization before PNG capture and blocks a revoked participant',
   mountResults(); fireEvent.click(screen.getByRole('button', { name: 'Nəticələri yüklə' }));
   await waitFor(() => expect(screen.getByRole('radio', { name: 'Komanda nəticəsi' })).toBeEnabled());
   fireEvent.click(screen.getByRole('radio', { name: 'Komanda nəticəsi' }));
-  vi.mocked(toPng).mockClear();
+  vi.mocked(toCanvas).mockClear();
   fireEvent.click(await screen.findByRole('button', { name: 'Yüklə' }));
   await screen.findByText('Komanda nəticəsi təsdiqlənmədi. Yenidən yoxlayın.');
-  expect(toPng).not.toHaveBeenCalled();
+  expect(toCanvas).not.toHaveBeenCalled();
 });
 
 it('rejects a mismatched authenticated team in the export response', async () => {

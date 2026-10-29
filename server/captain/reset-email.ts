@@ -41,11 +41,11 @@ table{border-spacing:0;mso-table-lspace:0pt;mso-table-rspace:0pt}
 </style></head>
 <body style="margin:0;padding:0;background-color:#101014;color:#F7F6F2;font-family:Inter,Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%">
 <div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all">AEVIC hesabınız üçün təhlükəsiz şifrə yeniləmə keçidi. 30 dəqiqə ərzində istifadə edin.${'&#8204;&nbsp;'.repeat(90)}</div>
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#101014"><tr><td class="email-outer" align="center" style="padding:28px 16px;background-color:#101014;background-image:url('https://aevic-demo.netlify.app/brand/aevic-email-background.png');background-position:center top;background-repeat:no-repeat;background-size:640px auto" background="https://aevic-demo.netlify.app/brand/aevic-email-background.png" bgcolor="#101014">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#101014"><tr><td class="email-outer" align="center" style="padding:28px 16px;background-color:#101014;background-image:url('${escapeHtml(url.origin)}/brand/aevic-email-background.png');background-position:center top;background-repeat:no-repeat;background-size:640px auto" background="${escapeHtml(url.origin)}/brand/aevic-email-background.png" bgcolor="#101014">
 <!--[if mso]><table role="presentation" width="480" cellspacing="0" cellpadding="0" border="0"><tr><td><![endif]-->
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:480px;table-layout:fixed">
-<tr><td class="email-brand" align="left" style="padding:0 26px 18px">
-<img class="email-logo" src="https://aevic-demo.netlify.app/brand/aevic-email-logo.png" width="90" height="90" alt="AEVIC Esports" style="display:block;width:90px;max-width:100%;height:auto;border:0">
+<tr><td class="email-brand" align="center" style="padding:0 26px 18px">
+<img class="email-logo" src="${escapeHtml(url.origin)}/brand/aevic-email-logo.png" width="90" height="90" alt="AEVIC Esports" style="display:block;width:90px;max-width:100%;height:auto;border:0">
 <p class="email-label" style="margin:12px 0 0;color:#BFC0C8;font-size:10px;line-height:18px;font-weight:600;letter-spacing:2px"><span style="color:#F3C450;font-size:14px;letter-spacing:-1px">//</span>&nbsp;&nbsp; HESAB TƏHLÜKƏSİZLİYİ</p>
 </td></tr>
 <tr><td class="email-content" bgcolor="#1B1B1F" style="padding:26px;border-radius:18px">

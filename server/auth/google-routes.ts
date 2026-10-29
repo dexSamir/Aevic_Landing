@@ -16,13 +16,13 @@ import {randomToken,pkceChallenge,exchangeGoogleCode} from './google-provider';
 import {googleCookie,googleBrowser,clearGoogle,continuation} from './google-continuation';
 import {selectWorkspace} from '../platform/workspace';
 import type {Actor} from '../platform/repository';
-import {saveGoogleReturn,clearGoogleReturn} from './google-return';
+import {saveGoogleReturn,clearGoogleReturn,readGoogleRemember} from './google-return';
 const app=new Hono<Env>();
 app.get('/auth/google/status',c=>c.json({enabled:Boolean(c.get('config').google)}));
 app.post('/auth/google/start',async c=>{
  const config=c.get('config'),google=config.google;if(!google)throw new ServiceError(503,'GOOGLE_NOT_CONFIGURED');
- const input=await body(c,z.object({returnTo:z.string().max(2048).optional()}).strict());
- saveGoogleReturn(c,input.returnTo);
+ const input=await body(c,z.object({returnTo:z.string().max(2048).optional(),remember:z.boolean().default(false)}).strict());
+ saveGoogleReturn(c,input.returnTo,input.remember);
  const sql=platform(c).sql;
  await persistentLimit(c,sql,'google-start',c.req.header('x-nf-client-connection-ip')??'local',10,true);
  const state=randomToken(),browser=randomToken(),nonce=(google.provider==='supabase'?'supabase:':'')+randomToken(),verifier=randomToken();
@@ -50,7 +50,7 @@ app.get('/auth/google/callback',async c=>{
   const next=randomToken();
   await platform(c).sql`insert into aevic_platform.google_flows(token_digest,browser_digest,nonce,verifier,expires_at,phase,subject,email,first_name,last_name) values(${tokenDigest(randomToken())},${tokenDigest(next)},'','',now()+interval '10 minutes','continuation',${identity.subject},${identity.email},${identity.firstName},${identity.lastName})`;
   setCookie(c,googleCookie(c),next,{path:'/',httpOnly:true,secure:config.secureCookies,sameSite:'Lax',maxAge:600});
-  try { const result=await completeGoogle(c,next,{remember:false},false,true); return c.redirect(result.redirectTo,303); }
+  try { const result=await completeGoogle(c,next,{remember:readGoogleRemember(c)},false,true); return c.redirect(result.redirectTo,303); }
   catch(error){
    if(error instanceof ServiceError&&error.code==='MFA_REQUIRED')return c.redirect('/login?google=continue&mfa=required',303);
    if(error instanceof ServiceError&&error.code==='GOOGLE_REGISTRATION_REQUIRED')return c.redirect('/login?google=continue',303);
@@ -66,7 +66,7 @@ app.get('/auth/google/continuation',async c=>{
  const sql=platform(c).sql,flow=await continuation(sql,browser);
  const linked=await sql`select account_id from aevic_platform.google_identities where subject=${flow.subject}`;
  const matching=await sql`select id from aevic_platform.account_identity where lower(btrim(email))=${flow.email}`;
- return c.json({email:flow.email,firstName:flow.first_name,lastName:flow.last_name,mode:linked.length?'login':matching.length?'link':'register'});
+ return c.json({remember:readGoogleRemember(c),email:flow.email,firstName:flow.first_name,lastName:flow.last_name,mode:linked.length?'login':matching.length?'link':'register'});
 });
 app.post('/auth/google/complete',async c=>{
  const config=c.get('config');if(!config.google)throw new ServiceError(503,'GOOGLE_NOT_CONFIGURED');

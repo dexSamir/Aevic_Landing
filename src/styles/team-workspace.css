@@ -470,3 +470,17 @@
 .product-shell--team .operational-timeline li > div { grid-area: detail; margin: 0; }
 .product-shell--team #withdrawal { scroll-margin-top: 100px; }
 @media (max-width: 600px) { .product-shell--team .operational-timeline ol { grid-template-columns: 1fr; } .product-shell--team .operational-timeline > header { grid-template-columns: 1fr; } }
+
+/* One scrolling navigation layer; identity never expands to fill spare height. */
+#team-navigation-drawer { height:100dvh; overflow:hidden; gap:12px; padding: max(12px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom)); }
+#team-navigation-drawer > header { position:static; padding:0; margin:0; min-height:44px; }
+#team-navigation-drawer .team-identity { display:flex; flex:0 0 auto; min-height:0; height:auto; padding:12px 0; margin:0; gap:12px; }
+#team-navigation-drawer .team-identity .team-logo { width:44px; height:44px; flex:0 0 44px; }
+#team-navigation-drawer .side-nav { flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding-bottom:16px; }
+#team-navigation-drawer .workspace-picker:empty { display:none; }
+.mobile-regulations { display:none; }
+@media(max-width:900px) { .product-topbar .mobile-regulations { display:grid; } }
+
+#team-navigation-drawer .side-nav { display:block; align-content:start; }
+#team-navigation-drawer .side-nav__group { margin:4px 0 0; }
+#team-navigation-drawer .side-nav__section { margin-bottom:8px; }

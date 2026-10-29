@@ -10,7 +10,7 @@ export function createTokenTransport(root:string){
  async function refresh(){
   if(pending)return pending;
   const version=generation;
-  const rotate=async()=>{for(let attempt=0;attempt<3;attempt++){try{const result=await requestJson<Envelope>(root+'/auth/refresh',{method:'POST',credentials:'include'},[],15_000);if(version===generation)receive(result);return;}catch(error){if(error instanceof ApiError&&error.code==='REFRESH_BUSY'&&attempt<2){await new Promise(r=>setTimeout(r,250*(attempt+1)));continue;}if(error instanceof ApiError&&(error.status===401||error.status===404)){if(version===generation){access=undefined;expires=0;negotiated=true;}return;}throw error;}}};
+  const rotate=async()=>{for(let attempt=0;attempt<3;attempt++){try{const result=await requestJson<Envelope>(root+'/auth/refresh',{method:'POST',credentials:'include'},[],15_000);if(version===generation)receive(result);return;}catch(error){if(error instanceof ApiError&&error.code==='REFRESH_BUSY'&&attempt<2){await new Promise(r=>setTimeout(r,250*(attempt+1)));continue;}if(error instanceof ApiError&&error.status===401){if(version===generation){access=undefined;expires=0;negotiated=true;}return;}throw error;}}};
   // The lock serializes cookie rotation across tabs; never broadcast token values.
   pending=(async()=>{if(typeof navigator!=='undefined'&&navigator.locks){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20_000);try{await navigator.locks.request('aevic-refresh-v2',{signal:controller.signal},rotate);}finally{clearTimeout(timer);}}else await rotate();})().finally(()=>{pending=undefined;});
   return pending;

@@ -142,12 +142,15 @@ export function teamCardLayout(data: TeamProfileCardData, format: ProfileCardFor
     ...(options.showQr ? [{ id: 'qr', height: 150 }] : []),
   ];
   const naturalHeight = sections.reduce((sum, section) => sum + section.height, 0);
-  const available = wordmarkTop - pad - width * .035;
+  // Keep essential Story content clear of app chrome and reply controls.
+  const topInset = story ? 240 : pad;
+  const contentBottom = story ? Math.min(wordmarkTop, height - 300) : wordmarkTop;
+  const available = contentBottom - topInset - width * .035;
   const preferredScale = story ? 1.65 : format === 'portrait' ? 1.2 : 1;
   const scale = Math.min(preferredScale, available / naturalHeight);
   // Distribute spare height between sections, never inside the team identity.
   const gap = Math.min(options.extended ? 28 : 65, Math.max(0, (available - naturalHeight * scale) / (sections.length - 1)));
-  let top = pad;
+  let top = topInset;
   const regions = sections.map(section => {
     const region = { ...section, top, height: section.height * scale };
     top += region.height + gap;

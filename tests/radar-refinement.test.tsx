@@ -31,7 +31,9 @@ it('names the actual metrics and updates title and unit with the chosen series',
  expect(screen.getByRole('heading',{name:'Matçlar üzrə ümumi xal'})).toBeInTheDocument();
  expect(screen.getByText('Ümumi xal / matç')).toBeInTheDocument();
  expect(screen.getByRole('heading',{name:'Xəritələr üzrə orta kill / matç'})).toBeInTheDocument();
- expect(screen.getAllByRole('button',{name:/PNG yüklə/})).toHaveLength(4);
+ expect(screen.getAllByRole('button',{name:/PNG yüklə/})).toHaveLength(3);
+ fireEvent.click(screen.getByRole('button',{name:'Yer',exact:true}));
+ expect(screen.getByRole('heading',{name:'Matçlar üzrə yerləşmə'})).toBeInTheDocument();
 });
 it('keeps compact informational values and links for incomplete and unavailable states', async () => {
  source=await fixtureServices.snapshots.team();

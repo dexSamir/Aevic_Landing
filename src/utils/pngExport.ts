@@ -20,7 +20,10 @@ async function readyImage(image: HTMLImageElement) {
 
 export async function renderPng(node: HTMLElement, options: { width?: number; backgroundColor?: string } = {}) {
   await document.fonts.ready;
-  const width = node.offsetWidth, height = node.scrollHeight;
+  const width = node.offsetWidth;
+  // Clipped decorative pseudo-elements must not enlarge a square poster. Long
+  // standings use an intrinsically growing root, not a scrolling viewport.
+  const height = getComputedStyle(node).overflow === 'hidden' ? node.offsetHeight : Math.max(node.offsetHeight, node.scrollHeight);
   if (!width || !height) throw new Error('Export surface has no dimensions');
   // Isolate asset preparation from the visible React tree. Keep the same CSS ancestry.
   const clone = node.cloneNode(true) as HTMLElement;
@@ -59,16 +62,39 @@ export async function renderPng(node: HTMLElement, options: { width?: number; ba
         image.replaceWith(fallback);
       }
     }));
-    const { toPng } = await import('html-to-image');
-    const url = await toPng(clone, {
+    // html-to-image deep-clones SVG without visiting its children. Freeze their
+    // computed paint/text styles so class-based chart series survive serialization.
+    clone.querySelectorAll('svg *').forEach(element => {
+      if (!(element instanceof SVGElement)) return;
+      const computed = getComputedStyle(element);
+      for (const property of ['fill', 'stroke', 'stroke-width', 'stroke-dasharray', 'opacity', 'font-family', 'font-size', 'font-weight']) {
+        element.style.setProperty(property, computed.getPropertyValue(property));
+      }
+    });
+    const { toCanvas } = await import('html-to-image');
+    const canvas = await toCanvas(clone, {
       cacheBust: false,
       preferredFontFormat: 'woff2',
       width, height,
       pixelRatio: options.width ? options.width / width : 2,
       backgroundColor: options.backgroundColor ?? getComputedStyle(node).backgroundColor,
-      style: { position: 'relative', left: '0', top: '0', transform: 'none' },
+      // Reset logical offsets too: Chromium serializes inset-inline-start along
+      // with left, otherwise the cloned content remains 100,000px off-canvas.
+      style: { position: 'relative', inset: 'auto', insetInline: 'auto', insetBlock: 'auto', left: '0', top: '0', transform: 'none' },
       filter: element => !(element instanceof Element && element.hasAttribute('data-export-exclude')),
     });
+    const sample = document.createElement('canvas'); sample.width = sample.height = 32;
+    const context = sample.getContext('2d');
+    if (!context) throw new Error('Canvas unavailable');
+    context.drawImage(canvas, 0, 0, 32, 32);
+    const pixels = context.getImageData(0, 0, 32, 32).data;
+    let varied = false;
+    for (let i = 4; i < pixels.length; i += 4) {
+      if (Math.abs(pixels[i] - pixels[0]) + Math.abs(pixels[i + 1] - pixels[1]) + Math.abs(pixels[i + 2] - pixels[2]) > 30) { varied = true; break; }
+    }
+    if (!varied) throw new Error('Export contains no visible content');
+    const url = canvas.toDataURL('image/png');
+    canvas.width = canvas.height = 0;
     if (!url.startsWith('data:image/png;base64,') || url.length < 100) throw new Error('PNG encoding failed');
     return url;
   } finally { clone.remove(); }

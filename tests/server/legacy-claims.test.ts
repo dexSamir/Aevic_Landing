@@ -3,7 +3,8 @@ import {afterEach,expect,it,vi} from 'vitest';
 import {createNormalizedModuleApp as createApp} from '../fixtures/normalized-app';
 const uid='00000000-0000-4000-8000-000000000001',claimId='60000000-0000-4000-8000-000000000001';
 const config={supabaseUrl:'http://127.0.0.1:54321',publishableKey:'test',serviceKey:'test-service',siteUrl:'http://localhost:8888',secureCookies:false};
-const app=createApp(config),json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
+const app=createApp(config);app.post('/auth/refresh',c=>c.json({sessionMode:'legacy'}));
+const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
 afterEach(()=>vi.unstubAllGlobals());
 function transport(options:{signupExists?:boolean;signupFailure?:boolean;role?:string;rate?:boolean;claim?:unknown}={}){
  const calls:Array<{path:string;body:Record<string,unknown>}> = [];

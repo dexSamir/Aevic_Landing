@@ -1,7 +1,7 @@
 import { ChartSnapshot } from './ChartSnapshot';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { MatchHistoryEntry } from '../../types/domain';
-import { teamAnalytics } from '../../utils/teamAnalytics';
+import { teamAnalytics, bakuDay } from '../../utils/teamAnalytics';
 import { competitionNow } from '../../services';
 import '../../styles/team-insights.css';
 
@@ -14,7 +14,7 @@ function useChartWidth(desktopWidth: number) {
   useEffect(() => {
     if (!node || typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(([entry]) => {
-      if (entry.contentRect.width > 0) setWidth(Math.max(1, Math.min(desktopWidth, entry.contentRect.width)));
+      if (entry.contentRect.width > 0) setWidth(Math.max(180, entry.contentRect.width));
     });
     observer.observe(node);
     return () => observer.disconnect();
@@ -39,7 +39,7 @@ function Trend({ matches, metric, label }: { matches: MatchHistoryEntry[]; metri
       {rows.map((m, index) => <g key={m.id} data-tooltip={`${m.tournamentName} · ${m.stageLabel} · ${date(m.playedAt)} ${time(m.playedAt)} · ${m.map}: ${m[metric]} ${unit}`} tabIndex={0} role="img" aria-label={`${date(m.playedAt)}, ${time(m.playedAt)}, ${m.map}, ${m.stageLabel}: ${m[metric]} ${unit}`} onFocus={() => setSelected(m.id)} onMouseEnter={() => setSelected(m.id)} onClick={() => setSelected(m.id)} onKeyDown={event => {
         const next = event.key === 'ArrowRight' ? index + 1 : event.key === 'ArrowLeft' ? index - 1 : -1;
         if (next >= 0 && next < rows.length) { event.preventDefault(); event.currentTarget.parentElement?.querySelectorAll<SVGGElement>('[tabindex]')[next]?.focus(); }
-      }}><circle cx={x(m)} cy={y(m)} r="18" fill="transparent" /><circle cx={x(m)} cy={y(m)} r={current.id === m.id ? 5 : 3} className="chart-point" />{(chart.width > 420 || current.id === m.id) && <text x={x(m)} y={y(m) - 10} textAnchor="middle">{metric === 'placement' ? '#' : ''}{m[metric]}</text>}</g>)}
+      }}><circle cx={x(m)} cy={y(m)} r="18" fill="transparent" /><circle cx={x(m)} cy={y(m)} r={current.id === m.id ? 5 : 3} className="chart-point" />{(current.id === m.id) && <text x={x(m)} y={y(m) - 10} textAnchor="middle">{metric === 'placement' ? '#' : ''}{m[metric]}</text>}</g>)}
       <text x="40" y="190">1-ci matç</text><text x={right} y="190" textAnchor="end">{rows.length}-ci matç</text>
     </svg><label className="chart-selection" data-export-exclude>Matç seçin<select value={current.id} onChange={event => setSelected(event.target.value)}>{rows.map(m => <option key={m.id} value={m.id}>{date(m.playedAt)} · {m.map} · {m.stageLabel}</option>)}</select></label><p className="chart-detail">{date(current.playedAt)} · {time(current.playedAt)} · {current.map}<strong>{label}: {current[metric]} {unit}</strong></p><small>{current.tournamentName} · {current.stageLabel}</small>
   </ChartSnapshot>;
@@ -68,17 +68,14 @@ function MonthlyKills({ data }: { data: ReturnType<typeof teamAnalytics> }) {
   </ChartSnapshot>;
 }
 export function TeamAnalytics({ history, unavailable = false, incomplete = false }: { history: MatchHistoryEntry[]; unavailable?: boolean; incomplete?: boolean }) {
-  const data = teamAnalytics(history, competitionNow());
-  const [metric, setMetric] = useState<'finishes' | 'points'>('finishes');
+  const now = competitionNow();
+  const day = bakuDay(now);
+  const data = useMemo(() => teamAnalytics(history, now), [history, day]);
+  const [metric, setMetric] = useState<'finishes' | 'points' | 'placement'>('finishes');
   if (unavailable || !data.matches.length) {
     const message = unavailable ? 'Matç tarixçəsi hazırda əlçatan deyil. Analitika hesablana bilmir.' : history.length ? 'Matç məlumatlarında tarix və ya nəticə çatışmır. Analitika hesablana bilmir.' : 'İlk rəsmi matç nəticəsi dərc edildikdə qrafiklər burada görünəcək.';
     return <section className="team-insights" aria-label="Rəsmi matç analitikası"><header><h2>Performans</h2><p role="status">{message}</p></header>
-      <div className="insight-charts">{[
-        ['Bu ay · gündəlik kill', 'Cari ayın dərc edilmiş matçları və əvvəlki ayla müqayisə.'],
-        ['Kill və xal dinamikası', 'Zaman üzrə irəliləyiş üçün ən azı 4 rəsmi matç lazımdır.'],
-        ['Yerləşmə dinamikası', 'Rəsmi matçlardakı yerlər əsasında komandanın forması.'],
-        ['Xəritə performansı', 'Xəritələr üzrə orta kill, xal və yerləşmə göstəriciləri.'],
-      ].map(([title, detail]) => <article className="insight-chart insight-chart--empty" key={title}><header><h3>{title}</h3></header><p className="insight-empty">{unavailable ? 'Məlumat əlçatan deyil' : 'Nəticə gözlənilir'}</p><small>{detail}</small></article>)}</div>
+      <p className="insight-empty">{unavailable ? 'Bağlantını yoxlayıb səhifənin yenidən yoxlama düyməsindən istifadə edin.' : 'Nəticələr dərc edildikcə matç və xəritə göstəriciləri burada görünəcək.'}</p>
     </section>;
   }
   const strongest = data.maps.find(m => m.matches >= 3);
@@ -87,8 +84,8 @@ export function TeamAnalytics({ history, unavailable = false, incomplete = false
     {incomplete && <p className="insight-note">Əvvəlki tarixçə tam deyil. Yalnız sistemdə dərc edilmiş matçlar hesablanır.</p>}
     {data.omitted > 0 && <p role="status">{data.omitted} matçın tarix və ya nəticəsi uyğun deyil; hesablamaya daxil edilməyib.</p>}
     <dl className="insight-metrics"><div><dt>Bu ay · kill</dt><dd>{data.monthly.length ? data.monthlyKills : '—'}</dd><small>{data.month} · {data.monthly.length} dərc edilmiş matç</small><small>{comparison}</small></div><div><dt>Orta kill / matç</dt><dd>{(data.kills / data.matches.length).toFixed(1)}</dd><small>{data.kills} kill · {data.matches.length} rəsmi matç</small></div><div><dt>Ümumi xal</dt><dd>{data.points}</dd><small>{(data.points / data.matches.length).toFixed(1)} orta xal / matç</small></div><div><dt>Matç qələbəsi</dt><dd>{data.wins}</dd><small>İlk 3 yer: {data.topThree} matç</small><small>Orta yer: {data.averagePlacement?.toFixed(1)} · aşağı daha yaxşıdır</small></div></dl>
-    <MonthlyKills data={data} />
-    {data.matches.length >= 4 ? <><div className="insight-toggle" role="group" aria-label="Trend göstəricisi"><button type="button" aria-pressed={metric === 'finishes'} onClick={() => setMetric('finishes')}>Kill</button><button type="button" aria-pressed={metric === 'points'} onClick={() => setMetric('points')}>Xal</button></div><div className="insight-charts"><Trend matches={data.matches} metric={metric} label={metric === 'finishes' ? 'Matçlar üzrə kill sayı' : 'Matçlar üzrə ümumi xal'} /><Trend matches={data.matches} metric="placement" label="Matçlar üzrə yerləşmə" /></div></> : <p>Trend üçün ən azı 4 dərc edilmiş matç lazımdır. Mövcud nəticələr aşağıdadır.</p>}
+    <details className="insight-daily"><summary>Bu ayın gündəlik nəticələri</summary><MonthlyKills data={data} /></details>
+    {data.matches.length >= 4 ? <><div className="insight-toggle" role="group" aria-label="Trend göstəricisi"><button type="button" aria-pressed={metric === 'finishes'} onClick={() => setMetric('finishes')}>Kill</button><button type="button" aria-pressed={metric === 'points'} onClick={() => setMetric('points')}>Xal</button><button type="button" aria-pressed={metric === 'placement'} onClick={() => setMetric('placement')}>Yer</button></div><div className="insight-charts insight-charts--single"><Trend matches={data.matches} metric={metric} label={metric === 'finishes' ? 'Matçlar üzrə kill sayı' : metric === 'placement' ? 'Matçlar üzrə yerləşmə' : 'Matçlar üzrə ümumi xal'} /></div></> : <p>Trend üçün ən azı 4 dərc edilmiş matç lazımdır. Mövcud nəticələr aşağıdadır.</p>}
     <ChartSnapshot title="Xəritələr üzrə orta kill / matç" subtitle={strongest ? `Ən yüksək orta kill: ${strongest.map} · ən azı 3 matçı olan xəritələr arasında` : 'Az matç olan xəritələrin ortalamaları daha çox dəyişə bilər'} filename="map-average-kills"><p className="chart-axes"><span>Xəritə</span><span className="chart-legend">Orta kill · 0–{Math.max(...data.maps.map(m => m.averageKills)).toFixed(1)}</span></p><div className="map-bars">{data.maps.map(m => <div key={m.map} tabIndex={0} data-tooltip={`${m.map} · ${m.matches} matç · Orta kill: ${m.averageKills.toFixed(1)}`}><span>{m.map}<small>{m.matches} matç · {m.kills} kill</small></span><span className="map-bar-track" role="meter" aria-valuemin={0} aria-valuemax={Math.max(1, ...data.maps.map(x => x.averageKills))} aria-valuenow={m.averageKills} aria-label={`${m.map}: orta ${m.averageKills.toFixed(1)} kill / matç`}><i style={{ width: `${m.averageKills / Math.max(1, ...data.maps.map(x => x.averageKills)) * 100}%` }} /></span><strong>{m.averageKills.toFixed(1)}</strong></div>)}</div>
       <details data-export-exclude className="insight-table"><summary>Xəritə statistikasını göstər</summary><div tabIndex={0} role="region" aria-label="Xəritə statistika cədvəli"><table><caption>Dərc edilmiş bütün matçlar · aşağı yer nömrəsi daha yaxşıdır</caption><thead><tr>{['Xəritə', 'Matç', 'Kill', 'Orta kill', 'Orta yer', 'Orta xal', 'Qələbə', 'İlk 3'].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead><tbody>{data.maps.map(m => <tr key={m.map}><th scope="row">{m.map}</th><td>{m.matches}</td><td>{m.kills}</td><td>{m.averageKills.toFixed(1)}</td><td>{m.averagePlacement.toFixed(1)}</td><td>{m.averagePoints.toFixed(1)}</td><td>{m.wins}</td><td>{m.topThree}</td></tr>)}</tbody></table></div></details>
     </ChartSnapshot>

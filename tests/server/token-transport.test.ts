@@ -72,3 +72,15 @@ it('keeps the current in-memory token after an authenticated password change',as
  expect(await transport.request('/me/account')).toEqual({authorization:'Bearer fixture-memory-token'});
  expect(refreshes).toBe(1);transport.dispose();
 });
+
+it('does not convert a missing refresh endpoint during rollout into an anonymous session',async()=>{
+ let refreshes=0;
+ vi.stubGlobal('fetch',vi.fn(async(url:string)=>{
+  if(url.endsWith('/auth/refresh'))return ++refreshes===1?Response.json({code:'NOT_FOUND'},{status:404}):Response.json(envelope());
+  return Response.json({ok:true});
+ }));
+ const transport=createTokenTransport('/api');
+ await expect(transport.request('/me/session',{},[401])).rejects.toMatchObject({status:404});
+ await expect(transport.request('/me/session',{},[401])).resolves.toEqual({ok:true});
+ expect(refreshes).toBe(2);transport.dispose();
+});

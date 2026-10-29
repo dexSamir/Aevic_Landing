@@ -74,13 +74,16 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
     } catch { setError('PNG hazırlanmadı. Yenidən cəhd edin.'); }
     finally { exportLock.current = false; setExporting(false); }
   };
-  const createFile = useCallback(async () => {
+  const createFile = useCallback(async (selectedFormat: ProfileCardFormat = format) => {
     if (!ready || !canvasRef.current) throw new Error('Image not ready');
-    const blob = await teamIdentityCardBlob(canvasRef.current);
-    return new File([blob], `AEVIC-${data.teamId}-${format}.png`, { type:'image/png' });
+    const canvas = document.createElement('canvas');
+    drawTeamIdentityCard(canvas, data, selectedFormat, assets!, options);
+    const blob = await teamIdentityCardBlob(canvas);
+    canvas.width = canvas.height = 0;
+    return new File([blob], `AEVIC-${data.teamId}-${selectedFormat}.png`, { type:'image/png' });
   }, [ready, version]);
   return <div className="team-share-studio">
-    <ShareSheet open={shareOpen} onClose={closeShare} title={`${data.teamName} · AEVIC`} url={data.profileUrl} createFile={createFile}/>
+    <ShareSheet open={shareOpen} onClose={closeShare} title={`${data.teamName} · AEVIC`} url={data.profileUrl} createFile={createFile} formats initialFormat={format}/>
 
     <canvas ref={canvasRef} hidden aria-hidden="true" />
     <div className="team-share-preview" data-format={format} role="img" aria-label={`${data.teamName}: kartın önizləməsi. PNG eyni məlumatları ehtiva edir.`}>

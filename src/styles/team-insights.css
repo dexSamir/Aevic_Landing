@@ -131,3 +131,16 @@
 .intelligence-card:hover,.intelligence-card:active { background:color-mix(in srgb,var(--intelligence-surface,#292936),white 5%); }
 .intelligence-card > span,.intelligence-card .intelligence-card-action { color:#c7c7cf; }
 @media(max-width:700px) { .intelligence-card { min-height:140px; padding:14px; } }
+
+/* A single metric plot keeps the same temporal frame across comparisons. */
+.insight-charts--single { grid-template-columns:minmax(0,1fr); }
+.insight-charts--single > article { width:100%; }
+.insight-chart > svg { display:block; width:100%; height:210px; }
+.insight-metrics > div:first-child { background:var(--team-surface-secondary,var(--color-bg-secondary)); }
+.insight-metrics dd { margin-inline:0; }
+.insight-daily { min-width:0; }
+.insight-daily > summary { min-height:44px; padding:12px 0; cursor:pointer; color:var(--color-text-muted); font-size:14px; }
+.insight-daily .insight-chart { margin-top:8px; }
+.insight-chart--placement .chart-line { stroke:var(--color-brand-primary); stroke-dasharray:none; }
+.insight-chart--placement .chart-point { fill:var(--color-brand-primary); }
+@media(max-width:700px) { .insight-chart > svg { height:190px; } }

@@ -1,16 +1,11 @@
 import { useState } from 'react';
 import { Select } from '../common/primitives';
 import { deriveWrappedSummary, yearPeriod } from '../../utils/wrapped';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useTeamPlatformData } from '../../services/PlatformDataContext';
 import { competitionNow } from '../../services';
 
-export function CareerNav() {
-  const {pathname,hash}=useLocation();
-  const links=[['/team/career','Karyera xülasəsi'],['/team/history','Matç tarixçəsi'],['/team/career#maps','Xəritələr'],['/team/comparison','Müqayisə'],['/team/sharecards','Paylaşım studiyası'],['/team/career#wrapped','Wrapped']];
-  return <nav className="career-nav" aria-label="Karyera bölmələri">{links.map(([to,label])=>{const active=pathname+hash===to;return <Link key={to} to={to} className={active?'active':undefined} aria-current={active?'page':undefined}>{label}</Link>;})}</nav>;
-}
 export function TeamWrappedEntry({ year = competitionNow().getFullYear() }: { year?: number }) {
   const { currentTeam, matchHistory } = useTeamPlatformData();
   const [selectedYear, setSelectedYear] = useState(year);

@@ -255,3 +255,12 @@
 .generated-poster--full-table :is(.poster-leaderboard__head, li) { grid-template-columns: 4cqw minmax(0, 1fr) repeat(6, 8cqw); }
 
 /* Public studio shares the existing dialog and the actual export canvas. */
+
+/* Aggregate exports have no round art: give the official totals their own layout. */
+.generated-poster--summary .poster-result__ledger { top:38cqw; }
+.generated-poster--summary .poster-result__ledger dl { grid-template-columns:repeat(3,minmax(0,1fr)); gap:2cqw; }
+.generated-poster--summary .poster-result__ledger dl > div { min-height:16cqw; padding:2.5cqw; border-radius:1cqw; background:rgba(255,255,255,.04); }
+.generated-poster--summary .poster-result__ledger .is-total { grid-column:span 2; }
+.generated-poster--summary dt { font-size:1.7cqw; }
+.generated-poster--summary dd { font-size:4.5cqw; }
+.generated-poster--summary .poster-result__ledger .is-total dd { font-size:5.5cqw; }

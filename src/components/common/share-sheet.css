@@ -7,3 +7,11 @@
 .share-sheet-image { display:grid; gap:12px; padding-top:12px; border-top:1px solid var(--color-border); }
 .share-sheet-image p { font-size:12px; line-height:1.6; color:var(--color-text-muted); }
 .share-sheet .button { white-space:normal; }
+
+.share-format { display:grid; gap:8px; font-size:13px; color:var(--color-text-muted); }
+.share-format select { min-height:44px; width:100%; padding:10px; border:0; border-radius:10px; background:var(--surface-1); color:var(--color-text-primary); font:inherit; }
+.share-link-details { font-size:13px; color:var(--color-text-muted); }
+.share-link-details summary { cursor:pointer; padding:8px 0; }
+.share-sheet > [role=status]:empty { display:none; }
+.modal:has(.share-sheet) { max-width:440px; }
+@media(max-width:600px) { .modal-backdrop:has(.share-sheet) { align-items:end; padding:0; } .modal:has(.share-sheet) { width:100%; max-width:none; border-radius:20px 20px 0 0; padding-bottom:max(20px,env(safe-area-inset-bottom)); } }

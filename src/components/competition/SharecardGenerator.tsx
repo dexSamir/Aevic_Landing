@@ -58,12 +58,12 @@ function mapArtwork(map: string, roundIndex: number) {
 
 function TournamentResultPoster({ teamName, teamLogo, tournamentName, result, provenance, background }: Omit<SharecardGeneratorProps, 'standings'> & { background?: string; result: TournamentResultBreakdown; provenance: NonNullable<SharecardGeneratorProps['provenance']> }) {
   const initials = teamName.split(' ').map((part) => part[0]).slice(0, 2).join('').toLocaleUpperCase('az');
-  return <PosterFrame className="generated-poster--result" background={background} label={`${teamName} turnir nəticəsi`}>
+  return <PosterFrame className={`generated-poster--result ${result.maps.length ? '' : 'generated-poster--summary'}`} background={background} label={`${teamName} turnir nəticəsi`}>
     <PosterBrandline provenance={provenance} title={tournamentName} />
     <section className="poster-result__hero"><div className="poster-result__team">{teamLogo ? <TeamLogo name={teamName} src={teamLogo} size="lg" /> : <span className="poster-result__team-fallback" aria-label={`${teamName} üçün standart komanda işarəsi`}>{initials}</span>}<div><span>{provenance.stageLabel}</span><h2>{teamName}</h2></div></div><div className="poster-result__placement"><span>Final placement</span><strong>#{String(result.placement).padStart(2, '0')}</strong></div></section>
     <div className="poster-result__ledger"><dl><div><dt>Matches</dt><dd>{result.matches}</dd></div><div><dt>WWCD</dt><dd>{result.wwcd}</dd></div><div><dt>Total kills</dt><dd>{result.kills}</dd></div><div><dt>Placement points</dt><dd>{result.placementPoints}</dd></div><div className="is-total"><dt>Total points</dt><dd>{result.totalPoints}</dd></div></dl>{result.penalties > 0 && <p>Penalty <strong>−{result.penalties}</strong></p>}</div>
     <div className="poster-result__rotation" aria-label="Raund nəticələri">{result.maps.map((round, index) => <article className={round.isWWCD ? 'is-wwcd' : ''} key={round.matchId}><div><img src={mapArtwork(round.map, index)} alt="" /><b>R{round.round}</b>{round.isWWCD && <em>WWCD</em>}</div><strong>{round.map}</strong><p>{round.isWWCD ? 'WWCD' : `#${round.placement}`} <span>·</span> {round.kills} KILL</p><small><span>{round.totalPoints} PTS</span><span>{round.placementPoints} PP · {round.killPoints} KP</span></small></article>)}</div>
-    <p className="poster-result__legend">PP · placement points&nbsp;&nbsp; KP · kill points</p>
+    {result.maps.length > 0 && <p className="poster-result__legend">PP · placement points&nbsp;&nbsp; KP · kill points</p>}
     <footer><span>AEVIC OFFICIAL RESULT</span><strong>AD AETERNAM VICTORIAM.</strong></footer>
   </PosterFrame>;
 }

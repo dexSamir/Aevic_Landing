@@ -158,3 +158,27 @@ it('automatically registers a verified Supabase user with the existing token ses
  await app({google:{provider:'supabase'}}).request('/api/auth/google/callback?state=state&code=another',{headers:{cookie:'aevic-google=browser'}});
  expect(queries.filter(q=>q.includes('insert into aevic_platform.accounts('))).toHaveLength(1);
 });
+
+it.each([true,false])('preserves the signed remember preference through OAuth callback (%s)',async remember=>{
+ const started=await request('/auth/google/start',{remember});
+ const cookies=started.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');
+ const state=new URL((await started.json()).url).searchParams.get('state');
+ linked=true;
+ const response=await app().request(`/api/auth/google/callback?state=${state}&code=code`,{headers:{cookie:cookies}});
+ expect(response.headers.get('location')).toBe('/');
+ const session=response.headers.getSetCookie().find(value=>value.startsWith('aevic-captain='));
+ expect(session).toBeDefined();
+ if(remember)expect(session).toContain('Max-Age=2592000');else expect(session).not.toContain('Max-Age');
+});
+it('preserves remembered login when Google requires MFA continuation',async()=>{
+ const started=await request('/auth/google/start',{remember:true});
+ const cookies=started.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');
+ const state=new URL((await started.json()).url).searchParams.get('state');
+ linked=true;vi.mocked(consumeFactor).mockRejectedValueOnce(new ServiceError(401,'MFA_REQUIRED'));
+ const response=await app().request(`/api/auth/google/callback?state=${state}&code=code`,{headers:{cookie:cookies}});
+ expect(response.headers.get('location')).toBe('/login?google=continue&mfa=required');
+ const browser=response.headers.getSetCookie().find(value=>value.startsWith('aevic-google='))!.split(';')[0];
+ const preference=cookies.split('; ').find(value=>value.startsWith('aevic-google-return='));
+ const status=await app().request('/api/auth/google/continuation',{headers:{cookie:`${browser}; ${preference}`}});
+ expect(await status.json()).toMatchObject({remember:true,mode:'login'});
+});

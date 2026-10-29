@@ -14,6 +14,7 @@ describe('AEVIC reset email',()=>{
  it('provides branded HTML and a plain-text alternative without token-bearing previews or assets',()=>{
   const link='https://example.test/reset-password#token=16.fixture';
   const mail=passwordResetEmail(link);
+  expect(mail.html).toContain('src="https://example.test/brand/aevic-email-logo.png"');expect(mail.html).not.toContain('aevic-demo');expect(mail.html).toContain('class="email-brand" align="center"');
   expect(mail.html).toContain('Şifrəni yenilə');expect(mail.text).toContain(link);
   expect(mail.html).toContain('#101014');expect(mail.html).toContain('#F3C450');expect(mail.html).toContain('30 dəqiqə');
   expect(mail.html.match(/href=/g)).toHaveLength(6);
