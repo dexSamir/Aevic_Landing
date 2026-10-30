@@ -1,6 +1,5 @@
 /* Route-owned rules; source order retained, including responsive overrides. */
 
-.tournament-detail-width { width: calc(100% - clamp(40px,8vw,144px)); max-width: 1600px; margin-inline: auto; }
 .tournament-detail-hero { background: linear-gradient(90deg,rgba(5,5,7,.4),transparent 70%),linear-gradient(0deg,#0a0a0c,transparent 28%),var(--tournament-detail-hero-image) center / cover; }
 .tournament-detail-hero__stage { min-height: clamp(510px,44vw,670px); display: grid; grid-template-columns: minmax(0,1fr) minmax(330px,.51fr); gap: 60px; align-items: center; padding-top: calc(var(--header-height) + 44px); padding-bottom: 40px; }
 .tournament-detail-hero__copy { min-width: 0; }
@@ -125,7 +124,7 @@
 .tournament-scoring-cards h3 { display: flex; gap: 10px; align-items: center; color: var(--detail-gold); font: 600 17px/1.4 var(--font-ui); margin: 0 0 16px; }
 .tournament-scoring-cards .tournament-detail-scoring { display: block; padding: 0; background: none; }
 .tournament-scoring-cards .tournament-detail-scoring > div { display: flex; justify-content: space-between; min-height: 0; padding: 7px 0; border-bottom: 1px solid #ffffff06; }
-.tournament-scoring-cards .tournament-detail-scoring dt, .tournament-scoring-cards .tournament-detail-scoring dd { font: 500 14px/1.5 var(--font-ui); font-variant-numeric: tabular-nums; }
+.tournament-scoring-cards .tournament-detail-scoring dt, .tournament-scoring-cards .tournament-detail-scoring dd { font: 500 14px/1.5 var(--font-ui); font-variant-numeric: tabular-nums lining-nums; }
 .tournament-scoring-cards .tournament-detail-scoring small { display: inline; margin-left: 4px; }
 .tournament-scoring-example { margin-top: 28px; padding: 20px; background: #090a0c70; border-radius: 12px; }
 .tournament-scoring-example h4 { color: var(--detail-gold); margin: 0 0 14px; }
@@ -170,7 +169,7 @@
 /* One semantic competition table at every width; only its own viewport scrolls. */
 @media(max-width:767px) {
  .tournament-results .data-table-wrap { display:block; width:100%; max-width:100%; overflow-x:auto; }
- .tournament-results table { min-width:620px; width:100%; font-size:12px; font-variant-numeric:tabular-nums; }
+ .tournament-results table { min-width:620px; width:100%; font-size:12px; font-variant-numeric:tabular-nums lining-nums; }
  .tournament-results th, .tournament-results td { padding:9px 8px; height:44px; text-align:right; white-space:nowrap; }
  .tournament-results th:nth-child(2), .tournament-results td:nth-child(2) { text-align:left; min-width:150px; }
  .tournament-results .team-cell { gap:7px; }

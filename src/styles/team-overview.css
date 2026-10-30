@@ -49,7 +49,7 @@
 .overview-rounds li > span { color: var(--ov-muted); font: 500 .625rem var(--font-competition); }
 .overview-rounds li > div { display: grid; gap: 4px; }
 .overview-rounds small { color: var(--ov-muted); font-size: .6875rem; }
-.overview-rounds time { font-variant-numeric: tabular-nums; font-size: .75rem; }
+.overview-rounds time { font-variant-numeric: tabular-nums lining-nums; font-size: .75rem; }
 .overview-rounds .is-current { box-shadow: inset 2px 0 var(--ov-gold); background: var(--team-accent-wash); }
 .overview-rounds .is-current > span { color: var(--ov-gold); }
 .overview-section-link { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; color: var(--ov-gold); font-size: .6875rem; font-weight: 600; }
@@ -63,7 +63,7 @@
 .overview-standings :is(th, td) { text-align: left; height: 31px; padding: 6px 10px; border-bottom: 1px solid var(--ov-border); }
 .overview-standings th { color: var(--ov-muted); font-weight: 400; font-size: .625rem; }
 .overview-standings :is(th, td):first-child { width: 15%; color: var(--ov-muted); }
-.overview-standings :is(th, td):last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.overview-standings :is(th, td):last-child { text-align: right; font-variant-numeric: tabular-nums lining-nums; }
 .overview-standings .is-current { background: var(--team-accent-wash); box-shadow: inset 2px 0 var(--ov-gold); }
 .overview-standings .is-current td { color: var(--ov-gold); font-weight: 600; }
 .overview-standing-empty { display: grid; align-content: center; gap: 12px; min-height: 245px; max-width: 34ch; }

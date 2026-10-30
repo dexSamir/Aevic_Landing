@@ -4,7 +4,7 @@
 .tournament-calendar__picker > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-sm); margin-bottom: var(--space-lg); }
 .tournament-calendar__picker > header > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-xs); min-width: 0; }
 .tournament-calendar__picker > header span { font-family: var(--font-heading); font-size: var(--text-lg); text-transform: capitalize; }
-.tournament-calendar__picker > header strong { color: var(--color-gold-muted); font-variant-numeric: tabular-nums; }
+.tournament-calendar__picker > header strong { color: var(--color-gold-muted); font-variant-numeric: tabular-nums lining-nums; }
 .tournament-calendar__picker nav { display: flex; gap: var(--space-xs); }
 .tournament-calendar__picker nav button { width: 44px; height: 44px; display: grid; place-items: center; color: var(--color-text-muted); background: var(--color-bg-deep); border: 1px solid var(--color-border); border-radius: var(--radius-sm); transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out); }
 .tournament-calendar__picker nav button:hover { color: var(--color-brand-primary); border-color: var(--color-border-strong); }
@@ -28,7 +28,7 @@
   border: 0;
   border-radius: 0;
 }
-.tournament-calendar__days > button { position: relative; display: grid; place-items: center; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.tournament-calendar__days > button { position: relative; display: grid; place-items: center; color: var(--color-text-muted); font-variant-numeric: tabular-nums lining-nums; }
 
 .tournament-calendar__days > button > i, .tournament-calendar__strip button > i { position: absolute; left: 50%; bottom: .28rem; width: 5px; height: 5px; transform: translateX(-50%); background: var(--color-brand-primary); border-radius: 50%; }
 .tournament-calendar button[data-event-status='live'] > i { background: var(--color-warning); }
@@ -61,7 +61,7 @@
 .tournament-calendar__agenda dl { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr)); margin: 0; background: var(--color-border); gap: 1px; }
 .tournament-calendar__agenda dl > div { display: grid; gap: .2rem; padding: var(--space-sm); background: var(--color-bg-deep); }
 .tournament-calendar__agenda dt { color: var(--color-text-soft); font-size: .7rem; }
-.tournament-calendar__agenda dd { margin: 0; color: var(--color-text-primary); font-family: var(--font-heading); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.tournament-calendar__agenda dd { margin: 0; color: var(--color-text-primary); font-family: var(--font-heading); font-size: var(--text-sm); font-variant-numeric: tabular-nums lining-nums; }
 .tournament-join { min-width: 0; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; gap: var(--space-xs); }
 .tournament-join__action { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
 .tournament-join__message { max-width: 48ch; color: var(--color-warning); font-size: var(--text-sm); line-height: 1.45; }
@@ -72,7 +72,7 @@
 .tournament-join-confirm dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; background: var(--color-border); gap: 1px; }
 .tournament-join-confirm dl > div { display: grid; gap: .25rem; padding: var(--space-sm); background: var(--color-bg-secondary); }
 .tournament-join-confirm dt { color: var(--color-text-soft); font-size: var(--text-xs); }
-.tournament-join-confirm dd { min-width: 0; margin: 0; overflow-wrap: anywhere; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tournament-join-confirm dd { min-width: 0; margin: 0; overflow-wrap: anywhere; font-weight: 700; font-variant-numeric: tabular-nums lining-nums; }
 .tournament-calendar__empty { display: grid; align-content: center; justify-items: start; gap: var(--space-xs); padding-block: var(--space-xl); color: var(--color-text-muted); }
 .tournament-calendar__empty svg, .tournament-calendar__empty a { color: var(--color-brand-primary); }
 .tournament-calendar__empty p { max-width: 34ch; }

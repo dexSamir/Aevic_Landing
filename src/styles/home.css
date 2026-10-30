@@ -21,7 +21,7 @@
 .home-competition-rail dl { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); margin: 0; }
 .home-competition-rail dl > div { min-width: 0; padding-inline: .85rem; border-left: var(--module-divider); }
 .home-competition-rail dt { color: var(--text-muted); font-size: .65rem; }
-.home-competition-rail dd { margin: .25rem 0 0; font: 700 1.1rem/1.3 var(--font-ui); font-variant-numeric: tabular-nums; }
+.home-competition-rail dd { margin: .25rem 0 0; font: 700 1.1rem/1.3 var(--font-ui); font-variant-numeric: tabular-nums lining-nums; }
 .home-competition-rail__action, .home-competition-rail--empty > a { display: inline-flex; align-items: center; gap: 1rem; min-height: 44px; color: var(--gold-primary); font: 700 .8rem/1.4 var(--font-ui); }
 .home-competition-rail--empty { padding-inline: 0; grid-template-columns: minmax(0,1fr) auto; }
 .home-calendar-section, .home-teams-section { padding-block: clamp(3rem,5vw,5rem); }

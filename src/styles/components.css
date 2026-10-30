@@ -111,7 +111,7 @@
 .phone-field__control { position: relative; display: block; }
 .phone-field__control { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-bg-deep); transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out); }
 .phone-field__control:focus-within { border-color: var(--color-brand-primary); box-shadow: var(--shadow-focus); }
-.phone-field__control > span { padding-left: 0.82rem; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.phone-field__control > span { padding-left: 0.82rem; color: var(--color-text-muted); font-variant-numeric: tabular-nums lining-nums; }
 .phone-field__control > input { min-width: 0; padding-left: 0.45rem; border: 0; box-shadow: none; }
 .phone-field__control > input:focus { box-shadow: none; }
 .field--error .phone-field__control { border-color: var(--color-danger); }
@@ -186,7 +186,7 @@
 
 .progress { display: grid; gap: 0.55rem; }
 .progress__meta { display: flex; justify-content: space-between; color: var(--color-text-muted); font-size: var(--text-sm); }
-.progress__meta strong { color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+.progress__meta strong { color: var(--color-text-primary); font-variant-numeric: tabular-nums lining-nums; }
 .progress__track { height: 6px; display: block; overflow: hidden; background: var(--color-surface-muted); border-radius: var(--radius-pill); }
 .progress__track > span { height: 100%; display: block; background: var(--color-brand-primary); border-radius: inherit; }
 
@@ -260,7 +260,7 @@
 .data-table caption { padding: var(--space-md); text-align: left; color: var(--color-text-muted); }
 .data-table th, .data-table td {text-align: left; border-bottom: 1px solid var(--color-border);  padding: .65rem .85rem; }
 .data-table th { color: var(--color-text-soft); background: var(--color-bg-deep); font-size: var(--text-xs); font-weight: 700; white-space: nowrap; }
-.data-table td { color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.data-table td { color: var(--color-text-muted); font-variant-numeric: tabular-nums lining-nums; }
 .data-table td strong { color: var(--color-text-primary); }
 .data-table tbody tr:hover { background: var(--color-bg-secondary); }
 .data-table tbody tr:last-child td { border-bottom: 0; }
@@ -337,7 +337,7 @@
   .entity-context-bar__action { padding-top: var(--space-xs); border-top: 0; }
 }
 
-.pagination { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-xs); margin-top: var(--space-lg); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.pagination { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-xs); margin-top: var(--space-lg); color: var(--color-text-muted); font-variant-numeric: tabular-nums lining-nums; }
 .tooltip { position: relative; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -446,7 +446,7 @@
   padding-bottom: var(--space-lg);
   border-bottom: 0;
 }
-.motion-page--competition .page-header h1 { font-variant-numeric: tabular-nums; }
+.motion-page--competition .page-header h1 { font-variant-numeric: tabular-nums lining-nums; }
 
 .motion-page :is(.field input, .field select, .field textarea, .search-field) {
   transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard);

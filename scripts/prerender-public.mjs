@@ -6,6 +6,16 @@ import { prerenderHome } from './prerender-home.mjs';
 
 const dist = resolve('dist');
 const template = readFileSync(resolve(dist, 'index.html'), 'utf8');
+// Reuse the same hashed Inter files in the offline shell, including Azerbaijani.
+const assetManifest = JSON.parse(readFileSync(resolve(dist, '.vite/manifest.json'), 'utf8'));
+const offlineFonts = [];
+const offlineFontCss = readFileSync(resolve('src/styles/fonts.css'), 'utf8').replace(/\.\.\/assets\/fonts\/([^)'" ]+)/g, (_, name) => {
+  const url = '/' + assetManifest['src/assets/fonts/' + name].file;
+  offlineFonts.push(url);
+  return url;
+});
+writeFileSync(resolve(dist, 'offline.css'), readFileSync(resolve(dist, 'offline.css'), 'utf8').replace('@import url("/src/styles/fonts.css");', offlineFontCss));
+
 const { canonicalOrigin, mediaOrigin, indexableDeployment } = buildConfiguration();
 const { routeManifest, crawlableEntityRouteIds } = await loadRouteManifest();
 const routes = routeManifest.filter((route) => route.path !== '*');
@@ -49,7 +59,7 @@ writeFileSync(resolve(dist, '_headers'), '/*\n  Content-Security-Policy: ' + con
 const privateHeaders = ['/team', '/team/*', '/admin', '/admin/*', '/account', '/account/*', ...routes.filter(route => route.family === 'AUTH' && !route.path.includes(':')).map(route => route.path)];
 writeFileSync(resolve(dist, '_headers'), readFileSync(resolve(dist, '_headers'), 'utf8') + privateHeaders.map(path => path + '\n  X-Robots-Tag: noindex, nofollow\n').join(''));
 const version = createHash('sha256').update(template).update(readFileSync(resolve(dist, '.vite/manifest.json'))).digest('hex').slice(0, 16);
-const sw = readFileSync(resolve(dist, 'sw.js'), 'utf8').replaceAll('__BUILD_VERSION__', version);
+const sw = readFileSync(resolve(dist, 'sw.js'), 'utf8').replaceAll('__BUILD_VERSION__', version).replace("'/offline.css',", "'/offline.css'," + offlineFonts.map(url => JSON.stringify(url)).join(',') + ',');
 writeFileSync(resolve(dist, 'sw.js'), sw);
 writeFileSync(resolve(dist, 'route-manifest.json'), JSON.stringify(routeManifest, null, 2) + '\n');
 process.stdout.write('Built ' + routes.length + ' static route shells, ' + routeManifest.length + ' route definitions, routing, CSP and versioned offline shell.\n');

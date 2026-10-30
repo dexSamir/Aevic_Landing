@@ -7,7 +7,7 @@
 .share-format-selector button.is-active { color: var(--color-text-primary); background: var(--color-bg-elevated); border-color: var(--color-brand-primary); }
 .share-format-selector button strong { color: var(--color-brand-primary); font-family: var(--font-ui); font-size: var(--text-sm); }
 .share-format-selector button span { min-width: 0; font-size: var(--text-xs); }
-.share-format-selector button small { color: var(--color-text-soft); font-size: .68rem; font-variant-numeric: tabular-nums; }
+.share-format-selector button small { color: var(--color-text-soft); font-size: .68rem; font-variant-numeric: tabular-nums lining-nums; }
 .share-template-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; overflow: hidden; background: var(--color-border); border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
 .share-template-selector button { min-width: 0; min-height: 4.2rem; display: grid; align-content: center; gap: .15rem; padding: var(--space-xs); color: var(--color-text-muted); text-align: left; background: var(--color-bg-secondary); border: 0; cursor: pointer; }
 .share-template-selector button:hover, .share-template-selector button:focus-visible { color: var(--color-text-primary); background: var(--color-surface-hover); }

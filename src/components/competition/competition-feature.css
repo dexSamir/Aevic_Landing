@@ -10,7 +10,7 @@
 .competition-feature dl { display: grid; align-content: end; gap: var(--space-lg); margin: 0; padding: var(--space-lg); border-left: var(--module-divider); background: color-mix(in srgb, var(--surface-command) 75%, transparent); }
 .competition-feature dl > div { display: grid; gap: .35rem; padding-top: var(--space-md); border-top: 0; }
 .competition-feature dt { color: var(--text-muted); font-size: var(--text-xs); }
-.competition-feature dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 700; overflow-wrap: anywhere; }
+.competition-feature dd { margin: 0; font-variant-numeric: tabular-nums lining-nums; font-weight: 700; overflow-wrap: anywhere; }
 @media (max-width: 640px) {
   .competition-feature { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .competition-feature__identity { padding: var(--space-xl) var(--space-lg); }

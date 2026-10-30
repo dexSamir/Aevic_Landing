@@ -4,7 +4,7 @@
   container-type: inline-size;
   min-width: 0;
   color: #eeeef0;
-  background: #050506;
+  background: #101114;
   font-family: var(--font-ui), sans-serif;
   content-visibility: auto;
   contain-intrinsic-size: auto 900px;
@@ -13,7 +13,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: clamp(1.5rem, 4cqi, 4.5rem);
+  padding-block: clamp(1.5rem, 4cqi, 4.5rem);
   background: #101114;
 }
 .cinematic-footer__top { display: grid; grid-template-columns: 1fr 1fr 1fr auto; align-items: start; gap: 2rem; }
@@ -26,7 +26,7 @@
 .cinematic-footer__statement { display: grid; align-content: center; min-height: clamp(20rem, 31cqi, 35rem); margin: 0; padding-block: 4rem; text-align: center; color: #f5f5f5; font-size: clamp(1.25rem, 1.9cqi, 2.05rem); font-weight: 500; line-height: 1.08; letter-spacing: -.035em; text-wrap: balance; text-shadow: 0 1px 8px #0005; }
 .cinematic-footer__information { position: relative; z-index: 1; display: grid; grid-template-columns: 1.2fr 1.1fr 1fr .9fr; gap: clamp(1rem, 3cqi, 3.5rem); }
 .cinematic-footer .cinematic-footer__group { min-width: 0; scroll-margin-block: 5rem; }
-.cinematic-footer .cinematic-footer__group h2 { margin: 0 0 1rem; color: #dddde1; font: 500 .75rem/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
+.cinematic-footer .cinematic-footer__group h2 { margin: 0 0 1rem; color: #dddde1; font: 500 .75rem/1.5 var(--font-ui); letter-spacing: .06em; text-transform: uppercase; }
 .cinematic-footer__group a, .cinematic-footer__unavailable { display: flex; align-items: center; gap: .25rem; min-height: 44px; width: fit-content; max-width: 100%; font-size: .8125rem; line-height: 1.5; overflow-wrap: anywhere; }
 .cinematic-footer__links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 .75rem; }
 .cinematic-footer__unavailable { color: #aaaab2; cursor: default; }
@@ -50,7 +50,7 @@
 }
 /* Mobile composition shared by every existing footer route. */
 @container (max-width: 768px) {
-  .cinematic-footer__scene { padding: 32px 16px 24px; background: #0b0b0d; }
+  .cinematic-footer__scene { padding-block: 32px 24px; background: #0b0b0d; }
   .cinematic-footer__top { grid-template-columns: 1fr 1fr 1.35fr auto; gap: 8px; }
   .cinematic-footer__top p { font-size: clamp(10px, 2.5cqi, 18px); line-height: 1.45; }
   .cinematic-footer__top > :not(:first-child) { border-left: 0; padding-left: 8px; }

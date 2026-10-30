@@ -1,7 +1,7 @@
 /* Route-owned rules; source order retained, including responsive overrides. */
 
 .match-center { padding: calc(var(--header-height) + clamp(44px, 5vw, 76px)) 0 48px; }
-.match-center > .container { width: calc(100% - clamp(48px, 12vw, 264px)); max-width: 1280px; }
+
 .match-center__header { display: grid; grid-template-columns: minmax(0, 1fr) 350px; align-items: end; gap: 28px; margin-bottom: 34px; }
 .match-center__header h1 { font: 700 clamp(36px, 4.4vw, 64px)/1.14 var(--font-display); letter-spacing: -.045em; margin: 10px 0 12px; white-space: nowrap; }
 .match-center__header p { color: var(--color-text-muted); font-size: 14px; line-height: 1.8; }
@@ -28,11 +28,11 @@
 
 }
 @media (max-width: 800px) {
- .match-center > .container { width: calc(100% - 48px); padding-inline: 0; }
+
 }
 @media (max-width: 540px) {
  .match-center { padding-top: calc(var(--header-height) + 36px); }
- .match-center > .container { width: calc(100% - 40px); }
+
  .match-center__header { gap: 24px; }
  .match-center__header h1 { font-size: clamp(25px, 7.4vw, 40px); white-space: normal; }
  .match-center__header p { font-size: 12px; }
@@ -44,7 +44,7 @@
 
 .match-card__identity { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .match-card__identity > div { min-width:0; }
-.match-card__identity time { flex:0 0 auto; max-width:45%; text-align:right; font-variant-numeric:tabular-nums; }
+.match-card__identity time { flex:0 0 auto; max-width:45%; text-align:right; font-variant-numeric:tabular-nums lining-nums; }
 .match-card__identity time strong { display:block; font-size:22px; }
 .match-card__identity small { display:block; color:var(--color-text-muted); font-size:12px; }
 .match-card__scene::after { display:none; }

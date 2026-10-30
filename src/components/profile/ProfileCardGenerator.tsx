@@ -36,7 +36,7 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
     let active = true;
     setAssets(undefined); setError(''); setWarning('');
     void (async () => {
-      await Promise.all([document.fonts?.load('800 48px Orbitron'), document.fonts?.load('700 24px Raleway'), document.fonts?.load('900 200px Raleway')]);
+      await Promise.all([document.fonts?.load('800 48px Inter'), document.fonts?.load('700 24px Inter'), document.fonts?.load('900 200px Inter')]);
       await document.fonts?.ready;
       const [logo, qr, maps] = await Promise.all([
         loadCardImage(data.teamLogo).catch(() => { if (active) setWarning('Loqo yüklənmədi. Kartda komandanın baş hərfləri göstərilir.'); return undefined; }),

@@ -76,7 +76,7 @@ function drawLogo(context: CanvasRenderingContext2D, data: TeamProfileCardData, 
   } else {
     context.fillStyle = '#151519'; context.beginPath(); context.roundRect(x, y, size, size, size * .1); context.fill();
     context.strokeStyle = 'rgba(243,196,80,.3)'; context.lineWidth = 2; context.stroke();
-    context.fillStyle = '#f3c450'; context.textAlign = 'center'; context.textBaseline = 'middle'; context.font = `800 ${size * .3}px Orbitron, sans-serif`; context.fillText(initials(data.teamName), x + size / 2, y + size / 2);
+    context.fillStyle = '#f3c450'; context.textAlign = 'center'; context.textBaseline = 'middle'; context.font = `800 ${size * .3}px Inter, sans-serif`; context.fillText(initials(data.teamName), x + size / 2, y + size / 2);
   }
   context.restore(); context.textAlign = 'left'; context.textBaseline = 'alphabetic';
 }
@@ -108,10 +108,10 @@ export function resolveTeamCardOptions(data: TeamProfileCardData, options: TeamI
 
 /** Fit the actual glyph ink, then put its midpoint on the canvas clipping edge. */
 export function teamCardWordmark(context: CanvasRenderingContext2D, width: number, height: number) {
-  context.font = '900 200px Raleway, sans-serif';
+  context.font = '900 200px Inter, sans-serif';
   const reference = context.measureText('AEVIC');
   const size = 200 * width * .98 / (reference.actualBoundingBoxLeft + reference.actualBoundingBoxRight);
-  context.font = `900 ${size}px Raleway, sans-serif`;
+  context.font = `900 ${size}px Inter, sans-serif`;
   const metrics = context.measureText('AEVIC');
   const inkHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
   return { font: context.font, x: width * .01 + metrics.actualBoundingBoxLeft,
@@ -174,7 +174,7 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
   // A uniform transform preserves typography, logos and QR aspect ratios even in dense square cards.
   const text = (value: string, x: number, y: number, size: number, maxWidth: number, kind: 'heading' | 'value' | 'brand' = 'value', color = '#e9e9ed', centered = false) => {
     context.fillStyle = color;
-    const family = kind === 'brand' ? 'Orbitron' : 'Raleway';
+    const family = kind === 'brand' ? 'Inter' : 'Inter';
     let fitted = size;
     context.font = `${kind === 'value' ? 600 : 700} ${fitted}px ${family}, sans-serif`;
     while (context.measureText(value).width > maxWidth && fitted > Math.max(14, size * .65)) {
@@ -216,12 +216,12 @@ export function drawTeamIdentityCard(canvas: HTMLCanvasElement, data: TeamProfil
         const tx = story ? 0 : size + 46;
         const ty = story ? size + 44 : 30;
         text('TEAM', tx, ty, 22, w - tx, 'heading', '#f5ca49');
-        context.font = '600 46px Raleway, sans-serif';
+        context.font = '600 46px Inter, sans-serif';
         if (context.measureText(data.teamName).width <= w - tx) text(data.teamName, tx, ty + 64, 46, w - tx);
         else {
           const words = data.teamName.split(/\s+/);
           let first = words.shift() ?? '';
-          context.font = '600 32px Raleway, sans-serif';
+          context.font = '600 32px Inter, sans-serif';
           while (words.length > 1 && context.measureText(`${first} ${words[0]}`).width <= w - tx) first += ` ${words.shift()}`;
           text(first, tx, ty + 48, 32, w - tx);
           if (words.length) text(words.join(' '), tx, ty + 84, 32, w - tx);
@@ -295,19 +295,19 @@ export function drawPublicTeamIdentityCard(canvas: HTMLCanvasElement, data: Team
   const shade = context.createLinearGradient(0, 0, 0, 660);
   shade.addColorStop(0, 'rgba(0,0,0,.65)'); shade.addColorStop(.4, 'rgba(0,0,0,0)'); shade.addColorStop(1, 'rgba(0,0,0,.8)');
   context.fillStyle = shade; context.fillRect(0, 0, 950, 660);
-  context.fillStyle = '#ffd338'; context.font = '700 116px Oswald, sans-serif';
+  context.fillStyle = '#ffd338'; context.font = '700 116px Inter, sans-serif';
   if (assets.logo) drawContain(context, assets.logo, 40, 35, 160, 130);
   else context.fillText(initials(data.teamName), 40, 160, 170);
-  context.fillStyle = '#f5f4f0'; context.font = '600 58px Oswald, sans-serif'; context.fillText(data.teamName, 240, 110, 665);
-  context.fillStyle = '#ffd338'; context.font = '500 20px Oswald, sans-serif'; context.fillText(data.teamTag ?? '', 244, 153, 650);
+  context.fillStyle = '#f5f4f0'; context.font = '600 58px Inter, sans-serif'; context.fillText(data.teamName, 240, 110, 665);
+  context.fillStyle = '#ffd338'; context.font = '500 20px Inter, sans-serif'; context.fillText(data.teamTag ?? '', 244, 153, 650);
   context.fillStyle = '#080a0b'; context.fillRect(950, 0, 250, 660);
   const stats = [{ value: data.matches, label: 'MATÇ' }, { value: data.finishes, label: 'KILL' }, { value: data.wwcd, label: 'WWCD' }, { value: data.championships, label: 'ÇEMPİONLUQ' }];
   stats.forEach((stat, i) => {
     const y = 95 + i * 139;
-    context.fillStyle = '#ffd338'; context.font = '600 64px Oswald, sans-serif'; context.fillText(String(stat.value ?? '—'), 1004, y, 165);
-    context.fillStyle = '#f5f4f0'; context.font = '500 21px Oswald, sans-serif'; context.fillText(stat.label, 1004, y + 31);
+    context.fillStyle = '#ffd338'; context.font = '600 64px Inter, sans-serif'; context.fillText(String(stat.value ?? '—'), 1004, y, 165);
+    context.fillStyle = '#f5f4f0'; context.font = '500 21px Inter, sans-serif'; context.fillText(stat.label, 1004, y + 31);
   });
-  context.fillStyle = '#dedbd4'; context.font = '500 19px Oswald, sans-serif'; context.letterSpacing = '3px';
+  context.fillStyle = '#dedbd4'; context.font = '500 19px Inter, sans-serif'; context.letterSpacing = '3px';
   context.fillText('PUBG MOBILE', 36, 602); context.fillText((data.country ?? '').toLocaleUpperCase('az'), 36, 634, 550);
   context.textAlign = 'right'; if (data.year) context.fillText(`EST. ${data.year}`, 912, 634); context.textAlign = 'left'; context.letterSpacing = '0px';
 }

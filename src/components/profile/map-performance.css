@@ -16,7 +16,7 @@
 .map-performance-content dl { display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:14px; margin:30px 0 0; }
 .map-performance-content dl > div + div { border-left:1px solid #ffffff30; padding-left:18px; }
 .map-performance-content dt { color:#c5c5cb; font-size:clamp(12px,1.1vw,16px); margin-bottom:5px; white-space:nowrap; }
-.map-performance-content dd { margin:0; color:#fff; font:650 clamp(1.65rem,2.6vw,2.75rem)/1.15 var(--font-ui); letter-spacing:-.035em; font-variant-numeric:tabular-nums; }
+.map-performance-content dd { margin:0; color:#fff; font:650 clamp(1.65rem,2.6vw,2.75rem)/1.15 var(--font-ui); letter-spacing:-.035em; font-variant-numeric:tabular-nums lining-nums; }
 .map-performance-card--featured .map-performance-average dd { color:var(--gold-primary); font-size:clamp(3rem,5vw,5rem); }
 .map-performance-card--featured dl { margin-top:42px; align-items:center; }
 .map-performance-badge { position:absolute; top:30px; left:30px; display:inline-flex; align-items:center; gap:10px; max-width:calc(100% - 60px); padding:10px 16px; border-radius:999px; background:#080a0bc9; color:var(--gold-primary); font-size:11px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; }

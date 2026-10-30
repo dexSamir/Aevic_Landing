@@ -25,7 +25,7 @@
   .sharecard-studio--compact-download .studio-actions .button { width: 100%; }
 }
 
-.generated-poster { position: relative; aspect-ratio: 1; overflow: hidden; container-type: inline-size; isolation: isolate; color: #f5f1e9; background: #08080c; font-variant-numeric: tabular-nums; }
+.generated-poster { position: relative; aspect-ratio: 1; overflow: hidden; container-type: inline-size; isolation: isolate; color: #f5f1e9; background: #08080c; font-variant-numeric: tabular-nums lining-nums; }
 .generated-poster__atmosphere { position: absolute; inset: 0; background: radial-gradient(circle at 18% 14%, rgba(251, 191, 36, 0.14), transparent 27%), radial-gradient(circle at 86% 82%, rgba(109, 40, 217, 0.22), transparent 38%), linear-gradient(148deg, #111018 0%, #07070a 54%, #130a23 100%); }
 .generated-poster__atmosphere::before, .generated-poster__atmosphere::after { content: ''; position: absolute; pointer-events: none; }
 .generated-poster__atmosphere::before { inset: -8cqw 48cqw 30cqw -18cqw; transform: rotate(-13deg); background: linear-gradient(135deg, rgba(251, 191, 36, 0.18), transparent 55%); clip-path: polygon(0 18%, 82% 0, 100% 38%, 56% 48%, 86% 100%, 18% 76%); }

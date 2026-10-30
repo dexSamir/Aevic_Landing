@@ -7,7 +7,7 @@
 .team-stat-slider__heading > :last-child { display: inline-flex; flex: 0 0 auto; }
 .team-stat-slider__heading svg { width: 16px; height: 16px; }
 .team-stat-slider__eyebrow { font: 600 var(--text-xs)/1.4 var(--font-ui); }
-.team-stat-slider__card strong { font: 700 clamp(1.15rem, 2vw, 1.5rem)/1.25 var(--font-ui); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.team-stat-slider__card strong { font: 700 clamp(1.15rem, 2vw, 1.5rem)/1.25 var(--font-ui); font-variant-numeric: tabular-nums lining-nums; overflow-wrap: anywhere; }
 .team-stat-slider__card small { color: var(--text-secondary); font-size: var(--text-xs); line-height: 1.5; }
 .team-stat-slider__card--gold strong { color: var(--gold-primary); }
 a.team-stat-slider__card { transition: background-color var(--motion-fast); }

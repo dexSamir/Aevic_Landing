@@ -49,13 +49,11 @@
   --color-medal-legacy: #f5e3a4;
   --color-medal-legacy-surface: #25152e;
 
-  /* 946 Latin Wide 4 is the licensed target face. Orbitron remains the
-     explicit project fallback until that font asset is supplied. */
-  --font-display: '946 Latin Wide 4', 'Orbitron', sans-serif;
-  --font-heading: var(--font-display);
-  --font-competition: 'Orbitron', sans-serif;
-  --font-public-display: 'Oswald', 'Arial Narrow', sans-serif;
-  --font-ui: 'Raleway', sans-serif;
+  --font-ui: 'Inter', sans-serif;
+  --font-display: var(--font-ui);
+  --font-heading: var(--font-ui);
+  --font-competition: var(--font-ui);
+  --font-public-display: var(--font-ui);
   --font-body: var(--font-ui);
 
   --bg-page: var(--color-bg-primary);
@@ -210,6 +208,7 @@
   --team-chrome: var(--surface-1);
   --team-topbar: var(--bg-page);
   --team-surface-primary: var(--surface-1);
+  --dashboard-card-surface: var(--surface-1);
   --team-surface-secondary: var(--surface-2);
   --team-surface-raised: var(--surface-3);
   --team-surface-inset: var(--surface-command);

@@ -23,7 +23,7 @@
 .image-editor-hint { color:var(--color-text-muted); font-size:13px; line-height:1.5; margin-bottom:20px; text-align:center; }
 .logo-editor-controls label { flex:1 1 180px; font-size:13px; }
 .logo-editor-controls input { flex:1; min-width:60px; width:100%; }
-.image-editor-zoom { font-size:13px; font-variant-numeric:tabular-nums; min-width:42px; }
+.image-editor-zoom { font-size:13px; font-variant-numeric:tabular-nums lining-nums; min-width:42px; }
 .logo-editor-position { padding-top:12px; }
 .team-logo-editor footer { border-top:1px solid var(--color-border); padding-top:20px; margin-top:24px; }
 .team-logo-editor footer .button { min-width:110px; }

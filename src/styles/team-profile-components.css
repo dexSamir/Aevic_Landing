@@ -151,7 +151,7 @@
 .team-form > div { min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; padding: 0; overflow: visible; }
 .team-form__segment { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--space-sm); padding: var(--space-md); border-right: 1px solid var(--color-border); }
 .team-form__segment:last-child { border-right: 0; }
-.team-form__index { color: var(--color-text-soft); font: 700 .65rem/1 var(--font-heading); font-variant-numeric: tabular-nums; }
+.team-form__index { color: var(--color-text-soft); font: 700 .65rem/1 var(--font-heading); font-variant-numeric: tabular-nums lining-nums; }
 .team-form__item { min-width: 0; min-height: 5rem; grid-template-columns: 1fr; align-content: center; gap: .2rem; color: var(--color-text-muted); background: transparent; border: 0; border-radius: 0; }
 .team-form__item > .team-form__order { display: none; }
 .team-form__item > span { grid-row: auto; color: var(--color-text-primary); font-size: var(--text-md); }
@@ -226,7 +226,7 @@
   border-radius: var(--radius-md);
   box-shadow: none;
   scroll-snap-align: start;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
   transition: border-color var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
 }
 .team-form__item > span {
