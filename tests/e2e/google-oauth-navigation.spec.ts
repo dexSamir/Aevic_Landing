@@ -9,7 +9,7 @@ for(const path of ['/login','/register'])for(const provider of ['supabase','dire
  await page.goto(path+'?returnTo=%2Faccount');
  const request=page.waitForRequest('**/api/auth/google/start');
  await page.getByRole('button',{name:'Google ilə davam et'}).click();
- expect((await request).postDataJSON()).toEqual({returnTo:'/account'});
+ expect((await request).postDataJSON()).toEqual({remember:true,returnTo:'/account'});
  await expect(page).toHaveURL(target);
  await page.goBack();await expect(page.locator('.auth-shell')).toHaveClass(path==='/login'?/auth-shell--login/:/auth-shell--register/);await expect(page.getByRole('button',{name:'Google ilə davam et'})).toBeEnabled();
  expect((await page.context().cookies('http://127.0.0.1:4173')).find(c=>c.name==='aevic-google')).toMatchObject({value:'browser-binding',httpOnly:true,sameSite:'Lax'});

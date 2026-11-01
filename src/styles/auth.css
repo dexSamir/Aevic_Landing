@@ -911,3 +911,5 @@ html:has(.auth-identity)::-webkit-scrollbar, body:has(.auth-identity)::-webkit-s
 .otp-control > input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: text; font-size: 16px; }
 @media (max-width: 1023px) { .auth-shell:has(.mfa-challenge) > main { padding-bottom: calc(24px + var(--mobile-bottom-nav-height, 72px) + env(safe-area-inset-bottom)); } }
 @media (prefers-reduced-motion: reduce) { .auth-session-check__spinner { animation: none; } }
+
+.login-card > .toast { width: 100%; min-width: 0; overflow-wrap: anywhere; margin-bottom: 1.25rem; }

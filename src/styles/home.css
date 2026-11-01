@@ -1,5 +1,6 @@
+@import "./hero-fonts.css";
 /* Home composition follows the supplied arena → competition → maps → teams → brand artwork. */
-.home-live-hero { position: relative; isolation: isolate; min-height: clamp(42rem, 94svh, 58rem); display: grid; overflow: hidden; background: var(--surface-command); }
+.home-live-hero { --font-ui: 'Raleway', sans-serif; --font-public-display: 'Oswald', 'Arial Narrow', sans-serif; font-family: var(--font-ui); position: relative; isolation: isolate; min-height: clamp(42rem, 94svh, 58rem); display: grid; overflow: hidden; background: var(--surface-command); }
 .home-live-hero__media { z-index: -2; }
 .home-live-hero__media > picture > img { opacity: 1; transform: none; }
 .home-live-hero__media .media-backdrop__shade { background: linear-gradient(90deg, rgba(0,0,0,.64), rgba(0,0,0,.22) 38%, transparent 70%); }

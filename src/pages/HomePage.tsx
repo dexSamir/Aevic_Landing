@@ -34,7 +34,7 @@ export function HomePage() {
   const startTime = featured ? formatEventTime(featured.startsAt, AEVIC_EVENT_TIMEZONE) : '';
   return <>
     <section className="home-live-hero">
-      <MediaBackdrop {...homeArtwork.hero} sizes="100vw" className="home-live-hero__media" priority focalDesktop="55% 48%" focalMobile="63% 45%" />
+      <MediaBackdrop {...homeArtwork.hero} sizes="(max-width: 800px) 1400px, 100vw" className="home-live-hero__media" priority focalDesktop="55% 48%" focalMobile="63% 45%" />
       <div className="container home-live-hero__stage">
         <div className="home-live-hero__cover">
           <div className="home-live-hero__copy">

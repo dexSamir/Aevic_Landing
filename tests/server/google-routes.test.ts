@@ -182,3 +182,27 @@ it('preserves remembered login when Google requires MFA continuation',async()=>{
  const status=await app().request('/api/auth/google/continuation',{headers:{cookie:`${browser}; ${preference}`}});
  expect(await status.json()).toMatchObject({remember:true,mode:'login'});
 });
+
+it('keeps the same account when a Supabase-linked Google subject returns through direct OAuth',async()=>{
+ linked=true;callbackFlow();flow.nonce='supabase:nonce';
+ const first=await app({google:{provider:'supabase'}}).request('/api/auth/google/callback?state=state&code=code',{headers:{cookie:'aevic-google=browser'}});
+ expect(first.headers.get('location')).toBe('/');
+ consumed=false;queries=[];callbackFlow();
+ const second=await callback();
+ expect(second.headers.get('location')).toBe('/');
+ expect(exchangeGoogleCode).toHaveBeenCalledWith(config.google,'code','verifier','nonce',config.siteUrl+'/api/auth/google/callback');
+ expect(queries.some(q=>q.includes('insert into aevic_platform.accounts(')||q.includes('insert into aevic_platform.google_identities'))).toBe(false);
+ expect(queries.some(q=>q.includes('insert into aevic_platform.sessions'))).toBe(true);
+});
+it('rejects a valid state used by another browser before code exchange',async()=>{
+ callbackFlow();
+ const response=await app().request('/api/auth/google/callback?state=state&code=code',{headers:{cookie:'aevic-google=other-browser'}});
+ expect(response.headers.get('location')).toBe('/login?google=failed');
+ expect(exchangeGoogleCode).not.toHaveBeenCalled();
+ expect(queries.some(q=>q.includes('insert into aevic_platform.sessions'))).toBe(false);
+});
+it('fails closed for a Supabase callback after switching to direct OAuth',async()=>{
+ callbackFlow();flow.nonce='supabase:nonce';
+ expect((await callback()).headers.get('location')).toBe('/login?google=failed');
+ expect(exchangeGoogleCode).not.toHaveBeenCalled();
+});

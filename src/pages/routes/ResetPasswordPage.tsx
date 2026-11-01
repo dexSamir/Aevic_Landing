@@ -1,14 +1,16 @@
 import { AlertTriangle,ArrowLeft,ArrowRight,CheckCircle2,Clock3 } from 'lucide-react';
-import { type FormEvent,useEffect,useMemo,useState } from 'react';
+import { type FormEvent,useEffect,useMemo,useRef,useState } from 'react';
 import { Link,useSearchParams } from 'react-router-dom';
 import { AuthRecoveryShell } from '../../components/auth/AuthRecoveryShell';
 import { Button,LoadingSkeleton,PasswordInput,Toast } from '../../components/common/primitives';
+import { ApiError } from '../../services/apiError';
 import { services } from '../../services';
 import '../../styles/auth.css';
 import type { AuthTokenState } from '../../types/domain';
 import { passwordRequirements } from '../../utils/lifecycle';
 import { AuthBlockedState,resetCopy } from './AuthLifecyclePagesShared';
 export function ResetPasswordPage() {
+  const inFlight = useRef(false);
   const [params] = useSearchParams();
   const [token] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get('token') ?? params.get('token_hash') ?? params.get('token') ?? '');
   useEffect(() => { window.history.replaceState(null, '', window.location.pathname); }, []);
@@ -21,12 +23,12 @@ export function ResetPasswordPage() {
   useEffect(() => { let active = true; services.auth.inspectPasswordReset(token).then((result) => { if (active) setState(result.state); }).catch(() => { if (active) {setState('invalid');setError('Bərpa linki yoxlanılmadı. Xidmət müvəqqəti əlçatan deyil.');} }); return () => { active = false; }; }, [token]);
   const requirements = useMemo(() => { const result = passwordRequirements(password); return [result.minimumLength, result.uppercase, result.number]; }, [password]);
   const submit = async (event: FormEvent) => {
-    event.preventDefault(); setError('');
+    event.preventDefault(); if (inFlight.current) return; setError('');
     if (!requirements.every(Boolean)) { setError('Yeni şifrə bütün təhlükəsizlik şərtlərini tamamlamır.'); return; }
     if (password !== confirmation) { setError('Şifrələr uyğun gəlmir.'); return; }
-    setLoading(true);
-    try { await services.auth.resetPassword(token, password); setDone(true); } catch { setError('Şifrə yenilənmədi. Bağlantını yoxlayın və yenidən cəhd edin. Linkin vaxtı bitibsə yeni bərpa linki istəyin.'); }
-    finally { setLoading(false); }
+    inFlight.current = true; setLoading(true);
+    try { await services.auth.resetPassword(token, password); setDone(true); } catch (error) { if (error instanceof ApiError && ['INVALID_RECOVERY_TOKEN', 'INVALID_RESET_TOKEN'].includes(error.code)) setState('invalid'); else setError('Şifrə yenilənmədi. Bağlantını yoxlayın və yenidən cəhd edin. Linkin vaxtı bitibsə yeni bərpa linki istəyin.'); }
+    finally { inFlight.current = false; setLoading(false); }
   };
   if (!state) return <AuthRecoveryShell title="Bərpa linki yoxlanılır"><LoadingSkeleton variant="form" rows={4} /></AuthRecoveryShell>;
   if (done) return <AuthRecoveryShell title={<>Şifrə uğurla<br /><em>yeniləndi.</em></>}><div className="recovery-state" role="status"><CheckCircle2 className="recovery-state__icon" size={52} /><h2>Yeni şifrəniz hazırdır.</h2><p>Yeni şifrənizlə hesabınıza daxil ola bilərsiniz.</p><Link className="button button--primary" to={token.startsWith('adm.')?'/admin/login':'/login'}><span>Girişə keç</span><ArrowRight size={20} /></Link></div></AuthRecoveryShell>;

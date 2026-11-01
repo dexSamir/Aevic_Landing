@@ -33,3 +33,5 @@ work/
 coverage/
 *.log
 *-storage-state.json
+
+graphify-out/

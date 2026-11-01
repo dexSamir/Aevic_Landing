@@ -7,7 +7,7 @@ import type { AuthTokenState } from '../../types/domain';
 
 export const resetCopy: Record<Exclude<AuthTokenState, 'already-verified'>, { title: string; body: string }> = {
   valid: { title: 'Yeni şifrə yarat', body: 'Əvvəl istifadə etmədiyiniz güclü şifrə seçin.' },
-  invalid: { title: 'Bərpa linki etibarlı deyil', body: 'Link natamam və ya dəyişdirilmiş ola bilər.' },
+  invalid: { title: 'Bərpa linki etibarlı deyil', body: 'Link natamam, istifadə olunmuş və ya yeni sorğu ilə əvəz edilmiş ola bilər. Ən son sorğunuza aid linki açın və ya yeni link istəyin.' },
   expired: { title: 'Bu bərpa linkinin vaxtı bitib.', body: 'Hesabın təhlükəsizliyi üçün yeni link tələb edin.' },
   used: { title: 'Bu link artıq istifadə olunub', body: 'Şifrəniz dəyişdirilibsə girişə keçin; əks halda yeni link istəyin.' },
 };

@@ -23,3 +23,14 @@ it('sets a strictly scoped Secure HttpOnly refresh cookie and persists only dige
  const response=await app.request('/login',{method:'POST'}),cookie=response.headers.get('set-cookie')!;expect(cookie).toContain('__Secure-aevic-refresh-v2=');for(const flag of ['Path=/api/auth','Secure','HttpOnly','SameSite=Strict','Max-Age=2592000'])expect(cookie).toContain(flag);expect(cookie).not.toContain('Domain=');
  const refresh=/__Secure-aevic-refresh-v2=([^;]+)/.exec(cookie)![1];expect(JSON.stringify(values)).not.toContain(refresh);expect(JSON.stringify(values)).not.toContain('fixture-credential-hash');expect(await response.text()).not.toContain(refresh);
 });
+
+it('selects direct Google with server credentials without changing account or session configuration',()=>{
+ const config=readConfig({...env,PUBLIC_SITE_URL:'https://aevic-esports.netlify.app',AEVIC_GOOGLE_ENABLED:'true',AEVIC_GOOGLE_PROVIDER:'direct',GOOGLE_CLIENT_ID:'existing-client',GOOGLE_CLIENT_SECRET:'server-secret'});
+ expect(config.google).toEqual({provider:'direct',clientId:'existing-client',clientSecret:'server-secret'});
+ expect(config.siteUrl+'/api/auth/google/callback').toBe('https://aevic-esports.netlify.app/api/auth/google/callback');
+ expect(config.sessionMode).toBe('legacy');expect(config.databaseUrl).toBe(env.AEVIC_DATABASE_URL);expect(config.sessionSecret).toBe(env.AEVIC_SESSION_SECRET);
+});
+it('fails closed for missing direct credentials and retains explicit Supabase rollback',()=>{
+ for(const credentials of [{},{GOOGLE_CLIENT_ID:'client'},{GOOGLE_CLIENT_SECRET:'secret'}])expect(()=>readConfig({...env,AEVIC_GOOGLE_ENABLED:'true',AEVIC_GOOGLE_PROVIDER:'direct',...credentials})).toThrow();
+ expect(readConfig({...env,AEVIC_GOOGLE_ENABLED:'true',AEVIC_GOOGLE_PROVIDER:'supabase'}).google).toEqual({provider:'supabase'});
+});

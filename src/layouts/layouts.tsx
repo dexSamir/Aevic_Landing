@@ -11,7 +11,7 @@ LogOut,
 Menu,
 Bell
 } from 'lucide-react';
-import { useCallback,useEffect,useId,useRef,useState,type CSSProperties,type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useEffect,useId,useRef,useState,type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { isRouteErrorResponse,Link,NavLink,useLocation,useNavigate,useRouteError } from 'react-router-dom';
 import { publicNavigation } from '../app/publicNavigation';
 import { BrandEmblem, BrandMark } from '../components/brand/BrandMark';
@@ -30,41 +30,9 @@ import { usePlatformQuery } from '../services/queryCache';
 
 function PublicNavLinks({ onNavigate, drawer = false }: { onNavigate?: () => void; drawer?: boolean }) {
   const { pathname } = useLocation();
-  const navRef = useRef<HTMLElement>(null);
-  const itemRefs = useRef(new Map<string, HTMLAnchorElement>());
-  const [indicator, setIndicator] = useState({ x: 0, width: 0, ready: false });
   const activeRoute = activePublicRoute(pathname);
 
-  const positionIndicator = useCallback((element?: HTMLAnchorElement | null) => {
-    if (drawer || !element) return;
-    setIndicator({ x: element.offsetLeft, width: element.offsetWidth, ready: true });
-  }, [drawer]);
-
-  useEffect(() => {
-    if (drawer) return;
-    const activeItem = itemRefs.current.get(activeRoute);
-    if (!activeItem) {
-      setIndicator((current) => ({ ...current, ready: false }));
-      return;
-    }
-    let frame = window.requestAnimationFrame(() => positionIndicator(activeItem));
-    const nav = navRef.current;
-    if (!nav || typeof ResizeObserver === 'undefined') return () => window.cancelAnimationFrame(frame);
-    const observer = new ResizeObserver(() => {
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => positionIndicator(itemRefs.current.get(activeRoute)));
-    });
-    observer.observe(nav);
-    itemRefs.current.forEach((item) => observer.observe(item));
-    return () => { window.cancelAnimationFrame(frame); observer.disconnect(); };
-  }, [activeRoute, drawer, positionIndicator]);
-
-  const indicatorStyle = {
-    '--nav-indicator-x': `${indicator.x}px`,
-    '--nav-indicator-width': `${indicator.width}px`,
-  } as CSSProperties;
-
-  return <nav ref={navRef} className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya" data-indicator-ready={indicator.ready || undefined} style={drawer ? undefined : indicatorStyle}>{!drawer && <span className="public-nav-indicator" aria-hidden="true" />}{publicNavigation.primary.map((link) => { const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} ref={(node) => { if (node) itemRefs.current.set(link.to, node); else itemRefs.current.delete(link.to); }} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}><span>{link.label}</span></NavLink>; })}</nav>;
+  return <nav className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya">{publicNavigation.primary.map((link) => { const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}><span>{link.label}</span></NavLink>; })}</nav>;
 }
 
 function PublicAuthActions({ onNavigate, drawer = false }: { onNavigate?: () => void; drawer?: boolean }) {
@@ -142,25 +110,24 @@ export function PublicHeader() {
   const setMenuOpen = (open: boolean) => setMenuLocation(open ? pathname : undefined);
   const [scrolled, setScrolled] = useState(false);
   const footerVisible = useFooterVisibility(pathname);
-  const transparentAtTop = pathname === '/' || pathname === '/teams' || /^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname);
-
+  const topSentinel = useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => setScrolled(window.scrollY > 24));
-    };
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    return () => { window.cancelAnimationFrame(frame); window.removeEventListener('scroll', update); };
+    setScrolled(false);
+    const sentinel = topSentinel.current;
+    if (!sentinel || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setScrolled(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+    });
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, [pathname]);
 
   // A completed navigation closes its old drawer without closing one just
   // reopened on the destination while lazy route content was loading.
   useEffect(() => setMenuLocation(current => current === pathname ? current : undefined), [pathname]);
 
-  const mode = footerVisible || (transparentAtTop && !scrolled) ? 'hero-top' : scrolled ? 'scrolled' : 'standard-top';
-  return <><header className={`site-header site-header--${mode} ${/^\/teams\/(?!compare(?:\/|$))[^/]+\/?$/.test(pathname) ? 'site-header--team-detail' : ''} ${pathname === '/' ? 'site-header--home' : ''}`} data-public-header-state={mode}><div className="container site-header__inner"><BrandMark variant="navigation" /><div className="site-header__desktop"><PublicNavLinks /></div><div className="site-header__tools"><div className="site-header__mobile-discovery"><Link className="icon-button" to="/regulations" aria-label="Qaydalar"><FileText size={21} /></Link><Link className="icon-button" to="/team/notifications" aria-label="Bildirişlər"><Bell size={21} /></Link></div><Link className="public-rules-link" aria-label="Yarış qaydaları" to={publicNavigation.rules.to} aria-current={pathname === '/regulations' ? 'page' : undefined}><FileText size={17} aria-hidden="true" /><span>{publicNavigation.rules.label}</span></Link><div className="site-header__auth"><PublicAuthActions /></div><IconButton className="site-header__menu" label="Menyunu aç" aria-expanded={menuOpen} aria-controls="public-mobile-menu" onClick={() => setMenuOpen(true)}><Menu size={21} /></IconButton></div></div></header><Drawer id="public-mobile-menu" open={menuOpen} title="AEVIC menyu" heading={<span className="drawer-brand"><BrandEmblem variant="navigation" /><span className="sr-only">AEVIC Esports</span></span>} onClose={() => setMenuOpen(false)}><div className="drawer-public-nav"><PublicNavLinks drawer onNavigate={() => setMenuOpen(false)} /><Link className="public-rules-link" to={publicNavigation.rules.to} onClick={() => setMenuOpen(false)}>{publicNavigation.rules.label}</Link><PublicAuthActions drawer onNavigate={() => setMenuOpen(false)} /></div><div className="drawer-install"><InstallAevic /></div></Drawer></>;
+  const mode = footerVisible || !scrolled ? 'hero-top' : 'scrolled';
+  return <><span ref={topSentinel} className="public-header-sentinel" aria-hidden="true" /><header className={`site-header site-header--${mode} ${/^\/teams\/(?!compare(?:\/|$))[^/]+\/?$/.test(pathname) ? 'site-header--team-detail' : ''} ${pathname === '/' ? 'site-header--home' : ''}`} data-public-header-state={mode}><div className="container site-header__inner"><BrandMark variant="navigation" /><div className="site-header__desktop"><PublicNavLinks /></div><div className="site-header__tools"><div className="site-header__mobile-discovery"><Link className="icon-button" to="/regulations" aria-label="Qaydalar"><FileText size={21} /></Link><Link className="icon-button" to="/team/notifications" aria-label="Bildirişlər"><Bell size={21} /></Link></div><Link className="public-rules-link" aria-label="Yarış qaydaları" to={publicNavigation.rules.to} aria-current={pathname === '/regulations' ? 'page' : undefined}><FileText size={17} aria-hidden="true" /><span>{publicNavigation.rules.label}</span></Link><div className="site-header__auth"><PublicAuthActions /></div><IconButton className="site-header__menu" label="Menyunu aç" aria-expanded={menuOpen} aria-controls="public-mobile-menu" onClick={() => setMenuOpen(true)}><Menu size={21} /></IconButton></div></div></header><Drawer id="public-mobile-menu" open={menuOpen} title="AEVIC menyu" heading={<span className="drawer-brand"><BrandEmblem variant="navigation" /><span className="sr-only">AEVIC Esports</span></span>} onClose={() => setMenuOpen(false)}><div className="drawer-public-nav"><PublicNavLinks drawer onNavigate={() => setMenuOpen(false)} /><Link className="public-rules-link" to={publicNavigation.rules.to} onClick={() => setMenuOpen(false)}>{publicNavigation.rules.label}</Link><PublicAuthActions drawer onNavigate={() => setMenuOpen(false)} /></div><div className="drawer-install"><InstallAevic /></div></Drawer></>;
 }
 
 export function PublicLayout() {
