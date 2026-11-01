@@ -162,15 +162,31 @@
     background: var(--material-navigation); border-color: var(--border-subtle);
     backdrop-filter: var(--material-blur-navigation); -webkit-backdrop-filter: var(--material-blur-navigation);
   }
-  .site-header :is(.public-nav-capsule a, .public-rules-link, .nav-login) { position: relative; }
-  .site-header :is(.public-nav-capsule a, .public-rules-link, .nav-login)::after {
+  /* One item treatment shared by both groups; only scrolled mode fills items. */
+  .site-header {
+    --nav-item-hover: transparent;
+    --nav-item-active: transparent;
+  }
+  .site-header--scrolled {
+    --nav-item-hover: var(--material-navigation-highlight);
+    --nav-item-active: var(--material-navigation-active);
+  }
+  .site-header :is(.public-nav-capsule a, .public-rules-link, .nav-login, .public-identity-trigger) {
+    position: relative; border-radius: calc(var(--radius-lg) - 5px);
+    background: transparent;
+    transition: background-color 180ms ease, color 180ms ease;
+  }
+  .site-header :is(.public-nav-capsule a, .public-rules-link, .nav-login, .public-identity-trigger):is(:hover, :focus-visible) { background: var(--nav-item-hover); }
+  .site-header :is(.public-nav-capsule a, .public-rules-link, .nav-login, .public-identity-trigger):is([aria-current], [aria-expanded='true']) { background: var(--nav-item-active); }
+  .site-header:not(.site-header--scrolled) :is(.public-nav-capsule a, .public-rules-link, .nav-login, .public-identity-trigger)::after {
     content: ''; position: absolute; bottom: 3px; left: .75rem; right: .75rem;
     height: 2px; background: var(--gold-primary); transform: scaleX(0); transform-origin: center;
     transition: transform 180ms ease;
   }
-  .site-header :is(.public-nav-capsule a, .public-rules-link, .nav-login):is(:hover, :focus-visible, [aria-current])::after { transform: scaleX(1); }
-  .site-header :is(.public-nav-capsule a, .public-rules-link, .nav-login):hover { background: transparent; }
+  .site-header:not(.site-header--scrolled) :is(.public-nav-capsule a, .public-rules-link, .nav-login, .public-identity-trigger):is(:hover, :focus-visible, [aria-current], [aria-expanded='true'])::after { transform: scaleX(1); }
+  .site-header--scrolled :is(.public-nav-capsule a, .public-rules-link, .nav-login, .public-identity-trigger)::after { content: none; }
+
 }
 @media (prefers-reduced-motion: reduce) {
-  .site-header .public-nav-capsule, .site-header__tools, .site-header a::after { transition: none; }
+  .site-header .public-nav-capsule, .site-header__tools, .site-header :is(a, button), .site-header :is(a, button)::after { transition: none; }
 }

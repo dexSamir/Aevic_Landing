@@ -911,3 +911,6 @@
   .public-match-history dt { font-size: 11px; }
   .public-match-history dd { margin-top: 2px; font-size: 16px; }
 }
+
+/* Inline policy links remain identifiable without relying on hover or color alone. */
+.information-page__body a { color: var(--gold-primary); text-decoration: underline; text-underline-offset: .18em; overflow-wrap: anywhere; }
