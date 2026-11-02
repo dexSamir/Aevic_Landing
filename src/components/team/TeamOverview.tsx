@@ -32,7 +32,7 @@ function OperationsCanvas({ vm }: { vm: TeamOverviewViewModel }) {
       {vm.rounds.length ? <ol>{vm.rounds.map(round => <li key={round.id} className={round.id === vm.context?.nextMatch?.id ? 'is-current' : undefined}>
         <span>R{String(round.round).padStart(2, '0')}</span><div><strong>{round.map}</strong><small>{round.lobby} · {round.stage === 'final' ? 'Final' : 'Qrup mərhələsi'}</small></div><time dateTime={round.startsAt}>{bakuTime(round.startsAt)}</time>
       </li>)}</ol> : <p className="overview-empty">Raund proqramı hələ dərc edilməyib.</p>}
-      <Link className="overview-section-link" to={vm.tournamentHref}>Turniri idarə et <ArrowRight size={16} aria-hidden="true" /></Link>
+      <Link className="overview-section-link" to={vm.tournamentHref}>Turnir Mərkəzini aç <ArrowRight size={16} aria-hidden="true" /></Link>
     </section>
     <section className="overview-standings">
       <h2>CARİ SIRA</h2>

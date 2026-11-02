@@ -22,7 +22,7 @@ describe('UX architecture reset contracts', () => {
   it('uses route-specific Team and Admin product titles', () => {
     expect(productRouteTitle('/team', 'team')).toBe('Komanda icmalı');
     expect(productRouteTitle('/team/sharecards', 'team')).toBe('Paylaşım studiyası');
-    expect(productRouteTitle('/team/tournaments/daily-cup-24', 'team')).toBe('Turnir əməliyyatları');
+    expect(productRouteTitle('/team/tournaments/daily-cup-24', 'team')).toBe('Turnir Mərkəzi');
     expect(productRouteTitle('/admin/results/result-1/correct', 'admin')).toBe('Nəticə düzəlişi');
   });
 
@@ -45,7 +45,7 @@ describe('UX architecture reset contracts', () => {
     const events = buildCompetitionAwareness({ notifications, adminMessages, announcements: teamAnnouncements }).slice(0, 3);
     expect(view.container.querySelectorAll('.overview-updates li')).toHaveLength(events.length);
     events.forEach(event => expect(within(view.container.querySelector('.overview-updates') as HTMLElement).getByRole('link', { name: new RegExp(event.title) })).toHaveAttribute('href', event.actionTarget));
-    expect(within(command as HTMLElement).getByRole('link', { name: 'Matç detalı' })).toHaveAttribute('href', '/team/tournaments/daily-cup-24');
+    expect(within(command as HTMLElement).getByRole('link', { name: 'Turnir Mərkəzini aç' })).toHaveAttribute('href', '/team/tournaments/daily-cup-24');
     expect(screen.getByRole('link', { name: /Nəticə tarixçəsi/ })).toHaveAttribute('href', '/team/history');
     expect(view.container.textContent).not.toContain('AEVIC24');
     expect(view.container.textContent).not.toContain('1234567');

@@ -48,7 +48,7 @@ function currentScore(context: TeamCompetitionContext, now: Date) {
 }
 
 export function deriveTeamCompetitionContexts(
-  snapshot: Pick<TeamPlatformSnapshot, 'currentTeam' | 'participations' | 'tournaments' | 'checkIn' | 'currentRoom' | 'matchSchedule' | 'matchHistory'>,
+  snapshot: Pick<TeamPlatformSnapshot, 'currentTeam' | 'participations' | 'tournaments' | 'checkIn' | 'checkIns' | 'currentRoom' | 'matchSchedule' | 'matchHistory'>,
   now: Date,
 ): TeamCompetitionContexts {
   const tournaments = new Map(snapshot.tournaments.map((tournament) => [tournament.id, tournament]));
@@ -63,8 +63,8 @@ export function deriveTeamCompetitionContexts(
       const history = snapshot.matchHistory
         .filter((match) => match.tournamentId === tournament.id)
         .sort((left, right) => time(right.playedAt) - time(left.playedAt));
-      const sourceCheckIn = snapshot.checkIn?.tournamentId === tournament.id && snapshot.checkIn.teamId === snapshot.currentTeam.id ? snapshot.checkIn : undefined;
-      const checkIn = sourceCheckIn ? { ...sourceCheckIn, status: sourceCheckIn.status === 'checked-in' ? 'checked-in' as const : now.getTime() < time(sourceCheckIn.opensAt) ? 'pending' as const : now.getTime() > time(sourceCheckIn.closesAt) ? 'missed' as const : sourceCheckIn.status } : undefined;
+      const sourceCheckIn = snapshot.checkIns?.find(check => check.tournamentId === tournament.id && check.teamId === snapshot.currentTeam.id) ?? (snapshot.checkIn?.tournamentId === tournament.id && snapshot.checkIn.teamId === snapshot.currentTeam.id ? snapshot.checkIn : undefined);
+      const checkIn = sourceCheckIn ? { ...sourceCheckIn, status: sourceCheckIn.status === 'checked-in' ? 'checked-in' as const : now.getTime() < time(sourceCheckIn.opensAt) ? 'pending' as const : now.getTime() >= time(sourceCheckIn.closesAt) ? 'missed' as const : 'open' as const } : undefined;
       const sourceRoom = snapshot.currentRoom && matches.some((match) => match.id === snapshot.currentRoom?.roundId) ? snapshot.currentRoom : undefined;
       const room = sourceRoom ? { ...sourceRoom, status: now.getTime() < time(sourceRoom.releaseAt) ? 'locked' as const : sourceRoom.status } : undefined;
       const nextMatch = selectCurrentRound(matches, tournament, now);

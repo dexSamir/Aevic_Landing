@@ -75,9 +75,11 @@ export async function withdraw(sql:Sql,teamId:string,tournamentId:string,reason:
  if(!rows.length)throw new ServiceError(409,'ENTRY_CLOSED');await audit(tx,by,'registration.withdraw','tournament',tournamentId);
 });}
 export async function room(sql:Sql,teamId:string,tournamentId:string,matchId:string){
- const [r]=await sql`select m.id,m.room_release_at,m.scheduled_at,m.status,clock_timestamp() as server_now,t.status as tournament_status,r.room_id,r.password from aevic.matches m join aevic.tournaments t on t.id=m.tournament_id join aevic_platform.tournament_registrations e on e.tournament_id=t.id and e.team_id=${teamId} and e.status='confirmed' join aevic_platform.check_ins c on c.tournament_id=t.id and c.team_id=e.team_id left join aevic.match_rooms r on r.match_id=m.id where m.id=${matchId} and t.id=${tournamentId}`;
+ const [r]=await sql`select m.id,m.room_release_at,m.scheduled_at,m.status,clock_timestamp() as server_now,t.status as tournament_status,r.room_id,r.password from aevic.matches m join aevic.tournaments t on t.id=m.tournament_id join aevic_platform.tournament_registrations e on e.tournament_id=t.id and e.team_id=${teamId} and e.status='confirmed' join public.teams team on team.id=e.team_id and team.status='approved' join aevic_platform.check_ins c on c.tournament_id=t.id and c.team_id=e.team_id left join aevic.match_rooms r on r.match_id=m.id where m.id=${matchId} and t.id=${tournamentId}`;
  if(!r||['cancelled','completed'].includes(r.tournament_status))throw new ServiceError(403,'ROOM_NOT_ELIGIBLE');
  if(r.status==='completed')return{roundId:matchId,releaseAt:r.room_release_at,status:'expired'};
- if(r.server_now<r.room_release_at||!r.room_id)return{roundId:matchId,releaseAt:r.room_release_at,status:'locked'};
+ if(!r.room_release_at)return{roundId:matchId,releaseAt:'',status:'locked',reason:'not-scheduled'};
+ if(r.server_now<r.room_release_at)return{roundId:matchId,releaseAt:r.room_release_at,status:'locked',reason:'waiting-release'};
+ if(!r.room_id||!r.password)return{roundId:matchId,releaseAt:r.room_release_at,status:'locked',reason:'not-configured'};
  return{roundId:matchId,releaseAt:r.room_release_at,status:'released',roomId:r.room_id,password:r.password};
 }

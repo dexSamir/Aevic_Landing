@@ -440,7 +440,21 @@ describe('original-team competition persistence',()=>{
   expect(await room(sql,e.team_id,tournamentId,matchId)).toMatchObject({status:'locked'});
   await sql`update aevic.matches set room_release_at=now()-interval '1 minute' where id=${matchId}`;
   expect(await room(sql,e.team_id,tournamentId,matchId)).toMatchObject({status:'released',roomId:'123456'});
-  expect(JSON.stringify(await new PlatformRepository(client,sql,{teamId:e.team_id}).teamSnapshot(e.team_id,e.team_id))).not.toContain('isolated-room-secret');
+  const snapshot=await new PlatformRepository(client,sql,{teamId:e.team_id}).teamSnapshot(e.team_id,e.team_id);
+  expect(JSON.stringify(snapshot)).not.toContain('isolated-room-secret');
+  expect(snapshot.checkIns).toContainEqual(expect.objectContaining({tournamentId,teamId:e.team_id,status:'checked-in'}));
+  expect(snapshot.matchSchedule.find(m=>m.id===matchId)?.roomReleaseAt).toBeTruthy();
+  await expect(room(sql,e.team_id==='3'?'2':'3',tournamentId,matchId)).rejects.toMatchObject({code:'ROOM_NOT_ELIGIBLE'});
+  await expect(room(sql,e.team_id,crypto.randomUUID(),matchId)).rejects.toMatchObject({code:'ROOM_NOT_ELIGIBLE'});
+  await expect(room(sql,e.team_id,tournamentId,crypto.randomUUID())).rejects.toMatchObject({code:'ROOM_NOT_ELIGIBLE'});
+  for(const status of ['pending','waitlisted','withdrawn','rejected']) {
+   await sql`update aevic_platform.tournament_registrations set status=${status} where tournament_id=${tournamentId} and team_id=${e.team_id}`;
+   await expect(room(sql,e.team_id,tournamentId,matchId)).rejects.toMatchObject({code:'ROOM_NOT_ELIGIBLE'});
+  }
+  await sql`update aevic_platform.tournament_registrations set status='confirmed' where tournament_id=${tournamentId} and team_id=${e.team_id}`;
+  await sql`update public.teams set status='banned' where id=${e.team_id}`;
+  await expect(room(sql,e.team_id,tournamentId,matchId)).rejects.toMatchObject({code:'ROOM_NOT_ELIGIBLE'});
+  await sql`update public.teams set status='approved' where id=${e.team_id}`;
  });
  it('computes scoring on server and prevents partial publication',async()=>{
   await sql`update aevic.tournaments set status='ongoing' where id=${tournamentId}`;

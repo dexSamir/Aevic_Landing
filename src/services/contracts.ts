@@ -247,15 +247,15 @@ export interface MediaService {
 }
 
 export interface RoomService {
-  getForEligibleTeam(tournamentId: string, roundId: string): Promise<RoomCredentials>;
+  getForEligibleTeam(tournamentId: string, roundId: string, signal?: AbortSignal): Promise<RoomCredentials>;
 }
 
 export interface ResultService {
   roundEntries(roundId:string):Promise<RoundResult[]>;
-  leaderboard(tournamentId: string): Promise<TeamTournamentResult[]>;
+  leaderboard(tournamentId: string, signal?: AbortSignal): Promise<TeamTournamentResult[]>;
   ownExport(tournamentId: string): Promise<{ teamId: string; result?: TeamTournamentResult; reason?: 'not-participant' | 'no-result' }>;
-  snapshots(tournamentId: string): Promise<LeaderboardSnapshot[]>;
-  movement(tournamentId: string): Promise<RankMovementData[]>;
+  snapshots(tournamentId: string, signal?: AbortSignal): Promise<LeaderboardSnapshot[]>;
+  movement(tournamentId: string, signal?: AbortSignal): Promise<RankMovementData[]>;
   saveRound(result: RoundResult): Promise<RoundResult>;
   versions(resultId: string): Promise<ResultVersion[]>;
   correct(resultId: string, result: RoundResult, reason: string, expectedVersion: number, idempotencyKey: string): Promise<ResultVersion>;

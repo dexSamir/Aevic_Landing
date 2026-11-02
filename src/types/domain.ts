@@ -4,7 +4,7 @@ export type ISODate = string;
 export type UserRole = 'visitor' | 'captain' | 'team' | 'admin';
 export type TeamApprovalStatus = 'pending' | 'approved' | 'rejected' | 'banned';
 export type TournamentStatus = 'draft' | 'published' | 'registration-open' | 'ongoing' | 'completed' | 'cancelled';
-export type RegistrationStatus = 'not-joined' | 'pending' | 'confirmed' | 'waitlisted' | 'withdrawn';
+export type RegistrationStatus = 'not-joined' | 'pending' | 'confirmed' | 'waitlisted' | 'withdrawn' | 'rejected';
 export type TeamRegistrationState = 'draft' | 'submitted' | 'under-review' | 'approved' | 'rejected';
 export type CheckInStatus = 'pending' | 'open' | 'checked-in' | 'missed' | 'withdrawn';
 export type RoomReleaseStatus = 'locked' | 'released' | 'expired';
@@ -405,6 +405,7 @@ export interface TeamPlatformSnapshot {
   currentTeam: Team;
   participations: TeamTournamentParticipation[];
   checkIn?: CheckIn;
+  checkIns?: CheckIn[];
   currentRoom?: Pick<RoomCredentials, 'roundId' | 'status' | 'releaseAt'>;
   tournaments: Tournament[];
   leaderboard: TeamTournamentResult[];
@@ -535,9 +536,12 @@ export interface MatchScheduleItem {
   map: string;
   startsAt: ISODate;
   status: 'completed' | 'live' | 'upcoming' | 'scheduled';
+  roomReleaseAt?: ISODate;
+  publishedAt?: ISODate;
 }
 
 export interface MatchHistoryEntry {
+  correctedAt?: ISODate;
   id: ID;
   publishedAt?: ISODate;
   disputeDeadlineAt?: ISODate;
@@ -551,6 +555,7 @@ export interface MatchHistoryEntry {
   finishes: number;
   placementPoints?: number;
   killPoints?: number;
+  penalties?: number;
   points: number;
   wwcd: boolean;
 }
@@ -852,6 +857,7 @@ export interface CheckIn {
 export interface RoomCredentials {
   roundId: ID;
   status: RoomReleaseStatus;
+  reason?: 'waiting-release' | 'not-configured' | 'not-scheduled';
   releaseAt: ISODate;
   roomId?: string;
   password?: string;
