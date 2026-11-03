@@ -89,6 +89,14 @@ test('published performance and map cards render without overflow or failed asse
   await page.setViewportSize({width,height:900});
   await page.evaluate(()=>document.fonts.ready);
   await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`populated results overflow at ${width}`).toBe(true);
+  for (const selector of ['.command-performance-stats>div', '.command-recent>a']) {
+   const boxes = await page.locator(selector).evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().top));
+   expect(boxes).toHaveLength(4);
+   expect(new Set(boxes).size).toBe(1);
+  }
+  expect(await page.locator('#standings td, #standings th').evaluateAll(nodes=>nodes.every(node=>getComputedStyle(node).whiteSpace==='nowrap'))).toBe(true);
+  expect(await page.locator('#standings tbody tr').evaluateAll(nodes=>nodes.every(node=>getComputedStyle(node).display==='table-row'))).toBe(true);
+  await expect(page.locator('.command-room-body')).not.toContainText('Açılma vaxtı:');
   if ([390,768,1440].includes(width)) {
    await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
    await page.screenshot({path:`test-results/command-populated-${width}.png`,fullPage:true});
@@ -186,4 +194,21 @@ test('tournament skeleton follows all nine dashboard cells on desktop and mobile
  } finally {release();}
  await expect(page.getByRole('heading',{name:'Matç otağı'})).toBeVisible();
  await expect(page.locator('.command-loading')).toHaveCount(0);
+});
+
+
+test('overview slider routes tournament cards to their Command Center and retains unrelated links',async({page})=>{
+ await page.goto('/team?scenario=room-ready');
+ const rail=page.locator('.intelligence-rail');
+ await expect(rail).toBeVisible();
+ const match=rail.locator('[data-kind="match"]').first();
+ const href=await match.getAttribute('href');
+ expect(href).toMatch(/^\/team\/tournaments\/[^/#]+$/);
+ await match.click();
+ await expect(page).toHaveURL(new RegExp(href!+'$'));
+ await page.goto('/team?scenario=room-ready');
+ await expect(rail.locator('[data-kind="room"]')).toHaveAttribute('href', /\/team\/tournaments\/[^/#]+$/);
+ await expect(rail.locator('[data-kind="roster"]')).toHaveAttribute('href','/team/roster');
+ await page.goto('/team?scenario=no-active-tournament');
+ expect(await rail.locator('a').evaluateAll(nodes=>nodes.every(node=>!/(undefined|null|tournaments\/$)/.test(node.getAttribute('href')??'')))).toBe(true);
 });

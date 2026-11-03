@@ -10,7 +10,6 @@ import type { TeamPlatformSnapshot } from '../../types/domain';
 import { tournamentMatches } from '../../utils/tournamentMatches';
 import { StandingsTable, standingsWindow } from './StandingsTable';
 import { CommandPanelSkeleton } from './TournamentCommandSkeleton';
-import { eventTime } from './model';
 
 export function OfficialResults({ context, data }: { context: TeamCompetitionContext; data: TeamPlatformSnapshot }) {
   const id = context.tournament.id;
@@ -30,8 +29,6 @@ export function OfficialResults({ context, data }: { context: TeamCompetitionCon
     return () => { clearInterval(timer); window.removeEventListener('online', status); window.removeEventListener('offline', status); };
   }, [standings.refetch, snapshots.refetch, movement.refetch]);
   const rows = (standings.data ?? []).filter(r => r.tournamentId === id).sort((a, b) => a.placement - b.placement);
-  const officialSnapshots = (snapshots.data ?? []).filter(s => s.tournamentId === id);
-  const publishedAt = [...officialSnapshots].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))[0]?.publishedAt;
   const ours = rows.find(r => r.teamId === data.currentTeam.id);
   const history = context.history;
   const eventRounds = tournamentMatches(id, context.matches, history);
@@ -42,12 +39,10 @@ export function OfficialResults({ context, data }: { context: TeamCompetitionCon
   return <>
     <section id="standings" tabIndex={-1} className="command-section" aria-labelledby="command-standings-title">
       <header className="command-section-heading"><div><h2 id="command-standings-title"><BarChart3 /> Turnir sıralaması</h2></div><div className="command-standing-actions"><Button variant="ghost" onClick={() => setFullStandings(true)} disabled={!rows.length}>Tam reytinqə bax <ArrowRight size={14} /></Button><Button variant="secondary" onClick={refresh} disabled={standings.loading || standings.refreshing || standings.retryAfterSeconds > 0}>Sıralamanı yenilə</Button></div></header>
-      <p className="command-muted">{rows.length ? `${Math.max(...rows.map(r => r.matches))} dərc edilmiş raund` : standings.data ? 'Dərc edilmiş raund yoxdur' : 'Dərc məlumatı əlçatan deyil'}{publishedAt ? ` · Son rəsmi yenilənmə: ${eventTime(publishedAt)}` : ' · Yenilənmə vaxtı əlçatan deyil'}</p>
 
       {(!online || standings.error) && <p role="status">{!online ? 'İnternet bağlantısı yoxdur.' : 'Yenilənmə alınmadı.'} Son yüklənmiş nəticələr köhnəlmiş ola bilər.</p>}
       {standings.refreshing && <p role="status">Sıralama yenilənir…</p>}
       {standings.loading ? <CommandPanelSkeleton kind="standings" /> : !rows.length ? <p>{standings.error || !standings.data ? 'Sıralama yüklənmədi. Yenidən yoxlayın.' : 'Rəsmi sıralama hələ dərc edilməyib.'}</p> : <>
-        {ours && <p className="command-standing-summary">Komandanız <strong>#{ours.placement > 0 ? ours.placement : '—'}</strong> · <strong>{ours.totalPoints} xal</strong> · {ours.matches} matç · {ours.wwcd} WWCD</p>}
         <StandingsTable rows={standingsWindow(rows, data.currentTeam.id)} data={data} movement={movement.error ? [] : movement.data} />
         {!ours && <p className="command-muted">Komandanızın rəsmi sıralaması hələ dərc edilməyib.</p>}
 

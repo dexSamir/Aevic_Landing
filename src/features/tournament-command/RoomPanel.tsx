@@ -4,11 +4,10 @@ import { Button, CopyButton } from '../../components/common/primitives';
 import { services } from '../../services';
 import { ApiError } from '../../services/apiError';
 import type { MatchScheduleItem, RoomCredentials } from '../../types/domain';
-import { eventTime } from './model';
 
 type Props = { tournamentId: string; match?: MatchScheduleItem; eligible: boolean; terminal: boolean; hint?: string; onVerified: (roundId: string, status?: RoomCredentials['status']) => void };
 /** Mounted with an identity/round key. Secrets never enter the shared query cache. */
-export function RoomPanel({ tournamentId, match, eligible, terminal, hint, onVerified }: Props) {
+export function RoomPanel({ tournamentId, match, eligible, terminal, onVerified }: Props) {
   const [room, setRoom] = useState<RoomCredentials>();
   const [revealed, setRevealed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,7 +48,6 @@ export function RoomPanel({ tournamentId, match, eligible, terminal, hint, onVer
   const status = terminal ? 'Otaq girişi bağlanıb' : !match ? 'Raund planlaşdırılmayıb' : match.status === 'completed' || room?.status === 'expired' ? 'Bu raundun otağı bağlanıb' : !eligible ? 'İştirak təsdiqi və Check-in tələb olunur' : room?.status === 'released' ? 'Otaq hazırdır' : room?.reason === 'not-configured' ? 'Admin otaq məlumatlarını hələ daxil etməyib' : room?.reason === 'not-scheduled' ? 'Otağın açılma vaxtı paylaşılmayıb' : room?.status === 'locked' ? 'Otaq hələ açılmayıb' : 'Otaq statusunu serverdə yoxlayın';
   return <div className="command-room-body">
     <div className="command-room-message"><LockKeyhole aria-hidden="true" /><div><p role="status">{status}</p><p className="command-muted">{room?.status === 'released' ? 'Məlumatları yalnız komandanızla paylaşın.' : 'Otaq məlumatları təhlükəsizlik məqsədilə gizlidir.'}</p></div></div>
-    <p className="command-muted">{match ? `${match.map} · Raund ${match.round}` : 'Yarış proqramı gözlənilir'}<br />Açılma vaxtı: {eventTime(room?.releaseAt || match?.roomReleaseAt || hint)}</p>
     {error && <p role="alert" className="field__error">{error}</p>}
     {canRead && <Button loading={loading} onClick={() => void load()}>Otaq statusunu yoxla</Button>}
     {canRead && room?.status === 'released' && <>

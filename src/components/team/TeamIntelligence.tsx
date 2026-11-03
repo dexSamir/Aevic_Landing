@@ -22,7 +22,7 @@ export function TeamIntelligence() {
   const [reduced, setReduced] = useState(false);
   const [edges, setEdges] = useState({ start: true, end: true });
   const rail = useRef<HTMLDivElement>(null);
-  const roomContext = !data.unavailable?.room && !data.unavailable?.competition ? all.find(context => context.lifecycle === 'current' && context.participation.status === 'confirmed' && context.room) : undefined;
+  const roomContext = !data.unavailable?.room && !data.unavailable?.competition ? all.find(context => context.tournament.id && context.lifecycle === 'current' && context.participation.status === 'confirmed' && context.room) : undefined;
   const room = roomContext?.room;
   // This service performs server authorization; snapshot release state alone never reveals a code.
   const roomQuery = usePlatformQuery({ key: `intelligence-room:${data.currentTeam.id}:${roomContext?.tournament.id}:${room?.roundId}`, query: () => services.rooms.getForEligibleTeam(roomContext!.tournament.id, room!.roundId), enabled: Boolean(roomContext && room?.status === 'released'), staleTime: 15_000, retry: 0 });
@@ -49,11 +49,11 @@ export function TeamIntelligence() {
     const released = credentials?.status === 'released' && credentials.roundId === room.roundId;
     const denied = roomQuery.error?.status === 401 || roomQuery.error?.status === 403;
     const round = roomContext.matches.find(match => match.id === room.roundId);
-    cards.push({ id: 'room', label: 'MATÇ OTAĞI', value: room.status !== 'released' ? 'Bağlıdır' : denied ? 'Giriş icazəsi tələb olunur' : roomQuery.error ? 'Otaq məlumatı yüklənmədi' : roomQuery.loading ? 'Otaq yoxlanılır…' : released && credentials.roomId ? `ID: ${credentials.roomId}` : 'Otaq məlumatını aç', detail: `${room.status !== 'released' ? `${overviewDate(room.releaseAt)} · ${bakuTime(room.releaseAt)} açılır · ` : ''}${roomContext.tournament.shortName || roomContext.tournament.name}${round ? ` · ${round.map} · R${round.round} · ${bakuTime(round.startsAt)}` : ''}`, href: `/team/tournaments/${roomContext.tournament.id}#room`, priority: 1, icon: KeyRound });
+    cards.push({ id: 'room', label: 'MATÇ OTAĞI', value: room.status !== 'released' ? 'Bağlıdır' : denied ? 'Giriş icazəsi tələb olunur' : roomQuery.error ? 'Otaq məlumatı yüklənmədi' : roomQuery.loading ? 'Otaq yoxlanılır…' : released && credentials.roomId ? `ID: ${credentials.roomId}` : 'Otaq məlumatını aç', detail: `${room.status !== 'released' ? `${overviewDate(room.releaseAt)} · ${bakuTime(room.releaseAt)} açılır · ` : ''}${roomContext.tournament.shortName || roomContext.tournament.name}${round ? ` · ${round.map} · R${round.round} · ${bakuTime(round.startsAt)}` : ''}`, href: `/team/tournaments/${encodeURIComponent(roomContext.tournament.id)}`, priority: 1, icon: KeyRound });
   }
   if (!data.unavailable?.competition) {
-    for (const context of all.filter(c => c.lifecycle === 'current' || c.lifecycle === 'upcoming')) {
-      const href = `/team/tournaments/${context.tournament.id}`;
+    for (const context of all.filter(c => c.tournament.id && (c.lifecycle === 'current' || c.lifecycle === 'upcoming'))) {
+      const href = `/team/tournaments/${encodeURIComponent(context.tournament.id)}`;
       const checkIn = context.checkIn;
       if (checkIn?.status === 'open' && Date.parse(checkIn.closesAt) > now) cards.push({ id: `check-in:${context.tournament.id}`, label: 'İŞTİRAK TƏSDİQİNƏ QALAN VAXT', value: countdown(checkIn.closesAt, now), detail: `${context.tournament.name} · son vaxt ${bakuTime(checkIn.closesAt)} (Bakı)`, href, priority: 0, deadline: Date.parse(checkIn.closesAt), icon: Clock3 });
       if (context.nextMatch) {
@@ -63,24 +63,26 @@ export function TeamIntelligence() {
       const statusLabels: Record<string, string> = { confirmed: 'Təsdiqlənib', pending: 'Təsdiq gözləyir', rejected: 'Qəbul edilməyib', withdrawn: 'İştirak ləğv edilib' };
       cards.push({ id: `entry:${context.tournament.id}`, label: 'TURNİR İŞTİRAKI', value: statusLabels[context.participation.status] ?? 'İştirak məlumatı', detail: context.tournament.name, href, priority: 5, icon: Trophy });
     }
-    const deadline = data.tournaments.filter(t => t.status === 'registration-open' && Date.parse(t.registrationOpensAt) <= now && Date.parse(t.registrationDeadline) > now && !data.participations.some(p => p.tournamentId === t.id && ['pending', 'confirmed'].includes(p.status))).sort((a, b) => Date.parse(a.registrationDeadline) - Date.parse(b.registrationDeadline))[0];
-    if (deadline) cards.push({ id: 'deadline', label: 'QEYDİYYATA QALAN VAXT', value: countdown(deadline.registrationDeadline, now), detail: deadline.name, href: `/tournaments/${deadline.id}`, priority: 4, deadline: Date.parse(deadline.registrationDeadline), icon: Clock3 });
+    const deadline = data.tournaments.filter(t => t.id && t.status === 'registration-open' && Date.parse(t.registrationOpensAt) <= now && Date.parse(t.registrationDeadline) > now && !data.participations.some(p => p.tournamentId === t.id && ['pending', 'confirmed'].includes(p.status))).sort((a, b) => Date.parse(a.registrationDeadline) - Date.parse(b.registrationDeadline))[0];
+    if (deadline) cards.push({ id: 'deadline', label: 'QEYDİYYATA QALAN VAXT', value: countdown(deadline.registrationDeadline, now), detail: deadline.name, href: `/tournaments/${encodeURIComponent(deadline.id)}`, priority: 4, deadline: Date.parse(deadline.registrationDeadline), icon: Clock3 });
   }
   if (!data.unavailable?.notifications) {
     const events = data.notifications.filter(n => !n.read && n.actionHref && (n.priority === 'critical' || n.priority === 'important')).sort((a, b) => Number(b.priority === 'critical') - Number(a.priority === 'critical')).slice(0, 3);
     for (const event of events) {
+      const tournament = all.find(context => context.tournament.id && (event.entityRef?.type === 'tournament' ? event.entityRef.id === context.tournament.id : ['match', 'round', 'result'].includes(event.entityRef?.type ?? '') && [...context.matches, ...context.history].some(match => match.id === event.entityRef?.id)));
+      const eventHref = tournament ? `/team/tournaments/${encodeURIComponent(tournament.tournament.id)}` : event.actionHref!;
       // A registration update replaces its generic status card, preserving the actionable message.
       if (event.eventType === 'registration') {
-        const duplicate = cards.findIndex(card => card.id.startsWith('entry:') && card.href === event.actionHref);
+        const duplicate = cards.findIndex(card => card.id.startsWith('entry:') && card.href === eventHref);
         if (duplicate >= 0) cards.splice(duplicate, 1);
       }
-      cards.push({ id: `notification:${event.id}`, label: 'VACİB BİLDİRİŞ', value: event.title, detail: event.body, href: event.actionHref!, priority: event.priority === 'critical' ? 0 : 2, icon: Bell });
+      cards.push({ id: `notification:${event.id}`, label: 'VACİB BİLDİRİŞ', value: event.title, detail: event.body, href: eventHref, priority: event.priority === 'critical' ? 0 : 2, icon: Bell });
     }
   }
   const roster = data.currentTeam.roster.filter(p => p.role !== 'substitute' && p.ign.trim()).length;
   cards.push({ id: 'roster', label: roster < 4 ? 'HEYƏTİ TAMAMLA' : 'ƏSAS HEYƏT', value: `${roster}/4 oyunçu`, detail: roster < 4 ? 'Əsas heyətdə boş yerlər var' : 'Heyəti nəzərdən keçir və idarə et', href: '/team/roster', priority: roster < 4 ? 2 : 8, icon: Users });
   const latest = data.historyAvailable !== false ? [...data.matchHistory].filter(m => Number.isFinite(Date.parse(m.playedAt))).sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt))[0] : undefined;
-  if (latest) cards.push({ id: 'result', label: 'SON RƏSMİ NƏTİCƏ', value: `#${latest.placement} · ${latest.finishes} kill`, detail: `${latest.map} · ${latest.points} xal · ${overviewDate(latest.playedAt)}`, href: '/team/history', priority: 7, icon: Trophy });
+  if (latest) cards.push({ id: 'result', label: 'SON RƏSMİ NƏTİCƏ', value: `#${latest.placement} · ${latest.finishes} kill`, detail: `${latest.map} · ${latest.points} xal · ${overviewDate(latest.playedAt)}`, href: latest.tournamentId && all.some(context => context.tournament.id === latest.tournamentId) ? `/team/tournaments/${encodeURIComponent(latest.tournamentId)}` : '/team/history', priority: 7, icon: Trophy });
   // Keep the workspace useful between competitions without implying unavailable data is empty.
   if (!roomContext) cards.push({ id: 'room-status', label: 'MATÇ OTAĞI', value: data.unavailable?.room || data.unavailable?.competition ? 'Məlumat əlçatan deyil' : 'Aktiv otaq yoxdur', detail: 'Otaq məlumatı yalnız uyğun iştirakçılara açılır', href: '/team/tournaments', priority: 9, icon: KeyRound });
   if (!cards.some(card => card.id.startsWith('match:'))) cards.push({ id: 'schedule', label: 'NÖVBƏTİ MATÇ', value: data.unavailable?.competition ? 'Cədvəl əlçatan deyil' : 'Matç təyin edilməyib', detail: 'Yarış cədvəlini və iştirakınızı buradan izləyin', href: '/team/tournaments', priority: 10, icon: Clock3 });

@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { RoomPanel } from '../src/features/tournament-command/RoomPanel';
 import { MatchClock } from '../src/features/tournament-command/MatchClock';
 import { standingsWindow } from '../src/features/tournament-command/StandingsTable';
-import { commandMatch, configuredStages, matchClock } from '../src/features/tournament-command/model';
+import { commandMatch, configuredStages, matchClock, roadmapTime } from '../src/features/tournament-command/model';
 import { TeamTournamentDetailPage } from '../src/pages/routes/TeamTournamentDetailPage';
 import { deriveTeamCompetitionContexts } from '../src/utils/teamCompetitionContext';
 import { fixtureServices, teamSnapshotScenario } from './fixtures/component-services';
@@ -78,11 +78,11 @@ it('renders saved scoring, no fake rank, official corrections on refresh, and to
  const id=match().tournamentId;const t=data.tournaments.find(t=>t.id===id)!;t.pointFormula={...internationalFormula,finishPointValue:2,wwcdBonus:3};
  const row={tournamentId:id,teamId:data.currentTeam.id,placement:2,matches:1,wwcd:0,finishes:4,placementPoints:6,finishPoints:8,penalties:1,totalPoints:13,bestFinish:2};
  const get=vi.spyOn(fixtureServices.results,'leaderboard').mockResolvedValueOnce([row,{...row,tournamentId:'other',totalPoints:999}]).mockResolvedValue([{...row,totalPoints:15}]);
- page(); await screen.findByText('13 xal'); expect(screen.queryByText('999')).not.toBeInTheDocument();
+ page(); await waitFor(()=>expect(document.querySelector('.is-own-team td[data-label="Xal"]')).toHaveTextContent('13')); expect(screen.queryByText('999')).not.toBeInTheDocument();
  fireEvent.click(screen.getByText('Xallar necə hesablanır?'));
  expect(screen.getByText(/WWCD bonusu: 3 xal/)).toBeVisible();
  expect(document.querySelector('.command-kill-points')).toHaveTextContent('2 xal');
- fireEvent.click(screen.getByRole('button',{name:'Sıralamanı yenilə'}));await screen.findByText('15 xal');expect(get).toHaveBeenCalledTimes(2);
+ fireEvent.click(screen.getByRole('button',{name:'Sıralamanı yenilə'}));await waitFor(()=>expect(document.querySelector('.is-own-team td[data-label="Xal"]')).toHaveTextContent('15'));expect(get).toHaveBeenCalledTimes(2);
  expect(screen.queryByText('#0')).not.toBeInTheDocument();
 });
 it('switches tournaments without retaining selected-room state and blocks member writes',async()=>{
@@ -114,12 +114,25 @@ it('shows only verified announcements for the selected event and clears room acc
  expect(screen.queryByRole('button',{name:'Otaq statusunu yoxla'})).not.toBeInTheDocument();
 });
 
-it('windows official rankings around the team and keeps at most two neighbors at both edges', () => {
+it('windows official rankings around the team and fills five rows at both edges', () => {
  const rows=Array.from({length:12},(_,index)=>({teamId:String(index+1)}));
- for(const [team,expected] of [['1',['1','2','3']],['3',['1','2','3','4','5']],['7',['5','6','7','8','9']],['12',['10','11','12']]] as const) {
-  expect(standingsWindow(rows,team).map(row=>row.teamId)).toEqual(expected);
+ for(const [team,expected] of [['1',['1','2','3','4','5']],['2',['1','2','3','4','5']],['3',['1','2','3','4','5']],['7',['5','6','7','8','9']],['6',['4','5','6','7','8']],['11',['8','9','10','11','12']],['12',['8','9','10','11','12']]] as const) {
+  const preview = standingsWindow(rows,team);
+  expect(preview.map(row=>row.teamId)).toEqual(expected);
+  expect(new Set(preview).size).toBe(5);
+  expect(preview.every(row=>rows.includes(row))).toBe(true);
  }
  expect(standingsWindow(rows.slice(0,3),'2')).toEqual(rows.slice(0,3));
  expect(standingsWindow(rows,'missing')).toEqual(rows.slice(0,5));
  expect(standingsWindow([],'missing')).toEqual([]);
+});
+
+it('keeps room metadata out of the status panel and displays truthful roadmap details',()=>{
+ page();
+ expect(document.querySelector('.command-room-body')).not.toHaveTextContent('Açılma vaxtı:');
+ expect(document.querySelector('.command-room-body')).not.toHaveTextContent(/Raund \d/);
+ expect(document.querySelector('.command-progress')).not.toHaveTextContent('Heyət kilidi:');
+ expect(roadmapTime('2026-11-18T08:10:00Z')).toBe('18 noyabr · 12:10');
+ expect(roadmapTime(undefined,'Təsdiqlənib')).toBe('Təsdiqlənib');
+ expect(roadmapTime('invalid')).toBe('Vaxt paylaşılmayıb');
 });

@@ -1,3 +1,4 @@
+import { formatEventDate } from '../../utils/calendar';
 import type { MatchScheduleItem, Tournament, RegistrationStatus, TournamentStage } from '../../types/domain';
 
 export const stageLabels: Record<TournamentStage, string> = { qualifier: 'Təsnifat', group: 'Qrup mərhələsi', semifinal: 'Yarımfinal', final: 'Final' };
@@ -27,3 +28,6 @@ export function configuredStages(matches: readonly MatchScheduleItem[]) {
 
 const savedRuleLabels: Record<string, string> = { 'Most WWCD': 'Ən çox WWCD', 'Most finish points': 'Ən çox eliminasiya xalı', 'Best final-round placement': 'Son raundda daha yaxşı yer' };
 export const scoringRuleLabel = (rule: string) => savedRuleLabels[rule] ?? rule;
+
+/** Never substitutes unrelated timestamps for a stage completion. */
+export const roadmapTime = (value?: string, fallback = 'Vaxt paylaşılmayıb') => value && Number.isFinite(Date.parse(value)) ? formatEventDate(value, { includeYear: false, withTime: true }) : fallback;
