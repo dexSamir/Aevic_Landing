@@ -78,6 +78,7 @@ it('renders saved scoring, no fake rank, official corrections on refresh, and to
  const row={tournamentId:id,teamId:data.currentTeam.id,placement:2,matches:1,wwcd:0,finishes:4,placementPoints:6,finishPoints:8,penalties:1,totalPoints:13,bestFinish:2};
  const get=vi.spyOn(fixtureServices.results,'leaderboard').mockResolvedValueOnce([row,{...row,tournamentId:'other',totalPoints:999}]).mockResolvedValue([{...row,totalPoints:15}]);
  page(); await screen.findByText('13 xal'); expect(screen.queryByText('999')).not.toBeInTheDocument();
+ fireEvent.click(screen.getByText('Xallar necə hesablanır?'));
  expect(screen.getByText(/cəriməsiz = 23 xal/)).toBeVisible();
  fireEvent.click(screen.getByRole('button',{name:'Sıralamanı yenilə'}));await screen.findByText('15 xal');expect(get).toHaveBeenCalledTimes(2);
  expect(screen.queryByText('#0')).not.toBeInTheDocument();
@@ -87,7 +88,7 @@ it('switches tournaments without retaining selected-room state and blocks member
  page(); expect(screen.queryByRole('button',{name:'Turnirdən çıx'})).not.toBeInTheDocument();
  const other=data.participations.find(p=>p.tournamentId!==current)!;
  fireEvent.change(screen.getByLabelText('Turnir'),{target:{value:other.tournamentId}});
- await waitFor(()=>expect(screen.getByRole('heading',{level:1})).toHaveTextContent(data.tournaments.find(t=>t.id===other.tournamentId)!.name));
+ await waitFor(()=>expect(screen.getByLabelText('Turnir')).toHaveValue(other.tournamentId));
  expect(screen.queryByRole('button',{name:'Göstər'})).not.toBeInTheDocument();
 });
 it('expires in-memory credentials and never mistakes release time for server readiness', async()=>{
