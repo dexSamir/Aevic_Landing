@@ -8,7 +8,7 @@ export function CommandPanelSkeleton({ kind }: { kind: Panel }) {
   if (kind === 'hero') return <div className="command-panel-skeleton command-panel-skeleton--hero" aria-hidden="true"><div><Block kind="heading" /><Block kind="title" /><Block /><Block /></div><div><Block /><Block kind="title" /><Block kind="button" /></div></div>;
   return <div className={`command-panel-skeleton command-panel-skeleton--${kind}`} aria-hidden="true">
     <Block kind="heading" />
-    {kind === 'roadmap' ? <div className="command-skeleton-steps">{Array.from({ length: 6 }, (_, index) => <div key={index}><Block kind="circle" /><Block /></div>)}</div>
+    {kind === 'roadmap' ? <div className="command-skeleton-steps">{Array.from({ length: 5 }, (_, index) => <div key={index}><Block kind="circle" /><Block /></div>)}</div>
 
       : kind === 'results' || kind === 'performance' ? <div className="command-skeleton-cards">{Array.from({ length: 4 }, (_, index) => <Block kind="card" key={index} />)}</div>
       : Array.from({ length: kind === 'standings' ? 5 : kind === 'schedule' ? 4 : 3 }, (_, index) => <Block kind="row" key={index} />)}

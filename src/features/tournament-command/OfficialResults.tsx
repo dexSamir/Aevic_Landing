@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, Crosshair, Layers, Map, Trophy } from 'lucide-react';
+import { ArrowRight, BarChart3, Crosshair, Layers, Map, Target, Trophy } from 'lucide-react';
 import { mapArtwork } from '../../assets/maps';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -10,7 +10,7 @@ import type { TeamPlatformSnapshot } from '../../types/domain';
 import { tournamentMatches } from '../../utils/tournamentMatches';
 import { StandingsTable, standingsWindow } from './StandingsTable';
 import { CommandPanelSkeleton } from './TournamentCommandSkeleton';
-import { eventTime, stageLabels } from './model';
+import { eventTime } from './model';
 
 export function OfficialResults({ context, data }: { context: TeamCompetitionContext; data: TeamPlatformSnapshot }) {
   const id = context.tournament.id;
@@ -22,7 +22,9 @@ export function OfficialResults({ context, data }: { context: TeamCompetitionCon
   const [allRounds, setAllRounds] = useState(false);
   useEffect(() => {
     const status = () => setOnline(navigator.onLine);
-    const refresh = () => { if (navigator.onLine && !document.hidden) { standings.refetch(); snapshots.refetch(); movement.refetch(); } };
+    const placedResults = history.filter(result => result.placement > 0);
+  const averagePlacement = placedResults.length ? (placedResults.reduce((sum, result) => sum + result.placement, 0) / placedResults.length).toFixed(1) : '—';
+  const refresh = () => { if (navigator.onLine && !document.hidden) { standings.refetch(); snapshots.refetch(); movement.refetch(); } };
     const timer = window.setInterval(refresh, 60_000);
     window.addEventListener('online', status); window.addEventListener('offline', status);
     return () => { clearInterval(timer); window.removeEventListener('online', status); window.removeEventListener('offline', status); };
@@ -34,6 +36,8 @@ export function OfficialResults({ context, data }: { context: TeamCompetitionCon
   const history = context.history;
   const eventRounds = tournamentMatches(id, context.matches, history);
   const rounds = allRounds ? eventRounds : [...eventRounds].reverse().filter(m => history.some(h => h.id === m.id)).slice(0, 4);
+  const placedResults = history.filter(result => result.placement > 0);
+  const averagePlacement = placedResults.length ? (placedResults.reduce((sum, result) => sum + result.placement, 0) / placedResults.length).toFixed(1) : '—';
   const refresh = () => { standings.refetch(); snapshots.refetch(); movement.refetch(); invalidateQuery('snapshot:team'); };
   return <>
     <section id="standings" tabIndex={-1} className="command-section" aria-labelledby="command-standings-title">
@@ -52,7 +56,7 @@ export function OfficialResults({ context, data }: { context: TeamCompetitionCon
     <Modal open={fullStandings} title="Tam turnir sıralaması" onClose={() => setFullStandings(false)} className="command-dialog"><p className="command-muted">Yalnız dərc edilmiş rəsmi xallar · {context.tournament.name}</p><StandingsTable rows={rows} data={data} movement={movement.error ? [] : movement.data} full /></Modal>
     <section className="command-section command-performance" aria-labelledby="command-performance-title">
       <h2 id="command-performance-title"><BarChart3 /> Komandanın performansı</h2>
-      {standings.loading ? <CommandPanelSkeleton kind="performance" /> : ours ? <><dl className="command-performance-stats">{[['Cari yer', ours.placement > 0 ? `#${ours.placement}` : '—'], ['Ümumi xal', ours.totalPoints], ['Eliminasiya', ours.finishes], ['WWCD', ours.wwcd]].map(([label, value], index) => <div key={label}>{index === 1 ? <Layers size={18} /> : index === 2 ? <Crosshair size={18} /> : <Trophy size={18} />}<dd>{value}</dd><dt>{label}</dt></div>)}</dl><h3>Son matçlar</h3><div className="command-recent">{[...history].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt)).slice(0, 4).map(result => <Link key={result.id} to={`/matches/${result.id}`}><strong>{result.map}</strong><span>#{result.placement || '—'} · {result.points} xal</span></Link>)}</div>{!history.length && <p className="command-muted">Matç nəticələri hələ dərc edilməyib.</p>}</> : <p className="command-muted">Komandanın rəsmi statistikası dərc edildikdən sonra burada görünəcək.</p>}
+      {standings.loading ? <CommandPanelSkeleton kind="performance" /> : ours ? <><dl className="command-performance-stats">{[['Cari yer', ours.placement > 0 ? `#${ours.placement}` : '—'], ['Ümumi xal', ours.totalPoints], ['Eliminasiya', ours.finishes], ['Orta yer', averagePlacement]].map(([label, value], index) => <div key={label}>{index === 1 ? <Layers size={18} /> : index === 2 ? <Crosshair size={18} /> : index === 3 ? <Target size={18} /> : <Trophy size={18} />}<dd>{value}</dd><dt>{label}</dt></div>)}</dl><h3>Son matçlar</h3><div className="command-recent">{[...history].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt)).slice(0, 4).map(result => <Link key={result.id} to={`/matches/${result.id}`}><strong>{context.matches.find(match => match.id === result.id)?.round ? `R${context.matches.find(match => match.id === result.id)!.round}` : result.map}</strong><span>#{result.placement || '—'} · {result.points} xal</span></Link>)}</div>{!history.length && <p className="command-muted">Matç nəticələri hələ dərc edilməyib.</p>}</> : <p className="command-muted">Komandanın rəsmi statistikası dərc edildikdən sonra burada görünəcək.</p>}
     </section>
     <section id="results" tabIndex={-1} className="command-section" aria-labelledby="command-results-title">
       <header className="command-section-heading"><div><h2 id="command-results-title"><Map /> Xəritə nəticələri</h2></div><Button variant="secondary" aria-pressed={allRounds} onClick={() => setAllRounds(v => !v)}>{allRounds ? 'Son 4 nəticə' : 'Bütün raundlar'}</Button></header>
@@ -60,16 +64,11 @@ export function OfficialResults({ context, data }: { context: TeamCompetitionCon
       {!rounds.length && <p>Hələ dərc edilməyib. Planlaşdırılmış raundlara “Bütün raundlar” bölməsində baxın.</p>}
       <ol className="command-results">{rounds.map(match => {
         const result = history.find(h => h.id === match.id);
-        const scheduled = context.matches.find(m => m.id === match.id);
         return <li key={match.id}>
           <h3>{match.round ? `Raund ${match.round} · ` : ''}{match.map}</h3>
           <p className="command-result-summary"><Trophy size={16} /><strong>{result?.placement ? `#${result.placement}` : '—'}</strong><span>{result ? `${result.points} xal` : 'Nəticə gözlənilir'}</span></p>
           {mapArtwork[match.map.toLowerCase()] && <img className="command-result-art" src={mapArtwork[match.map.toLowerCase()].src} srcSet={mapArtwork[match.map.toLowerCase()].srcSet} sizes="(max-width: 600px) 45vw, 240px" alt="" loading="lazy" />}
-          <details className="command-map-details"><summary><span className="sr-only">{match.map} · </span>Təfərrüatlar</summary>
-            <p>{scheduled ? `${stageLabels[scheduled.stage]} · Gün ${scheduled.day} · ` : result?.stageLabel ? `${result.stageLabel} · ` : ''}{eventTime(match.date)}</p>
-            <p>{result ? result.correctedAt ? `Düzəliş edilib · ${eventTime(result.correctedAt)}` : 'Rəsmi nəticə' : scheduled?.publishedAt ? 'Komandanın nəticəsi dərc edilməyib' : match.status === 'live' ? 'CANLI · Nəticə gözlənilir' : match.status === 'completed' ? 'Matç bitib · Dərc gözlənilir' : 'Planlaşdırılıb'}</p>
-            {result && <><dl className="command-result-metrics">{[['Kill', result.finishes], ['Yer xalı', result.placementPoints ?? 'Dərc edilməyib'], ['Kill xalı', result.killPoints ?? 'Dərc edilməyib'], ['Cərimə', result.penalties ?? 'Dərc edilməyib'], ['WWCD', result.wwcd ? 'Bəli' : 'Xeyr']].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><Link to={`/matches/${match.id}`}>Rəsmi matç nəticələri <ArrowRight size={14} /></Link>{result.disputeDeadlineAt && Date.parse(result.disputeDeadlineAt) > Date.now() && <Link to="/team/disputes/new">Nəticəyə etiraz et</Link>}</>}
-          </details>
+
         </li>;
       })}</ol>
       <div className="command-links"><Link to={`/tournaments/${id}#results`}>Bütün rəsmi nəticələr</Link>{history.length > 0 && <Link to="/team/sharecards">Share Studio</Link>}{context.tournament.status === 'completed' && <Link to={`/tournaments/${id}/recap`}>Turnirin yekunu</Link>}</div>

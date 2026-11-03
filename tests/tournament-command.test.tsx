@@ -89,8 +89,8 @@ it('switches tournaments without retaining selected-room state and blocks member
  data.workspaceRole='PLAYER';const current=match().tournamentId;
  page(); expect(screen.queryByRole('button',{name:'Turnirdən çıx'})).not.toBeInTheDocument();
  const other=data.participations.find(p=>p.tournamentId!==current)!;
- fireEvent.change(screen.getByLabelText('Turnir'),{target:{value:other.tournamentId}});
- await waitFor(()=>expect(screen.getByLabelText('Turnir')).toHaveValue(other.tournamentId));
+ fireEvent.click(document.querySelector(`.command-tournaments a[href="/team/tournaments/${other.tournamentId}"]`)!);
+ await waitFor(()=>expect(document.querySelector('.command-tournaments a[aria-current="page"]')).toHaveAttribute('href', `/team/tournaments/${other.tournamentId}`));
  expect(screen.queryByRole('button',{name:'Göstər'})).not.toBeInTheDocument();
 });
 it('expires in-memory credentials and never mistakes release time for server readiness', async()=>{
@@ -114,9 +114,9 @@ it('shows only verified announcements for the selected event and clears room acc
  expect(screen.queryByRole('button',{name:'Otaq statusunu yoxla'})).not.toBeInTheDocument();
 });
 
-it('windows official rankings around the team and fills the nearest rows at both edges', () => {
+it('windows official rankings around the team and keeps at most two neighbors at both edges', () => {
  const rows=Array.from({length:12},(_,index)=>({teamId:String(index+1)}));
- for(const [team,expected] of [['1',['1','2','3','4','5']],['3',['1','2','3','4','5']],['7',['5','6','7','8','9']],['12',['8','9','10','11','12']]] as const) {
+ for(const [team,expected] of [['1',['1','2','3']],['3',['1','2','3','4','5']],['7',['5','6','7','8','9']],['12',['10','11','12']]] as const) {
   expect(standingsWindow(rows,team).map(row=>row.teamId)).toEqual(expected);
  }
  expect(standingsWindow(rows.slice(0,3),'2')).toEqual(rows.slice(0,3));

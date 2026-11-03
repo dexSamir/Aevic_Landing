@@ -2,11 +2,11 @@ import { ArrowDown, ArrowUp } from 'lucide-react';
 import { TeamLogo } from '../../components/common/primitives';
 import type { TeamTournamentResult, RankMovementData, TeamPlatformSnapshot } from '../../types/domain';
 
-/** Keeps five neighboring official ranks, filling from the other side at either edge. */
+/** Shows the team and up to two official ranks on either side. */
 export function standingsWindow<T extends { teamId: string }>(rows: readonly T[], teamId: string): T[] {
   const ownIndex = rows.findIndex(row => row.teamId === teamId);
-  const start = Math.max(0, Math.min(ownIndex - 2, rows.length - 5));
-  return rows.slice(start, start + 5);
+  if (ownIndex < 0) return rows.slice(0, 5);
+  return rows.slice(Math.max(0, ownIndex - 2), ownIndex + 3);
 }
 
 export function StandingsTable({ rows, data, movement = [], full = false }: {

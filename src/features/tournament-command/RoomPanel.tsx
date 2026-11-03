@@ -1,3 +1,4 @@
+import { LockKeyhole } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button, CopyButton } from '../../components/common/primitives';
 import { services } from '../../services';
@@ -47,7 +48,7 @@ export function RoomPanel({ tournamentId, match, eligible, terminal, hint, onVer
   };
   const status = terminal ? 'Otaq girişi bağlanıb' : !match ? 'Raund planlaşdırılmayıb' : match.status === 'completed' || room?.status === 'expired' ? 'Bu raundun otağı bağlanıb' : !eligible ? 'İştirak təsdiqi və Check-in tələb olunur' : room?.status === 'released' ? 'Otaq hazırdır' : room?.reason === 'not-configured' ? 'Admin otaq məlumatlarını hələ daxil etməyib' : room?.reason === 'not-scheduled' ? 'Otağın açılma vaxtı paylaşılmayıb' : room?.status === 'locked' ? 'Otaq hələ açılmayıb' : 'Otaq statusunu serverdə yoxlayın';
   return <div className="command-room-body">
-    <p role="status">{status}</p>
+    <div className="command-room-message"><LockKeyhole aria-hidden="true" /><div><p role="status">{status}</p><p className="command-muted">{room?.status === 'released' ? 'Məlumatları yalnız komandanızla paylaşın.' : 'Otaq məlumatları təhlükəsizlik məqsədilə gizlidir.'}</p></div></div>
     <p className="command-muted">{match ? `${match.map} · Raund ${match.round}` : 'Yarış proqramı gözlənilir'}<br />Açılma vaxtı: {eventTime(room?.releaseAt || match?.roomReleaseAt || hint)}</p>
     {error && <p role="alert" className="field__error">{error}</p>}
     {canRead && <Button loading={loading} onClick={() => void load()}>Otaq statusunu yoxla</Button>}
