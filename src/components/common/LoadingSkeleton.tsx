@@ -1,3 +1,4 @@
+import { TournamentCommandSkeleton } from '../../features/tournament-command/TournamentCommandSkeleton';
 import './map-composition.css';
 import './loading-skeleton.css';
 
@@ -58,6 +59,7 @@ export function skeletonForPath(path:string):SkeletonVariant {
  return 'table';
 }
 export function RouteSkeleton({path}:{path:string}) {
+ if (/^\/team\/tournaments\/[^/]+\/?$/.test(path)) return <TournamentCommandSkeleton />;
  const variant=skeletonForPath(path);
  const full= ['profile','teams','tournament'].includes(variant);
  return <div className={full?'route-data-loading route-data-loading--full':'route-data-loading'}>{['matches','form','list','table','roster','records','record-board','team-cards'].includes(variant)&&<Heading/>}<LoadingSkeleton variant={variant} rows={path==='/teams'?6:5}/></div>;

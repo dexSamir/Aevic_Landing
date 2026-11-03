@@ -11,5 +11,6 @@ export function MatchClock({ match }: { match: MatchScheduleItem }) {
     update();
     return () => { clearInterval(timer); document.removeEventListener('visibilitychange', update); };
   }, [match.id]);
-  return <p className="command-clock" aria-live="off" aria-label="Matçın başlama vəziyyəti">{matchClock(match, now)}</p>;
+  const label = matchClock(match, now);
+  return <p data-timing={/^\d/.test(label) ? 'countdown' : 'status'} className="command-clock" aria-live="off" aria-label="Matçın başlama vəziyyəti">{label}</p>;
 }

@@ -3,6 +3,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { RoomPanel } from '../src/features/tournament-command/RoomPanel';
 import { MatchClock } from '../src/features/tournament-command/MatchClock';
+import { standingsWindow } from '../src/features/tournament-command/StandingsTable';
 import { commandMatch, configuredStages, matchClock } from '../src/features/tournament-command/model';
 import { TeamTournamentDetailPage } from '../src/pages/routes/TeamTournamentDetailPage';
 import { deriveTeamCompetitionContexts } from '../src/utils/teamCompetitionContext';
@@ -79,7 +80,8 @@ it('renders saved scoring, no fake rank, official corrections on refresh, and to
  const get=vi.spyOn(fixtureServices.results,'leaderboard').mockResolvedValueOnce([row,{...row,tournamentId:'other',totalPoints:999}]).mockResolvedValue([{...row,totalPoints:15}]);
  page(); await screen.findByText('13 xal'); expect(screen.queryByText('999')).not.toBeInTheDocument();
  fireEvent.click(screen.getByText('Xallar necə hesablanır?'));
- expect(screen.getByText(/cəriməsiz = 23 xal/)).toBeVisible();
+ expect(screen.getByText(/WWCD bonusu: 3 xal/)).toBeVisible();
+ expect(document.querySelector('.command-kill-points')).toHaveTextContent('2 xal');
  fireEvent.click(screen.getByRole('button',{name:'Sıralamanı yenilə'}));await screen.findByText('15 xal');expect(get).toHaveBeenCalledTimes(2);
  expect(screen.queryByText('#0')).not.toBeInTheDocument();
 });
@@ -110,4 +112,14 @@ it('shows only verified announcements for the selected event and clears room acc
  data={...data,checkIn:{...data.checkIn!,status:'missed'}};
  view.rerender(<MemoryRouter initialEntries={[`/team/tournaments/${id}`]}><Routes><Route path="/team/tournaments/:tournamentId" element={<TeamTournamentDetailPage/>}/></Routes></MemoryRouter>);
  expect(screen.queryByRole('button',{name:'Otaq statusunu yoxla'})).not.toBeInTheDocument();
+});
+
+it('windows official rankings around the team and fills the nearest rows at both edges', () => {
+ const rows=Array.from({length:12},(_,index)=>({teamId:String(index+1)}));
+ for(const [team,expected] of [['1',['1','2','3','4','5']],['3',['1','2','3','4','5']],['7',['5','6','7','8','9']],['12',['8','9','10','11','12']]] as const) {
+  expect(standingsWindow(rows,team).map(row=>row.teamId)).toEqual(expected);
+ }
+ expect(standingsWindow(rows.slice(0,3),'2')).toEqual(rows.slice(0,3));
+ expect(standingsWindow(rows,'missing')).toEqual(rows.slice(0,5));
+ expect(standingsWindow([],'missing')).toEqual([]);
 });
