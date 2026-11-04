@@ -109,8 +109,8 @@ test('published performance and map cards render without overflow or failed asse
  const sizes=await page.locator('.command-map-preview').evaluateAll(images=>images.map(image=>({width:image.getBoundingClientRect().width,height:image.getBoundingClientRect().height})));
  expect(new Set(sizes.map(size=>`${size.width}:${size.height}`)).size).toBe(1);
  await page.getByRole('button',{name:'Bütün raundlar',exact:true}).click();
- await expect(page.locator('.command-results>li')).toHaveCount(8);
- await page.getByRole('button',{name:'Son 4 nəticə',exact:true}).click();
+ await expect(page.locator('.round-list-row')).toHaveCount(8);
+ await page.getByRole('button',{name:'Pəncərəni bağla'}).click();
  await expect(page.locator('.command-results>li')).toHaveCount(4);
  const rule=page.locator('.command-rule-links button').first();
  const ruleText=await rule.innerText();

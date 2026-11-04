@@ -13,7 +13,9 @@ import { MatchClock } from '../../features/tournament-command/MatchClock';
 import { RoomPanel } from '../../features/tournament-command/RoomPanel';
 import { TournamentScoring } from '../../features/tournament-command/TournamentScoring';
 import { OfficialResults } from '../../features/tournament-command/OfficialResults';
+import { TournamentSelector } from '../../features/tournament-command/TournamentSelector';
 import '../../styles/tournament-command.css';
+import '../../styles/command-rounds.css';
 
 export function TeamTournamentDetailPage() {
   const data = useTeamPlatformData();
@@ -34,6 +36,7 @@ function CommandCenter({ data, context, all }: { data: TeamPlatformSnapshot; con
   const [verified, setVerified] = useState<{ roundId: string; status?: RoomCredentials['status'] }>();
   const next = commandMatch(matches, tournament);
   const [selection, setSelection] = useState('');
+  const [roundDetail, setRoundDetail] = useState<string>();
   const scheduleRef = useRef<HTMLOListElement>(null);
   const selected = matches.find(m => m.id === selection) ?? next ?? matches[matches.length - 1];
   const terminal = ['completed', 'cancelled'].includes(tournament.status);
@@ -86,7 +89,7 @@ function CommandCenter({ data, context, all }: { data: TeamPlatformSnapshot; con
       <div className="command-header-meta"><p>{tournament.name} · {tournament.shortName} · {lifecycleLabels[tournament.status] ?? tournament.status}</p><Link className="button button--secondary" to={`/tournaments/${tournament.id}`}>Turnirə ümumi baxış <ExternalLink size={14} /></Link></div>
 
     </header>
-    {all.length > 1 && <nav className="command-tournaments" aria-label="Turnir seçimi">{all.map(c => <Link key={c.tournament.id} to={`/team/tournaments/${c.tournament.id}`} aria-current={c.tournament.id === tournament.id ? 'page' : undefined}>{c.tournament.shortName || c.tournament.name}</Link>)}</nav>}
+    <TournamentSelector context={context} all={all} game={data.currentTeam.gameKey} />
     <div className="command-dashboard">
     <section id="overview" tabIndex={-1} className="command-next" aria-labelledby="command-next-title">
       <div><span className="command-eyebrow">{next?.status === 'live' && !terminal ? 'CANLI MATÇ' : 'NÖVBƏTİ MATÇ'}</span><h2 id="command-next-title">{status === 'withdrawn' || terminal || !next ? noMatch : !confirmed ? participationLabels[status] : checkOpen && manage ? 'İştirakınızı indi təsdiqləyin' : `${next.map} · Raund ${next.round}`}</h2>
@@ -96,17 +99,18 @@ function CommandCenter({ data, context, all }: { data: TeamPlatformSnapshot; con
     <section id="matches" tabIndex={-1} className="command-section" aria-labelledby="command-matches-title"><header className="command-section-heading"><div><h2 id="command-matches-title"><CalendarDays /> Matç təqvimi</h2></div></header>
       {!stages.length && <p>Yarış proqramı hələ paylaşılmayıb.</p>}
       <div className="command-stage-details" aria-label="Mərhələlər və matçlar"><ol className="command-stages">{stages.map(({ stage, matches: stageMatches }) => <li key={stage} aria-current={next?.stage === stage ? 'step' : undefined}><strong>{stageLabels[stage]}</strong><span>{eventTime(stageMatches[0].startsAt)}</span><small>{stageMatches.every(m => m.status === 'completed') ? 'Matçlar bitib' : next?.stage === stage ? 'Cari mərhələ' : 'Planlaşdırılıb'} · {stageMatches.length} raund</small></li>)}</ol></div>
-      <ol ref={scheduleRef} className="command-schedule" tabIndex={0} aria-label="Bütün turnir matçları">{matches.map(match => <li key={match.id} data-next={match.id === next?.id}><span className="command-round-number"><b>{match.round}</b><small>Raund</small></span><span className="command-map-preview">{mapArtwork[match.map.toLowerCase()] && <img className="command-map-thumb" src={mapArtwork[match.map.toLowerCase()].src} srcSet={mapArtwork[match.map.toLowerCase()].srcSet} sizes="(min-width: 1100px) 180px, 90px" alt="" loading="lazy" />}</span><div><strong>{match.map}</strong><small>{stageLabels[match.stage]} · Gün {match.day} · {match.lobby}</small></div><time dateTime={match.startsAt}>{eventTime(match.startsAt)}</time><span>{terminal && match.status !== 'completed' ? 'Bağlanıb' : match.status === 'live' ? 'CANLI' : match.status === 'completed' ? 'Bitib' : match.id === next?.id ? 'Növbəti matç' : 'Planlaşdırılıb'}</span><Link to="#room" onClick={() => { setSelection(match.id); setVerified(undefined); }} aria-label={`${match.map} · Raund ${match.round} — Raundu aç`}><ChevronRight size={18} /></Link></li>)}</ol>
+      <ol ref={scheduleRef} className="command-schedule command-schedule-interactive" tabIndex={0} aria-label="Bütün turnir matçları">{matches.map(match => <li key={match.id} data-next={match.id === next?.id}><button type="button" onClick={() => setRoundDetail(match.id)} aria-label={`${match.map} · Raund ${match.round} — Raundu aç`}><span className="command-round-number"><b>{match.round}</b><small>Raund</small></span><span className="command-map-preview">{mapArtwork[match.map.toLowerCase()] && <img className="command-map-thumb" src={mapArtwork[match.map.toLowerCase()].src} alt="" loading="lazy" />}</span><strong>{match.map}</strong><span className="schedule-status">{terminal && match.status !== 'completed' ? 'Bağlanıb' : match.status === 'live' ? 'CANLI' : match.status === 'completed' ? 'Bitib' : match.id === next?.id ? 'Növbəti matç' : 'Planlaşdırılıb'}</span><time dateTime={match.startsAt}>{new Date(match.startsAt).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Baku'})}</time><ChevronRight size={16}/></button></li>)}</ol>
     </section>
-    <section id="room" tabIndex={-1} className="command-section" aria-labelledby="command-room-title"><div className="command-room-heading"><h2 id="command-room-title"><Gamepad2 /> Matç otağı</h2><span className="command-room-status"><LockKeyhole size={14} />{roomVerified ? 'Otaq hazırdır' : 'Otaq kodu qorunur'}</span></div>
+    <div className="command-room-column"><section id="room" tabIndex={-1} className="command-section" aria-labelledby="command-room-title"><div className="command-room-heading"><h2 id="command-room-title"><Gamepad2 /> Matç otağı</h2><span className="command-room-status"><LockKeyhole size={14} />{roomVerified ? 'Otaq hazırdır' : 'Otaq kodu qorunur'}</span></div>
       <div className="command-rounds" role="group" aria-label="Raund">{matches.map(m => <button type="button" key={m.id} data-round-id={m.id} aria-pressed={selected?.id === m.id} onClick={() => { setVerified(undefined); setSelection(m.id); }}>R{m.round} · {m.map}</button>)}</div>
       <RoomPanel key={`${selected?.id}:${eligible}:${terminal}:${selected?.status}`} tournamentId={tournament.id} match={selected} eligible={eligible} terminal={terminal} hint={context.room?.roundId === selected?.id ? context.room?.releaseAt : undefined} onVerified={(roundId, state) => setVerified({ roundId, status: state })} />
       <div className="command-team-readiness"><div><Users /><span><strong>Heyət ({data.currentTeam.roster.length})</strong><small>{rosterReady ? 'Heyət hazırdır' : 'Heyəti tamamlayın'}</small></span></div><div><ShieldCheck /><span><strong>Uyğunluq yoxlaması</strong><small>{eligible ? 'Giriş şərtləri təsdiqlənib' : 'İştirak və Check-in tələb olunur'}</small></span></div></div>
-      <div className="command-participation" aria-label="İştirak məlumatları">      <div className="command-readiness"><StatusBadge status={confirmed ? 'approved' : status === 'rejected' || status === 'withdrawn' ? 'rejected' : 'warning'}>{participationLabels[status]}</StatusBadge><dl><div><dt>Turnir tarixləri · Bakı</dt><dd>{eventTime(tournament.startsAt)} — {eventTime(tournament.endsAt)}</dd></div><div><dt>Qrup / Slot</dt><dd>{participation.groupLabel ?? 'Qrup paylaşılmayıb'} · {participation.slotNumber ? `#${participation.slotNumber}` : 'Slot gözlənilir'}</dd></div><div><dt>Heyət / Check-in</dt><dd>{data.currentTeam.roster.length} oyunçu · {didCheckIn ? 'Check-in tamamlanıb' : 'Check-in tamamlanmayıb'}</dd></div></dl>{!manage && <p>Check-in və iştirak dəyişikliklərini komanda rəhbərliyi idarə edir.</p>}</div>
-</div>
-      {checkOpen && manage && <Button onClick={() => setCheckInOpen(true)}>Check-in et</Button>}
     </section>
-    <OfficialResults context={context} data={data} />
+      <section className="command-section command-participation" aria-label="İştirak məlumatları">      <div className="command-readiness"><StatusBadge status={confirmed ? 'approved' : status === 'rejected' || status === 'withdrawn' ? 'rejected' : 'warning'}>{participationLabels[status]}</StatusBadge><dl><div><dt>Turnir tarixləri · Bakı</dt><dd>{eventTime(tournament.startsAt)} — {eventTime(tournament.endsAt)}</dd></div><div><dt>Qrup / Slot</dt><dd>{participation.groupLabel ?? 'Qrup paylaşılmayıb'} · {participation.slotNumber ? `#${participation.slotNumber}` : 'Slot gözlənilir'}</dd></div><div><dt>Heyət / Check-in</dt><dd>{data.currentTeam.roster.length} oyunçu · {didCheckIn ? 'Check-in tamamlanıb' : 'Check-in tamamlanmayıb'}</dd></div></dl>{!manage && <p>Check-in və iştirak dəyişikliklərini komanda rəhbərliyi idarə edir.</p>}</div>
+</section>
+      {checkOpen && manage && <Button onClick={() => setCheckInOpen(true)}>Check-in et</Button>}
+    </div>
+    <OfficialResults context={context} data={data} roundDetail={roundDetail} onRound={setRoundDetail} eligible={eligible} terminal={terminal} onRoom={id => { setRoundDetail(undefined); setSelection(id); setVerified(undefined); window.location.hash='room'; window.requestAnimationFrame(() => { document.getElementById('room')?.focus(); document.getElementById('room')?.scrollIntoView({block:'start'}); }); }} />
     {announcements.length > 0 && <section className="command-section" aria-label="Turnir yenilikləri"><h2>Turnir yenilikləri</h2>{announcements.map(a => <article key={a.id}><h3>{a.title}</h3><p>{a.body}</p><small>{eventTime(a.createdAt)}</small>{a.actionHref && <Link className="button button--secondary" to={a.actionHref}>{a.actionLabel ?? 'Ətraflı bax'}</Link>}</article>)}</section>}
     <TournamentScoring tournament={tournament} />
     </div>

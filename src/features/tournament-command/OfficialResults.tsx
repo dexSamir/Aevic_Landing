@@ -9,9 +9,10 @@ import type { TeamCompetitionContext } from '../../utils/teamCompetitionContext'
 import type { TeamPlatformSnapshot } from '../../types/domain';
 import { tournamentMatches } from '../../utils/tournamentMatches';
 import { StandingsTable, standingsWindow } from './StandingsTable';
+import { AllRounds, RoundDetail } from './RoundExperience';
 import { CommandPanelSkeleton } from './TournamentCommandSkeleton';
 
-export function OfficialResults({ context, data }: { context: TeamCompetitionContext; data: TeamPlatformSnapshot }) {
+export function OfficialResults({ context, data, roundDetail, onRound, onRoom, eligible, terminal }: { context: TeamCompetitionContext; data: TeamPlatformSnapshot; roundDetail?: string; onRound: (id?:string)=>void; onRoom:(id:string)=>void; eligible:boolean; terminal:boolean }) {
   const id = context.tournament.id;
   const standings = usePlatformQuery({ key: `tournament:${id}:leaderboard`, scope: 'public', query: signal => services.results.leaderboard(id, signal) });
   const snapshots = usePlatformQuery({ key: `tournament:${id}:snapshots`, scope: 'public', query: signal => services.results.snapshots(id, signal), retry: 0 });
@@ -31,7 +32,7 @@ export function OfficialResults({ context, data }: { context: TeamCompetitionCon
   const ours = rows.find(r => r.teamId === data.currentTeam.id);
   const history = context.history;
   const eventRounds = tournamentMatches(id, context.matches, history);
-  const rounds = allRounds ? eventRounds : [...eventRounds].reverse().filter(m => history.some(h => h.id === m.id)).slice(0, 4);
+  const rounds = [...eventRounds].reverse().filter(m => history.some(h => h.id === m.id)).slice(0, 4);
   const placedResults = history.filter(result => result.placement > 0);
   const averagePlacement = placedResults.length ? (placedResults.reduce((sum, result) => sum + result.placement, 0) / placedResults.length).toFixed(1) : '—';
   const refreshing = standings.loading || standings.refreshing || snapshots.refreshing || movement.refreshing;
@@ -48,23 +49,25 @@ export function OfficialResults({ context, data }: { context: TeamCompetitionCon
 
       </>}
     </section>
-    <Modal open={fullStandings} title="Tam turnir sıralaması" onClose={() => setFullStandings(false)} className="command-dialog"><p className="command-muted">Yalnız dərc edilmiş rəsmi xallar · {context.tournament.name}</p><StandingsTable rows={rows} data={data} movement={movement.error ? [] : movement.data} full /><div className="command-export-action">{exportable ? <Link className="button button--primary" to={`/team/sharecards?type=leaderboard&tournament=${encodeURIComponent(id)}`}><Download size={16} aria-hidden="true" /> Sıralamanı yüklə</Link> : <Button disabled title="İxrac üçün dərc edilmiş sıralama və mənbə tarixi tələb olunur">Sıralamanı yüklə</Button>}</div></Modal>
+    <Modal customHeading={!fullStandings} open={fullStandings || allRounds || Boolean(roundDetail)} title={fullStandings ? 'Tam turnir sıralaması' : roundDetail ? 'Raund məlumatları' : 'Bütün raundlar'} onClose={() => {setFullStandings(false);setAllRounds(false);onRound(undefined);}} className={`command-dialog ${fullStandings ? '' : 'command-round-dialog'}`}>
+      {fullStandings ? <><p className="command-muted">Yalnız dərc edilmiş rəsmi xallar · {context.tournament.name}</p><StandingsTable rows={rows} data={data} movement={movement.error ? [] : movement.data} full /><div className="command-export-action">{exportable ? <Link className="button button--primary" to={`/team/sharecards?type=leaderboard&tournament=${encodeURIComponent(id)}`}><Download size={16} aria-hidden="true" /> Sıralamanı yüklə</Link> : <Button disabled title="İxrac üçün dərc edilmiş sıralama və mənbə tarixi tələb olunur">Sıralamanı yüklə</Button>}</div></> : roundDetail ? <RoundDetail key={roundDetail} id={roundDetail} context={context} data={data} fromList={allRounds} onList={()=>{onRound(undefined);setAllRounds(true);}} onStandings={()=>{onRound(undefined);setAllRounds(false);setFullStandings(true);}} onRoom={id=>{setAllRounds(false);onRoom(id);}} eligible={eligible} terminal={terminal}/> : <AllRounds context={context} onSelect={onRound}/>}
+    </Modal>
     <section className="command-section command-performance" aria-labelledby="command-performance-title">
       <h2 id="command-performance-title"><BarChart3 /> Komandanın performansı</h2>
       {standings.loading ? <CommandPanelSkeleton kind="performance" /> : ours ? <><dl className="command-performance-stats">{[['Cari yer', ours.placement > 0 ? `#${ours.placement}` : '—'], ['Ümumi xal', ours.totalPoints], ['Eliminasiya', ours.finishes], ['Orta yer', averagePlacement]].map(([label, value], index) => <div key={label}>{index === 1 ? <Layers size={18} /> : index === 2 ? <Crosshair size={18} /> : index === 3 ? <Target size={18} /> : <Trophy size={18} />}<dd>{value}</dd><dt>{label}</dt></div>)}</dl><h3>Son matçlar</h3><div className="command-recent">{[...history].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt)).slice(0, 4).map(result => <Link key={result.id} to={`/matches/${result.id}`}><strong>{context.matches.find(match => match.id === result.id)?.round ? `R${context.matches.find(match => match.id === result.id)!.round}` : result.map}</strong><span>#{result.placement || '—'} · {result.points} xal</span></Link>)}</div>{!history.length && <p className="command-muted">Matç nəticələri hələ dərc edilməyib.</p>}</> : <p className="command-muted">Komandanın rəsmi statistikası dərc edildikdən sonra burada görünəcək.</p>}
     </section>
     <section id="results" tabIndex={-1} className="command-section" aria-labelledby="command-results-title">
-      <header className="command-section-heading"><div><h2 id="command-results-title"><Map /> Xəritə nəticələri</h2></div><Button variant="secondary" aria-pressed={allRounds} onClick={() => setAllRounds(v => !v)}>{allRounds ? 'Son 4 nəticə' : 'Bütün raundlar'}</Button></header>
-      <p className="command-muted">{allRounds ? 'Bütün raundlar · xronoloji sıra' : 'Son 4 dərc edilmiş matç'}</p>
+      <header className="command-section-heading"><div><h2 id="command-results-title"><Map /> Xəritə nəticələri</h2></div><Button variant="secondary" onClick={() => setAllRounds(true)}>Bütün raundlar</Button></header>
+      <p className="command-muted">Son 4 dərc edilmiş matç</p>
       {!rounds.length && <p>Hələ dərc edilməyib. Planlaşdırılmış raundlara “Bütün raundlar” bölməsində baxın.</p>}
       <ol className="command-results">{rounds.map(match => {
         const result = history.find(h => h.id === match.id);
-        return <li key={match.id}>
+        return <li key={match.id}><button className="command-map-result-action" onClick={()=>onRound(match.id)} aria-label={`${match.map} · Raund ${match.round ?? '—'} nəticələri`}>
           <h3>{match.round ? `Raund ${match.round} · ` : ''}{match.map}</h3>
           <p className="command-result-summary"><Trophy size={16} /><strong>{result?.placement ? `#${result.placement}` : '—'}</strong><span>{result ? `${result.points} xal` : 'Nəticə gözlənilir'}</span></p>
           {mapArtwork[match.map.toLowerCase()] && <img className="command-result-art" src={mapArtwork[match.map.toLowerCase()].src} srcSet={mapArtwork[match.map.toLowerCase()].srcSet} sizes="(max-width: 600px) 45vw, 240px" alt="" loading="lazy" />}
 
-        </li>;
+        </button></li>;
       })}</ol>
       <div className="command-links"><Link to={`/tournaments/${id}#results`}>Bütün rəsmi nəticələr</Link>{history.length > 0 && <Link to="/team/sharecards">Share Studio</Link>}{context.tournament.status === 'completed' && <Link to={`/tournaments/${id}/recap`}>Turnirin yekunu</Link>}</div>
     </section>
