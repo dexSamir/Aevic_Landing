@@ -136,3 +136,25 @@ it('keeps room metadata out of the status panel and displays truthful roadmap de
  expect(roadmapTime(undefined,'Təsdiqlənib')).toBe('Təsdiqlənib');
  expect(roadmapTime('invalid')).toBe('Vaxt paylaşılmayıb');
 });
+
+it('preserves official standings on refresh failure, prevents pending duplicates and stops the busy state', async () => {
+ const id=match().tournamentId;
+ const row={tournamentId:id,teamId:data.currentTeam.id,placement:2,matches:1,wwcd:0,finishes:4,placementPoints:6,finishPoints:8,penalties:1,totalPoints:13,bestFinish:2};
+ let reject!: (error:Error)=>void;
+ const get=vi.spyOn(fixtureServices.results,'leaderboard').mockResolvedValueOnce([row]).mockImplementation(()=>new Promise((_resolve,rejectRequest)=>{reject=rejectRequest;}));
+ page();
+ await waitFor(()=>expect(document.querySelector('.is-own-team td[data-label="Xal"]')).toHaveTextContent('13'));
+ const refresh=screen.getByRole('button',{name:'Sıralamanı yenilə'});
+ fireEvent.click(refresh);
+ await waitFor(()=>expect(refresh).toBeDisabled());
+ fireEvent.click(refresh);
+ expect(get).toHaveBeenCalledTimes(2);
+ expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+ await act(async()=>reject(new Error('Refresh failed')));
+ // Query policy retries transient errors once; reject that request too.
+ await waitFor(()=>expect(get).toHaveBeenCalledTimes(3));
+ await act(async()=>reject(new Error('Refresh failed')));
+ await waitFor(()=>expect(refresh).toHaveAttribute('aria-busy','false'));
+ expect(screen.getByText(/Yenilənmə alınmadı/)).toBeVisible();
+ expect(document.querySelector('.is-own-team td[data-label="Xal"]')).toHaveTextContent('13');
+});

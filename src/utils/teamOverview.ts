@@ -27,7 +27,7 @@ export function buildTeamOverview(data: TeamPlatformSnapshot, context?: TeamComp
   return {
     team, context, tournamentHref, nextAction,
     currentStanding: standings.find(row => row.current), standings,
-    resultsHref: context ? `/tournaments/${context.tournament.id}#results` : undefined,
+    resultsHref: tournamentHref ? `${tournamentHref}#standings` : undefined,
     rounds: context?.matches ?? [],
     recentMatches: [...data.matchHistory].sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt)).slice(0, 5),
     updates: buildCompetitionAwareness({ notifications: data.notifications, adminMessages: data.adminMessages, announcements: data.teamAnnouncements }).slice(0, 3),

@@ -17,7 +17,7 @@ test('command center adapts to all required content widths and enlarged text', a
  await page.setViewportSize({width:390,height:844});await page.evaluate(()=>document.documentElement.style.fontSize='200%');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.evaluate(()=>document.documentElement.style.fontSize='');
- await page.getByRole('link',{name:'Otaq',exact:true}).click();await expect(page).toHaveURL(/#room$/);
+ await page.getByRole('link',{name:'Matç otağına keç →',exact:true}).click();await expect(page).toHaveURL(/#room$/);
  await expect(page.locator('#room')).toBeFocused();
  await page.evaluate(()=>window.scrollTo(0,0));
  await page.screenshot({path:'test-results/command-mobile.png',fullPage:true});
@@ -203,12 +203,80 @@ test('overview slider routes tournament cards to their Command Center and retain
  await expect(rail).toBeVisible();
  const match=rail.locator('[data-kind="match"]').first();
  const href=await match.getAttribute('href');
- expect(href).toMatch(/^\/team\/tournaments\/[^/#]+$/);
- await match.click();
+ expect(href).toMatch(/^\/team\/tournaments\/[^/#]+#matches$/);
+ await match.dispatchEvent('pointerdown',{clientX:100,clientY:100,buttons:1});
+ await match.dispatchEvent('pointermove',{clientX:130,clientY:100,buttons:1});
+ await match.dispatchEvent('click',{detail:1});
+ await expect(page).toHaveURL(/\/team\?scenario=room-ready$/);
+ await match.focus();await page.keyboard.press('Enter');
  await expect(page).toHaveURL(new RegExp(href!+'$'));
  await page.goto('/team?scenario=room-ready');
- await expect(rail.locator('[data-kind="room"]')).toHaveAttribute('href', /\/team\/tournaments\/[^/#]+$/);
+ await expect(rail.locator('[data-kind="room"]')).toHaveAttribute('href', /\/team\/tournaments\/[^/#]+#room$/);
  await expect(rail.locator('[data-kind="roster"]')).toHaveAttribute('href','/team/roster');
  await page.goto('/team?scenario=no-active-tournament');
  expect(await rail.locator('a').evaluateAll(nodes=>nodes.every(node=>!/(undefined|null|tournaments\/$)/.test(node.getAttribute('href')??'')))).toBe(true);
+});
+
+test('standings actions, responsive badges and tournament-specific PNG export', async ({ page }) => {
+ test.setTimeout(120_000);
+ const fixture = teamSnapshotScenario('room-ready');
+ const rows = fixture.leaderboard.map(row => ({...row,tournamentId:'daily-cup-24'}));
+ let calls = 0;
+ let release: (() => void) | undefined;
+ await page.route('**/api/leaderboards/daily-cup-24', async route => {
+  calls++;
+  if (calls === 2) await new Promise<void>(resolve => {release = resolve;});
+  await route.fulfill({json: rows});
+ });
+ await page.route('**/api/leaderboards/daily-cup-24/snapshots', route => route.fulfill({json:[{id:'published', tournamentId:'daily-cup-24',publishedAt:'2026-08-04T12:00:00Z',standings:rows.map(row=>({teamId:row.teamId,rank:row.placement,totalPoints:row.totalPoints}))}]}));
+ await page.goto('/team/tournaments/daily-cup-24?scenario=room-ready');
+ const preview = page.locator('.command-table-preview');
+ await expect(preview.locator('tbody tr')).toHaveCount(Math.min(5,rows.length));
+ await expect(page.getByRole('navigation',{name:'Turnir bölmələri'})).toHaveCount(0);
+ for (const width of [320,360,390,430,768,1024,1440]) {
+  await page.setViewportSize({width,height:900});
+  expect(await preview.evaluate(node => node.scrollWidth <= node.clientWidth), `preview overflow at ${width}`).toBe(true);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(await preview.locator('.command-rank-badge').evaluateAll(nodes=>nodes.every(node=>{const r=node.getBoundingClientRect();return r.width/r.height===1.5;}))).toBe(true);
+  if(width<600) for(const label of ['WWCD','Yer xalı','Kill xalı','Matç']) await expect(preview.getByRole('columnheader',{name:label,exact:true})).toBeHidden();
+  if([320,390,1440].includes(width)) await page.screenshot({path:`test-results/standings-refinement-${width}.png`,fullPage:true});
+ }
+ const toggle=page.locator('.workspace-desktop-toggle');
+ for(let i=0;i<2;i++) {
+  const {button,icon}=await toggle.evaluate(node=>({button:node.getBoundingClientRect().toJSON(),icon:node.querySelector('svg')!.getBoundingClientRect().toJSON()}));
+  expect(Math.abs(button!.x+button!.width/2-icon!.x-icon!.width/2)).toBeLessThan(1);
+  expect(Math.abs(button!.y+button!.height/2-icon!.y-icon!.height/2)).toBeLessThan(1);
+  await toggle.click();
+ }
+ const refresh=page.getByRole('button',{name:'Sıralamanı yenilə'});
+ await expect(refresh.locator('svg')).toHaveCSS('width','18px');
+ await refresh.click();
+ await expect(refresh).toBeDisabled();
+ await expect(refresh).toHaveAttribute('aria-busy','true');
+ await expect(refresh.locator('svg')).toHaveCSS('animation-name','command-refresh-spin');
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await expect(refresh.locator('svg')).toHaveCSS('animation-name','none');
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await expect(page.getByRole('dialog')).toHaveCount(0);
+ await expect(preview.locator('tbody tr')).toHaveCount(Math.min(5,rows.length));
+ release!();
+ await expect(refresh).toBeEnabled();
+ await expect(refresh.locator('svg')).toHaveCSS('animation-name','none');
+ expect(calls).toBe(2);
+ await page.getByRole('button',{name:'Tam reytinqə bax'}).click();
+ const dialog=page.getByRole('dialog');
+ await expect(dialog).toBeVisible();
+ await page.setViewportSize({width:320,height:800});
+ await expect(dialog.getByRole('columnheader',{name:'WWCD',exact:true})).toBeVisible();
+ await dialog.getByRole('link',{name:'Sıralamanı yüklə'}).click();
+ await expect(page).toHaveURL(/\/team\/sharecards\?type=leaderboard&tournament=daily-cup-24/);
+ await expect(page.getByRole('radio',{name:/Liderlik cədvəli/})).toHaveAttribute('aria-checked','true');
+ await expect(page.locator('.generated-poster--leaderboard')).toBeVisible();
+ const download=page.waitForEvent('download');
+ await page.getByRole('button',{name:'PNG yüklə',exact:true}).click();
+ const stream=await(await download).createReadStream();const chunks:Buffer[]=[];
+ for await(const chunk of stream!) chunks.push(chunk);
+ expect(Buffer.concat(chunks).subarray(1,4).toString()).toBe('PNG');
+ await page.reload();
+ await expect(page.locator('.generated-poster--leaderboard')).toBeVisible();
 });

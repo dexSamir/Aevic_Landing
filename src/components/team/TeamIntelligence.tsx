@@ -22,6 +22,7 @@ export function TeamIntelligence() {
   const [reduced, setReduced] = useState(false);
   const [edges, setEdges] = useState({ start: true, end: true });
   const rail = useRef<HTMLDivElement>(null);
+  const gesture = useRef({ x: 0, y: 0, dragged: false });
   const roomContext = !data.unavailable?.room && !data.unavailable?.competition ? all.find(context => context.tournament.id && context.lifecycle === 'current' && context.participation.status === 'confirmed' && context.room) : undefined;
   const room = roomContext?.room;
   // This service performs server authorization; snapshot release state alone never reveals a code.
@@ -49,7 +50,7 @@ export function TeamIntelligence() {
     const released = credentials?.status === 'released' && credentials.roundId === room.roundId;
     const denied = roomQuery.error?.status === 401 || roomQuery.error?.status === 403;
     const round = roomContext.matches.find(match => match.id === room.roundId);
-    cards.push({ id: 'room', label: 'MATÇ OTAĞI', value: room.status !== 'released' ? 'Bağlıdır' : denied ? 'Giriş icazəsi tələb olunur' : roomQuery.error ? 'Otaq məlumatı yüklənmədi' : roomQuery.loading ? 'Otaq yoxlanılır…' : released && credentials.roomId ? `ID: ${credentials.roomId}` : 'Otaq məlumatını aç', detail: `${room.status !== 'released' ? `${overviewDate(room.releaseAt)} · ${bakuTime(room.releaseAt)} açılır · ` : ''}${roomContext.tournament.shortName || roomContext.tournament.name}${round ? ` · ${round.map} · R${round.round} · ${bakuTime(round.startsAt)}` : ''}`, href: `/team/tournaments/${encodeURIComponent(roomContext.tournament.id)}`, priority: 1, icon: KeyRound });
+    cards.push({ id: 'room', label: 'MATÇ OTAĞI', value: room.status !== 'released' ? 'Bağlıdır' : denied ? 'Giriş icazəsi tələb olunur' : roomQuery.error ? 'Otaq məlumatı yüklənmədi' : roomQuery.loading ? 'Otaq yoxlanılır…' : released && credentials.roomId ? `ID: ${credentials.roomId}` : 'Otaq məlumatını aç', detail: `${room.status !== 'released' ? `${overviewDate(room.releaseAt)} · ${bakuTime(room.releaseAt)} açılır · ` : ''}${roomContext.tournament.shortName || roomContext.tournament.name}${round ? ` · ${round.map} · R${round.round} · ${bakuTime(round.startsAt)}` : ''}`, href: `/team/tournaments/${encodeURIComponent(roomContext.tournament.id)}#room`, priority: 1, icon: KeyRound });
   }
   if (!data.unavailable?.competition) {
     for (const context of all.filter(c => c.tournament.id && (c.lifecycle === 'current' || c.lifecycle === 'upcoming'))) {
@@ -58,7 +59,7 @@ export function TeamIntelligence() {
       if (checkIn?.status === 'open' && Date.parse(checkIn.closesAt) > now) cards.push({ id: `check-in:${context.tournament.id}`, label: 'İŞTİRAK TƏSDİQİNƏ QALAN VAXT', value: countdown(checkIn.closesAt, now), detail: `${context.tournament.name} · son vaxt ${bakuTime(checkIn.closesAt)} (Bakı)`, href, priority: 0, deadline: Date.parse(checkIn.closesAt), icon: Clock3 });
       if (context.nextMatch) {
         const match = context.nextMatch;
-        cards.push({ id: `match:${match.id}`, label: match.status === 'live' ? 'MATÇ CANLIDIR' : 'NÖVBƏTİ MATÇ', value: match.map, detail: `${context.tournament.shortName || context.tournament.name} · ${overviewDate(match.startsAt)} · ${bakuTime(match.startsAt)} (Bakı)`, href, priority: match.status === 'live' ? 1 : 3, deadline: Date.parse(match.startsAt), icon: Clock3 });
+        cards.push({ id: `match:${match.id}`, label: match.status === 'live' ? 'MATÇ CANLIDIR' : 'NÖVBƏTİ MATÇ', value: match.map, detail: `${context.tournament.shortName || context.tournament.name} · ${overviewDate(match.startsAt)} · ${bakuTime(match.startsAt)} (Bakı)`, href: `${href}#matches`, priority: match.status === 'live' ? 1 : 3, deadline: Date.parse(match.startsAt), icon: Clock3 });
       }
       const statusLabels: Record<string, string> = { confirmed: 'Təsdiqlənib', pending: 'Təsdiq gözləyir', rejected: 'Qəbul edilməyib', withdrawn: 'İştirak ləğv edilib' };
       cards.push({ id: `entry:${context.tournament.id}`, label: 'TURNİR İŞTİRAKI', value: statusLabels[context.participation.status] ?? 'İştirak məlumatı', detail: context.tournament.name, href, priority: 5, icon: Trophy });
@@ -70,7 +71,8 @@ export function TeamIntelligence() {
     const events = data.notifications.filter(n => !n.read && n.actionHref && (n.priority === 'critical' || n.priority === 'important')).sort((a, b) => Number(b.priority === 'critical') - Number(a.priority === 'critical')).slice(0, 3);
     for (const event of events) {
       const tournament = all.find(context => context.tournament.id && (event.entityRef?.type === 'tournament' ? event.entityRef.id === context.tournament.id : ['match', 'round', 'result'].includes(event.entityRef?.type ?? '') && [...context.matches, ...context.history].some(match => match.id === event.entityRef?.id)));
-      const eventHref = tournament ? `/team/tournaments/${encodeURIComponent(tournament.tournament.id)}` : event.actionHref!;
+      const section = event.eventType === 'room' ? '#room' : ['schedule', 'match'].includes(event.eventType ?? '') ? '#matches' : ['map-result', 'tournament-result'].includes(event.eventType ?? '') ? '#results' : event.eventType === 'placement' ? '#standings' : '';
+      const eventHref = tournament ? `/team/tournaments/${encodeURIComponent(tournament.tournament.id)}${section}` : event.actionHref!;
       // A registration update replaces its generic status card, preserving the actionable message.
       if (event.eventType === 'registration') {
         const duplicate = cards.findIndex(card => card.id.startsWith('entry:') && card.href === eventHref);
@@ -82,7 +84,7 @@ export function TeamIntelligence() {
   const roster = data.currentTeam.roster.filter(p => p.role !== 'substitute' && p.ign.trim()).length;
   cards.push({ id: 'roster', label: roster < 4 ? 'HEYƏTİ TAMAMLA' : 'ƏSAS HEYƏT', value: `${roster}/4 oyunçu`, detail: roster < 4 ? 'Əsas heyətdə boş yerlər var' : 'Heyəti nəzərdən keçir və idarə et', href: '/team/roster', priority: roster < 4 ? 2 : 8, icon: Users });
   const latest = data.historyAvailable !== false ? [...data.matchHistory].filter(m => Number.isFinite(Date.parse(m.playedAt))).sort((a, b) => Date.parse(b.playedAt) - Date.parse(a.playedAt))[0] : undefined;
-  if (latest) cards.push({ id: 'result', label: 'SON RƏSMİ NƏTİCƏ', value: `#${latest.placement} · ${latest.finishes} kill`, detail: `${latest.map} · ${latest.points} xal · ${overviewDate(latest.playedAt)}`, href: latest.tournamentId && all.some(context => context.tournament.id === latest.tournamentId) ? `/team/tournaments/${encodeURIComponent(latest.tournamentId)}` : '/team/history', priority: 7, icon: Trophy });
+  if (latest) cards.push({ id: 'result', label: 'SON RƏSMİ NƏTİCƏ', value: `#${latest.placement} · ${latest.finishes} kill`, detail: `${latest.map} · ${latest.points} xal · ${overviewDate(latest.playedAt)}`, href: latest.tournamentId && all.some(context => context.tournament.id === latest.tournamentId) ? `/team/tournaments/${encodeURIComponent(latest.tournamentId)}#results` : '/team/history', priority: 7, icon: Trophy });
   // Keep the workspace useful between competitions without implying unavailable data is empty.
   if (!roomContext) cards.push({ id: 'room-status', label: 'MATÇ OTAĞI', value: data.unavailable?.room || data.unavailable?.competition ? 'Məlumat əlçatan deyil' : 'Aktiv otaq yoxdur', detail: 'Otaq məlumatı yalnız uyğun iştirakçılara açılır', href: '/team/tournaments', priority: 9, icon: KeyRound });
   if (!cards.some(card => card.id.startsWith('match:'))) cards.push({ id: 'schedule', label: 'NÖVBƏTİ MATÇ', value: data.unavailable?.competition ? 'Cədvəl əlçatan deyil' : 'Matç təyin edilməyib', detail: 'Yarış cədvəlini və iştirakınızı buradan izləyin', href: '/team/tournaments', priority: 10, icon: Clock3 });
@@ -107,7 +109,7 @@ export function TeamIntelligence() {
   const overflow = !(edges.start && edges.end);
   return <section className="team-intelligence" aria-label="Komandanın vacib məlumatları">
     <header><span>VACİB MƏLUMATLAR</span>{overflow && <div><button type="button" aria-label="Əvvəlki kartlar" disabled={edges.start} onClick={() => scroll(-1)}><ArrowLeft size={16} /></button><button type="button" aria-label="Növbəti kartlar" disabled={edges.end} onClick={() => scroll(1)}><ArrowRight size={16} /></button></div>}</header>
-    <div ref={rail} className="intelligence-rail" tabIndex={0} role="group" aria-label="Kartları ox düymələri ilə üfüqi sürüşdürün" onKeyDown={event => {
+    <div ref={rail} onPointerDown={event => { gesture.current = { x: event.clientX, y: event.clientY, dragged: false }; }} onPointerMove={event => { if (event.buttons && Math.hypot(event.clientX - gesture.current.x, event.clientY - gesture.current.y) > 8) gesture.current.dragged = true; }} onClickCapture={event => { if (event.detail > 0 && gesture.current.dragged) { event.preventDefault(); gesture.current.dragged = false; } }} className="intelligence-rail" tabIndex={0} role="group" aria-label="Kartları ox düymələri ilə üfüqi sürüşdürün" onKeyDown={event => {
       if (event.target !== event.currentTarget) return;
       if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); scroll(event.key === 'ArrowLeft' ? -1 : 1); }
       if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); rail.current?.scrollTo({ left: event.key === 'Home' ? 0 : rail.current.scrollWidth, behavior: reduced ? 'instant' : 'smooth' }); }

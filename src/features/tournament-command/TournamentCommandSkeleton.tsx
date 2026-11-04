@@ -18,7 +18,6 @@ export function CommandPanelSkeleton({ kind }: { kind: Panel }) {
 export function TournamentCommandSkeleton() {
   return <div className="tournament-command command-loading" role="status" aria-label="Turnir mərkəzi yüklənir" aria-busy="true">
     <div className="command-header" aria-hidden="true"><Block /><Block kind="title" /><Block /></div>
-    <div className="command-skeleton-toolbar" aria-hidden="true"><Block kind="button" /><Block /></div>
     <div className="command-dashboard">{(['hero', 'roadmap', 'schedule', 'room', 'standings', 'performance', 'results', 'scoring', 'rules'] as const).map(kind => <section key={kind} className="command-section" data-panel={kind}><CommandPanelSkeleton kind={kind} /></section>)}</div>
   </div>;
 }

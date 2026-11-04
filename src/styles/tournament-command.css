@@ -17,10 +17,6 @@
 .command-header-meta { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .command-header-meta p { font-size:.75rem; color:var(--team-text-muted); }
 .command-header-meta .button { gap:8px; min-height:38px; font-size:.75rem; }
-.command-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 16px; margin-bottom:12px; }
-.command-nav { display:flex; flex-wrap:wrap; gap:2px; }
-.command-nav a { display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:6px 9px; border-radius:6px; font-size:.6875rem; color:var(--team-text-muted); }
-.command-nav a:is(:hover,[aria-current]) { background:var(--team-surface-raised); color:var(--team-text-primary); }
 .command-dashboard { display:grid; gap:14px; align-items:start; }
 .command-section,.command-next { padding:16px; border:1px solid color-mix(in srgb,var(--team-border-default) 65%,transparent); border-radius:12px; background:var(--team-surface-primary); }
 .command-section>h2 { margin-bottom:14px; }
@@ -167,8 +163,6 @@
  .command-kill-points { padding-left:8px; }
 }
 @container (max-width:33rem) {
- .command-nav { width:100%; justify-content:space-between; }
- .command-nav a { min-height:44px; padding-inline:6px; }
  .command-header-meta .button { width:100%; }
  .command-section,.command-next { padding:14px; }
  .command-team-readiness { grid-template-columns:1fr; }
@@ -219,9 +213,6 @@
  .command-room-body>:is(small,.credential-placeholder) { grid-column:1/-1; }
 }
 
-.command-skeleton-toolbar { display:flex; align-items:center; justify-content:space-between; gap:20px; height:48px; margin-bottom:12px; }
-.command-skeleton-toolbar .command-skeleton-button { width:28%; height:36px; }
-.command-skeleton-toolbar .command-skeleton-line { width:35%; }
 .command-panel-skeleton--hero>div { display:grid; align-content:center; gap:10px; }
 .command-panel-skeleton--schedule .command-skeleton-row { height:48px; }
 .command-panel-skeleton--room .command-skeleton-row:nth-child(2) { height:90px; }
@@ -274,7 +265,7 @@
 .command-team-readiness svg { width:30px; height:30px; }
 .command-team-readiness strong { font-size:.8125rem; margin-bottom:5px; }
 .command-team-readiness small { font-size:.75rem; }
-.command-participation { margin-top:14px; border-top:1px solid var(--team-border-default); }
+.command-participation { margin-top:14px; }
 .command-readiness>.status-badge { display:none; }
 .command-readiness dl { grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); }
 .command-performance-stats>div { display:grid; grid-template-columns:28px minmax(0,1fr); padding:14px 10px; gap:4px 10px; min-height:74px; }
@@ -361,7 +352,9 @@
 .command-team-readiness>div+div { border-left:1px solid #303136; padding-left:20px; }
 .command-results li { padding-top:10px; }
 .command-result-summary { margin:10px 12px 8px 0!important; }
-.command-result-summary span { border-left:2px solid #65666b; }
+.command-result-summary { gap:12px; margin-right:18px!important; }
+.command-result-summary span { display:flex; align-items:center; gap:12px; padding-left:0; border:0; }
+.command-result-summary span::before { content:""; width:2px; height:18px; flex:none; border-radius:2px; background:rgb(210 212 220 / 28%); }
 @container (max-width:33rem) {
  .command-performance-stats,.command-recent { gap:5px; }
  .command-performance-stats>div { grid-template-columns:16px minmax(0,1fr); column-gap:3px; padding:8px 3px; height:66px; }
@@ -377,6 +370,42 @@
  .command-team-readiness small { font-size:.6875rem; }
 }
 
-@container (max-width:33rem) {
- .tournament-command .command-table { min-width:600px; }
+.command-rank-badge { display:inline-flex; align-items:center; justify-content:center; width:30px; height:20px; border-radius:4px; background:#0d0e10; color:#f5f5f5; }
+.command-standing-actions .command-refresh.button { width:40px; height:40px; min-height:40px; padding:0; flex:none; display:inline-flex; align-items:center; justify-content:center; }
+.command-standing-actions .command-refresh svg { width:18px; height:18px; flex:none; }
+.command-full-standings.button { color:var(--color-brand-primary); border:1px solid rgb(255 205 60 / 25%); }
+.command-standing-actions { margin-left:auto; flex-wrap:nowrap; }
+.command-refresh-spinning { animation:command-refresh-spin 1s linear infinite; }
+@keyframes command-refresh-spin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce) { .command-refresh-spinning { animation:none; } }
+.command-export-action { display:flex; justify-content:flex-end; margin-top:16px; }
+.tournament-command .command-table-preview { overflow:visible; container-type:inline-size; }
+.command-table-preview .command-table { table-layout:fixed; }
+.command-table-preview .command-table :is(th,td):first-child { width:38px; }
+.command-table-preview .command-table :is(th,td):nth-child(n+3) { width:40px; }
+.command-table-preview .command-table :is(th,td):is(:nth-child(5),:nth-child(6)) { width:54px; }
+.command-table-preview .command-table :is(th,td):nth-child(8) { width:64px; }
+.command-team>span:last-child { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.command-table-full { overflow-x:auto; }
+.command-table-full .command-table { min-width:740px; }
+@media (max-width:1023px) {
+@container (max-width:600px) {
+ .tournament-command .command-table-preview :is(th,td):nth-child(4),
+ .tournament-command .command-table-preview :is(th,td):nth-child(5),
+ .tournament-command .command-table-preview :is(th,td):nth-child(6) { display:none; }
+ .command-table-preview .command-table :is(th,td):nth-child(n+3) { width:52px; }
 }
+@container (max-width:380px) {
+ .tournament-command .command-table-preview :is(th,td):nth-child(3) { display:none; }
+ .command-table-preview .command-table :is(th,td):nth-child(7) { width:36px; }
+ .command-table-preview .command-table :is(th,td):nth-child(8) { width:58px; font-size:.625rem; }
+ .command-table-preview .command-team .team-logo { display:none; }
+}
+
+}
+.command-table-full .command-table { display:table; }
+.command-table-full .command-table thead { display:table-header-group; position:static; width:auto; height:auto; clip-path:none; }
+.command-table-full .command-table tbody { display:table-row-group; }
+.command-table-full .command-table tbody tr { display:table-row; }
+.command-table-full .command-table :is(th,td) { display:table-cell; padding:8px 4px; white-space:nowrap; text-align:center; }
+.command-table-full .command-table td::before { content:none; }

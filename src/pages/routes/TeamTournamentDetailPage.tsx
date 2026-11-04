@@ -59,7 +59,7 @@ function CommandCenter({ data, context, all }: { data: TeamPlatformSnapshot; con
     const section = document.getElementById(location.hash.slice(1));
     section?.focus({ preventScroll: true });
     section?.scrollIntoView({ block: 'start' });
-  }, [location.hash]);
+  }, [location.hash, tournament.id]);
   useEffect(() => {
     const list = scheduleRef.current;
     const upcoming = list?.querySelector<HTMLElement>('[data-next="true"]');
@@ -86,8 +86,7 @@ function CommandCenter({ data, context, all }: { data: TeamPlatformSnapshot; con
       <div className="command-header-meta"><p>{tournament.name} · {tournament.shortName} · {lifecycleLabels[tournament.status] ?? tournament.status}</p><Link className="button button--secondary" to={`/tournaments/${tournament.id}`}>Turnirə ümumi baxış <ExternalLink size={14} /></Link></div>
 
     </header>
-    <div className="command-toolbar">      {all.length > 1 && <nav className="command-tournaments" aria-label="Turnir seçimi">{all.map(c => <Link key={c.tournament.id} to={`/team/tournaments/${c.tournament.id}`} aria-current={c.tournament.id === tournament.id ? 'page' : undefined}>{c.tournament.shortName || c.tournament.name}</Link>)}</nav>}
-    <nav className="command-nav" aria-label="Turnir bölmələri">{[['overview', 'İcmal'], ['matches', 'Matçlar'], ['room', 'Otaq'], ['standings', 'Sıralama'], ['results', 'Nəticələr'], ['rules', 'Qaydalar']].map(([id, label]) => <Link key={id} to={`#${id}`} aria-current={location.hash === `#${id}` ? 'location' : undefined}>{label}</Link>)}</nav></div>
+    {all.length > 1 && <nav className="command-tournaments" aria-label="Turnir seçimi">{all.map(c => <Link key={c.tournament.id} to={`/team/tournaments/${c.tournament.id}`} aria-current={c.tournament.id === tournament.id ? 'page' : undefined}>{c.tournament.shortName || c.tournament.name}</Link>)}</nav>}
     <div className="command-dashboard">
     <section id="overview" tabIndex={-1} className="command-next" aria-labelledby="command-next-title">
       <div><span className="command-eyebrow">{next?.status === 'live' && !terminal ? 'CANLI MATÇ' : 'NÖVBƏTİ MATÇ'}</span><h2 id="command-next-title">{status === 'withdrawn' || terminal || !next ? noMatch : !confirmed ? participationLabels[status] : checkOpen && manage ? 'İştirakınızı indi təsdiqləyin' : `${next.map} · Raund ${next.round}`}</h2>
