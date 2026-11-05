@@ -34,13 +34,13 @@ test('room reads are intentional and per-round, copy/reveal works, navigation cl
  });
  await page.goto('/team/tournaments/daily-cup-24?scenario=room-ready');
  await expect(page.getByRole('group',{name:'Raund',exact:true})).toBeVisible();expect(requests).toEqual([]);
- const first=await page.locator('.command-rounds [aria-pressed="true"]').getAttribute('data-round-id');
+ const first=await page.locator('.room-round-rail [aria-pressed="true"]').getAttribute('data-round-id');
  await page.getByRole('button',{name:'Otaq statusunu yoxla'}).click();
  await expect(page.getByText(`fixture-${first}`,{exact:true})).toBeVisible();await expect(page.getByText(`secret-${first}`,{exact:true})).toHaveCount(0);
  await page.getByRole('button',{name:'Göstər',exact:true}).click();await expect(page.getByText(`secret-${first}`,{exact:true})).toBeVisible();
  await page.locator('.credential-placeholder').first().getByRole('button').click();
  expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe(`fixture-${first}`);
- await page.locator('.command-rounds button[aria-pressed="false"]').first().click();
+ await page.locator('.room-round-rail button[aria-pressed="false"]').first().click();
  await expect(page.locator('.credential-placeholder')).toHaveCount(0);expect(requests).toHaveLength(1);
  await page.getByRole('button',{name:'Otaq statusunu yoxla'}).click();await expect(page.locator('.credential-placeholder')).toHaveCount(2);expect(requests).toHaveLength(2);
  await page.getByRole('link',{name:'← Turnirlərim'}).click();await page.goBack();await expect(page.locator('.credential-placeholder')).toHaveCount(0);
@@ -108,9 +108,9 @@ test('published performance and map cards render without overflow or failed asse
  await page.screenshot({path:'test-results/command-map-results.png'});
  const sizes=await page.locator('.command-map-preview').evaluateAll(images=>images.map(image=>({width:image.getBoundingClientRect().width,height:image.getBoundingClientRect().height})));
  expect(new Set(sizes.map(size=>`${size.width}:${size.height}`)).size).toBe(1);
- await page.getByRole('button',{name:'Bütün raundlar',exact:true}).click();
- await expect(page.locator('.round-list-row')).toHaveCount(8);
- await page.getByRole('button',{name:'Pəncərəni bağla'}).click();
+ await page.getByRole('link',{name:'Bütün raundlar',exact:true}).click();
+ await expect(page.locator('.command-schedule>li')).toHaveCount(8);
+ await expect(page.getByRole('dialog')).toHaveCount(0);
  await expect(page.locator('.command-results>li')).toHaveCount(4);
  const rule=page.locator('.command-rule-links button').first();
  const ruleText=await rule.innerText();

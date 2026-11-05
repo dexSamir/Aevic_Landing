@@ -89,9 +89,9 @@ it('switches tournaments without retaining selected-room state and blocks member
  data.workspaceRole='PLAYER';const current=match().tournamentId;
  page(); expect(screen.queryByRole('button',{name:'Turnirdən çıx'})).not.toBeInTheDocument();
  const other=data.participations.find(p=>p.tournamentId!==current)!;
- fireEvent.click(document.querySelector('.command-selector-trigger')!);
- fireEvent.click(document.querySelector(`.command-selector-options a[href="/team/tournaments/${other.tournamentId}"]`)!);
- await waitFor(()=>expect(document.querySelector('.command-selector-trigger')).toHaveTextContent(data.tournaments.find(t=>t.id===other.tournamentId)!.name));
+ fireEvent.click(document.querySelector('.tournament-switcher-launcher')!);
+ fireEvent.click(document.querySelector(`.tournament-switcher-cards a[href="/team/tournaments/${other.tournamentId}"]`)!);
+ await waitFor(()=>expect(document.querySelector('.tournament-switcher-launcher')).toHaveTextContent(data.tournaments.find(t=>t.id===other.tournamentId)!.name));
  expect(screen.queryByRole('button',{name:'Göstər'})).not.toBeInTheDocument();
 });
 it('expires in-memory credentials and never mistakes release time for server readiness', async()=>{
@@ -160,15 +160,15 @@ it('preserves official standings on refresh failure, prevents pending duplicates
  expect(document.querySelector('.is-own-team td[data-label="Xal"]')).toHaveTextContent('13');
 });
 
-it('shares selected round across schedule, tabs, list back navigation and official standings',async()=>{
- const m=match();data.matchSchedule=data.matchSchedule.map(row=>row.id===m.id?{...row,status:'completed'}:row);
- const get=vi.spyOn(fixtureServices.publicMatches,'get').mockResolvedValue({match:{...m,status:'completed'},tournament:{id:m.tournamentId,name:'Official event',shortName:'Official'},published:true,teamResults:[{teamId:data.currentTeam.id,teamName:data.currentTeam.name,placement:1,finishes:11,placementPoints:6,totalPoints:17,wwcd:true}],standings:[{tournamentId:m.tournamentId,teamId:data.currentTeam.id,placement:1,matches:1,wwcd:1,finishes:11,placementPoints:6,finishPoints:11,penalties:0,totalPoints:17,bestFinish:1}]});
- page();fireEvent.click(screen.getByRole('button',{name:`${m.map} · Raund ${m.round} — Raundu aç`}));
- await screen.findByText('Nəticələr rəsmiləşdirilib');expect(get).toHaveBeenCalledWith(m.id,expect.any(AbortSignal));
- expect(document.querySelector('.round-statistics')).toHaveTextContent('17');
- fireEvent.click(screen.getByRole('tab',{name:'Komandanın performansı'}));expect(document.querySelector('.round-performance')).toHaveTextContent('Kill xalı11');
- expect(screen.queryByText('Bütün raundlara qayıt')).not.toBeInTheDocument();
- fireEvent.click(document.querySelector('.round-back')!);expect(document.querySelectorAll('.round-list-row').length).toBeGreaterThan(0);
- fireEvent.click(document.querySelector('.round-list-row')!);await screen.findByText('Bütün raundlara qayıt');
- expect(screen.getAllByRole('dialog')).toHaveLength(1);
+it('replaces round modals with existing links and keeps room selection local',async()=>{
+ const m=match();const get=vi.spyOn(fixtureServices.publicMatches,'get');
+ page();
+ const link=screen.getByRole('link',{name:`${m.map} · Raund ${m.round} — Raundu aç`});
+ expect(link).toHaveAttribute('href',expect.stringContaining('#room'));fireEvent.click(link);
+ expect(screen.queryByRole('dialog')).not.toBeInTheDocument();expect(get).not.toHaveBeenCalled();
+ expect(screen.getByRole('link',{name:'Bütün raundlar'})).toHaveAttribute('href',expect.stringContaining('#matches'));
+ const next=data.matchSchedule.find(row=>row.tournamentId===m.tournamentId&&row.id!==m.id)!;
+ fireEvent.click(screen.getByRole('button',{name:`R${next.round} · ${next.map}`}));
+ expect(document.querySelector(`[data-round-id="${next.id}"]`)).toHaveAttribute('aria-pressed','true');
+ expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 });

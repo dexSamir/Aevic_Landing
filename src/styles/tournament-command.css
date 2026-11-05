@@ -232,10 +232,6 @@
 .tournament-command { --team-border-default:#26272b; --team-surface-primary:#121315; --team-surface-raised:#1c1d21; --team-surface-inset:#101113; }
 .command-section,.command-next { border-color:#1e1f22; box-shadow:inset 0 1px 0 #ffffff02; padding:20px; }
 .tournament-command h2 { font-size:1.2rem; }
-.command-tournaments,.command-rounds { display:flex; flex-wrap:wrap; gap:6px; }
-.command-tournaments a,.command-rounds button { display:inline-flex; align-items:center; min-height:44px; padding:8px 12px; border:1px solid var(--team-border-default); border-radius:8px; background:var(--team-surface-raised); color:var(--team-text-muted); font:500 .75rem/1.4 var(--font-ui); }
-.command-tournaments a[aria-current],.command-rounds button[aria-pressed='true'] { color:var(--color-brand-primary); background:#302919; }
-.command-rounds { margin-bottom:14px; }
 .command-next { background:linear-gradient(90deg,#181610b8,#171613db),url('../assets/tournaments/tournament-detail-hero-1120.webp') center 55%/cover; }
 .command-next h2 { font-size:clamp(1.75rem,4cqi,2.5rem); }
 .command-next-date { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
