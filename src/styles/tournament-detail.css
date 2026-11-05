@@ -89,11 +89,11 @@
 }
 @media (prefers-reduced-motion:reduce) { .tournament-detail-schedule li > a > img { transition: none; } .tournament-detail-schedule li > a:hover img { transform: none; } }
 
-.tournament-detail-hero { --tournament-detail-hero-image: url('../assets/tournaments/tournament-detail-hero-640.webp'); --tournament-detail-hero-image: image-set(url('../assets/tournaments/tournament-detail-hero-640.avif') type('image/avif'), url('../assets/tournaments/tournament-detail-hero-640.webp') type('image/webp')); }
+.tournament-detail-hero { --tournament-detail-hero-image: url('../assets/tournaments/tournament-detail-hero-640.webp'); --tournament-detail-hero-image: image-set('../assets/tournaments/tournament-detail-hero-640.avif' type('image/avif'), '../assets/tournaments/tournament-detail-hero-640.webp' type('image/webp')); }
 
-@media (min-width: 641px) { .tournament-detail-hero { --tournament-detail-hero-image: url('../assets/tournaments/tournament-detail-hero-1120.webp'); --tournament-detail-hero-image: image-set(url('../assets/tournaments/tournament-detail-hero-1120.avif') type('image/avif'), url('../assets/tournaments/tournament-detail-hero-1120.webp') type('image/webp')); } }
+@media (min-width: 641px) { .tournament-detail-hero { --tournament-detail-hero-image: url('../assets/tournaments/tournament-detail-hero-1120.webp'); --tournament-detail-hero-image: image-set('../assets/tournaments/tournament-detail-hero-1120.avif' type('image/avif'), '../assets/tournaments/tournament-detail-hero-1120.webp' type('image/webp')); } }
 
-@media (min-width: 1121px) { .tournament-detail-hero { --tournament-detail-hero-image: url('../assets/tournaments/tournament-detail-hero-1983.webp'); --tournament-detail-hero-image: image-set(url('../assets/tournaments/tournament-detail-hero-1983.avif') type('image/avif'), url('../assets/tournaments/tournament-detail-hero-1983.webp') type('image/webp')); } }
+@media (min-width: 1121px) { .tournament-detail-hero { --tournament-detail-hero-image: url('../assets/tournaments/tournament-detail-hero-1983.webp'); --tournament-detail-hero-image: image-set('../assets/tournaments/tournament-detail-hero-1983.avif' type('image/avif'), '../assets/tournaments/tournament-detail-hero-1983.webp' type('image/webp')); } }
 
 /* Keep each definition term/value semantic without changing the icon column. */
 .tournament-detail-format > div { position:relative; }

@@ -2,6 +2,7 @@ import {StrictMode} from 'react';
 import {act,render,screen,waitFor,cleanup} from '@testing-library/react';
 import {beforeEach,afterEach,it,expect,vi} from 'vitest';
 import {clearQueryCache,synchronizeSessionCache,usePlatformQuery} from '../src/services/queryCache';
+import {invalidateMutation} from '../src/services/mutationInvalidation';
 import {LoadingSkeleton} from '../src/components/common/LoadingSkeleton';
 import {ApiError} from '../src/services/apiError';
 const deferred=()=>{let resolve!:(v:string)=>void, reject!:(e:unknown)=>void;const promise=new Promise<string>((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};};
@@ -67,4 +68,17 @@ it('suppresses remount storms for infrastructure failures without Retry-After',a
  const first=render(<Probe query={query}/>);await screen.findByText('failed');first.unmount();
  for(let i=0;i<5;i++){const next=render(<Probe query={query}/>);await screen.findByText('failed');next.unmount();}
  expect(query).toHaveBeenCalledTimes(1);
+});
+
+it('workspace switching evicts every private entry and ignores old in-flight responses',async()=>{
+ const old=deferred(),next=deferred();
+ const query=vi.fn().mockResolvedValueOnce('team A').mockImplementationOnce(()=>old.promise).mockImplementationOnce(()=>next.promise);
+ render(<Probe scope="private" query={query}/>);await screen.findByText('team A');
+ act(()=>screen.getByText('refresh').click());await screen.findByText('refreshing');
+ act(()=>invalidateMutation('/me/workspace'));
+ expect(screen.queryByText('team A')).not.toBeInTheDocument();
+ await waitFor(()=>expect(query).toHaveBeenCalledTimes(3));
+ await act(async()=>next.resolve('team B'));await screen.findByText('team B');
+ await act(async()=>old.resolve('late team A'));
+ expect(screen.queryByText('late team A')).not.toBeInTheDocument();expect(screen.getByText('team B')).toBeInTheDocument();
 });

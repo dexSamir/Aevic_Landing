@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Clock3, KeyRound, Trophy, Users, Bell } from 'lucide-react';
 import { useTeamCompetitionContexts, useTeamPlatformData } from '../../services/PlatformDataContext';
-import { competitionNow, services } from '../../services';
-import { usePlatformQuery } from '../../services/queryCache';
+import { competitionNow } from '../../services';
 import { bakuTime, overviewDate } from '../../utils/teamOverview';
 import '../../styles/team-insights.css';
 
@@ -25,8 +24,8 @@ export function TeamIntelligence() {
   const gesture = useRef({ x: 0, y: 0, dragged: false });
   const roomContext = !data.unavailable?.room && !data.unavailable?.competition ? all.find(context => context.tournament.id && context.lifecycle === 'current' && context.participation.status === 'confirmed' && context.room) : undefined;
   const room = roomContext?.room;
-  // This service performs server authorization; snapshot release state alone never reveals a code.
-  const roomQuery = usePlatformQuery({ key: `intelligence-room:${data.currentTeam.id}:${roomContext?.tournament.id}:${room?.roundId}`, query: () => services.rooms.getForEligibleTeam(roomContext!.tournament.id, room!.roundId), enabled: Boolean(roomContext && room?.status === 'released'), staleTime: 15_000, retry: 0 });
+  // Overview metadata is only a navigation hint. Credentials are fetched on demand
+  // inside RoomPanel and must never enter a shared query cache.
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
     const update = () => setReduced(media.matches); update();
@@ -38,19 +37,10 @@ export function TeamIntelligence() {
     document.addEventListener('visibilitychange', tick);
     return () => { clearInterval(timer); document.removeEventListener('visibilitychange', tick); };
   }, []);
-  useEffect(() => {
-    if (!roomContext || room?.status !== 'released') return;
-    const timer = window.setInterval(() => { if (!document.hidden && navigator.onLine) roomQuery.refetch(); }, 30_000);
-    return () => clearInterval(timer);
-  }, [roomContext?.tournament.id, room?.roundId, room?.status, roomQuery.refetch]);
-
   const cards: Card[] = [];
   if (room && roomContext) {
-    const credentials = !roomQuery.error ? roomQuery.data : undefined;
-    const released = credentials?.status === 'released' && credentials.roundId === room.roundId;
-    const denied = roomQuery.error?.status === 401 || roomQuery.error?.status === 403;
     const round = roomContext.matches.find(match => match.id === room.roundId);
-    cards.push({ id: 'room', label: 'MATÇ OTAĞI', value: room.status !== 'released' ? 'Bağlıdır' : denied ? 'Giriş icazəsi tələb olunur' : roomQuery.error ? 'Otaq məlumatı yüklənmədi' : roomQuery.loading ? 'Otaq yoxlanılır…' : released && credentials.roomId ? `ID: ${credentials.roomId}` : 'Otaq məlumatını aç', detail: `${room.status !== 'released' ? `${overviewDate(room.releaseAt)} · ${bakuTime(room.releaseAt)} açılır · ` : ''}${roomContext.tournament.shortName || roomContext.tournament.name}${round ? ` · ${round.map} · R${round.round} · ${bakuTime(round.startsAt)}` : ''}`, href: `/team/tournaments/${encodeURIComponent(roomContext.tournament.id)}#room`, priority: 1, icon: KeyRound });
+    cards.push({ id: 'room', label: 'MATÇ OTAĞI', value: room.status !== 'released' ? 'Bağlıdır' : 'Otaq məlumatını aç', detail: `${room.status !== 'released' ? `${overviewDate(room.releaseAt)} · ${bakuTime(room.releaseAt)} açılır · ` : ''}${roomContext.tournament.shortName || roomContext.tournament.name}${round ? ` · ${round.map} · R${round.round} · ${bakuTime(round.startsAt)}` : ''}`, href: `/team/tournaments/${encodeURIComponent(roomContext.tournament.id)}#room`, priority: 1, icon: KeyRound });
   }
   if (!data.unavailable?.competition) {
     for (const context of all.filter(c => c.tournament.id && (c.lifecycle === 'current' || c.lifecycle === 'upcoming'))) {

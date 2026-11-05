@@ -55,3 +55,15 @@ it('cancels one session observer without cancelling another concurrent observer'
   await expect(second).resolves.toMatchObject({user:{id:'fixture'}});
   expect(fetcher.mock.calls.filter(([url])=>url.endsWith('/me/session'))).toHaveLength(1);
 });
+
+it('clears private workspace data only after an acknowledged switch and notifies other consumers',async()=>{
+ let acknowledge!:(response:Response)=>void;
+ vi.stubGlobal('fetch',vi.fn(()=>new Promise<Response>(resolve=>{acknowledge=resolve;})));
+ const clear=vi.spyOn(cache,'clearQueryCache');const changed=vi.fn();window.addEventListener('aevic:session-change',changed);
+ try{
+  const pending=services.auth.selectWorkspace('fixture-team-B');
+  expect(clear).not.toHaveBeenCalled();expect(changed).not.toHaveBeenCalled();
+  acknowledge(new Response(null,{status:204}));await pending;
+  expect(clear).toHaveBeenCalledWith('private');expect(changed).toHaveBeenCalledTimes(1);
+ }finally{window.removeEventListener('aevic:session-change',changed);}
+});

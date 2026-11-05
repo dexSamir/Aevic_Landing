@@ -89,7 +89,7 @@ test('published performance and map cards render without overflow or failed asse
   await page.setViewportSize({width,height:900});
   await page.evaluate(()=>document.fonts.ready);
   await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`populated results overflow at ${width}`).toBe(true);
-  for (const selector of ['.command-performance-stats>div', '.command-recent>a']) {
+  for (const selector of ['.command-performance-stats>div']) {
    const boxes = await page.locator(selector).evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().top));
    expect(boxes).toHaveLength(4);
    expect(new Set(boxes).size).toBe(1);

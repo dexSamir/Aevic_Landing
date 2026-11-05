@@ -13,7 +13,7 @@ export function standingsWindow<T extends { teamId: string }>(rows: readonly T[]
 export function StandingsTable({ rows, data, movement = [], full = false }: {
   rows: TeamTournamentResult[]; data: TeamPlatformSnapshot; movement?: RankMovementData[]; full?: boolean;
 }) {
-  return <div className={`command-table-wrap ${full ? 'command-table-full' : 'command-table-preview'}`}><table className="command-table">
+  return <div tabIndex={full ? 0 : undefined} role={full ? "region" : undefined} aria-label={full ? "Tam sıralama cədvəli" : undefined} className={`command-table-wrap ${full ? 'command-table-full' : 'command-table-preview'}`}><table className="command-table">
     <caption className="sr-only">{full ? 'Tam turnir sıralaması' : 'Komandanızın ətrafındakı sıralama'}</caption>
     <thead><tr>{['#', 'Komanda', 'Matç', 'WWCD', 'Yer xalı', 'Kill xalı', 'Xal', 'Dəyişiklik', ...(full ? ['Eliminasiya', 'Cərimə'] : [])].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead>
     <tbody>{rows.map(row => {

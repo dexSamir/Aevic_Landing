@@ -10,7 +10,7 @@ let identityRevision = 0;
 let verifiedSession: { value: Awaited<ReturnType<typeof auth.getSession>>; at: number } | undefined;
 export const knownSession = () => verifiedSession && Date.now() - verifiedSession.at < 60_000 ? verifiedSession.value : undefined;
 export const invalidateVerifiedSession = () => { verifiedSession = undefined; identityRevision++; };
-if (typeof window !== 'undefined') window.addEventListener('aevic:session-change', invalidateVerifiedSession);
+if (typeof window !== 'undefined') window.addEventListener('aevic:session-change', () => { invalidateVerifiedSession(); clearQueryCache('private'); });
 let sessionRead: { revision: number; promise: ReturnType<typeof auth.getSession> } | undefined;
 const notifyIdentity = () => { if (typeof window !== 'undefined') window.dispatchEvent(new Event('aevic:session-change')); };
 // Only an invalidation signal crosses tabs; no account data or token is broadcast.
@@ -57,3 +57,12 @@ const submitRegistration=services.registration.submit;
 services.registration.submit=async(...args)=>{const receipt=await submitRegistration(...args);invalidateVerifiedSession();await services.auth.getSession().catch(()=>null);channel?.postMessage('changed');notifyIdentity();return receipt;};
 const changePassword=services.account.changePassword;
 services.account.changePassword=async(...args)=>{await changePassword(...args);invalidateVerifiedSession();channel?.postMessage('changed');notifyIdentity();};
+
+const selectWorkspace = services.auth.selectWorkspace;
+services.auth.selectWorkspace = async (...args) => {
+  await selectWorkspace(...args);
+  // The active workspace cookie is shared by tabs. Broadcast only an invalidation
+  // signal; query epochs abort old reads and RoomPanel clears its credential lease.
+  channel?.postMessage('changed');
+  notifyIdentity();
+};

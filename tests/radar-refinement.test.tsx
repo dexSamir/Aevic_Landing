@@ -45,3 +45,18 @@ it('keeps compact informational values and links for incomplete and unavailable 
  expect(view.container.querySelectorAll('.intelligence-card p')).toHaveLength(0);
  expect(view.container.querySelectorAll('.intelligence-card-action')).toHaveLength(4);
 });
+
+it('uses room metadata only and never reads or polls protected credentials from Overview',async()=>{
+ source=await fixtureServices.snapshots.team();
+ const match=source.matchSchedule[0];
+ source.currentRoom={roundId:match.id,status:'released',releaseAt:'2026-08-04T00:00:00Z'};
+ source.tournaments=source.tournaments.map(t=>t.id===match.tournamentId?{...t,status:'ongoing',endsAt:'2026-08-05T00:00:00Z'}:t);
+ source.participations=source.participations.map(p=>p.tournamentId===match.tournamentId?{...p,status:'confirmed'}:p);
+ const read=vi.spyOn(fixtureServices.rooms,'getForEligibleTeam');
+ vi.useFakeTimers();
+ const view=render(<MemoryRouter><TeamIntelligence/></MemoryRouter>);
+ expect(screen.getByText('Otaq məlumatını aç')).toBeInTheDocument();
+ await act(async()=>vi.advanceTimersByTime(60_000));
+ expect(read).not.toHaveBeenCalled();
+ view.unmount();vi.useRealTimers();read.mockRestore();
+});

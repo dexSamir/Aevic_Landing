@@ -526,3 +526,9 @@
 .password-field__toggle { position: absolute; top: 50%; right: 0.2rem; transform: translateY(-50%); }
 .password-field__toggle:active:not(:disabled) { transform: translateY(calc(-50% + 1px)) scale(var(--press-scale)); }
 .password-field__toggle:focus-visible { outline-offset: -2px; }
+
+/* Opted-in Team Panel dialogs only; never alter document/public modal scrollbars. */
+.team-modal-scroll,.team-modal-scroll .modal__body,.team-modal-scroll .command-table-wrap,.team-logo-editor {
+ scrollbar-width:none;
+}
+.team-modal-scroll::-webkit-scrollbar,.team-modal-scroll .modal__body::-webkit-scrollbar,.team-modal-scroll .command-table-wrap::-webkit-scrollbar,.team-logo-editor::-webkit-scrollbar { display:none; }

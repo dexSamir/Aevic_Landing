@@ -28,3 +28,16 @@
 .team-logo-editor footer { border-top:1px solid var(--color-border); padding-top:20px; margin-top:24px; }
 .team-logo-editor footer .button { min-width:110px; }
 @media(max-width:540px) { .team-logo-editor { padding:16px; } .image-editor-preview { padding:8px; } .logo-editor-controls label { flex-basis:calc(100% - 110px); } }
+
+.team-logo-editor { padding:16px; }
+.image-editor-preview { margin-block:12px 8px; padding:10px; min-height:0; }
+.team-logo-editor canvas { min-width:100px; }
+.image-editor-hint { margin-bottom:10px; font-size:12px; }
+.logo-editor-position { padding-top:0; }
+.team-logo-editor footer { margin-top:12px; padding-top:12px; }
+@media(max-height:600px) {
+ .team-logo-editor { padding:12px; }
+ .team-logo-editor header p { margin-top:4px; }
+ .image-editor-hint { display:none; }
+ .image-editor-preview { margin-block:8px; padding:6px; }
+}

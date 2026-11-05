@@ -169,7 +169,7 @@ export function ImageEditor({
         ref={canvas}
         width={width}
         height={height}
-        style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, 720px, ${48*width/height}dvh)` }}
+        style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, 720px, calc((100dvh - 330px) * ${width/height}))` }}
         tabIndex={0}
         aria-label="Şəkil kəsimi. Mövqeyi dəyişmək üçün ox düymələrindən istifadə edin."
         onKeyDown={(event) => {

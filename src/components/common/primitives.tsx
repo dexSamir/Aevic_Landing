@@ -344,6 +344,7 @@ export function Modal({ open, title, children, onClose, footer, className = '', 
   const overlayRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose); closeRef.current = onClose;
   const titleId = useId();
+  const teamModal = typeof window !== 'undefined' && window.location.pathname.startsWith('/team');
   const { rendered, visible } = useExitPresence(open);
   useLayoutEffect(() => {
     if (!open || !rendered || !panelRef.current) return;
@@ -375,7 +376,7 @@ export function Modal({ open, title, children, onClose, footer, className = '', 
     };
   }, [open, rendered]);
   if (!rendered) return null;
-  return createPortal(<div ref={overlayRef} className="modal-backdrop" data-state={visible ? 'open' : 'closed'} aria-hidden={!open} inert={!open} role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) closeRef.current(); }}><div className={`modal ${className}`} role="dialog" aria-modal={open ? true : undefined} aria-labelledby={titleId} tabIndex={-1} ref={panelRef}><header className={customHeading ? 'modal__custom-header' : undefined}><h2 id={titleId} className={customHeading ? 'sr-only' : undefined}>{title}</h2><IconButton label="Pəncərəni bağla" onClick={onClose}><X size={20} /></IconButton></header><div className="modal__body">{children}</div>{footer && <footer>{footer}</footer>}</div></div>, document.body);
+  return createPortal(<div ref={overlayRef} className="modal-backdrop" data-state={visible ? 'open' : 'closed'} aria-hidden={!open} inert={!open} role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) closeRef.current(); }}><div className={`modal ${teamModal ? 'team-modal-scroll' : ''} ${className}`} role="dialog" aria-modal={open ? true : undefined} aria-labelledby={titleId} tabIndex={-1} ref={panelRef}><header className={customHeading ? 'modal__custom-header' : undefined}><h2 id={titleId} className={customHeading ? 'sr-only' : undefined}>{title}</h2><IconButton label="Pəncərəni bağla" onClick={onClose}><X size={20} /></IconButton></header><div className="modal__body">{children}</div>{footer && <footer>{footer}</footer>}</div></div>, document.body);
 }
 
 export function ConfirmDialog({ open, title, body, confirmLabel, tone = 'danger', onConfirm, onClose }: { open: boolean; title: string; body: string; confirmLabel: string; tone?: 'danger' | 'primary'; onConfirm: () => void | Promise<void>; onClose: () => void }) {

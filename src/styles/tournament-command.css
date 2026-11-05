@@ -100,9 +100,6 @@
 .command-performance-stats svg { grid-row:1/3; color:var(--color-brand-primary); }
 .command-performance-stats dd { font-size:1rem; }
 .command-performance-stats dt { font-size:.625rem; }
-.command-recent { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; margin-top:10px; }
-.command-recent a { display:grid; align-content:center; gap:4px; padding:8px 4px; min-height:52px; border:1px solid var(--team-border-default); border-radius:8px; background:var(--team-surface-raised); text-align:center; font-size:.625rem; }
-.command-recent strong { color:var(--color-brand-primary); font-size:.6875rem; }
 .command-results { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; gap:8px; }
 .command-results li { position:relative; overflow:hidden; padding:12px 10px 0; border:1px solid var(--team-border-default); border-radius:10px; background:var(--team-surface-raised); }
 .command-results h3 { min-height:2.7em; font-size:.75rem; }
@@ -167,7 +164,6 @@
  .command-section,.command-next { padding:14px; }
  .command-team-readiness { grid-template-columns:1fr; }
  .command-next-action .button { width:100%; }
- .command-recent { grid-template-columns:repeat(2,minmax(0,1fr)); }
  .command-table thead { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
  .command-table,.command-table tbody { display:block; }
  .command-table tbody tr { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px 4px; padding:9px; border-radius:7px; margin-top:5px; }
@@ -268,8 +264,6 @@
 .command-performance-stats svg { width:26px; height:26px; align-self:center; }
 .command-performance-stats dd { font-size:1.25rem; }
 .command-performance-stats dt { width:auto; font-size:.75rem; }
-.command-recent a { min-height:64px; font-size:.8125rem; }
-.command-recent strong { font-size:1rem; }
 .command-results { gap:12px; }
 .command-results li { padding:16px 14px 0; border-color:#25262a; }
 .command-results h3 { min-height:0; font-size:.875rem; }
@@ -334,7 +328,7 @@
 .tournament-command .command-table tbody th { text-align:left; }
 .tournament-command .command-table td[data-label]::before { content:none; }
 .tournament-command .command-team { white-space:nowrap; }
-.command-performance-stats,.command-recent { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.command-performance-stats { grid-template-columns:repeat(4,minmax(0,1fr)); }
 .command-performance-stats>div { grid-template-columns:26px minmax(0,1fr); grid-template-rows:auto auto; gap:2px 8px; align-content:center; padding:12px 8px; height:76px; }
 .command-performance-stats svg { grid-row:1; grid-column:1; align-self:center; }
 .command-performance-stats dd { grid-row:1; grid-column:2; line-height:1.2; align-self:center; }
@@ -352,13 +346,11 @@
 .command-result-summary span { display:flex; align-items:center; gap:12px; padding-left:0; border:0; }
 .command-result-summary span::before { content:""; width:2px; height:18px; flex:none; border-radius:2px; background:rgb(210 212 220 / 28%); }
 @container (max-width:33rem) {
- .command-performance-stats,.command-recent { gap:5px; }
+ .command-performance-stats { gap:5px; }
  .command-performance-stats>div { grid-template-columns:16px minmax(0,1fr); column-gap:3px; padding:8px 3px; height:66px; }
  .command-performance-stats svg { width:16px; height:16px; }
  .command-performance-stats dd { font-size:clamp(.75rem,3.6cqi,1rem); }
  .command-performance-stats dt { font-size:clamp(.5625rem,2.6cqi,.75rem); }
- .command-recent a { min-height:54px; padding:6px 2px; font-size:clamp(.5625rem,2.5cqi,.75rem); }
- .command-recent strong { font-size:.8125rem; }
  .command-team-readiness { padding:14px 8px; gap:8px; }
  .command-team-readiness>div { flex-direction:column; text-align:center; gap:8px; }
  .command-team-readiness>div+div { padding-left:8px; }
@@ -374,7 +366,6 @@
 .command-refresh-spinning { animation:command-refresh-spin 1s linear infinite; }
 @keyframes command-refresh-spin { to { transform:rotate(360deg); } }
 @media (prefers-reduced-motion:reduce) { .command-refresh-spinning { animation:none; } }
-.command-export-action { display:flex; justify-content:flex-end; margin-top:16px; }
 .tournament-command .command-table-preview { overflow:visible; container-type:inline-size; }
 .command-table-preview .command-table { table-layout:fixed; }
 .command-table-preview .command-table :is(th,td):first-child { width:38px; }

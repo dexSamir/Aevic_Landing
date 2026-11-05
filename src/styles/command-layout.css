@@ -19,19 +19,10 @@
 .command-map-result-action .command-result-art { pointer-events:none; }
 @container (min-width:60rem) {
  .command-dashboard>#matches,.command-dashboard>.command-room-column { grid-column:span 6; }
- .command-dashboard>#matches { align-self:stretch; }
+ .command-dashboard>#matches { align-self:start; }
  .command-dashboard>[data-panel='schedule'],.command-dashboard>[data-panel='room'] { grid-column:span 6; }
 }
 @container (max-width:59.99rem) { .command-dashboard>.command-room-column { grid-column:1/-1; } }
-@container (max-width:35rem) {
- .command-schedule-interactive li>.command-schedule-link { grid-template-columns:26px 52px minmax(0,1fr) 16px; gap:5px; }
- .command-schedule-interactive .command-map-preview { width:52px; grid-row:1/3; grid-column:2; }
- .command-schedule-interactive .command-round-number { grid-row:1/3; }
- .command-schedule-interactive strong { grid-column:3; }
- .command-schedule-interactive .schedule-status { grid-column:3; grid-row:2; justify-self:start; }
- .command-schedule-interactive time { grid-column:3; grid-row:3; }
- .command-schedule-interactive a>svg { grid-column:4; grid-row:1/4; }
-}
 .command-rank-badge { width:51px; height:34px; border-radius:5px; }
 .command-table-preview .command-table :is(th,td):first-child { width:59px; }
 .tournament-command .command-table .command-rank,.command-table-full .command-table .command-rank { padding:4px; }
@@ -45,9 +36,34 @@
 .command-schedule-interactive .command-round-number small { display:none; }
 .command-schedule-interactive li>.command-schedule-link { grid-template-columns:51px 62px minmax(40px,1fr) auto 84px 16px; padding:4px; min-height:44px; }
 @container (max-width:35rem) {
- .command-schedule-interactive li>.command-schedule-link { grid-template-columns:42px 48px minmax(0,1fr) 16px; }
- .command-schedule-interactive .command-round-number { width:42px; height:28px; }
+ .command-schedule-interactive li>.command-schedule-link { grid-template-columns:45px 54px minmax(38px,1fr) auto auto 10px; gap:3px; min-height:38px; padding:4px; }
+ .command-schedule-interactive .command-round-number { width:45px; height:30px; }
+ .command-schedule-interactive .command-map-preview { width:54px; height:30px; }
+ .command-schedule-interactive strong { font-size:10px; white-space:nowrap; }
+ .command-schedule-interactive .schedule-status { font-size:9px; padding:3px; }
+ .command-schedule-interactive time { font-size:9px; }
+ .command-schedule-interactive a>svg { width:10px; }
+ .schedule-status-full,.schedule-date-full { display:none; }
+ .schedule-status-short,.schedule-date-short { display:inline; }
+ #matches.command-section { padding:12px 8px; }
 }
+@container (min-width:35.01rem) { .schedule-status-short,.schedule-date-short { display:none; } }
 .modal-backdrop:has(>.command-dialog) { z-index:100; }
 .command-rank-badge { font-size:.8125rem; font-weight:700; }
 .command-schedule-interactive .command-round-number b { color:#f5f5f5; }
+
+/* Dense full standings; scrolling remains available at short heights and high zoom. */
+.modal.command-dialog { width:min(1120px,100%); max-width:1120px; }
+.command-dialog>header { padding:10px 16px; }
+.command-dialog .modal__body { padding:0 12px; }
+.command-dialog>footer { display:flex; justify-content:space-between; align-items:center; gap:8px 16px; padding:10px 16px; }
+.command-dialog>footer .command-muted { flex:1 1 220px; margin:0; font-size:.6875rem; overflow-wrap:anywhere; }
+.command-dialog>footer .button { flex:0 1 auto; min-height:36px; padding:8px 12px; font-size:.75rem; }
+.command-dialog .command-table { border-spacing:0 2px; font-size:.6875rem; }
+.command-dialog .command-table :is(th,td) { padding:3px 5px; }
+.command-dialog .command-table .command-rank { padding:2px; }
+.command-dialog .command-rank-badge { width:39px; height:26px; }
+.command-dialog .command-team .team-logo { width:24px; height:24px; min-width:24px; }
+.command-dialog .command-team { gap:6px; }
+.command-dialog .command-team>span { max-width:30ch; overflow:hidden; text-overflow:ellipsis; }
+.command-performance-stats { margin-bottom:0!important; }

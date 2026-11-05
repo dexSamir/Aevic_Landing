@@ -17,6 +17,9 @@ export function mutationResources(path: string): string[] {
   return [];
 }
 export function invalidateMutation(path: string) {
+  // Workspace changes alter every private resource's authority. Never retain the old
+  // workspace as stale-while-revalidate content, or accept its in-flight responses.
+  if (path === '/me/workspace') { clearQueryCache('private'); return; }
   if (/^\/auth\/(login|admin\/login|logout|password-reset\/confirm)$/.test(path)) clearQueryCache('private');
   const teamId = path.match(/^\/(?:admin\/)?teams\/([^/]+)/)?.[1];
   if (teamId) { invalidateTeamProfile(decodeURIComponent(teamId)); invalidateTeamDependents(decodeURIComponent(teamId)); for (const prefix of ['tournament:', 'wrapped:', 'organization:']) invalidateQuery(prefix, 'private'); }
