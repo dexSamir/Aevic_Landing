@@ -9,10 +9,18 @@ export async function audit(sql:Tx,actor:Actor,action:string,entityType:string,e
  await sql`insert into aevic_platform.audit_events(actor_id,action,entity_type,entity_id,metadata) values(${actorKey(actor)},${action},${entityType},${entityId},${sql.json(JSON.parse(JSON.stringify({...metadata,actorRole:actor.adminId?actor.role??'unknown':actor.teamId?'team':'account'})))})`;
 }
 export async function notify(sql:Tx,teamId:string,title:string,body:string,actionHref:string,eventType='tournament'){
- const [preference]=await sql`select preferences from aevic_platform.notification_preferences where user_id=${teamId}`;
+ return notifyTeams(sql,[teamId],title,body,actionHref,eventType);
+}
+export async function notifyTeams(sql:Tx,teamIds:string[],title:string,body:string,actionHref:string,eventType='tournament'){
+ if(!teamIds.length)return;
  const eventKey=({'map-result':'results','tournament-result':'results','admin-message':'adminMessages',tournament:'announcements'} as Record<string,string>)[eventType]??eventType;
- if(preference?.preferences?.channels?.['in-app']===false||preference?.preferences?.events?.[eventKey]===false)return;
- await sql`insert into aevic_platform.notifications(recipient_id,title,body,action_href,event_type) values(${teamId},${title},${body},${actionHref},${eventType})`;
+ // One atomic statement regardless of participant count; preferences remain authoritative.
+ await sql`insert into aevic_platform.notifications(recipient_id,title,body,action_href,event_type)
+ select recipient.id::bigint,${title},${body},${actionHref},${eventType}
+ from (select distinct unnest(${sql.array(teamIds)}::text[]) as id) recipient
+ left join aevic_platform.notification_preferences p on p.user_id=recipient.id::bigint
+ where (p.preferences->'channels'->'in-app') is distinct from 'false'::jsonb
+ and (p.preferences->'events'->${eventKey}) is distinct from 'false'::jsonb`;
 }
 export async function transaction<T>(sql:Sql,work:(tx:Tx)=>Promise<T>):Promise<T>{return await sql.begin(work) as T;}
 export async function idempotent<T extends Record<string,unknown>>(sql:Sql,actor:Actor,key:string|undefined,action:string,payload:unknown,work:(tx:Tx)=>Promise<T>):Promise<T>{

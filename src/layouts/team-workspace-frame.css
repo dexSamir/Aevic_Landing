@@ -1,5 +1,5 @@
-/* Shared before and after authentication. No public or admin selectors. */
-.product-shell--team {
+/* Shared workspace geometry before and after authentication. */
+:is(.product-shell--team,.product-shell--admin) {
   --sidebar-width: 16rem;
   --workspace-gap: 1.5rem;
   --workspace-section: 2rem;

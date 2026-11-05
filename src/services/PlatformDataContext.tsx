@@ -1,4 +1,4 @@
-import { TeamWorkspacePlaceholder } from '../layouts/TeamWorkspaceFrame';
+import { AdminWorkspacePlaceholder, TeamWorkspacePlaceholder } from '../layouts/TeamWorkspaceFrame';
 import { Link, useLocation } from 'react-router-dom';
 import { createContext, lazy, Suspense, type ReactNode, useContext, useEffect } from 'react';
 import { Button, EmptyState } from '../components/common/primitives';
@@ -15,12 +15,13 @@ const AdminContext = createContext<AdminPlatformSnapshot | null>(null);
 
 function QueryBoundary<T>({ query, children, workspace = false }: { workspace?: boolean; query: { data?: T; loading: boolean; refreshing?: boolean; error?: ApiError; retryAfterSeconds: number; refetch: () => void }; children: (value: T) => ReactNode }) {
   const {pathname}=useLocation();
-  const state = (content: ReactNode) => workspace ? <TeamWorkspacePlaceholder>{content}</TeamWorkspacePlaceholder> : content;
+  const adminWorkspace=pathname.startsWith('/admin');
+  const state = (content: ReactNode) => adminWorkspace ? <AdminWorkspacePlaceholder>{content}</AdminWorkspacePlaceholder> : workspace ? <TeamWorkspacePlaceholder>{content}</TeamWorkspacePlaceholder> : content;
   if (query.error?.status===401 || query.error?.status===403) {
     const expired=query.error.status===401;
     return state(<div className={workspace ? "workspace-state" : "route-loading"}><EmptyState heading="h1" title={expired?'Sessiyanın vaxtı bitib':'Bu bölməyə giriş icazəniz yoxdur'} body={expired?'Davam etmək üçün yenidən daxil olun.':'Hesabınızın səlahiyyətlərini yoxlayın və ya dəstək xidməti ilə əlaqə saxlayın.'} action={<Link className="button button--primary button--md" to={expired?(pathname.startsWith('/admin')?'/admin/login':'/login'):'/support'}>{expired?'Yenidən daxil ol':'Dəstək mərkəzi'}</Link>} /></div>);
   }
-  if (query.loading && !query.data) return workspace ? <TeamWorkspacePlaceholder /> : <RouteSkeleton path={pathname}/>;
+  if (query.loading && !query.data) return adminWorkspace ? <AdminWorkspacePlaceholder/> : workspace ? <TeamWorkspacePlaceholder /> : <RouteSkeleton path={pathname}/>;
   if (!query.data) return state(<div className={workspace ? "workspace-state" : "route-loading"}><EmptyState heading="h1" title="Platform məlumatı yüklənmədi" body={query.error?.code==='SERVER_NOT_CONFIGURED'?'Platform xidməti hələ konfiqurasiya edilməyib.':'Məlumat servisi hazırda cavab vermir.'} action={query.error?.retryable ? <Button disabled={query.retryAfterSeconds > 0} onClick={query.refetch}>{query.retryAfterSeconds > 0 ? `${query.retryAfterSeconds} san. sonra yoxla` : 'Yenidən yoxla'}</Button> : undefined} />{query.error?.requestId && <small>Sorğu kodu: {query.error.requestId}</small>}</div>);
   return <><RefreshIndicator active={query.refreshing}/>{query.error && <p role="status" className="connectivity-status">Yenilənmə alınmadı. Son yüklənmiş məlumat göstərilir. <Button variant="ghost" onClick={query.refetch}>Yenidən yoxla</Button></p>}{children(query.data)}</>;
 }

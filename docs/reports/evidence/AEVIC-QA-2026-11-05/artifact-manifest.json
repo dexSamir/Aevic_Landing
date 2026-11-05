@@ -1,0 +1,1000 @@
+{
+  "date": "2026-11-05",
+  "files": [
+    {
+      "file": "AUTH-required-email-validation.png",
+      "bytes": 1011334,
+      "sha256": "275aa01a36fda81bfd4b780db8017ad369a1caff5e19d0e927462c95e13e6023"
+    },
+    {
+      "file": "PUB-calendar.png",
+      "bytes": 1007820,
+      "sha256": "f79d51076ad3771cb2e06b84f5400271bb9173831abe5ab679b17bfb99bf0305"
+    },
+    {
+      "file": "PUB-card-download.png",
+      "bytes": 463471,
+      "sha256": "802d6b429a6d4798cf298ba511d91ab82a512ec7f81aaad42006f9a7d2c6d6a8"
+    },
+    {
+      "file": "PUB-filter-sort.png",
+      "bytes": 384925,
+      "sha256": "c89a8e7f6a3d1aa9b9c57bf4f9b8d07a6b1f801b3759acd011d0133428b6d006"
+    },
+    {
+      "file": "PUB-follow-loggedout.png",
+      "bytes": 250303,
+      "sha256": "c86bb56a620d8b5ca2f6236eb6b4c66cce836af78bd9733e139b47c8ba718972"
+    },
+    {
+      "file": "PUB-leaderboard-retest.png",
+      "bytes": 36387,
+      "sha256": "5955dbd1599a23022e9a00995b0e142f7eb7875f8a4305f5c62443409a4dcd86"
+    },
+    {
+      "file": "PUB-matches-retest.png",
+      "bytes": 336304,
+      "sha256": "47b8d77b15ff2bb399d1bbc025aee8c83c5263611cd2e1ad0468072cf3ec66c4"
+    },
+    {
+      "file": "PUB-search-empty.png",
+      "bytes": 352277,
+      "sha256": "03838d44cb28b23dcf785135b797f6d9eb061d146aeec481a085cb958cfab202"
+    },
+    {
+      "file": "PUB-search-match.png",
+      "bytes": 358619,
+      "sha256": "e1879dbb58c79527751b1f2dd31a9a432b607d75375adee2a0eafb57c4d34f07"
+    },
+    {
+      "file": "PUB-team-comparison.png",
+      "bytes": 336090,
+      "sha256": "7edf396b332510ec0eca92edcbb58cdfea5c64cef80c025a5d92ec8aa3cb733e"
+    },
+    {
+      "file": "PUB-teams-filter-sort.png",
+      "bytes": 972953,
+      "sha256": "cfef5bc13c3182cf98f296974b78b84bbdb41e4316a57e202075cd9be36f52c1"
+    },
+    {
+      "file": "README.md",
+      "bytes": 1459,
+      "sha256": "0a3a005fb3844942dfab5b5fd8a144f5b2280348880ef3f3f377d7a918bbe53e"
+    },
+    {
+      "file": "account-final-scan.json",
+      "bytes": 10279,
+      "sha256": "0b57b6f792b593e3e875f62527f657730900d856e57f75c4ff488c56481be65b"
+    },
+    {
+      "file": "account-panel-controls.json",
+      "bytes": 238,
+      "sha256": "ad742b5bf33d73a43447ecde81b2bbbf01bdd62294413e786a7e1af2fc8f455d"
+    },
+    {
+      "file": "admin-access-after-google.json",
+      "bytes": 1800,
+      "sha256": "c9fc91b94b6894a65890ca45f54534126f82d4e0012f69edaf290ae1617883d1"
+    },
+    {
+      "file": "admin-access-after-google.png",
+      "bytes": 1993259,
+      "sha256": "2bbd7bc695e1dad107bc6ec9e6f66ff96337cb987d47c1e51ab918b9af918580"
+    },
+    {
+      "file": "admin-controls.json",
+      "bytes": 2026,
+      "sha256": "bba1efd6a9c9a971f00968dc5a0f76e891c34ac1f17ddf4fe2b1ae63061b6be0"
+    },
+    {
+      "file": "admin-responsive-1024.png",
+      "bytes": 209967,
+      "sha256": "a595ce4752a943ade65439bc9fea07104a23d4e87215c4e8b4743e5a7e5eb41a"
+    },
+    {
+      "file": "admin-responsive-1280.png",
+      "bytes": 249382,
+      "sha256": "04b2c03e036fdf0668b3de405d264fc8385b6748307aafa1a4543fe8c8063fb6"
+    },
+    {
+      "file": "admin-responsive-1440.png",
+      "bytes": 255290,
+      "sha256": "677d87a8f9f4657cd655c0c784cf5ecfde6b26c9e58005523dbec6f955bab0bc"
+    },
+    {
+      "file": "admin-responsive-320.png",
+      "bytes": 203021,
+      "sha256": "b21eeb2a48b1e0a5d4115b811569e2740fa73c9725c34665cccabd2fc777c1e1"
+    },
+    {
+      "file": "admin-responsive-360.png",
+      "bytes": 205261,
+      "sha256": "63ed725ed5b35826a40403157633d503cfba96891e1a422243affc7de8895dec"
+    },
+    {
+      "file": "admin-responsive-390.png",
+      "bytes": 208151,
+      "sha256": "718b4cca50805407030a5950af77af9766574f2770a0ad8e5725173dbbd20d9b"
+    },
+    {
+      "file": "admin-responsive-430.png",
+      "bytes": 209715,
+      "sha256": "5ec2a9bc3b06ed360dbda1e3e01b019093ac046918029d691758666c2a99f1b3"
+    },
+    {
+      "file": "admin-responsive-768.png",
+      "bytes": 220057,
+      "sha256": "321b3616b2317958c4dde605a3585826d17c98be3d325c9ea6503a7022ffc37e"
+    },
+    {
+      "file": "admin-save-timeout.png",
+      "bytes": 805374,
+      "sha256": "0736e70b5c25661bdc4387c7a241a120e2361c6c3b894d12cd4a7f74e47e3a3f"
+    },
+    {
+      "file": "admin_admin.png",
+      "bytes": 126809,
+      "sha256": "9405425954dec2ccf1249188264556134c3a82c686da2493aca61d2c674f694c"
+    },
+    {
+      "file": "admin_admin_check-ins_missed.png",
+      "bytes": 320860,
+      "sha256": "12190bf2d60053b976199d688648a946b58d8193066fcf932d5d7e6a3b30d770"
+    },
+    {
+      "file": "admin_admin_disputes.png",
+      "bytes": 69223,
+      "sha256": "1342bffe7f918556fa7133de1d3371247392b9260907d1eeacea48579205daba"
+    },
+    {
+      "file": "admin_admin_organizations.png",
+      "bytes": 67862,
+      "sha256": "c219730cccf29177273439983f40b7f64d4eabcb08af4e364381135ce3d7bac6"
+    },
+    {
+      "file": "admin_admin_roster-requests.png",
+      "bytes": 71952,
+      "sha256": "9fdbfb1f61992bb1ab2fcfc38fe157a21bc462ce28bece1b24eb21306be57589"
+    },
+    {
+      "file": "admin_admin_tournaments.png",
+      "bytes": 183298,
+      "sha256": "0759c713e4fa5e704dd9d7c51612f294f252de5dc556f6d6b38dcfedc505c653"
+    },
+    {
+      "file": "admin_admin_verifications.png",
+      "bytes": 75851,
+      "sha256": "25dcbab238c7be818cefe89c8872e59163c16452a7da5075fef537d47ee06348"
+    },
+    {
+      "file": "anonymous-security.json",
+      "bytes": 2449,
+      "sha256": "4d964f2b596324c44a9dad2809e243e03ed57ce0728b6fe488eff755d4c852a2"
+    },
+    {
+      "file": "auth-boundaries.json",
+      "bytes": 3564,
+      "sha256": "dd984301442578d65af91a75137d60ae8363b75f133970d416266574545a1ead"
+    },
+    {
+      "file": "authenticated-security-completion.json",
+      "bytes": 7302,
+      "sha256": "0dd34e71f92fd9927793ad5fd69355fc0227fc52134a7a14eccfd166a1ed20be"
+    },
+    {
+      "file": "completed-history.png",
+      "bytes": 569541,
+      "sha256": "189a5bb08e972ba0d760ef3668f5a2e408370f976cd776837828e94ab1899ac3"
+    },
+    {
+      "file": "completed-verification.json",
+      "bytes": 4321,
+      "sha256": "8f3e89a5d2e8a28ebb81d7a2da829ce0e3ab5e13b7b307e62ce7134d30a92592"
+    },
+    {
+      "file": "create-validation.json",
+      "bytes": 2945,
+      "sha256": "ef4ccc19f24089e2690cb928e60ac638dd8fa890045491a447e94d8d1c1b0680"
+    },
+    {
+      "file": "demo-assign-1.json",
+      "bytes": 4363,
+      "sha256": "8d2774db2f32bf2b2f11a225bd5f8c518c74ed7bd4ca582aea3107b880e71a3f"
+    },
+    {
+      "file": "demo-assign-2.json",
+      "bytes": 1107,
+      "sha256": "ef490515d370f35c6e90996544f07aa6bbbc19117669a88711fa86939d55b686"
+    },
+    {
+      "file": "demo-assign-3.json",
+      "bytes": 3946,
+      "sha256": "9272c79f1e7bf8e49681b91dc2c1345a0ca0ee105688f15023f0a11cf8b914b5"
+    },
+    {
+      "file": "dispute-profile-verification.json",
+      "bytes": 4095,
+      "sha256": "e203e71919c9725ca6784776937ea55ce767a4515010603861cffda8888162da"
+    },
+    {
+      "file": "final-public-_matches_0ab9666e_5501_47b2_b99e_ce2be068fafc.png",
+      "bytes": 1869272,
+      "sha256": "a8ecdb4d2ba2f59f0269ef3cdbdbd2bb0ee3fc8ce1e00cbca8696cd262115f68"
+    },
+    {
+      "file": "final-public-_matches_a9ef71d4_9e4a_4cd4_9376_40a610be87a8.png",
+      "bytes": 1869275,
+      "sha256": "c9e8b0b4e8fd008e87326f39c93adcccd61715faa356107cd34bf9765061c99e"
+    },
+    {
+      "file": "final-public-_teams_16_wrapped_2026.png",
+      "bytes": 272460,
+      "sha256": "6936a68539b804cdb788ae0c5e4717fe85740d9e22444ff6a42216c1a69b4106"
+    },
+    {
+      "file": "final-public-_tournaments_19130ea6_8fc0_4bc6_9773_12b1a49de0a5.png",
+      "bytes": 1869275,
+      "sha256": "20cbfba753c4df1c9d65fc879cb28a4ee4db0055a05954e103baff38ae864ab6"
+    },
+    {
+      "file": "final-public-_tournaments_19130ea6_8fc0_4bc6_9773_12b1a49de0a5_recap.png",
+      "bytes": 231360,
+      "sha256": "c313b85f05f88d67a2eddde9a7eeb33a4c4ce25840c8212a2a459e9035e2cf09"
+    },
+    {
+      "file": "final-public.json",
+      "bytes": 12308,
+      "sha256": "ddc81168ae5b31b7b9a5f169577a1a3b6cebbe147d2c421a4b8919413dd492b3"
+    },
+    {
+      "file": "full-standings-mobile.png",
+      "bytes": 56560,
+      "sha256": "6626e04f2799799c55ab37101480515e25beaca50bcda8890d5564cc2473d327"
+    },
+    {
+      "file": "leaderboard-console.json",
+      "bytes": 2156,
+      "sha256": "3e0cf15ea0626ace66322fade1af0ba60be7255e96b6de97e91a55d50e79bbe3"
+    },
+    {
+      "file": "logout-final.json",
+      "bytes": 1393,
+      "sha256": "e902206ca15e84451cac519575d571faf61bbfc146fa4e08ac4df66e76c4152c"
+    },
+    {
+      "file": "logout-verification.json",
+      "bytes": 339,
+      "sha256": "3cace88e56550a3a969436dec7d8e654e6165048df7103cd4ec8267c034a7d29"
+    },
+    {
+      "file": "mobile-keyboard-skip.png",
+      "bytes": 221491,
+      "sha256": "78fa8f6617d69b5b07d91cda588dbd742c34fe38d6092c039aa14b6cc5dc8bcf"
+    },
+    {
+      "file": "modal-scroll.json",
+      "bytes": 3065,
+      "sha256": "ca28e79d06ac2b1d1198823942bb54aca39b4bbaf21c20a2315353cbbf30845a"
+    },
+    {
+      "file": "panel-contact-sheet.jpg",
+      "bytes": 249477,
+      "sha256": "6f70fc7c8baa369792598578abdffcecca03de90ad69e8eb082685b865edd9dc"
+    },
+    {
+      "file": "panel-responsive.json",
+      "bytes": 5973,
+      "sha256": "eb1cc20211c3aa195575649d8fbefef9f63a77e8091a7f2fbe082806a3a63577"
+    },
+    {
+      "file": "panel-scan1.json",
+      "bytes": 35451,
+      "sha256": "2d63b19c3d12774cade25e6501af13299ec9d7887c0e6f8b3d723f8e0cdffafd"
+    },
+    {
+      "file": "panel-scan2.json",
+      "bytes": 31551,
+      "sha256": "48c7b9301a41d1c1dda2c205670634b2ed38ed5713d13722aaddc3b2087127dd"
+    },
+    {
+      "file": "participant-dashboard.json",
+      "bytes": 1503,
+      "sha256": "d84057fb5138737271ca5cbad694f4ddd2ab2698ed5bf3628a470881d2dd9596"
+    },
+    {
+      "file": "performance.json",
+      "bytes": 3067,
+      "sha256": "e042783cf8ce2d10eaa9ebf2b9551f3e4aecc60a5a9b5c01d9736436bff81b80"
+    },
+    {
+      "file": "profile-crop.png",
+      "bytes": 105118,
+      "sha256": "424c235e38d160ba551f8d4cc2ca3062cbffc12373b71118114f820dd257bf6c"
+    },
+    {
+      "file": "profile-media.json",
+      "bytes": 2511,
+      "sha256": "296314b793e64bb309456c8d723e2d7a250514c0cab2ec618eb5419130290a14"
+    },
+    {
+      "file": "profile-uploaded.png",
+      "bytes": 975170,
+      "sha256": "0ea37359ac70be3653372de63ebcb230ce757765f0b1cdc03d25281b7de01e45"
+    },
+    {
+      "file": "public-controls.json",
+      "bytes": 700,
+      "sha256": "7a154ec291d891d1c285a9cd7f1562c86f07c9e45971b0926fe0cb1f8dd10df8"
+    },
+    {
+      "file": "public-http-status.json",
+      "bytes": 860,
+      "sha256": "7bdd885403b68e85f47a481d2765fe444771cac48478aa5888dcb0791dac5808"
+    },
+    {
+      "file": "public-interactions.json",
+      "bytes": 24646,
+      "sha256": "d2bf441211dac99035a3899e200878a7320fabd30d35dfc5d8b89528a7064479"
+    },
+    {
+      "file": "public-privacy-scan.json",
+      "bytes": 240,
+      "sha256": "e088746acdb6de626690906286976285f2cd268a5948b1d4cc10d4c94151d063"
+    },
+    {
+      "file": "public-round-tabs-settled.json",
+      "bytes": 1221,
+      "sha256": "55d80b9a29d50d0a0b098a1fecfe2315bf0db8af77231a581e077e64ed01a5e7"
+    },
+    {
+      "file": "public-round-tabs.json",
+      "bytes": 2168,
+      "sha256": "da547d5ea148b2d1136f83f575bb15c389adafa0b01b329a53dd8d28ec048d89"
+    },
+    {
+      "file": "public-route-observations.json",
+      "bytes": 127084,
+      "sha256": "eef1676beb6459264f7e03b47b241a3fffd1954e84c26eac071ffbd7707f88f7"
+    },
+    {
+      "file": "public-team-card.png",
+      "bytes": 248724,
+      "sha256": "564d272e540555738a08e42d43a9c493cf6f09d3754c74936965b2863b8b8eaa"
+    },
+    {
+      "file": "qa-approved-team-detail.json",
+      "bytes": 284,
+      "sha256": "0be6506669f641c75d6c6bc21dd7a48e63e36181aa36557af54b31383541c7ce"
+    },
+    {
+      "file": "qa-check-in-confirmed.json",
+      "bytes": 972,
+      "sha256": "8dbb51c8f9e03ed18494e4002c5a7322e9732a11bc2b118928dbabcd2d3ba0a3"
+    },
+    {
+      "file": "qa-check-in.json",
+      "bytes": 3353,
+      "sha256": "9558bee0659249e8c61ed3c0604f5e25a9566e6347e9ac649306b537fa531288"
+    },
+    {
+      "file": "qa-check-in.png",
+      "bytes": 875215,
+      "sha256": "6b787963c099467b29f8eef88b749d0c78d3ae2d5f4eea28a3fb8abb05776f3c"
+    },
+    {
+      "file": "qa-compressed-timeline.json",
+      "bytes": 2459,
+      "sha256": "b5e8b5584d4e4323d7d24a6332f49671f2d0b61bae586dabbabf6d136f048abc"
+    },
+    {
+      "file": "qa-created-refreshed.json",
+      "bytes": 2508,
+      "sha256": "b441abbe3329841fcdd348c0c5b474b8507a64be50dc89d5e664264681a52b69"
+    },
+    {
+      "file": "qa-created-refreshed.png",
+      "bytes": 31910,
+      "sha256": "42346f1c7a69473fc73b21dd33905098be7ad4a03eddccd9ab23d89528cdcffb"
+    },
+    {
+      "file": "qa-created.json",
+      "bytes": 3823,
+      "sha256": "bb583198da8818f8ac6c5d1df6a206f4411243d9fe39f10fc9d402953b184815"
+    },
+    {
+      "file": "qa-created.png",
+      "bytes": 131183,
+      "sha256": "aba577c8cbd64659d31418d389ba41e8e688a7b5a0588298ecf642a4782d028d"
+    },
+    {
+      "file": "qa-dispute-created.json",
+      "bytes": 694,
+      "sha256": "9dd7ccd88232e6db8a70bb83b5159df9340b6c8cfcb8a9a9d16ef9ff30fd5432"
+    },
+    {
+      "file": "qa-dispute-submitted.json",
+      "bytes": 2386,
+      "sha256": "daf3db3ec3cdf8b3ec47c8c23dcf0d28fd8bea7811710de89e990d8635d9faa6"
+    },
+    {
+      "file": "qa-draft-public.json",
+      "bytes": 332,
+      "sha256": "021ba89c158f1777ab24ce52977210df3987f6fd43ade83836e1b4fb19045aaf"
+    },
+    {
+      "file": "qa-join-attempt.json",
+      "bytes": 3837,
+      "sha256": "5cfe82ecb56b3ae3903cbc6bffb585fdbe3e37a8fc41eec45b64eb990b779bfe"
+    },
+    {
+      "file": "qa-join-attempt.png",
+      "bytes": 2844634,
+      "sha256": "e304478e12179ae66440447279acc93c3725868c7eb1fc551c3375578f3fbd00"
+    },
+    {
+      "file": "qa-join-confirmed.json",
+      "bytes": 201,
+      "sha256": "ed007552089d2f5419f1e253b74fa5d30f9d440126665889f12b4872a6456b79"
+    },
+    {
+      "file": "qa-leaderboard.png",
+      "bytes": 4911046,
+      "sha256": "09ab501ed9083f28fb59f3871120ae5376c00d5cceae403ae28f812eb49ca667"
+    },
+    {
+      "file": "qa-participant-joined.json",
+      "bytes": 201,
+      "sha256": "ed007552089d2f5419f1e253b74fa5d30f9d440126665889f12b4872a6456b79"
+    },
+    {
+      "file": "qa-public-persistence.json",
+      "bytes": 27957,
+      "sha256": "23f587f5b606833f057bf81417524d813cd5fa7409310cd7047ccffbf32bf1b2"
+    },
+    {
+      "file": "qa-publication.json",
+      "bytes": 6514,
+      "sha256": "f723ddd19cdb4b4632c1dea41d1f8a2ae3c66a29c006684c48e8a923e734b818"
+    },
+    {
+      "file": "qa-room-masked.png",
+      "bytes": 1662437,
+      "sha256": "649509ab7ac592bcd46321f305ab435b11e7174f4329fc3e966ecce030f0cb3c"
+    },
+    {
+      "file": "qa-room-security.json",
+      "bytes": 1520,
+      "sha256": "46f7feafcbda0a97671b8f00fdf8bfed88095910d0f297c084ef64b80e6a7dea"
+    },
+    {
+      "file": "qa-team-confirmed.json",
+      "bytes": 237,
+      "sha256": "5e76272e10c99777d6ba0e1e40499364a3e38e06d76b199096afa22a53a3ba7d"
+    },
+    {
+      "file": "responsive-_login-1024.png",
+      "bytes": 631250,
+      "sha256": "775eac24861f9aad397ace6eba5009cfef56d437c52a683981938086967cf927"
+    },
+    {
+      "file": "responsive-_login-1280.png",
+      "bytes": 847895,
+      "sha256": "ee71a325a292e44c1782f137e89dd73734d7b0ae15fc15bfc27db4b7bfc9cdb9"
+    },
+    {
+      "file": "responsive-_login-1440.png",
+      "bytes": 967171,
+      "sha256": "7ef4d43cc54e4e93945f1405f7371d1ec5cdcebd0c113f0d53f6efe2b8633138"
+    },
+    {
+      "file": "responsive-_login-320.png",
+      "bytes": 185003,
+      "sha256": "fdf2d27469227b46336192b77aa93a54243294c571c1ae027768af8a6b6c2984"
+    },
+    {
+      "file": "responsive-_login-360.png",
+      "bytes": 195815,
+      "sha256": "11728768ebc215e29cd877091f24709f19e86a458d8dcaef0100a36bd7856c0f"
+    },
+    {
+      "file": "responsive-_login-390.png",
+      "bytes": 195146,
+      "sha256": "8b9e41601ac44ff11fac0be8ab20d46a6b406680df1568a8bcd44a3d4a73a2a0"
+    },
+    {
+      "file": "responsive-_login-430.png",
+      "bytes": 207194,
+      "sha256": "bd205b80e45234c06668e9e60ee915db4548f86545bc274675f92a17f9a51922"
+    },
+    {
+      "file": "responsive-_login-768.png",
+      "bytes": 466519,
+      "sha256": "37a070feedda09d744a48b52a8c262d57349d70bc19a3c7795b4aae5748d1958"
+    },
+    {
+      "file": "responsive-_teams_16-1024.png",
+      "bytes": 1295494,
+      "sha256": "4c3850bbde6bc9d74f70ba2adbcfc11b3cd547f7e54e6e1df510a61b5e1e29da"
+    },
+    {
+      "file": "responsive-_teams_16-1280.png",
+      "bytes": 1744437,
+      "sha256": "058e764551c2d668d7cfa7f861af0e9ff98e171a4a276364e7f706a0fd7b7594"
+    },
+    {
+      "file": "responsive-_teams_16-1440.png",
+      "bytes": 2078524,
+      "sha256": "3b3e38f808b2fe3c438c6dde0a91e20800125560d3dc6e73cb7d76474e6e757f"
+    },
+    {
+      "file": "responsive-_teams_16-320.png",
+      "bytes": 93628,
+      "sha256": "616a1d6434dc6f4e3b141c42bb3714af220da05df2cbd9e43c2ed2f11d11ed48"
+    },
+    {
+      "file": "responsive-_teams_16-360.png",
+      "bytes": 373669,
+      "sha256": "cda6050ffc8f0e5836ab15ad878b4829f2ba416d04e31f930958b0da31f8e048"
+    },
+    {
+      "file": "responsive-_teams_16-390.png",
+      "bytes": 418859,
+      "sha256": "e90f6b89df436c151fb7fee68a6ec5af9b96b191a7c414613a46849d7d39b71c"
+    },
+    {
+      "file": "responsive-_teams_16-430.png",
+      "bytes": 571161,
+      "sha256": "15b281c3db67373a50b6d1e80e7da7cd13054340f870caf5128bb155c94b0d63"
+    },
+    {
+      "file": "responsive-_teams_16-768.png",
+      "bytes": 769118,
+      "sha256": "cb73dee540686e46fc48cbcaaaca30fbbf96ab54f845aeacd59927a0aeee6c49"
+    },
+    {
+      "file": "responsive-_tournaments-1024.png",
+      "bytes": 368364,
+      "sha256": "8a9c3ebfb0b2b345aa32ce8812e761b809a4579f568521412fc227d48ef3b3a7"
+    },
+    {
+      "file": "responsive-_tournaments-1280.png",
+      "bytes": 373727,
+      "sha256": "d05013ce0c37d6a1eca4f0e9e261415dcccbeb5744aa62f858e1322b123ac186"
+    },
+    {
+      "file": "responsive-_tournaments-1440.png",
+      "bytes": 401059,
+      "sha256": "4fb70893407ca43b996651e0b82f82b690f1296b1f22f316227b0c9460935e06"
+    },
+    {
+      "file": "responsive-_tournaments-320.png",
+      "bytes": 324760,
+      "sha256": "daadb0275b6c1f3fa1d160abcc558d24ed404807594a27bce07fc5dc6b20cf73"
+    },
+    {
+      "file": "responsive-_tournaments-360.png",
+      "bytes": 328030,
+      "sha256": "36b293b6b06f2bbfc764b52cc8589a81ef0f213956c81f590f02d8808f46c24f"
+    },
+    {
+      "file": "responsive-_tournaments-390.png",
+      "bytes": 343064,
+      "sha256": "223bf89638fe33eb627b48ddc1fd09f9f8e091ca7d5d8a57d4af9eaafce2bc4a"
+    },
+    {
+      "file": "responsive-_tournaments-430.png",
+      "bytes": 339532,
+      "sha256": "712d8a6d0dc8aaa09d2d36ce1765d97e138e768ec2d27527cf3afeb79e70a649"
+    },
+    {
+      "file": "responsive-_tournaments-768.png",
+      "bytes": 354243,
+      "sha256": "510b26d9b53892e5fef82718802caf3d0d089f5529e09b1c8c44b00e1ffca0fe"
+    },
+    {
+      "file": "responsive-_tournaments_19130ea6-8fc0-4bc6-9773-12b1a49de0a5-1024.png",
+      "bytes": 2011289,
+      "sha256": "a6bab6def1322dc937014245b60c5c575e5022596312ac1a9a27d61ac22f66e8"
+    },
+    {
+      "file": "responsive-_tournaments_19130ea6-8fc0-4bc6-9773-12b1a49de0a5-1280.png",
+      "bytes": 1671045,
+      "sha256": "0db2886917375c86e64b25d371a02e146fee006b94d55428f3677bcfbbcb56bc"
+    },
+    {
+      "file": "responsive-_tournaments_19130ea6-8fc0-4bc6-9773-12b1a49de0a5-1440.png",
+      "bytes": 1807733,
+      "sha256": "2e153b79414d46a1181a36e0fb2a09f46c83d3ba17d8aa2b5fd311ad6eada05d"
+    },
+    {
+      "file": "responsive-_tournaments_19130ea6-8fc0-4bc6-9773-12b1a49de0a5-320.png",
+      "bytes": 464773,
+      "sha256": "1ef3fafb686897fc19d9774c999fb0409c91d099259bd440b4a45f1faf9437f6"
+    },
+    {
+      "file": "responsive-_tournaments_19130ea6-8fc0-4bc6-9773-12b1a49de0a5-360.png",
+      "bytes": 671150,
+      "sha256": "8d29e6d98c18aa12e8cb5fb413272787a5b6fa383dccc5034ce8e994b8010d1e"
+    },
+    {
+      "file": "responsive-_tournaments_19130ea6-8fc0-4bc6-9773-12b1a49de0a5-390.png",
+      "bytes": 720465,
+      "sha256": "4f68e833a1cbe9eb47b74ad9a2ea4b1447fd817731e13007dba4afc5cb280bde"
+    },
+    {
+      "file": "responsive-_tournaments_19130ea6-8fc0-4bc6-9773-12b1a49de0a5-430.png",
+      "bytes": 776024,
+      "sha256": "a2f1cff83fa1903aa859668b35993d618da9620b034ac2e23a72e80d9733e6a0"
+    },
+    {
+      "file": "responsive-_tournaments_19130ea6-8fc0-4bc6-9773-12b1a49de0a5-768.png",
+      "bytes": 1132040,
+      "sha256": "629e67e4cfaecb1a560ebd360dbd003a08b1a7df4a6726e72f19d6d8243efbab"
+    },
+    {
+      "file": "responsive-contact-sheet.jpg",
+      "bytes": 149716,
+      "sha256": "b5422c408c9ebf42ac7f98b5f019a2bba6753d8acf674b5f7842cf0d8c7d2f24"
+    },
+    {
+      "file": "responsive-home-1024.png",
+      "bytes": 1278899,
+      "sha256": "f6a531ae8a20a165b7ab09d4e8be76bf34f251ddc42dc829c53fd25040b240b2"
+    },
+    {
+      "file": "responsive-home-1280.png",
+      "bytes": 1562502,
+      "sha256": "c1db1568eac40a139833d11acf46b4a5782ce93bd4685585269e575192cd23ad"
+    },
+    {
+      "file": "responsive-home-1440.png",
+      "bytes": 1693878,
+      "sha256": "b3b15f3932417d1d952dd936c26350f5cf52ad2ff11030c29bf7d7375e5ea51d"
+    },
+    {
+      "file": "responsive-home-320.png",
+      "bytes": 487479,
+      "sha256": "ad34483ca79b222160b086c8a721cb21759a599ea4781a4a55cb4b77c94c18ea"
+    },
+    {
+      "file": "responsive-home-360.png",
+      "bytes": 542986,
+      "sha256": "2abba984b5ac87dd906aef4c6cdbecab3ef73dca631dd59772fa4c27de5cef11"
+    },
+    {
+      "file": "responsive-home-390.png",
+      "bytes": 576146,
+      "sha256": "177eb30bcc0a4b61d55ca563445ca841bbb5915867f45bc3884f7e3eb33bc15d"
+    },
+    {
+      "file": "responsive-home-430.png",
+      "bytes": 620559,
+      "sha256": "f8134ee09d87ae4baed6c3fef934ddf8c7f1b23d68164c4cf66a6a1fb2709bc0"
+    },
+    {
+      "file": "responsive-home-768.png",
+      "bytes": 1081451,
+      "sha256": "7fe2504563fb2414ca39d8dacaa992e47c90e40fd9d691ca8d4a61b73e350954"
+    },
+    {
+      "file": "responsive.json",
+      "bytes": 37104,
+      "sha256": "460d97e14b68d1cf5ff3f8041919472577cf91391225c8eedb77f1ff4132ec97"
+    },
+    {
+      "file": "result-correction.json",
+      "bytes": 1776,
+      "sha256": "07cd432391314982a7122cea50525c088e280303574896b873b572b829e06d48"
+    },
+    {
+      "file": "result-correction.png",
+      "bytes": 145089,
+      "sha256": "e44d445336617d29a9dad56bddde8449f59a5f53d6b16c54cd80e845ccbc02c3"
+    },
+    {
+      "file": "result-duplicate-placement.json",
+      "bytes": 976,
+      "sha256": "73dbf184a3ea9692e28b828910bf7a650aad7145c1f8ed7cc741bdfdcc57b818"
+    },
+    {
+      "file": "result-publish-ui.json",
+      "bytes": 1134,
+      "sha256": "8a871447f03d7af844f7488a093c28978db48f52b47eb205fddb1cd6e4f62f83"
+    },
+    {
+      "file": "result-publish-ui.png",
+      "bytes": 403837,
+      "sha256": "a12cb5d914c7835e0959600036e2e377601bf7d4036fd904cba9ddaf560ccd47"
+    },
+    {
+      "file": "result-validation.json",
+      "bytes": 2075,
+      "sha256": "249774fdb50b235cafa4aec626e60a5abbb6e032009eb259da17d818487c84db"
+    },
+    {
+      "file": "round1-public-verification.json",
+      "bytes": 12992,
+      "sha256": "5810c409bc4c1af4aa94f7797788f879de56497f879612697972f434ccb37929"
+    },
+    {
+      "file": "round1-results.json",
+      "bytes": 4497,
+      "sha256": "ad6200eeeb7927a88ca5d8c1b16163d5935261e314b94d58173a9f55bc02b5ce"
+    },
+    {
+      "file": "round2-results.json",
+      "bytes": 5299,
+      "sha256": "d0b5397e559de23d88510b3a893948ac773c52d2632930fbfe2ff0ba4ee55c25"
+    },
+    {
+      "file": "round3-results.json",
+      "bytes": 5256,
+      "sha256": "da8e18d8f15fb6b263b85f3f55a81185fad8960f78477d2d7da216db0fba4064"
+    },
+    {
+      "file": "round4-results.json",
+      "bytes": 5296,
+      "sha256": "2f3d775a593bb6ec741587447ba1db980d8795acb0013d5eeb729d4e20f048d4"
+    },
+    {
+      "file": "route-_archive.png",
+      "bytes": 409558,
+      "sha256": "33e6cbe5dc100424e55dec6eae5d8a500b7c51db15e14509363d799cd5e68d28"
+    },
+    {
+      "file": "route-_contact.png",
+      "bytes": 315145,
+      "sha256": "13754c8e6e804bb9ace88822e78401c93a97117a81cf14cd05d746944ea2c612"
+    },
+    {
+      "file": "route-_following.png",
+      "bytes": 302205,
+      "sha256": "6d2b87ac1ebf350ee82eda7ae22d6cf2e53247697a42e8a5be0c08afd0e4970e"
+    },
+    {
+      "file": "route-_forgot-password.png",
+      "bytes": 1061170,
+      "sha256": "2f1f439f2ce92b4d46be6cabd9db75488d1826c79560902f0e9a7e9da90e5369"
+    },
+    {
+      "file": "route-_leaderboard.png",
+      "bytes": 36387,
+      "sha256": "5955dbd1599a23022e9a00995b0e142f7eb7875f8a4305f5c62443409a4dcd86"
+    },
+    {
+      "file": "route-_login.png",
+      "bytes": 1008872,
+      "sha256": "0ce320cd6bb58efc5fc5fc203612081522a60500be61a757dc5fca438c65ce52"
+    },
+    {
+      "file": "route-_organizations.png",
+      "bytes": 314557,
+      "sha256": "646c32a240b8ff910f3014c056523924a230ddeb0d57c4a2aea46aabd8af2a82"
+    },
+    {
+      "file": "route-_privacy.png",
+      "bytes": 533259,
+      "sha256": "7e1341487ab51e1e8af3a0c76d6e8a02636215425e8ee415898709f2e0f6b38a"
+    },
+    {
+      "file": "route-_qa-nonexistent-20261105.png",
+      "bytes": 290590,
+      "sha256": "ee7ce67fdcc2010953532eecaf0f5e51d96d75d0f3bb86818f113aa3e6892623"
+    },
+    {
+      "file": "route-_records.png",
+      "bytes": 394410,
+      "sha256": "4ba7f2d46fbf8bf7cb0588b9643988159c20b3d3c2f6baa0099e3b0e2a560f0d"
+    },
+    {
+      "file": "route-_register.png",
+      "bytes": 980365,
+      "sha256": "4c65faa5f5109eddc56fd9bc0f5ddf877bae55ec787150e4636037de81b2207b"
+    },
+    {
+      "file": "route-_regulations.png",
+      "bytes": 2012206,
+      "sha256": "3e5cf839ccd43fbad6504a7c593b538cf6d28994d3bad07b0418eb1d95425af2"
+    },
+    {
+      "file": "route-_reset-password.png",
+      "bytes": 1053756,
+      "sha256": "1b7d05c17249c658d0c2e8133bc9ecef43b7963e9f18f58306a454f1a12f274f"
+    },
+    {
+      "file": "route-_support.png",
+      "bytes": 356336,
+      "sha256": "87b85e626d700ca96d9e9d32d42edbeb4167123a9232eb8254a2291479aa8988"
+    },
+    {
+      "file": "route-_teams.png",
+      "bytes": 971630,
+      "sha256": "ece19bf6346220e1eb0307fc895ddfe5e905ee02d28e4981cb77a6d784e58fa0"
+    },
+    {
+      "file": "route-_teams_16.png",
+      "bytes": 2079615,
+      "sha256": "70c4dabb5e6c73918d6420d315f67384ce1ceec025444bc33b6ba79f0d22fc25"
+    },
+    {
+      "file": "route-_teams_16_share-card.png",
+      "bytes": 482204,
+      "sha256": "263e86ea133a6883d45ba8e295b9e25bea13afb8dd91c35929e35e621701f7fd"
+    },
+    {
+      "file": "route-_teams_16_wrapped_2026.png",
+      "bytes": 313349,
+      "sha256": "33f76d60ba6e564df14d2f7e930119b8653bab937025a295c0344deab6ebae3e"
+    },
+    {
+      "file": "route-_teams_compare.png",
+      "bytes": 334232,
+      "sha256": "7a02a082499417070838f86df9b1ab5339049d84e3b21f64fbd523e47ccc593e"
+    },
+    {
+      "file": "route-_terms.png",
+      "bytes": 351882,
+      "sha256": "4e905a6c4241348a597f85086f073ad6f892fe866216435685dd749cc6e20906"
+    },
+    {
+      "file": "route-_tournaments.png",
+      "bytes": 382210,
+      "sha256": "c007fd12128f3faccaa7c039cfe67342d6914c6f4d40641ebd170f71f2029f77"
+    },
+    {
+      "file": "route-_tournaments_32135d32-6080-56a3-a057-48ecc5b3877e_recap.png",
+      "bytes": 234449,
+      "sha256": "0b88f40fe286a3af2ed3bf48dfcffd07afb7f693a41cb61331080c2783d66d83"
+    },
+    {
+      "file": "route-_tournaments_d99dd06f-b1f6-5578-a128-69077752a0ac.png",
+      "bytes": 1774179,
+      "sha256": "ea70a1f509c89d5a05cd74cf6c9be9bae4b620548344325296c08ebe5082b8a4"
+    },
+    {
+      "file": "route-_verify-email.png",
+      "bytes": 878968,
+      "sha256": "b983431f0c4c888445731bf67a3770157b17537463bac2169571441b922e596a"
+    },
+    {
+      "file": "route-home.png",
+      "bytes": 1785775,
+      "sha256": "b3f7414c79218a605b01e478a7b1a1f28f06d103c0e0511d51451ed45876324b"
+    },
+    {
+      "file": "route-inventory.json",
+      "bytes": 12555,
+      "sha256": "7cd647705fe9bd0bd6b8c6e43d4d41e2c14172386f2bc35926d6e5602cd75969"
+    },
+    {
+      "file": "scenario-ledger.json",
+      "bytes": 104111,
+      "sha256": "f92b1076cb7939a662d2ebcf0d4db9cf3b1e84dbddb987b485ab910e9ecbc4c2"
+    },
+    {
+      "file": "scoring-verification.json",
+      "bytes": 67644,
+      "sha256": "bc8f0dba0fac9e351aab0f263551ad161b8942d3fc14743ec8a4b11957e54e03"
+    },
+    {
+      "file": "share-studio-download.json",
+      "bytes": 1878,
+      "sha256": "013f5a268dfa27780fc3e3811b14778fef11ed32dba7c1e3e820f03eb5b9ee94"
+    },
+    {
+      "file": "standings-after-four-rounds.png",
+      "bytes": 1991784,
+      "sha256": "b7508655b383e638d3825e6c0abb08453d002b082d887771e2a5da96ceab4759"
+    },
+    {
+      "file": "standings-mobile-scroll-x.png",
+      "bytes": 25948,
+      "sha256": "1b5aed5310a3669a3bed2100ce670630bb0578982131a1f55f8ac42e8b684064"
+    },
+    {
+      "file": "standings-mobile-scroll-y.png",
+      "bytes": 23864,
+      "sha256": "051dba34c5719cae261189892b09f00d7147d0703d57f913816834a1af672e70"
+    },
+    {
+      "file": "team-controls-verified.json",
+      "bytes": 6854,
+      "sha256": "cde527a4ef71f0d1714268e3239e496396c9a7aa36fd637814a6a8ed0a49f041"
+    },
+    {
+      "file": "team-final-controls.json",
+      "bytes": 258,
+      "sha256": "87ade8834e21fcf497ead4050d186d1ebb1fad078553e4df77769deff2ad1446"
+    },
+    {
+      "file": "team-fourrounds.json",
+      "bytes": 5508,
+      "sha256": "dbc8fb41cffc8000bab758a93aa1c86415398b18565dee383d0df8f95eef545a"
+    },
+    {
+      "file": "team-responsive-1024.png",
+      "bytes": 634517,
+      "sha256": "5d4069ac8f3340439a58de86b96743d602398024e77bce8cf80b355ce1e6643e"
+    },
+    {
+      "file": "team-responsive-1280.png",
+      "bytes": 643153,
+      "sha256": "43ce76c5d6ab6444a180d9d929251feab2d992e0bb6ef78aa96ec31e8dc95f98"
+    },
+    {
+      "file": "team-responsive-1440.png",
+      "bytes": 725399,
+      "sha256": "442656a572e09d3a66b6e264f7c21c2580ff9f5c7019bed441952dd5ac4eb4bf"
+    },
+    {
+      "file": "team-responsive-320.png",
+      "bytes": 372920,
+      "sha256": "d265c019862692c02bb608f0a9fb895e03c275ecf54e7ab0c761a6fa20750e5a"
+    },
+    {
+      "file": "team-responsive-360.png",
+      "bytes": 392584,
+      "sha256": "157f691445df52135e7f2077c15e7daa6cd706ba0a75162cf6280d2dd1d39db7"
+    },
+    {
+      "file": "team-responsive-390.png",
+      "bytes": 406346,
+      "sha256": "e181852340a3b44a16020db8a2be9dfb2c1748e4b838a57a3d1a60aded9885a2"
+    },
+    {
+      "file": "team-responsive-430.png",
+      "bytes": 436967,
+      "sha256": "90e748a9579f7bc8f46b34bc428a8111141826f81099e66c601c07088aff0b10"
+    },
+    {
+      "file": "team-responsive-768.png",
+      "bytes": 563513,
+      "sha256": "b5089f697e7de452e784e4ab976d7318d8c1fa307c1808301c38a4e3836e79d6"
+    },
+    {
+      "file": "team_team_career.png",
+      "bytes": 213442,
+      "sha256": "bd68e943af1ddca49e588e4f9142f16244dff81251fc1468354753623d7aefe6"
+    },
+    {
+      "file": "team_team_comparison.png",
+      "bytes": 100168,
+      "sha256": "c6cc608d8fc9f4a02a9e9350b80a9b16f9d33cbafd3d4e0159205466b53655fa"
+    },
+    {
+      "file": "team_team_disputes.png",
+      "bytes": 36437,
+      "sha256": "8c828184134e2fec4e9a9cd9f0d038c110544969267ff0e0bfca9c05328e6c24"
+    },
+    {
+      "file": "team_team_history.png",
+      "bytes": 624900,
+      "sha256": "8dad94079e823af4fa19c09dd176bea9e50434e1e5539573df0c2b8f7691e9d5"
+    },
+    {
+      "file": "team_team_invitations.png",
+      "bytes": 69876,
+      "sha256": "45ae1d23289adb949449eaacf2c40dfba9e65528f1be5789ea0ad19327fc44ff"
+    },
+    {
+      "file": "team_team_roster-requests.png",
+      "bytes": 80854,
+      "sha256": "cb715ad16ae671524001063043a4a15e6f0f554a7ae72bea5fac943730c67d48"
+    },
+    {
+      "file": "team_team_roster.png",
+      "bytes": 51420,
+      "sha256": "ce7c47b0c9eb4c5a200dbf935dc4c2dce9a41bf1b5b4131bfa3ab771db61790f"
+    },
+    {
+      "file": "team_team_tournaments.png",
+      "bytes": 260181,
+      "sha256": "290ddf093146e06ba5c3a34818bca3a7c797bb8080ac0ade8dddd56ee658f16c"
+    },
+    {
+      "file": "workspace-integrity.txt",
+      "bytes": 369,
+      "sha256": "84ad042801521e82a8f939e516b1b5380050e9471da898016f217059b2165725"
+    }
+  ]
+}

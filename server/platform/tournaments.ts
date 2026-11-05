@@ -1,11 +1,11 @@
 import { internationalFormula, scoreMatch } from '../../src/utils/scoring';
 import {captureStandings} from './standings';
 import {z} from 'zod';
-import type {Sql} from 'postgres';
+import type {Sql,TransactionSql} from 'postgres';
 import type {Actor} from './repository';
 import {ServiceError} from '../errors';
 import {text} from '../validation/input';
-import {audit,idempotent,notify,transaction} from './competition';
+import {audit,idempotent,notify,notifyTeams,transaction} from './competition';
 export const tournamentInput=z.object({name:text(2,120),shortName:text(2,50),description:text(0,3000),startsAt:z.iso.datetime({offset:true}),endsAt:z.iso.datetime({offset:true}),registrationOpensAt:z.iso.datetime({offset:true}),registrationDeadline:z.iso.datetime({offset:true}),checkInOpensAt:z.iso.datetime({offset:true}),checkInClosesAt:z.iso.datetime({offset:true}),maxSlots:z.number().int().min(1).max(100),rules:z.array(text(1,500)).max(50),rounds:z.array(z.object({id:z.uuid().optional(),map:z.enum(['Erangel','Miramar','Rondo']),startsAt:z.iso.datetime({offset:true})})).min(1).max(20)}).strict();
 export const editTournamentInput=tournamentInput.extend({expectedUpdatedAt:z.iso.datetime({offset:true}),status:z.enum(['draft','published','registration-open','ongoing','completed'])});
 type Input=z.infer<typeof tournamentInput>;
@@ -20,7 +20,7 @@ export async function createTournament(sql:Sql,actor:Actor,input:Input,key?:stri
  for(const [index,r] of input.rounds.entries())await tx`insert into aevic.matches(tournament_id,round,map,scheduled_at,room_release_at) values(${id},${index+1},${r.map},${r.startsAt},${r.startsAt}::timestamptz-interval '10 minutes')`;
  await audit(tx,actor,'tournament.create','tournament',id);return{id};
 });}
-export async function editTournament(sql:Sql,actor:Actor,id:string,input:z.infer<typeof editTournamentInput>){validate(input);return transaction(sql,async tx=>{
+export async function editTournament(sql:Sql,actor:Actor,id:string,input:z.infer<typeof editTournamentInput>,key?:string){validate(input);const work=async (tx:TransactionSql)=>{
  const [t]=await tx`select * from aevic.tournaments where id=${id} for update`;if(!t)throw new ServiceError(404,'TOURNAMENT_NOT_FOUND');
  if(new Date(t.updated_at).getTime()!==Date.parse(input.expectedUpdatedAt))throw new ServiceError(409,'STALE_VERSION');
  const transitions:Record<string,string[]>={draft:['draft','published'],published:['published','registration-open'], 'registration-open':['registration-open','ongoing'],ongoing:['ongoing','completed'],completed:[],cancelled:[]};
@@ -35,8 +35,9 @@ export async function editTournament(sql:Sql,actor:Actor,id:string,input:z.infer
  for(const r of input.rounds)await tx`update aevic.matches set map=${r.map},scheduled_at=${r.startsAt},room_release_at=${r.startsAt}::timestamptz-interval '10 minutes',updated_at=now() where id=${r.id!} and published_at is null`;
  await audit(tx,actor,'tournament.update','tournament',id,{status:input.status});
  const entries=await tx`select team_id::text from aevic_platform.tournament_registrations where tournament_id=${id} and status in ('pending','confirmed')`;
- for(const e of entries)await notify(tx,e.team_id,'Turnir yeniləndi',input.name,`/team/tournaments/${id}`);
-});}
+ await notifyTeams(tx,entries.map(e=>e.team_id),'Turnir yeniləndi',input.name,`/team/tournaments/${id}`);
+ return {id};
+};return key ? idempotent(sql,actor,key,'tournament.update',{id,...input},work) : transaction(sql,work);}
 export const resultInput=z.object({id:z.string().optional(),tournamentId:z.uuid(),roundId:z.uuid(),teamId:z.string().regex(/^[1-9]\d{0,18}$/),placement:z.number().int().min(1).max(100),finishes:z.number().int().min(0).max(400),placementPoints:z.number().nonnegative(),finishPoints:z.number().nonnegative(),penalties:z.number().nonnegative().max(1000),totalPoints:z.number(),notes:text(0,3000).optional(),published:z.boolean()}).strict();
 type Result=z.infer<typeof resultInput>;
 export async function saveResults(sql:Sql,actor:Actor,roundId:string,entries:Result[]){return transaction(sql,async tx=>{
@@ -61,10 +62,11 @@ export async function publishMatch(sql:Sql,actor:Actor,matchId:string){return tr
  if(t.status!=='ongoing')throw new ServiceError(409,'TOURNAMENT_NOT_ONGOING');
  const entries=await tx`select team_id::text from aevic_platform.tournament_registrations where tournament_id=${m.tournament_id} and status='confirmed' for share`;
  const results=await tx`select * from aevic_platform.team_match_results where match_id=${matchId} for update`;
- if(!entries.length||results.length!==entries.length||entries.some(e=>!results.some(r=>String(r.team_id)===e.team_id))||new Set(results.map(r=>r.placement)).size!==results.length)throw new ServiceError(409,'INCOMPLETE_RESULTS');
+ if(!entries.length||results.length!==entries.length||entries.some(e=>!results.some(r=>String(r.team_id)===e.team_id)))throw new ServiceError(409,'INCOMPLETE_RESULTS');
+ if(new Set(results.map(r=>r.placement)).size!==results.length)throw new ServiceError(409,'DUPLICATE_PLACEMENT');
  await tx`update aevic_platform.team_match_results set published=true,updated_at=now() where match_id=${matchId}`;
  await tx`update aevic.matches set published_at=now(),status='completed',dispute_deadline_at=now()+${t.dispute_duration_minutes}*interval '1 minute',updated_at=now() where id=${matchId}`;
- for(const e of entries)await notify(tx,e.team_id,'Nəticələr dərc edildi',`${t.name} · ${m.round}. raund`,`/team/tournaments/${m.tournament_id}`,'map-result');
+ await notifyTeams(tx,entries.map(e=>e.team_id),'Nəticələr dərc edildi',`${t.name} · ${m.round}. raund`,`/team/tournaments/${m.tournament_id}`,'map-result');
  await captureStandings(tx,m.tournament_id,matchId,'publication');
  await audit(tx,actor,'results.publish','match',matchId);
 });}

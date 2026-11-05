@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { fromBase32, totp } from '../../server/platform/totp';
 const origin='http://127.0.0.1:4194';
+test.beforeEach(async({context},info)=>{await context.setExtraHTTPHeaders({'x-nf-client-connection-ip':`198.51.100.${20+[...info.title].reduce((n,c)=>n+c.charCodeAt(0),0)%70}`});});
 const credentials={email:'captain101@example.invalid',password:'IsolatedBrowser42'};
 async function login(page:any){
  await page.goto('/login/?returnTo=%2Fteam');
@@ -53,7 +54,7 @@ test('real MFA rejects wrong password/code, enrolls, enforces login and consumes
  await page.getByLabel('6 rəqəmli OTP').fill(code);
  const verified=page.waitForResponse(r=>r.url().endsWith('/api/me/2fa/setup/verification'));
  await page.getByRole('button',{name:'Kodu təsdiqlə'}).click();const recovery=await(await verified).json();expect(recovery.codes).toHaveLength(10);
- await page.reload();await expect(page.getByRole('button',{name:'2FA aktivdir',exact:true})).toBeVisible();
+ await page.reload();await expect(page.getByRole('heading',{name:'Aktivdir',exact:true})).toBeVisible();
  const other=await browser.newContext({baseURL:origin});
  expect((await other.request.post('/api/auth/login',{headers:{origin},data:credentials})).status()).toBe(401);
  expect((await other.request.post('/api/auth/login',{headers:{origin},data:{...credentials,otp:recovery.codes[0]}})).status()).toBe(200);

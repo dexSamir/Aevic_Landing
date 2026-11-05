@@ -1,0 +1,137 @@
+- generic [ref=e3]:
+  - link "Əsas məzmuna keç":
+    - /url: "#main-content"
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "AEVIC Esports ana səhifə" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e9]: AEVIC Esports
+      - navigation "Əsas naviqasiya" [ref=e11]:
+        - link "Ana səhifə" [ref=e12] [cursor=pointer]:
+          - /url: /
+        - link "Turnirlər" [ref=e14] [cursor=pointer]:
+          - /url: /tournaments
+        - link "Komandalar" [ref=e16] [cursor=pointer]:
+          - /url: /teams
+        - link "Matçlar" [ref=e18] [cursor=pointer]:
+          - /url: /matches
+      - generic [ref=e20]:
+        - link "Yarış qaydaları" [ref=e21] [cursor=pointer]:
+          - /url: /regulations
+          - generic [ref=e25]: Qaydalar
+        - status "Sessiya yoxlanılır" [ref=e28]: Hesab yoxlanılır…
+  - main [ref=e29]:
+    - generic [ref=e30]:
+      - generic [ref=e35]:
+        - generic [ref=e37]:
+          - generic [ref=e38]: AZƏRBAYCAN · PUBG MOBILE · AEVIC
+          - heading [level=1] [ref=e39]:
+            - text: Rəqabətin
+            - emphasis [ref=e40]: yeni səhnəsi.
+          - paragraph [ref=e41]: Turnirlər, komandalar, oyunçular və daha böyük bir e-sport ekosistemi.
+          - link "Turnirləri kəşf et" [ref=e43] [cursor=pointer]:
+            - /url: /tournaments
+        - status "Məlumat yüklənir" [ref=e48]
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - generic [ref=e76]: //TURNİR TƏQVİMİ
+            - heading [level=2] [ref=e77]:
+              - text: Yaxın
+              - emphasis [ref=e78]: turnirlər.
+            - paragraph [ref=e79]: Növbəti vacib turnirləri qaçırma.
+          - link "Bütün turnirlər" [ref=e80] [cursor=pointer]:
+            - /url: /tournaments
+        - generic [ref=e83]:
+          - status "Məlumat yüklənir" [ref=e85]
+          - status "Məlumat yüklənir" [ref=e107]
+      - generic [ref=e234]:
+        - generic [ref=e235]:
+          - generic [ref=e236]:
+            - generic [ref=e237]: XƏRİTƏLƏR
+            - heading "Hər xəritə, yeni hekayə." [level=2] [ref=e238]: Hər xəritə,yeni hekayə.
+          - paragraph [ref=e239]: Fərqli arenalarda fərqli sınaqlar.
+        - region "PUBG Mobile xəritələri" [ref=e240]:
+          - list "PUBG Mobile xəritələri" [ref=e241]:
+            - listitem [ref=e242]:
+              - generic [ref=e243]:
+                - generic [aria-hidden]: "01"
+                - strong [ref=e248]: Erangel
+            - listitem [ref=e249]:
+              - generic [ref=e250]:
+                - generic [aria-hidden]: "02"
+                - strong [ref=e255]: Miramar
+            - listitem [ref=e256]:
+              - generic [ref=e257]:
+                - generic [aria-hidden]: "03"
+                - strong [ref=e262]: Rondo
+            - listitem [ref=e263]:
+              - generic [ref=e264]:
+                - generic [aria-hidden]: "04"
+                - strong [ref=e269]: Erangel
+      - generic [ref=e271]:
+        - generic [ref=e272]:
+          - generic [ref=e273]:
+            - generic [ref=e274]: TOP KOMANDALAR
+            - heading "Səhnədəki güclər." [level=2] [ref=e275]
+          - link "Bütün komandalar" [ref=e276] [cursor=pointer]:
+            - /url: /teams
+        - status "Məlumat yüklənir" [ref=e280]
+  - contentinfo "AEVIC Esports" [ref=e303]:
+    - generic [ref=e304]:
+      - generic [ref=e305]:
+        - paragraph [ref=e306]: Turnirlər.Komandalar.Oyunçular.
+        - paragraph [ref=e307]: Rəqabətinyeni səhnəsi.
+        - paragraph [ref=e308]: Azərbaycandandünya səhnəsinə.
+        - link "BİZİ İZLƏ" [ref=e309] [cursor=pointer]:
+          - /url: "#_R_b7_"
+      - paragraph [ref=e313]:
+        - generic [ref=e314]: Gəlin e-sportun gələcəyini birlikdə quraq.
+        - link "aevicesports@gmail.com" [ref=e315] [cursor=pointer]:
+          - /url: mailto:aevicesports@gmail.com
+      - generic [ref=e316]:
+        - generic [ref=e317]:
+          - heading "(a.) ƏLAQƏ" [level=2] [ref=e318]
+          - link "aevicesports@gmail.com" [ref=e319] [cursor=pointer]:
+            - /url: mailto:aevicesports@gmail.com
+        - navigation "AEVIC sosial şəbəkələri" [ref=e323]:
+          - heading "(b.) SOSİAL ŞƏBƏKƏLƏR" [level=2] [ref=e324]
+          - generic [ref=e325]:
+            - link "Instagram (yeni pəncərədə açılır)" [ref=e326] [cursor=pointer]:
+              - /url: https://www.instagram.com/aevicesports
+              - text: Instagram
+              - generic [ref=e330]: (yeni pəncərədə açılır)
+            - link "TikTok (yeni pəncərədə açılır)" [ref=e331] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@aevicesports
+              - text: TikTok
+              - generic [ref=e335]: (yeni pəncərədə açılır)
+            - link "LinkedIn (yeni pəncərədə açılır)" [ref=e336] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/109203444/
+              - text: LinkedIn
+              - generic [ref=e340]: (yeni pəncərədə açılır)
+            - link "X (yeni pəncərədə açılır)" [ref=e341] [cursor=pointer]:
+              - /url: https://x.com/aevicesports
+              - text: X
+              - generic [ref=e345]: (yeni pəncərədə açılır)
+        - navigation "Alt naviqasiya" [ref=e346]:
+          - heading "(c.) SƏHİFƏLƏR" [level=2] [ref=e347]
+          - generic [ref=e348]:
+            - link "Ana səhifə" [ref=e349] [cursor=pointer]:
+              - /url: /
+            - link "Turnirlər" [ref=e350] [cursor=pointer]:
+              - /url: /tournaments
+            - link "Komandalar" [ref=e351] [cursor=pointer]:
+              - /url: /teams
+            - link "Matçlar" [ref=e352] [cursor=pointer]:
+              - /url: /matches
+        - navigation "Hüquqi keçidlər" [ref=e353]:
+          - heading "(d.) QAYDALAR" [level=2] [ref=e354]
+          - link "İstifadə şərtləri" [ref=e355] [cursor=pointer]:
+            - /url: /terms
+          - link "Məxfilik siyasəti" [ref=e356] [cursor=pointer]:
+            - /url: /privacy
+          - link "Qaydalar" [ref=e357] [cursor=pointer]:
+            - /url: /regulations
+      - generic [ref=e358]:
+        - generic [ref=e359]: © 2026 AEVIC Esports
+        - generic [ref=e360]: AD AETERNAM VICTORIAM

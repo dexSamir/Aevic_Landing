@@ -1,5 +1,5 @@
 import { SkipLink } from '../components/common/SkipLink';
-import { SkeletonBlock } from '../components/common/LoadingSkeleton';
+import { RouteSkeleton, SkeletonBlock } from '../components/common/LoadingSkeleton';
 import { useState, type ReactNode } from 'react';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { TournamentCommandSkeleton } from '../features/tournament-command/TournamentCommandSkeleton';
@@ -8,15 +8,15 @@ import { BrandEmblem } from '../components/brand/BrandMark';
 import './team-workspace-frame.css';
 
 /** Shared geometry for session resolution, data resolution and the ready workspace. */
-export function TeamWorkspaceFrame({ sidebar, header, children, overlays, busy = false }: {
-  sidebar: ReactNode; header: ReactNode; children: ReactNode; overlays?: ReactNode; busy?: boolean;
+export function TeamWorkspaceFrame({ sidebar, header, children, overlays, busy = false, area = 'team' }: {
+  sidebar: ReactNode; header: ReactNode; children: ReactNode; overlays?: ReactNode; busy?: boolean; area?: 'team' | 'admin';
 }) {
-  const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem('aevic:desktop-sidebar-collapsed') === 'true'; } catch { return false; } });
-  const toggle = () => { const next = !collapsed; setCollapsed(next); try { localStorage.setItem('aevic:desktop-sidebar-collapsed', String(next)); } catch { /* Session-only state when storage is unavailable. */ } };
-  return <div data-sidebar-collapsed={collapsed || undefined} className="product-shell product-shell--team team-workspace-frame" aria-busy={busy || undefined}>
+  const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem(area === 'team' ? 'aevic:desktop-sidebar-collapsed' : 'aevic:admin:desktop-sidebar-collapsed') === 'true'; } catch { return false; } });
+  const toggle = () => { const next = !collapsed; setCollapsed(next); try { localStorage.setItem(area === 'team' ? 'aevic:desktop-sidebar-collapsed' : 'aevic:admin:desktop-sidebar-collapsed', String(next)); } catch { /* Session-only state when storage is unavailable. */ } };
+  return <div data-sidebar-collapsed={collapsed || undefined} className={`product-shell product-shell--${area} team-workspace-frame`} aria-busy={busy || undefined}>
     <SkipLink target="main-content" />
-    <button type="button" className="icon-button workspace-desktop-toggle" aria-label={collapsed ? 'Yan paneli genişləndir' : 'Yan paneli yığ'} aria-expanded={!collapsed} aria-controls="team-desktop-sidebar" onClick={toggle}>{collapsed ? <PanelLeftOpen size={19} /> : <PanelLeftClose size={19} />}</button>
-    <aside id="team-desktop-sidebar" className="product-sidebar">{sidebar}</aside>
+    <button type="button" className="icon-button workspace-desktop-toggle" aria-label={collapsed ? 'Yan paneli genişləndir' : 'Yan paneli yığ'} aria-expanded={!collapsed} aria-controls={`${area}-desktop-sidebar`} onClick={toggle}>{collapsed ? <PanelLeftOpen size={19} /> : <PanelLeftClose size={19} />}</button>
+    <aside id={`${area}-desktop-sidebar`} className="product-sidebar">{sidebar}</aside>
     <div className="product-main">{header}<main id="main-content" className="product-page" tabIndex={-1}>{children}</main></div>
     {overlays}
   </div>;
@@ -47,4 +47,12 @@ export function TeamWorkspacePlaceholder({ children, phase = 'context' }: { chil
       <div className="workspace-pending-columns">{[4, 3].map((count, index) => <div className="workspace-pending-panel" key={index}><Placeholder kind="label" />{Array.from({ length: count }, (_, row) => <div className="workspace-pending-row" key={row}><Placeholder kind="icon" /><Placeholder /><Placeholder kind="short" /></div>)}</div>)}</div>
     </div>
   </div>)}</TeamWorkspaceFrame>;
+}
+
+/** Admin loading states keep the same chrome geometry as the authorized workspace. */
+export function AdminWorkspacePlaceholder({children}:{children?:ReactNode}) {
+ const {pathname}=useLocation();
+ return <TeamWorkspaceFrame area="admin" busy={!children} sidebar={<PendingSidebar loading={!children}/>} header={<header className="product-topbar"><div className="workspace-pending-header"><BrandEmblem/><span>Admin iş sahəsi</span></div></header>}>
+  {children ?? <RouteSkeleton path={pathname}/>}
+ </TeamWorkspaceFrame>;
 }

@@ -28,7 +28,7 @@ import {execFileSync} from 'node:child_process';
 import {readdirSync} from 'node:fs';
 import postgres from 'postgres';
 import {createClient} from '@supabase/supabase-js';
-import {joinTournament,reviewEntry,checkIn,room} from '../../server/platform/competition';
+import {joinTournament,reviewEntry,checkIn,room,withdraw} from '../../server/platform/competition';
 import {createTournament,editTournament,saveResults,publishMatch} from '../../server/platform/tournaments';
 import {randomBytes} from 'node:crypto';
 import {inspectAdminReset,consumeAdminReset} from '../../server/platform/admin-recovery';
@@ -416,6 +416,23 @@ describe('original-team competition persistence',()=>{
   expect(await sql`select id from public.teams where email='closed@example.invalid'`).toHaveLength(0);
 
  });
+ it('rejects banned and incomplete entrants and persists rejection and withdrawal',async()=>{
+  const created=await createTournament(sql,actor,{...input(),registrationDeadline:at(10),checkInOpensAt:at(11)},'qa-eligibility-withdrawal');
+  await sql`update aevic.tournaments set status='registration-open' where id=${created.id}`;
+  try {
+   await sql`update public.teams set status='banned' where id=3`;
+   await expect(joinTournament(sql,'3',created.id)).rejects.toMatchObject({code:'TEAM_NOT_APPROVED'});
+   await sql`update public.teams set status='approved',player4_ign='' where id=3`;
+   await expect(joinTournament(sql,'3',created.id)).rejects.toMatchObject({code:'ROSTER_INCOMPLETE'});
+  } finally {await sql`update public.teams set status='approved',player4_ign='Fourth' where id=3`;}
+  await joinTournament(sql,'1',created.id);await reviewEntry(sql,actor,created.id,'1','rejected','QA rejection');
+  expect((await sql`select status from aevic_platform.tournament_registrations where tournament_id=${created.id} and team_id=1`)[0].status).toBe('rejected');
+  await joinTournament(sql,'1',created.id);await withdraw(sql,'1',created.id,'QA withdrawal');
+  expect((await sql`select status,slot_number from aevic_platform.tournament_registrations where tournament_id=${created.id} and team_id=1`)[0]).toMatchObject({status:'withdrawn',slot_number:null});
+  await joinTournament(sql,'2',created.id);await reviewEntry(sql,actor,created.id,'2','confirmed');
+  await sql`update aevic.tournaments set registration_deadline=now()-interval '10 minutes',check_in_opens_at=now()-interval '5 minutes',check_in_closes_at=now()-interval '1 minute' where id=${created.id}`;
+  await expect(checkIn(sql,'2',created.id)).rejects.toMatchObject({code:'CHECK_IN_CLOSED'});
+ });
  it('creates draft once and rejects idempotent payload changes',async()=>{
   const draft=input();const first=await createTournament(sql,actor,draft,'same-create-key'),second=await createTournament(sql,actor,draft,'same-create-key');expect(second.id).toBe(first.id);
   await expect(createTournament(sql,actor,{...draft,name:'Changed'},'same-create-key')).rejects.toMatchObject({code:'IDEMPOTENCY_CONFLICT'});
@@ -463,6 +480,7 @@ describe('original-team competition persistence',()=>{
   await saveResults(sql,actor,matchId,[draft(entries[0].team_id,1)]);
   await expect(publishMatch(sql,actor,matchId)).rejects.toMatchObject({code:'INCOMPLETE_RESULTS'});
   expect(await new PlatformRepository(client,sql).history()).toEqual([]);
+  await saveResults(sql,actor,matchId,[draft(entries[1].team_id,1)]);await expect(publishMatch(sql,actor,matchId)).rejects.toMatchObject({code:'DUPLICATE_PLACEMENT'});
   await saveResults(sql,actor,matchId,[draft(entries[1].team_id,2)]);await publishMatch(sql,actor,matchId);
   const repository=new PlatformRepository(client,sql);
   expect((await repository.tournament(tournamentId)).pointFormula.presetId).toBe('pubgm-international-v1');
@@ -476,10 +494,21 @@ describe('original-team competition persistence',()=>{
   const before=await repository().standingSnapshots(tournamentId);expect(before).toHaveLength(1);expect(before[0].standings[0].totalPoints).toBe(14);
   const [r]=await sql`select *,team_id::text from aevic_platform.team_match_results where match_id=${matchId} and placement=1`;
   const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,actor));await next();});app.route('/',staffRoutes);
+  const baseline=await (await app.request(`/admin/results/${r.id}`)).json();expect(baseline.version).toBe(1);expect(baseline.totalPoints).toBe(14);
+  expect(await (await app.request(`/admin/results/${r.id}/versions`)).json()).toEqual([]);
   const response=await app.request(`/admin/results/${r.id}/corrections`,{method:'POST',headers:{'content-type':'application/json','idempotency-key':'fixture-result-correction'},body:JSON.stringify({expectedVersion:1,reason:'Fixture penalty correction with preserved prior standings.',result:{id:r.id,tournamentId,roundId:matchId,teamId:r.team_id,placement:1,finishes:4,placementPoints:10,finishPoints:4,penalties:1,totalPoints:13,published:true}})});
   expect(response.status).toBe(200);
   const after=await repository().standingSnapshots(tournamentId);expect(after).toHaveLength(2);expect(after[0]).toEqual(before[0]);expect(after[1].standings[0].totalPoints).toBe(13);
   const [version]=await sql`select version,result from aevic_platform.result_versions where result_id=${r.id}`;expect(version.version).toBe(1);expect(version.result.totalPoints).toBe(14);
+  const current=await (await app.request(`/admin/results/${r.id}`)).json();expect(current.version).toBe(2);expect(current.totalPoints).toBe(13);
+  const {version:expectedVersion,...result}=current;
+  const correction={expectedVersion,reason:'Second correction restores the official penalty.',result:{...result,penalties:0}};
+  const options={method:'POST',headers:{'content-type':'application/json','idempotency-key':'fixture-result-correction-second'},body:JSON.stringify(correction)};
+  const second=await app.request(`/admin/results/${r.id}/corrections`,options);expect(second.status).toBe(200);expect(await second.json()).toMatchObject({version:3,totalPoints:14});
+  expect((await app.request(`/admin/results/${r.id}/corrections`,options)).status).toBe(200);
+  const history=await (await app.request(`/admin/results/${r.id}/versions`)).json();expect(history.map((v:{version:number})=>v.version)).toEqual([2,1]);expect(history[0].dataSnapshot.totalPoints).toBe(13);
+  expect(await repository().standingSnapshots(tournamentId)).toHaveLength(3);
+
  });
  it('isolates private records and rejects stale lifecycle updates',async()=>{
   await sql`insert into aevic_platform.support_tickets(user_id,category,subject,description) values(1,'technical','Private case','Team one confidential description')`;

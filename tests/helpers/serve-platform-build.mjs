@@ -25,7 +25,7 @@ try{
  vite=await createVite({configFile:false,server:{middlewareMode:true},appType:'custom'});
  const {hashPassword}=await vite.ssrLoadModule('/server/captain/crypto.ts');
  const password=await hashPassword('IsolatedBrowser42');
- for(const id of [101,102])await sql`insert into public.teams(id,team_name,captain_name,captain_contact,email,password_hash,player1_ign,player2_ign,player3_ign,player4_ign,status) values(${id},${'Isolated Team '+id},'Test Captain','000000',${'captain'+id+'@example.invalid'},${password},'One','Two','Three','Four','approved')`;
+ for(const id of [101,102,...Array.from({length:17},(_,i)=>201+i)])await sql`insert into public.teams(id,team_name,captain_name,captain_contact,email,password_hash,player1_ign,player2_ign,player3_ign,player4_ign,status) values(${id},${'Isolated Team '+id},'Test Captain','000000',${'captain'+id+'@example.invalid'},${password},'One','Two','Three','Four','approved')`;
  await sql`insert into aevic_platform.accounts(id,original_team_id,email_verified_at) select id,id,now() from public.teams`;
  await sql`insert into aevic_platform.team_authority(team_id,account_id,role) select id,id,'OWNER' from public.teams`;
  await sql`insert into aevic_platform.admin_accounts(id,email,password_hash,role) values('11111111-1111-4111-8111-111111111111','admin@example.invalid',${password},'super-admin')`;

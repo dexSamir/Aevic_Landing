@@ -1,3 +1,4 @@
+import { ApiError } from '../../services/apiError';
 import { useState,type FormEvent } from "react";
 import {
 Button,
@@ -25,6 +26,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
       .slice(0, 16);
   };
   if (!tournament) return null;
+  const scheduleReady = rounds.length === tournament.days * tournament.roundsPerDay && rounds.length > 0;
   const locked =
     Date.now() >= Date.parse(tournament.registrationDeadline) ||
     ["ongoing", "completed", "cancelled"].includes(tournament.status);
@@ -33,7 +35,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
   const statusLabels:Record<string,string> = {draft:'Qaralama',published:'Dərc edilib','registration-open':'Qeydiyyat açıqdır',ongoing:'Davam edir',completed:'Tamamlandı',cancelled:'Ləğv edildi'};
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (busy || terminal || !tournament.updatedAt) return;
+    if (busy || terminal || !scheduleReady || !tournament.updatedAt) return;
     setBusy(true);
     setNotice("");
     const data = new FormData(e.currentTarget);
@@ -85,7 +87,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
           "code" in error &&
           ["TOURNAMENT_VERSION_CONFLICT","STALE_VERSION"].includes(String(error.code))
           ? "Turnir başqa administrator tərəfindən dəyişdirilib. Məlumatları yeniləyib yenidən cəhd edin."
-          : "Dəyişiklik saxlanılmadı. İcazəni, vaxtları və cədvəlin kilid vəziyyətini yoxlayın.",
+          : error instanceof ApiError ? error.message : "Dəyişiklik saxlanılmadı. İcazəni, vaxtları və cədvəlin kilid vəziyyətini yoxlayın.",
       );
     } finally {
       setBusy(false);
@@ -94,6 +96,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
   return (
     <details className="operation-form">
       <summary>Turniri redaktə et</summary>
+      {!scheduleReady && <p role="status">Raund cədvəli yüklənir. Redaktə üçün cədvəlin tam yüklənməsini gözləyin.</p>}
       {notice && <p role="status">{notice}</p>}
       <form key={tournament.updatedAt} onSubmit={submit}>
         <div className="form-grid">
@@ -195,7 +198,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
         <Button
           type="submit"
           loading={busy}
-          disabled={!tournament.updatedAt || terminal}
+          disabled={!tournament.updatedAt || terminal || !scheduleReady}
         >
           Dəyişiklikləri saxla
         </Button>

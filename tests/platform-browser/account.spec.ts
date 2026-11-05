@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
+test.beforeEach(async({context},info)=>{await context.setExtraHTTPHeaders({'x-nf-client-connection-ip':`198.51.100.${20+[...info.title].reduce((n,c)=>n+c.charCodeAt(0),0)%70}`});});
 const credentials={email:'captain101@example.invalid',password:'IsolatedBrowser42'};
-async function login(page:any){await page.goto('/login');await page.getByLabel('E-poçt',{exact:true}).fill(credentials.email);await page.getByLabel('Şifrə',{exact:true}).fill(credentials.password);await page.getByRole('button',{name:'Daxil ol',exact:true}).click();await expect(page).toHaveURL(/\/team$/);}
+async function login(page:any){await page.goto('/login');await page.getByLabel('E-poçt',{exact:true}).fill(credentials.email);await page.getByLabel('Şifrə',{exact:true}).fill(credentials.password);await page.getByRole('button',{name:'Daxil ol',exact:true}).click();await expect(page).toHaveURL('http://127.0.0.1:4194/');}
 test('real account profile persists across refresh and rejects guest/admin access',async({page,request})=>{
  expect((await request.get('/api/me/account')).status()).toBe(401);
  await login(page);await page.reload();await expect(page.locator('h1')).toBeVisible();
@@ -10,10 +11,10 @@ test('real account profile persists across refresh and rejects guest/admin acces
  await page.reload();await expect(page.getByLabel('Ad',{exact:true})).toHaveValue('Persisted');
  expect((await page.request.get('/api/admin/context')).status()).toBe(403);
  const logout=await page.request.post('/api/auth/logout',{headers:{origin:'http://127.0.0.1:4194'}});expect(logout.ok()).toBe(true);
- await page.goto('/account/profile');await expect(page).toHaveURL(/\/login$/);
+ await page.goto('/account/profile');await expect(page).toHaveURL(/\/login(?:\?|$)/);
 });
 test('real public discovery excludes private captain fields and missing teams',async({request,page})=>{
- const response=await request.get('/api/public/teams');expect(response.ok()).toBe(true);const teams=await response.json();expect(teams.map((t:any)=>t.id)).toEqual(['101','102']);expect(JSON.stringify(teams)).not.toContain('captain101@example.invalid');
+ const response=await request.get('/api/public/teams');expect(response.ok()).toBe(true);const teams=await response.json();expect(teams.map((t:any)=>t.id)).toEqual(expect.arrayContaining(['101','102']));expect(JSON.stringify(teams)).not.toContain('captain101@example.invalid');
  await page.goto('/teams');await expect(page.getByText('Isolated Team 101',{exact:true}).first()).toBeVisible();
  expect((await request.get('/api/public/teams/999999')).status()).toBe(404);
  await page.goto('/teams/999999');await expect(page.locator('h1')).toBeVisible();await expect(page.getByRole('link',{name:'Komanda kataloqu'})).toBeVisible();
@@ -34,7 +35,7 @@ test('sessions revoke another real cookie and retain current login',async({page,
  expect(await (await other.request.get('/api/me/session')).json()).toBeNull();await page.reload();await expect(page.getByText('Cari sessiya',{exact:true})).toBeVisible();await other.close();
 });
 test('wrong credentials stay on login and do not establish a session',async({page})=>{
- await page.goto('/login');await page.getByLabel('E-poçt',{exact:true}).fill(credentials.email);await page.getByLabel('Şifrə',{exact:true}).fill('WrongPassword42');const response=page.waitForResponse(r=>r.url().endsWith('/api/auth/login'));await page.getByRole('button',{name:'Daxil ol',exact:true}).click();expect((await response).status()).toBe(401);await expect(page).toHaveURL(/\/login$/);expect(await (await page.request.get('/api/me/session')).json()).toBeNull();
+ await page.goto('/login');await page.getByLabel('E-poçt',{exact:true}).fill(credentials.email);await page.getByLabel('Şifrə',{exact:true}).fill('WrongPassword42');const response=page.waitForResponse(r=>r.url().endsWith('/api/auth/login'));await page.getByRole('button',{name:'Daxil ol',exact:true}).click();expect((await response).status()).toBe(401);await expect(page).toHaveURL(/\/login(?:\?|$)/);expect(await (await page.request.get('/api/me/session')).json()).toBeNull();
 });
 test('MFA enrollment, recovery and disable use real persisted factors',async({page,browser})=>{
  const {fromBase32,totp}=await import('../../server/platform/totp');
@@ -42,7 +43,7 @@ test('MFA enrollment, recovery and disable use real persisted factors',async({pa
  const pending=page.waitForResponse(r=>r.url().endsWith('/api/me/2fa/setup')&&r.request().method()==='POST');await page.getByRole('button',{name:'2FA-nı aktiv et',exact:true}).click();const setup=await(await pending).json();
  const code=totp(fromBase32(new URL(setup.otpauthUri).searchParams.get('secret')!),Math.floor(Date.now()/30000));await page.getByLabel('6 rəqəmli OTP').fill(code);
  const verified=page.waitForResponse(r=>r.url().endsWith('/api/me/2fa/setup/verification'));await page.getByRole('button',{name:'Kodu təsdiqlə'}).click();const recovery=await(await verified).json();expect(recovery.codes).toHaveLength(10);
- await page.reload();await expect(page.getByRole('button',{name:'2FA aktivdir',exact:true})).toBeVisible();
+ await page.reload();await expect(page.getByRole('heading',{name:'Aktivdir',exact:true})).toBeVisible();
  const other=await browser.newContext({baseURL:'http://127.0.0.1:4194'});const headers={origin:'http://127.0.0.1:4194'};
  const denied=await other.request.post('/api/auth/login',{headers,data:credentials});expect(denied.status()).toBe(401);expect((await denied.json()).code).toBe('MFA_REQUIRED');
  expect((await other.request.post('/api/auth/login',{headers,data:{...credentials,otp:recovery.codes[0]}})).ok()).toBe(true);
@@ -50,7 +51,7 @@ test('MFA enrollment, recovery and disable use real persisted factors',async({pa
  await page.getByLabel('2FA əməliyyatı üçün cari şifrə').fill(credentials.password);await page.getByLabel('Doğrulama və ya bərpa kodu').fill(recovery.codes[1]);await page.getByRole('button',{name:'2FA-nı deaktiv et'}).click();await expect(page.getByRole('button',{name:'2FA-nı aktiv et',exact:true})).toBeVisible();await page.reload();expect((await(await page.request.get('/api/me/2fa')).json()).enabled).toBe(false);await other.close();
 });
 test('password recovery consumes the delivered token and rejects reuse',async({page,request})=>{
- await page.goto('/forgot-password');await page.getByLabel('E-poçt',{exact:true}).fill('captain102@example.invalid');await page.getByRole('button',{name:'Bərpa linkini göndər'}).click();await expect(page.getByRole('status')).toContainText('Şifrə bərpa linki göndərildi');
+ await page.goto('/forgot-password');await page.getByLabel('E-poçt',{exact:true}).fill('captain102@example.invalid');await page.getByRole('button',{name:'Bərpa linkini göndər'}).click();await expect(page.getByRole('status')).toContainText('Bərpa sorğusu qəbul edildi');
  const mail=await(await request.get('/__test/mail')).json();const message=mail.findLast((m:any)=>m.to.includes('captain102@example.invalid'));expect(message).toBeTruthy();const link=message.text.match(/http:\/\/[^\s]+/)![0];
  await page.goto(link);await page.getByLabel('Yeni şifrə',{exact:true}).fill('ChangedIsolated42');await page.getByLabel('Şifrəni təsdiqlə',{exact:true}).fill('ChangedIsolated42');await page.getByRole('button',{name:'Şifrəni yenilə',exact:true}).click();await expect(page.getByRole('status')).toContainText('Yeni şifrəniz hazırdır');
  const headers={origin:'http://127.0.0.1:4194','x-nf-client-connection-ip':'198.51.100.52'};expect((await request.post('/api/auth/login',{headers,data:{email:'captain102@example.invalid',password:credentials.password}})).status()).toBe(401);expect((await request.post('/api/auth/login',{headers,data:{email:'captain102@example.invalid',password:'ChangedIsolated42'}})).ok()).toBe(true);

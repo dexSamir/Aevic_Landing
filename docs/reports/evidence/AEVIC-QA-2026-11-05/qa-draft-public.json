@@ -1,0 +1,16 @@
+[
+  {
+    "path": "/api/tournaments/19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+    "status": 404,
+    "data": {
+      "code": "TOURNAMENT_NOT_FOUND",
+      "message": "Sorğu tamamlanmadı.",
+      "requestId": "ea1c315d-0bd4-4713-a9ec-3fefb01d656b"
+    }
+  },
+  {
+    "path": "/api/tournaments",
+    "status": 200,
+    "data": []
+  }
+]

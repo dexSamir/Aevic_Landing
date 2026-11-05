@@ -1,7 +1,7 @@
 import { useOptionalPublicSession } from '../services/PublicSessionContext';
 import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { TeamWorkspacePlaceholder } from './TeamWorkspaceFrame';
+import { AdminWorkspacePlaceholder, TeamWorkspacePlaceholder } from './TeamWorkspaceFrame';
 import { BrandEmblem } from '../components/brand/BrandMark';
 import { RouteSkeleton } from '../components/common/LoadingSkeleton';
 import { EmptyState, Button } from '../components/common/primitives';
@@ -30,10 +30,10 @@ export function ProtectedRoute({ area, children }: { area: 'team' | 'admin' | 'a
   // A failed verification never authorizes entry based on a stale identity.
   if (query.error) {
     const content = <EmptyState heading="h1" title="Bağlantını yoxlayın" body="Hesab sessiyasını yoxlamaq mümkün olmadı. Bir az sonra yenidən cəhd edin." action={<Button disabled={query.retryAfterSeconds > 0} onClick={query.refetch}>{query.retryAfterSeconds > 0 ? `${query.retryAfterSeconds} san. sonra yoxla` : 'Yenidən yoxla'}</Button>} />;
-    return area === 'team' ? <TeamWorkspacePlaceholder>{content}</TeamWorkspacePlaceholder> : <main className="route-loading">{content}</main>;
+    return area === 'team' ? <TeamWorkspacePlaceholder>{content}</TeamWorkspacePlaceholder> : area === 'admin' ? <AdminWorkspacePlaceholder>{content}</AdminWorkspacePlaceholder> : <main className="route-loading">{content}</main>;
   }
   if (query.loading || query.refreshing) {
-    return area === 'team' ? <TeamWorkspacePlaceholder phase="session" /> : <main className="route-loading"><div className="route-loading__identity"><BrandEmblem decorative={false} /><span>AEVIC secure access</span></div><RouteSkeleton path={window.location.pathname}/></main>;
+    return area === 'team' ? <TeamWorkspacePlaceholder phase="session" /> : area === 'admin' ? <AdminWorkspacePlaceholder/> : <main className="route-loading"><div className="route-loading__identity"><BrandEmblem decorative={false} /><span>AEVIC secure access</span></div><RouteSkeleton path={window.location.pathname}/></main>;
   }
   const session = query.data;
   const accepted = area === 'admin' ? session?.role === 'admin' : area === 'account' ? Boolean(session) : Boolean(session && ['captain', 'team', 'admin'].includes(session.role));

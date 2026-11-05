@@ -1,3 +1,4 @@
+import { statusLabel } from '../../utils/statusLabels';
 import { useEffect,useState } from "react";
 import { Link,useParams } from "react-router-dom";
 import "../../app/workspaceStyles";
@@ -105,7 +106,7 @@ export function AdminVerificationDetailPage() {
             </div>
             <div>
               <dt>Status</dt>
-              <dd>{item.status}</dd>
+              <dd>{statusLabel(item.status)}</dd>
             </div>
             <div>
               <dt>Evidence</dt>

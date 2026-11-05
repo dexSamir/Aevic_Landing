@@ -1,3 +1,4 @@
+import { statusLabel } from '../../utils/statusLabels';
 import {
 History
 } from "lucide-react";
@@ -80,7 +81,7 @@ export function AdminPlayerDetailPage() {
             </div>
             <div>
               <dt>Verification</dt>
-              <dd>{detail.verification.status}</dd>
+              <dd>{statusLabel(detail.verification.status)}</dd>
             </div>
           </dl>
         </section>
@@ -97,7 +98,7 @@ export function AdminPlayerDetailPage() {
         {reviewError && <p role="alert">{reviewError}</p>}
         {!detail.claims?.length && <p>Müraciət yoxdur.</p>}
         {detail.claims?.map(claim=><article key={claim.id} className="history-ledger">
-          <strong>{claim.claimantName}</strong><p>{claim.method} · {claim.status} · {formatDate(claim.createdAt)}</p>
+          <strong>{claim.claimantName}</strong><p>{claim.method} · {statusLabel(claim.status)} · {formatDate(claim.createdAt)}</p>
           {claim.reason && <p>{claim.reason}</p>}
           {claim.status==='PENDING' && <>
             <label htmlFor={`reason-${claim.id}`}>Yoxlamanın səbəbi (ən azı 10 simvol)</label>

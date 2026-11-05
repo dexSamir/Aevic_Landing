@@ -1,3 +1,4 @@
+import { statusLabel } from '../../utils/statusLabels';
 import {
 ArrowRight,
 BadgeCheck
@@ -85,7 +86,7 @@ export function AdminVerificationQueuePage() {
                   {item.entityType} · {item.representativeName}
                 </small>
               </div>
-              <span>{item.status}</span>
+              <span>{statusLabel(item.status)}</span>
               <Link to={`/admin/verifications/${item.id}`}>
                 Yoxla <ArrowRight size={16} />
               </Link>

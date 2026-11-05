@@ -45,7 +45,7 @@
 .notification-center-list .notification-item { border: 0; background: transparent; }
 .request-ledger > a { min-width: 0; min-height: 4.75rem; display: grid; grid-template-columns: minmax(8rem, auto) minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-md); padding: var(--space-md); background: var(--color-bg-secondary); border-bottom: 0; }
 .request-ledger > a:hover { background: var(--color-surface-hover); }
-.request-ledger > a > span { display: flex; align-items: center; gap: var(--space-xs); color: var(--color-brand-primary); font-weight: 800; }
+.request-ledger > a > span:not(.status) { display: flex; align-items: center; gap: var(--space-xs); color: var(--color-brand-primary); font-weight: 800; }
 .request-ledger > a > div { min-width: 0; display: grid; }
 .request-ledger small { color: var(--color-text-muted); overflow-wrap: anywhere; }
 .request-detail-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(18rem, .7fr); gap: var(--space-lg); align-items: start; }
@@ -84,7 +84,7 @@
 .audit-ledger small, .audit-ledger time { color: var(--color-text-muted); }
 .audit-ledger code { grid-column: 1 / -1; color: var(--color-text-soft); white-space: normal; overflow-wrap: anywhere; }
 .admin-user-list article { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto minmax(12rem, auto) auto; align-items: center; gap: var(--space-md); padding: var(--space-md); background: var(--color-bg-secondary); border-bottom: 0; }
-.admin-user-list article > span { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; color: var(--color-brand-primary); background: var(--color-bg-elevated); }
+.admin-user-list article > span:not(.status) { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; color: var(--color-brand-primary); background: var(--color-bg-elevated); }
 .admin-user-list article > div { min-width: 0; display: grid; }
 .admin-user-list small { color: var(--color-text-muted); overflow-wrap: anywhere; }
 .rbac-note { margin-top: var(--space-xl); }

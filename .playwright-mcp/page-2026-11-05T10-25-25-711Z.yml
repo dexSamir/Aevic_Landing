@@ -1,0 +1,11 @@
+- main [ref=e3]:
+  - paragraph [ref=e4]: AEVIC ESPORTS
+  - heading "Turnir təqvimi | AEVIC Esports" [level=1] [ref=e5]
+  - paragraph [ref=e6]: Dərc edilmiş AEVIC turnirləri, tarixlər və iştirak şərtləri.
+  - navigation "AEVIC səhifələri" [ref=e7]:
+    - link "Turnirlər" [ref=e8] [cursor=pointer]:
+      - /url: /tournaments
+    - link "Komandalar" [ref=e9] [cursor=pointer]:
+      - /url: /teams
+    - link "Yarış bələdçisi" [ref=e10] [cursor=pointer]:
+      - /url: /regulations

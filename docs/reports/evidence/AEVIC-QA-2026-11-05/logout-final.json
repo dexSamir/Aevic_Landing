@@ -1,0 +1,8 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "### Result\n[{\"role\":\"participant\",\"url\":\"https://aevic-demo.netlify.app/login?returnTo=%2Fteam%2F\",\"path\":\"/api/me/context\",\"status\":401,\"body\":\"{\\\"code\\\":\\\"UNAUTHORIZED\\\",\\\"message\\\":\\\"Sorğu tamamlanmadı.\\\",\\\"requestId\\\":\\\"1c73b4e9-a16f-463c-8b54-5f527d045b5d\\\"}\",\"cacheControl\":\"private,no-store\",\"protectedWorkspaceVisible\":false},{\"role\":\"admin\",\"url\":\"https://aevic-demo.netlify.app/admin/login?returnTo=%2Fadmin%2F\",\"path\":\"/api/admin/context\",\"status\":401,\"body\":\"{\\\"code\\\":\\\"UNAUTHORIZED\\\",\\\"message\\\":\\\"Sorğu tamamlanmadı.\\\",\\\"requestId\\\":\\\"fb0b2f2e-a872-402c-944f-905bbe052536\\\"}\",\"cacheControl\":\"private,no-store\",\"protectedWorkspaceVisible\":false}]\n### Ran Playwright code\n```js\nawait (async(page)=>{\nconst a=page.context().browser().contexts()[2].pages()[0],out=[];\nfor(const [role,p,path] of [['participant',page,'/api/me/context'],['admin',a,'/api/admin/context']]){const response=await p.request.get('https://aevic-demo.netlify.app'+path);out.push({role,url:p.url(),path,status:response.status(),body:await response.text(),cacheControl:response.headers()['cache-control'],protectedWorkspaceVisible:(await p.locator('main').innerText()).includes('Turnir mərkəzi')});}\nreturn out;\n})(page);\n```"
+    }
+  ]
+}

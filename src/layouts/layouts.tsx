@@ -132,7 +132,8 @@ export function PublicHeader() {
 
 export function PublicLayout() {
   const {data:settings}=usePlatformQuery({key:'platform:settings',scope:'public',query:()=>services.admin.publicSettings()});
-  const { pathname } = useLocation();
+  const { pathname: routePathname } = useLocation();
+  const pathname = routePathname.replace(/\/+$/, '') || '/';
   const independentTeamProfile = /^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname);
   const needsData = !independentTeamProfile && (pathname === '/leaderboard' || ['/teams', '/tournaments', '/organizations'].some((root) => pathname === root || pathname.startsWith(root + '/')));
   return <div className="site-shell"><RouteSeo /><OfflineNotice /><SkipLink target="main-content" /><PublicHeader /><main id="main-content" tabIndex={-1}>{settings?.maintenanceMessage&&<aside className="platform-announcement container" role="status">{settings.maintenanceMessage}</aside>}{needsData ? <PublicPlatformProvider><RouteTransitionOutlet /></PublicPlatformProvider> : <RouteTransitionOutlet />}</main><PublicFooter registrationEnabled={settings?.registrationEnabled} showCta={pathname !== '/matches' && pathname !== '/tournaments' && pathname !== '/teams' && !/^\/teams\/(?!compare(?:\/|$))[^/]+$/.test(pathname)} /><PublicMobileBottomNav /></div>;

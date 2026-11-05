@@ -1,0 +1,1194 @@
+{
+  "loading": {
+    "x": 256,
+    "y": 56,
+    "width": 1024,
+    "height": 802
+  },
+  "resolving": {
+    "x": 256,
+    "y": 56,
+    "width": 1024,
+    "height": 802
+  },
+  "ready": {
+    "x": 256,
+    "y": 56.265625,
+    "width": 1024,
+    "height": 446.328125
+  },
+  "scans": [
+    {
+      "path": "/admin/tournaments",
+      "violations": []
+    },
+    {
+      "path": "/admin/tournaments/new",
+      "violations": []
+    },
+    {
+      "path": "/admin/users",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#418657",
+                    "bgColor": "#102316",
+                    "contrastRatio": 3.74,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<span class=\"status status--approved\"><span class=\"status__dot\"></span>Aktiv</span>",
+                      "target": [
+                        ".status"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.74 (foreground color: #418657, background color: #102316, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"status status--approved\"><span class=\"status__dot\"></span>Aktiv</span>",
+              "target": [
+                ".status"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.74 (foreground color: #418657, background color: #102316, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/admin/settings",
+      "violations": []
+    },
+    {
+      "path": "/admin/roster-requests",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#b45960",
+                    "bgColor": "#291013",
+                    "contrastRatio": 3.85,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<span class=\"status status--rejected\"><span class=\"status__dot\"></span>Rədd edilib</span>",
+                      "target": [
+                        ".status--rejected"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.85 (foreground color: #b45960, background color: #291013, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"status status--rejected\"><span class=\"status__dot\"></span>Rədd edilib</span>",
+              "target": [
+                ".status--rejected"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.85 (foreground color: #b45960, background color: #291013, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7a",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<a href=\"/admin/roster-requests/e9b4e668-4f53-4e39-96fc-67492841e1d6\" data-discover=\"true\">",
+                      "target": [
+                        ".request-ledger > a[data-discover=\"true\"]:nth-child(2)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7a, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>",
+              "target": [
+                ".request-ledger > a[data-discover=\"true\"]:nth-child(2) > span:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7a, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7a",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.4pt (12.5px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<a href=\"/admin/roster-requests/e9b4e668-4f53-4e39-96fc-67492841e1d6\" data-discover=\"true\">",
+                      "target": [
+                        ".request-ledger > a[data-discover=\"true\"]:nth-child(2)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7a, background color: #1a1b1f, font size: 9.4pt (12.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>QA Reserve → QA Reserve</small>",
+              "target": [
+                "a[data-discover=\"true\"]:nth-child(2) > div > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7a, background color: #1a1b1f, font size: 9.4pt (12.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#418657",
+                    "bgColor": "#102316",
+                    "contrastRatio": 3.74,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<span class=\"status status--approved\"><span class=\"status__dot\"></span>Təsdiqlənib</span>",
+                      "target": [
+                        ".status--approved"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.74 (foreground color: #418657, background color: #102316, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"status status--approved\"><span class=\"status__dot\"></span>Təsdiqlənib</span>",
+              "target": [
+                ".status--approved"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.74 (foreground color: #418657, background color: #102316, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/admin/legacy-claims",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 102</strong><small>Mənbə: 102</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(2)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>Mənbə: 102</small>",
+              "target": [
+                "article:nth-child(2) > div > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 102</strong><small>Mənbə: 102</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(2)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Sahiblik</dt>",
+              "target": [
+                "article:nth-child(2) > dl > div:nth-child(1) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 102</strong><small>Mənbə: 102</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(2)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Əvvəlki təsdiq</dt>",
+              "target": [
+                "article:nth-child(2) > dl > div:nth-child(2) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 202</strong><small>Mənbə: 202</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(4)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>Mənbə: 202</small>",
+              "target": [
+                "article:nth-child(4) > div > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 202</strong><small>Mənbə: 202</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(4)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Sahiblik</dt>",
+              "target": [
+                "article:nth-child(4) > dl > div:nth-child(1) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 202</strong><small>Mənbə: 202</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(4)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Əvvəlki təsdiq</dt>",
+              "target": [
+                "article:nth-child(4) > dl > div:nth-child(2) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 204</strong><small>Mənbə: 204</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(6)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>Mənbə: 204</small>",
+              "target": [
+                "article:nth-child(6) > div > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 204</strong><small>Mənbə: 204</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(6)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Sahiblik</dt>",
+              "target": [
+                "article:nth-child(6) > dl > div:nth-child(1) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 204</strong><small>Mənbə: 204</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(6)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Əvvəlki təsdiq</dt>",
+              "target": [
+                "article:nth-child(6) > dl > div:nth-child(2) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 206</strong><small>Mənbə: 206</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(8)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>Mənbə: 206</small>",
+              "target": [
+                "article:nth-child(8) > div > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 206</strong><small>Mənbə: 206</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(8)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Sahiblik</dt>",
+              "target": [
+                "article:nth-child(8) > dl > div:nth-child(1) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 206</strong><small>Mənbə: 206</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(8)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Əvvəlki təsdiq</dt>",
+              "target": [
+                "article:nth-child(8) > dl > div:nth-child(2) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 208</strong><small>Mənbə: 208</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(10)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>Mənbə: 208</small>",
+              "target": [
+                "article:nth-child(10) > div > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 208</strong><small>Mənbə: 208</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(10)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Sahiblik</dt>",
+              "target": [
+                "article:nth-child(10) > dl > div:nth-child(1) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 208</strong><small>Mənbə: 208</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(10)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Əvvəlki təsdiq</dt>",
+              "target": [
+                "article:nth-child(10) > dl > div:nth-child(2) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 210</strong><small>Mənbə: 210</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(12)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>Mənbə: 210</small>",
+              "target": [
+                "article:nth-child(12) > div > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 210</strong><small>Mənbə: 210</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(12)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Sahiblik</dt>",
+              "target": [
+                "article:nth-child(12) > dl > div:nth-child(1) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 210</strong><small>Mənbə: 210</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(12)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Əvvəlki təsdiq</dt>",
+              "target": [
+                "article:nth-child(12) > dl > div:nth-child(2) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 212</strong><small>Mənbə: 212</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(14)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>Mənbə: 212</small>",
+              "target": [
+                "article:nth-child(14) > div > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 212</strong><small>Mənbə: 212</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(14)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Sahiblik</dt>",
+              "target": [
+                "article:nth-child(14) > dl > div:nth-child(1) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 212</strong><small>Mənbə: 212</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(14)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Əvvəlki təsdiq</dt>",
+              "target": [
+                "article:nth-child(14) > dl > div:nth-child(2) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 214</strong><small>Mənbə: 214</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(16)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>Mənbə: 214</small>",
+              "target": [
+                "article:nth-child(16) > div > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 214</strong><small>Mənbə: 214</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(16)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Sahiblik</dt>",
+              "target": [
+                "article:nth-child(16) > dl > div:nth-child(1) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 214</strong><small>Mənbə: 214</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(16)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Əvvəlki təsdiq</dt>",
+              "target": [
+                "article:nth-child(16) > dl > div:nth-child(2) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 216</strong><small>Mənbə: 216</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(18)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<small>Mənbə: 216</small>",
+              "target": [
+                "article:nth-child(18) > div > small"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 216</strong><small>Mənbə: 216</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(18)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Sahiblik</dt>",
+              "target": [
+                "article:nth-child(18) > dl > div:nth-child(1) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#817f7b",
+                    "bgColor": "#1a1b1f",
+                    "contrastRatio": 4.3,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<article><div><strong>Isolated Team 216</strong><small>Mənbə: 216</small></div><dl><div><dt>Sahiblik</dt><dd>Sahiblik gözləyir</dd></div><div><dt>Əvvəlki təsdiq</dt><dd>Təsdiqlənib</dd></div></dl></article>",
+                      "target": [
+                        "article:nth-child(18)"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<dt>Əvvəlki təsdiq</dt>",
+              "target": [
+                "article:nth-child(18) > dl > div:nth-child(2) > dt"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #817f7b, background color: #1a1b1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import './workspaceStyles';
+import '../styles/admin-workspace.css';
 import { ProtectedRoute } from '../layouts/ProtectedRoute';
 import { AdminLayout } from '../layouts/WorkspaceLayouts';
 import { AdminPlatformProvider } from '../services/PlatformDataContext';

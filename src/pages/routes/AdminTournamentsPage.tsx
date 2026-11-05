@@ -19,7 +19,7 @@ export function AdminTournamentsPage() {
   const snapshot = useAdminPlatformData();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
-  const labels: Record<string, string> = { 'registration-open': 'Qeydiyyat açıqdır', completed: 'Tamamlanıb', published: 'Dərc edilib', draft: 'Qaralama', cancelled: 'Ləğv edilib', live: 'Canlı' };
+  const labels: Record<string, string> = { 'registration-open': 'Qeydiyyat açıqdır', completed: 'Tamamlanıb', published: 'Dərc edilib', draft: 'Qaralama', cancelled: 'Ləğv edilib', ongoing: 'Davam edir', live: 'Canlı' };
   const filtered = snapshot.tournaments.filter((item) => (status === 'all' || item.status === status) && item.name.toLocaleLowerCase('az').includes(search.toLocaleLowerCase('az')));
   return <><PageHeader eyebrow="Turnir portfeli" title="Turnirlər" description="Qaralamadan tamamlanmaya qədər status, tutum və nəticə gedişatı." actions={<Link className="button button--secondary" to="/admin/tournaments/new"><Plus size={18} /><span>Yeni turnir</span></Link>} />
     <div className="admin-toolbar"><div className="search-field"><Search size={17} /><input aria-label="Turnir axtar" placeholder="Turnir adına görə axtar" value={search} onChange={(event) => setSearch(event.target.value)} /></div><Select label="Status filtri" value={status} onChange={(event) => setStatus(event.target.value)}><option value="all">Bütün statuslar</option>{Object.entries(labels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select></div>

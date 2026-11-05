@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "### Error\nTimeoutError: locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n  - waiting for getByRole('heading', { name: '[QA-2026-11] AEVIC Full E2E Test', exact: true }) to be visible\n"
+    }
+  ],
+  "isError": true
+}

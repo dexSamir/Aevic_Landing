@@ -1,3 +1,4 @@
+import { ApiError } from '../../services/apiError';
 import { useEffect,useState,type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -83,9 +84,9 @@ export function ResultEntryForm() {
       setNotice(
         "Komanda nəticəsi saxlanıldı. Bütün komandalar tamamlandıqdan sonra raundu dərc edin.",
       );
-    } catch {
+    } catch (error) {
       setNotice(
-        "Nəticə saxlanılmadı. Təkrar komanda, yerləşmə və ya səlahiyyəti yoxlayın.",
+        error instanceof ApiError ? error.message : "Nəticə saxlanılmadı. Təkrar komanda, yerləşmə və ya səlahiyyəti yoxlayın.",
       );
     } finally {
       setBusy(false);
@@ -100,9 +101,9 @@ export function ResultEntryForm() {
       invalidateQuery("snapshot:public");
       setRevision((v) => v + 1);
       setNotice("Raundun bütün nəticələri dərc edildi.");
-    } catch {
+    } catch (error) {
       setNotice(
-        "Dərc tamamlanmadı. Hər təsdiqlənmiş komandanın nəticəsi tələb olunur.",
+        error instanceof ApiError ? error.message : "Dərc tamamlanmadı. Hər təsdiqlənmiş komandanın nəticəsi tələb olunur.",
       );
     } finally {
       setBusy(false);

@@ -1,0 +1,2405 @@
+{
+  "calculation": "Independent calculation from entered placements/eliminations and saved point table; no application scoring function reused.",
+  "expected": [
+    {
+      "teamId": "870000000002",
+      "matches": 4,
+      "wwcd": 3,
+      "placementPoints": 36,
+      "finishPoints": 28,
+      "finishes": 28,
+      "penalties": 0,
+      "totalPoints": 64,
+      "averagePlacement": 1.25,
+      "lastPlacement": 1,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 2,
+          "finishes": 7,
+          "placementPoints": 6,
+          "totalPoints": 13
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 1,
+          "finishes": 9,
+          "placementPoints": 10,
+          "totalPoints": 19
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 1,
+          "finishes": 5,
+          "placementPoints": 10,
+          "totalPoints": 15
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 1,
+          "finishes": 7,
+          "placementPoints": 10,
+          "totalPoints": 17
+        }
+      ],
+      "placement": 1
+    },
+    {
+      "teamId": "870000000003",
+      "matches": 4,
+      "wwcd": 0,
+      "placementPoints": 22,
+      "finishPoints": 25,
+      "finishes": 25,
+      "penalties": 0,
+      "totalPoints": 47,
+      "averagePlacement": 2.5,
+      "lastPlacement": 2,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 3,
+          "finishes": 6,
+          "placementPoints": 5,
+          "totalPoints": 11
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 3,
+          "finishes": 8,
+          "placementPoints": 5,
+          "totalPoints": 13
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 2,
+          "finishes": 5,
+          "placementPoints": 6,
+          "totalPoints": 11
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 2,
+          "finishes": 6,
+          "placementPoints": 6,
+          "totalPoints": 12
+        }
+      ],
+      "placement": 2
+    },
+    {
+      "teamId": "870000000004",
+      "matches": 4,
+      "wwcd": 0,
+      "placementPoints": 18,
+      "finishPoints": 22,
+      "finishes": 22,
+      "penalties": 0,
+      "totalPoints": 40,
+      "averagePlacement": 3.5,
+      "lastPlacement": 3,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 4,
+          "finishes": 5,
+          "placementPoints": 4,
+          "totalPoints": 9
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 4,
+          "finishes": 7,
+          "placementPoints": 4,
+          "totalPoints": 11
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 3,
+          "finishes": 5,
+          "placementPoints": 5,
+          "totalPoints": 10
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 3,
+          "finishes": 5,
+          "placementPoints": 5,
+          "totalPoints": 10
+        }
+      ],
+      "placement": 3
+    },
+    {
+      "teamId": "16",
+      "matches": 4,
+      "wwcd": 1,
+      "placementPoints": 18,
+      "finishPoints": 15,
+      "finishes": 15,
+      "penalties": 0,
+      "totalPoints": 33,
+      "averagePlacement": 5.25,
+      "lastPlacement": 6,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 1,
+          "finishes": 8,
+          "placementPoints": 10,
+          "totalPoints": 18
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 2,
+          "finishes": 4,
+          "placementPoints": 6,
+          "totalPoints": 10
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 12,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 6,
+          "finishes": 3,
+          "placementPoints": 2,
+          "totalPoints": 5
+        }
+      ],
+      "placement": 4
+    },
+    {
+      "teamId": "870000000005",
+      "matches": 4,
+      "wwcd": 0,
+      "placementPoints": 14,
+      "finishPoints": 19,
+      "finishes": 19,
+      "penalties": 0,
+      "totalPoints": 33,
+      "averagePlacement": 4.5,
+      "lastPlacement": 4,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 5,
+          "finishes": 4,
+          "placementPoints": 3,
+          "totalPoints": 7
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 5,
+          "finishes": 6,
+          "placementPoints": 3,
+          "totalPoints": 9
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 4,
+          "finishes": 5,
+          "placementPoints": 4,
+          "totalPoints": 9
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 4,
+          "finishes": 4,
+          "placementPoints": 4,
+          "totalPoints": 8
+        }
+      ],
+      "placement": 5
+    },
+    {
+      "teamId": "870000000006",
+      "matches": 4,
+      "wwcd": 0,
+      "placementPoints": 10,
+      "finishPoints": 16,
+      "finishes": 16,
+      "penalties": 0,
+      "totalPoints": 26,
+      "averagePlacement": 5.5,
+      "lastPlacement": 5,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 6,
+          "finishes": 3,
+          "placementPoints": 2,
+          "totalPoints": 5
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 6,
+          "finishes": 5,
+          "placementPoints": 2,
+          "totalPoints": 7
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 5,
+          "finishes": 5,
+          "placementPoints": 3,
+          "totalPoints": 8
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 5,
+          "finishes": 3,
+          "placementPoints": 3,
+          "totalPoints": 6
+        }
+      ],
+      "placement": 6
+    },
+    {
+      "teamId": "870000000007",
+      "matches": 4,
+      "wwcd": 0,
+      "placementPoints": 5,
+      "finishPoints": 13,
+      "finishes": 13,
+      "penalties": 0,
+      "totalPoints": 18,
+      "averagePlacement": 6.75,
+      "lastPlacement": 7,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 7,
+          "finishes": 2,
+          "placementPoints": 1,
+          "totalPoints": 3
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 7,
+          "finishes": 4,
+          "placementPoints": 1,
+          "totalPoints": 5
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 6,
+          "finishes": 5,
+          "placementPoints": 2,
+          "totalPoints": 7
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 7,
+          "finishes": 2,
+          "placementPoints": 1,
+          "totalPoints": 3
+        }
+      ],
+      "placement": 7
+    },
+    {
+      "teamId": "870000000008",
+      "matches": 4,
+      "wwcd": 0,
+      "placementPoints": 4,
+      "finishPoints": 10,
+      "finishes": 10,
+      "penalties": 0,
+      "totalPoints": 14,
+      "averagePlacement": 7.75,
+      "lastPlacement": 8,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 8,
+          "finishes": 1,
+          "placementPoints": 1,
+          "totalPoints": 2
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 8,
+          "finishes": 3,
+          "placementPoints": 1,
+          "totalPoints": 4
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 7,
+          "finishes": 5,
+          "placementPoints": 1,
+          "totalPoints": 6
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 8,
+          "finishes": 1,
+          "placementPoints": 1,
+          "totalPoints": 2
+        }
+      ],
+      "placement": 8
+    },
+    {
+      "teamId": "870000000009",
+      "matches": 4,
+      "wwcd": 0,
+      "placementPoints": 1,
+      "finishPoints": 7,
+      "finishes": 7,
+      "penalties": 0,
+      "totalPoints": 8,
+      "averagePlacement": 8.75,
+      "lastPlacement": 9,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 9,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 9,
+          "finishes": 2,
+          "placementPoints": 0,
+          "totalPoints": 2
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 8,
+          "finishes": 5,
+          "placementPoints": 1,
+          "totalPoints": 6
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 9,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        }
+      ],
+      "placement": 9
+    },
+    {
+      "teamId": "870000000010",
+      "matches": 4,
+      "wwcd": 0,
+      "placementPoints": 0,
+      "finishPoints": 6,
+      "finishes": 6,
+      "penalties": 0,
+      "totalPoints": 6,
+      "averagePlacement": 9.75,
+      "lastPlacement": 10,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 10,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 10,
+          "finishes": 1,
+          "placementPoints": 0,
+          "totalPoints": 1
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 9,
+          "finishes": 5,
+          "placementPoints": 0,
+          "totalPoints": 5
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 10,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        }
+      ],
+      "placement": 10
+    },
+    {
+      "teamId": "870000000011",
+      "matches": 4,
+      "wwcd": 0,
+      "placementPoints": 0,
+      "finishPoints": 5,
+      "finishes": 5,
+      "penalties": 0,
+      "totalPoints": 5,
+      "averagePlacement": 10.75,
+      "lastPlacement": 11,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 11,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 11,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 10,
+          "finishes": 5,
+          "placementPoints": 0,
+          "totalPoints": 5
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 11,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        }
+      ],
+      "placement": 11
+    },
+    {
+      "teamId": "870000000012",
+      "matches": 4,
+      "wwcd": 0,
+      "placementPoints": 0,
+      "finishPoints": 5,
+      "finishes": 5,
+      "penalties": 0,
+      "totalPoints": 5,
+      "averagePlacement": 11.75,
+      "lastPlacement": 12,
+      "rounds": [
+        {
+          "roundId": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "placement": 12,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        },
+        {
+          "roundId": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "placement": 12,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        },
+        {
+          "roundId": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "placement": 11,
+          "finishes": 5,
+          "placementPoints": 0,
+          "totalPoints": 5
+        },
+        {
+          "roundId": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "placement": 12,
+          "finishes": 0,
+          "placementPoints": 0,
+          "totalPoints": 0
+        }
+      ],
+      "placement": 12
+    }
+  ],
+  "mismatches": [],
+  "requests": [
+    {
+      "path": "/api/tournaments/19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+      "status": 200,
+      "data": {
+        "id": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+        "name": "[QA-2026-11] AEVIC Full E2E Test",
+        "shortName": "QA NOV 2026",
+        "description": "QA-only audit. Authorized test teams only. No real competition or prizes.",
+        "status": "ongoing",
+        "updatedAt": "2026-11-05T10:50:04.799Z",
+        "startsAt": "2026-11-05T10:52:00.000Z",
+        "endsAt": "2026-11-05T11:06:00.000Z",
+        "registrationOpensAt": "2026-11-04T10:29:00.000Z",
+        "registrationDeadline": "2026-11-05T10:44:00.000Z",
+        "checkInOpensAt": "2026-11-05T10:45:00.000Z",
+        "checkInClosesAt": "2026-11-05T10:51:00.000Z",
+        "maxSlots": 16,
+        "usedSlots": 12,
+        "days": 1,
+        "roundsPerDay": 4,
+        "mapRotation": {
+          "id": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "maps": [
+            "Erangel",
+            "Miramar",
+            "Rondo",
+            "Erangel"
+          ]
+        },
+        "pointFormula": {
+          "presetId": "pubgm-international-v1",
+          "placement": [
+            {
+              "points": 10,
+              "placement": 1
+            },
+            {
+              "points": 6,
+              "placement": 2
+            },
+            {
+              "points": 5,
+              "placement": 3
+            },
+            {
+              "points": 4,
+              "placement": 4
+            },
+            {
+              "points": 3,
+              "placement": 5
+            },
+            {
+              "points": 2,
+              "placement": 6
+            },
+            {
+              "points": 1,
+              "placement": 7
+            },
+            {
+              "points": 1,
+              "placement": 8
+            },
+            {
+              "points": 0,
+              "placement": 9
+            },
+            {
+              "points": 0,
+              "placement": 10
+            },
+            {
+              "points": 0,
+              "placement": 11
+            },
+            {
+              "points": 0,
+              "placement": 12
+            },
+            {
+              "points": 0,
+              "placement": 13
+            },
+            {
+              "points": 0,
+              "placement": 14
+            },
+            {
+              "points": 0,
+              "placement": 15
+            },
+            {
+              "points": 0,
+              "placement": 16
+            }
+          ],
+          "wwcdBonus": 0,
+          "tieBreakRules": [
+            "WWCD sayı",
+            "Toplanmış yerləşmə xalları",
+            "Toplanmış eliminasiya xalları",
+            "Son müvafiq matçda daha yaxşı yer"
+          ],
+          "defaultPenalty": 0,
+          "finishPointValue": 1
+        },
+        "rules": [
+          "[QA-2026-11] Authorized QA/demo teams only. No real prizes.",
+          "Placement: 10,6,5,4,3,2,1,1. Each elimination: 1 point.",
+          "Use only QA room credentials and QA results."
+        ],
+        "featured": false,
+        "prizePool": 0,
+        "prizeCurrency": "",
+        "prizeDistribution": [],
+        "disputeDurationMinutes": 60
+      }
+    },
+    {
+      "path": "/api/leaderboards/19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+      "status": 200,
+      "data": [
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000002",
+          "placement": 1,
+          "matches": 4,
+          "wwcd": 3,
+          "finishes": 28,
+          "placementPoints": 36,
+          "finishPoints": 28,
+          "penalties": 0,
+          "totalPoints": 64,
+          "bestFinish": 1
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000003",
+          "placement": 2,
+          "matches": 4,
+          "wwcd": 0,
+          "finishes": 25,
+          "placementPoints": 22,
+          "finishPoints": 25,
+          "penalties": 0,
+          "totalPoints": 47,
+          "bestFinish": 2
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000004",
+          "placement": 3,
+          "matches": 4,
+          "wwcd": 0,
+          "finishes": 22,
+          "placementPoints": 18,
+          "finishPoints": 22,
+          "penalties": 0,
+          "totalPoints": 40,
+          "bestFinish": 3
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "16",
+          "placement": 4,
+          "matches": 4,
+          "wwcd": 1,
+          "finishes": 15,
+          "placementPoints": 18,
+          "finishPoints": 15,
+          "penalties": 0,
+          "totalPoints": 33,
+          "bestFinish": 1
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000005",
+          "placement": 5,
+          "matches": 4,
+          "wwcd": 0,
+          "finishes": 19,
+          "placementPoints": 14,
+          "finishPoints": 19,
+          "penalties": 0,
+          "totalPoints": 33,
+          "bestFinish": 4
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000006",
+          "placement": 6,
+          "matches": 4,
+          "wwcd": 0,
+          "finishes": 16,
+          "placementPoints": 10,
+          "finishPoints": 16,
+          "penalties": 0,
+          "totalPoints": 26,
+          "bestFinish": 5
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000007",
+          "placement": 7,
+          "matches": 4,
+          "wwcd": 0,
+          "finishes": 13,
+          "placementPoints": 5,
+          "finishPoints": 13,
+          "penalties": 0,
+          "totalPoints": 18,
+          "bestFinish": 6
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000008",
+          "placement": 8,
+          "matches": 4,
+          "wwcd": 0,
+          "finishes": 10,
+          "placementPoints": 4,
+          "finishPoints": 10,
+          "penalties": 0,
+          "totalPoints": 14,
+          "bestFinish": 7
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000009",
+          "placement": 9,
+          "matches": 4,
+          "wwcd": 0,
+          "finishes": 7,
+          "placementPoints": 1,
+          "finishPoints": 7,
+          "penalties": 0,
+          "totalPoints": 8,
+          "bestFinish": 8
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000010",
+          "placement": 10,
+          "matches": 4,
+          "wwcd": 0,
+          "finishes": 6,
+          "placementPoints": 0,
+          "finishPoints": 6,
+          "penalties": 0,
+          "totalPoints": 6,
+          "bestFinish": 9
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000011",
+          "placement": 11,
+          "matches": 4,
+          "wwcd": 0,
+          "finishes": 5,
+          "placementPoints": 0,
+          "finishPoints": 5,
+          "penalties": 0,
+          "totalPoints": 5,
+          "bestFinish": 10
+        },
+        {
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "teamId": "870000000012",
+          "placement": 12,
+          "matches": 4,
+          "wwcd": 0,
+          "finishes": 5,
+          "placementPoints": 0,
+          "finishPoints": 5,
+          "penalties": 0,
+          "totalPoints": 5,
+          "bestFinish": 11
+        }
+      ]
+    },
+    {
+      "path": "/api/leaderboards/19130ea6-8fc0-4bc6-9773-12b1a49de0a5/snapshots",
+      "status": 200,
+      "data": [
+        {
+          "id": "d2507e6a-0340-4c02-9339-aea8bd9a6348",
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "publishedAt": "2026-11-05T10:53:03.726Z",
+          "standings": [
+            {
+              "rank": 1,
+              "teamId": "16",
+              "totalPoints": 18
+            },
+            {
+              "rank": 2,
+              "teamId": "870000000002",
+              "totalPoints": 13
+            },
+            {
+              "rank": 3,
+              "teamId": "870000000003",
+              "totalPoints": 11
+            },
+            {
+              "rank": 4,
+              "teamId": "870000000004",
+              "totalPoints": 9
+            },
+            {
+              "rank": 5,
+              "teamId": "870000000005",
+              "totalPoints": 7
+            },
+            {
+              "rank": 6,
+              "teamId": "870000000006",
+              "totalPoints": 5
+            },
+            {
+              "rank": 7,
+              "teamId": "870000000007",
+              "totalPoints": 3
+            },
+            {
+              "rank": 8,
+              "teamId": "870000000008",
+              "totalPoints": 2
+            },
+            {
+              "rank": 9,
+              "teamId": "870000000009",
+              "totalPoints": 0
+            },
+            {
+              "rank": 10,
+              "teamId": "870000000010",
+              "totalPoints": 0
+            },
+            {
+              "rank": 11,
+              "teamId": "870000000011",
+              "totalPoints": 0
+            },
+            {
+              "rank": 12,
+              "teamId": "870000000012",
+              "totalPoints": 0
+            }
+          ]
+        },
+        {
+          "id": "e310e7eb-91cb-47bc-9675-23fa33fd94ba",
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "publishedAt": "2026-11-05T10:54:46.198Z",
+          "standings": [
+            {
+              "rank": 1,
+              "teamId": "870000000002",
+              "totalPoints": 32
+            },
+            {
+              "rank": 2,
+              "teamId": "16",
+              "totalPoints": 28
+            },
+            {
+              "rank": 3,
+              "teamId": "870000000003",
+              "totalPoints": 24
+            },
+            {
+              "rank": 4,
+              "teamId": "870000000004",
+              "totalPoints": 20
+            },
+            {
+              "rank": 5,
+              "teamId": "870000000005",
+              "totalPoints": 16
+            },
+            {
+              "rank": 6,
+              "teamId": "870000000006",
+              "totalPoints": 12
+            },
+            {
+              "rank": 7,
+              "teamId": "870000000007",
+              "totalPoints": 8
+            },
+            {
+              "rank": 8,
+              "teamId": "870000000008",
+              "totalPoints": 6
+            },
+            {
+              "rank": 9,
+              "teamId": "870000000009",
+              "totalPoints": 2
+            },
+            {
+              "rank": 10,
+              "teamId": "870000000010",
+              "totalPoints": 1
+            },
+            {
+              "rank": 11,
+              "teamId": "870000000011",
+              "totalPoints": 0
+            },
+            {
+              "rank": 12,
+              "teamId": "870000000012",
+              "totalPoints": 0
+            }
+          ]
+        },
+        {
+          "id": "737eafd5-782d-41ae-9f73-870f53683499",
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "publishedAt": "2026-11-05T10:56:24.711Z",
+          "standings": [
+            {
+              "rank": 1,
+              "teamId": "870000000002",
+              "totalPoints": 47
+            },
+            {
+              "rank": 2,
+              "teamId": "870000000003",
+              "totalPoints": 35
+            },
+            {
+              "rank": 3,
+              "teamId": "870000000004",
+              "totalPoints": 30
+            },
+            {
+              "rank": 4,
+              "teamId": "16",
+              "totalPoints": 28
+            },
+            {
+              "rank": 5,
+              "teamId": "870000000005",
+              "totalPoints": 25
+            },
+            {
+              "rank": 6,
+              "teamId": "870000000006",
+              "totalPoints": 20
+            },
+            {
+              "rank": 7,
+              "teamId": "870000000007",
+              "totalPoints": 15
+            },
+            {
+              "rank": 8,
+              "teamId": "870000000008",
+              "totalPoints": 12
+            },
+            {
+              "rank": 9,
+              "teamId": "870000000009",
+              "totalPoints": 8
+            },
+            {
+              "rank": 10,
+              "teamId": "870000000010",
+              "totalPoints": 6
+            },
+            {
+              "rank": 11,
+              "teamId": "870000000011",
+              "totalPoints": 5
+            },
+            {
+              "rank": 12,
+              "teamId": "870000000012",
+              "totalPoints": 5
+            }
+          ]
+        },
+        {
+          "id": "1eeffd9f-aef0-47aa-a5e6-e4bb075dd25b",
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "publishedAt": "2026-11-05T10:57:57.373Z",
+          "standings": [
+            {
+              "rank": 1,
+              "teamId": "870000000002",
+              "totalPoints": 64
+            },
+            {
+              "rank": 2,
+              "teamId": "870000000003",
+              "totalPoints": 47
+            },
+            {
+              "rank": 3,
+              "teamId": "870000000004",
+              "totalPoints": 40
+            },
+            {
+              "rank": 4,
+              "teamId": "16",
+              "totalPoints": 33
+            },
+            {
+              "rank": 5,
+              "teamId": "870000000005",
+              "totalPoints": 33
+            },
+            {
+              "rank": 6,
+              "teamId": "870000000006",
+              "totalPoints": 26
+            },
+            {
+              "rank": 7,
+              "teamId": "870000000007",
+              "totalPoints": 18
+            },
+            {
+              "rank": 8,
+              "teamId": "870000000008",
+              "totalPoints": 14
+            },
+            {
+              "rank": 9,
+              "teamId": "870000000009",
+              "totalPoints": 8
+            },
+            {
+              "rank": 10,
+              "teamId": "870000000010",
+              "totalPoints": 6
+            },
+            {
+              "rank": 11,
+              "teamId": "870000000011",
+              "totalPoints": 5
+            },
+            {
+              "rank": 12,
+              "teamId": "870000000012",
+              "totalPoints": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/api/leaderboards/19130ea6-8fc0-4bc6-9773-12b1a49de0a5/movement",
+      "status": 200,
+      "data": [
+        {
+          "teamId": "870000000002",
+          "currentRank": 1,
+          "previousRank": 1,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "870000000003",
+          "currentRank": 2,
+          "previousRank": 2,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "870000000004",
+          "currentRank": 3,
+          "previousRank": 3,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "16",
+          "currentRank": 4,
+          "previousRank": 4,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "870000000005",
+          "currentRank": 5,
+          "previousRank": 5,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "870000000006",
+          "currentRank": 6,
+          "previousRank": 6,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "870000000007",
+          "currentRank": 7,
+          "previousRank": 7,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "870000000008",
+          "currentRank": 8,
+          "previousRank": 8,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "870000000009",
+          "currentRank": 9,
+          "previousRank": 9,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "870000000010",
+          "currentRank": 10,
+          "previousRank": 10,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "870000000011",
+          "currentRank": 11,
+          "previousRank": 11,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        },
+        {
+          "teamId": "870000000012",
+          "currentRank": 12,
+          "previousRank": 12,
+          "delta": 0,
+          "kind": "unchanged",
+          "previousSnapshotId": "737eafd5-782d-41ae-9f73-870f53683499"
+        }
+      ]
+    },
+    {
+      "path": "/api/matches/0ab9666e-5501-47b2-b99e-ce2be068fafc",
+      "status": 200,
+      "data": {
+        "match": {
+          "id": "0ab9666e-5501-47b2-b99e-ce2be068fafc",
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "stage": "final",
+          "day": 1,
+          "round": 1,
+          "map": "Erangel",
+          "lobby": "A",
+          "startsAt": "2026-11-05T10:52:00.000Z",
+          "roomReleaseAt": "2026-11-05T10:42:00.000Z",
+          "publishedAt": "2026-11-05T10:52:54.003Z",
+          "status": "completed"
+        },
+        "tournament": {
+          "id": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "name": "[QA-2026-11] AEVIC Full E2E Test",
+          "shortName": "QA NOV 2026"
+        },
+        "standings": [
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "16",
+            "placement": 1,
+            "matches": 1,
+            "wwcd": 1,
+            "finishes": 8,
+            "placementPoints": 10,
+            "finishPoints": 8,
+            "penalties": 0,
+            "totalPoints": 18,
+            "bestFinish": 1
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000002",
+            "placement": 2,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 7,
+            "placementPoints": 6,
+            "finishPoints": 7,
+            "penalties": 0,
+            "totalPoints": 13,
+            "bestFinish": 2
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000003",
+            "placement": 3,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 6,
+            "placementPoints": 5,
+            "finishPoints": 6,
+            "penalties": 0,
+            "totalPoints": 11,
+            "bestFinish": 3
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000004",
+            "placement": 4,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 4,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 9,
+            "bestFinish": 4
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000005",
+            "placement": 5,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 4,
+            "placementPoints": 3,
+            "finishPoints": 4,
+            "penalties": 0,
+            "totalPoints": 7,
+            "bestFinish": 5
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000006",
+            "placement": 6,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 3,
+            "placementPoints": 2,
+            "finishPoints": 3,
+            "penalties": 0,
+            "totalPoints": 5,
+            "bestFinish": 6
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000007",
+            "placement": 7,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 2,
+            "placementPoints": 1,
+            "finishPoints": 2,
+            "penalties": 0,
+            "totalPoints": 3,
+            "bestFinish": 7
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000008",
+            "placement": 8,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 1,
+            "placementPoints": 1,
+            "finishPoints": 1,
+            "penalties": 0,
+            "totalPoints": 2,
+            "bestFinish": 8
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000009",
+            "placement": 9,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 9
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000010",
+            "placement": 10,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 10
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000011",
+            "placement": 11,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 11
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000012",
+            "placement": 12,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 12
+          }
+        ],
+        "published": true,
+        "teamResults": [
+          {
+            "teamId": "16",
+            "teamName": "TEST HESABI",
+            "teamSlug": "16",
+            "teamLogo": "https://res.cloudinary.com/xlxr36kf/image/upload/v1791563470/aevic/migrated/nmjjibifcuzjlsvfcaaz/5188d67adb46ae701e74826dc559f49607e832216b302f8332f4a9c15684796d.webp",
+            "placement": 1,
+            "finishes": 8,
+            "placementPoints": 10,
+            "totalPoints": 18,
+            "wwcd": true
+          },
+          {
+            "teamId": "870000000002",
+            "teamName": "[DEMO] Rəqib 01",
+            "teamSlug": "870000000002",
+            "placement": 2,
+            "finishes": 7,
+            "placementPoints": 6,
+            "totalPoints": 13,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000003",
+            "teamName": "[DEMO] Rəqib 02",
+            "teamSlug": "870000000003",
+            "placement": 3,
+            "finishes": 6,
+            "placementPoints": 5,
+            "totalPoints": 11,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000004",
+            "teamName": "[DEMO] Rəqib 03",
+            "teamSlug": "870000000004",
+            "placement": 4,
+            "finishes": 5,
+            "placementPoints": 4,
+            "totalPoints": 9,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000005",
+            "teamName": "[DEMO] Rəqib 04",
+            "teamSlug": "870000000005",
+            "placement": 5,
+            "finishes": 4,
+            "placementPoints": 3,
+            "totalPoints": 7,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000006",
+            "teamName": "[DEMO] Rəqib 05",
+            "teamSlug": "870000000006",
+            "placement": 6,
+            "finishes": 3,
+            "placementPoints": 2,
+            "totalPoints": 5,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000007",
+            "teamName": "[DEMO] Rəqib 06",
+            "teamSlug": "870000000007",
+            "placement": 7,
+            "finishes": 2,
+            "placementPoints": 1,
+            "totalPoints": 3,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000008",
+            "teamName": "[DEMO] Rəqib 07",
+            "teamSlug": "870000000008",
+            "placement": 8,
+            "finishes": 1,
+            "placementPoints": 1,
+            "totalPoints": 2,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000009",
+            "teamName": "[DEMO] Rəqib 08",
+            "teamSlug": "870000000009",
+            "placement": 9,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000010",
+            "teamName": "[DEMO] Rəqib 09",
+            "teamSlug": "870000000010",
+            "placement": 10,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000011",
+            "teamName": "[DEMO] Rəqib 10",
+            "teamSlug": "870000000011",
+            "placement": 11,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000012",
+            "teamName": "[DEMO] Rəqib 11",
+            "teamSlug": "870000000012",
+            "placement": 12,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/matches/084ccd99-7a1b-4047-8942-22bd53c619ff",
+      "status": 200,
+      "data": {
+        "match": {
+          "id": "084ccd99-7a1b-4047-8942-22bd53c619ff",
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "stage": "final",
+          "day": 1,
+          "round": 2,
+          "map": "Miramar",
+          "lobby": "A",
+          "startsAt": "2026-11-05T10:53:00.000Z",
+          "roomReleaseAt": "2026-11-05T10:43:00.000Z",
+          "publishedAt": "2026-11-05T10:54:36.150Z",
+          "status": "completed"
+        },
+        "tournament": {
+          "id": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "name": "[QA-2026-11] AEVIC Full E2E Test",
+          "shortName": "QA NOV 2026"
+        },
+        "standings": [
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000002",
+            "placement": 1,
+            "matches": 1,
+            "wwcd": 1,
+            "finishes": 9,
+            "placementPoints": 10,
+            "finishPoints": 9,
+            "penalties": 0,
+            "totalPoints": 19,
+            "bestFinish": 1
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000003",
+            "placement": 2,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 8,
+            "placementPoints": 5,
+            "finishPoints": 8,
+            "penalties": 0,
+            "totalPoints": 13,
+            "bestFinish": 3
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000004",
+            "placement": 3,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 7,
+            "placementPoints": 4,
+            "finishPoints": 7,
+            "penalties": 0,
+            "totalPoints": 11,
+            "bestFinish": 4
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "16",
+            "placement": 4,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 4,
+            "placementPoints": 6,
+            "finishPoints": 4,
+            "penalties": 0,
+            "totalPoints": 10,
+            "bestFinish": 2
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000005",
+            "placement": 5,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 6,
+            "placementPoints": 3,
+            "finishPoints": 6,
+            "penalties": 0,
+            "totalPoints": 9,
+            "bestFinish": 5
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000006",
+            "placement": 6,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 2,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 7,
+            "bestFinish": 6
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000007",
+            "placement": 7,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 4,
+            "placementPoints": 1,
+            "finishPoints": 4,
+            "penalties": 0,
+            "totalPoints": 5,
+            "bestFinish": 7
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000008",
+            "placement": 8,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 3,
+            "placementPoints": 1,
+            "finishPoints": 3,
+            "penalties": 0,
+            "totalPoints": 4,
+            "bestFinish": 8
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000009",
+            "placement": 9,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 2,
+            "placementPoints": 0,
+            "finishPoints": 2,
+            "penalties": 0,
+            "totalPoints": 2,
+            "bestFinish": 9
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000010",
+            "placement": 10,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 1,
+            "placementPoints": 0,
+            "finishPoints": 1,
+            "penalties": 0,
+            "totalPoints": 1,
+            "bestFinish": 10
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000011",
+            "placement": 11,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 11
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000012",
+            "placement": 12,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 12
+          }
+        ],
+        "published": true,
+        "teamResults": [
+          {
+            "teamId": "16",
+            "teamName": "TEST HESABI",
+            "teamSlug": "16",
+            "teamLogo": "https://res.cloudinary.com/xlxr36kf/image/upload/v1791563470/aevic/migrated/nmjjibifcuzjlsvfcaaz/5188d67adb46ae701e74826dc559f49607e832216b302f8332f4a9c15684796d.webp",
+            "placement": 2,
+            "finishes": 4,
+            "placementPoints": 6,
+            "totalPoints": 10,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000002",
+            "teamName": "[DEMO] Rəqib 01",
+            "teamSlug": "870000000002",
+            "placement": 1,
+            "finishes": 9,
+            "placementPoints": 10,
+            "totalPoints": 19,
+            "wwcd": true
+          },
+          {
+            "teamId": "870000000003",
+            "teamName": "[DEMO] Rəqib 02",
+            "teamSlug": "870000000003",
+            "placement": 3,
+            "finishes": 8,
+            "placementPoints": 5,
+            "totalPoints": 13,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000004",
+            "teamName": "[DEMO] Rəqib 03",
+            "teamSlug": "870000000004",
+            "placement": 4,
+            "finishes": 7,
+            "placementPoints": 4,
+            "totalPoints": 11,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000005",
+            "teamName": "[DEMO] Rəqib 04",
+            "teamSlug": "870000000005",
+            "placement": 5,
+            "finishes": 6,
+            "placementPoints": 3,
+            "totalPoints": 9,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000006",
+            "teamName": "[DEMO] Rəqib 05",
+            "teamSlug": "870000000006",
+            "placement": 6,
+            "finishes": 5,
+            "placementPoints": 2,
+            "totalPoints": 7,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000007",
+            "teamName": "[DEMO] Rəqib 06",
+            "teamSlug": "870000000007",
+            "placement": 7,
+            "finishes": 4,
+            "placementPoints": 1,
+            "totalPoints": 5,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000008",
+            "teamName": "[DEMO] Rəqib 07",
+            "teamSlug": "870000000008",
+            "placement": 8,
+            "finishes": 3,
+            "placementPoints": 1,
+            "totalPoints": 4,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000009",
+            "teamName": "[DEMO] Rəqib 08",
+            "teamSlug": "870000000009",
+            "placement": 9,
+            "finishes": 2,
+            "placementPoints": 0,
+            "totalPoints": 2,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000010",
+            "teamName": "[DEMO] Rəqib 09",
+            "teamSlug": "870000000010",
+            "placement": 10,
+            "finishes": 1,
+            "placementPoints": 0,
+            "totalPoints": 1,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000011",
+            "teamName": "[DEMO] Rəqib 10",
+            "teamSlug": "870000000011",
+            "placement": 11,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000012",
+            "teamName": "[DEMO] Rəqib 11",
+            "teamSlug": "870000000012",
+            "placement": 12,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/matches/557049ae-4dc9-4c82-9de7-2c74e441c775",
+      "status": 200,
+      "data": {
+        "match": {
+          "id": "557049ae-4dc9-4c82-9de7-2c74e441c775",
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "stage": "final",
+          "day": 1,
+          "round": 3,
+          "map": "Rondo",
+          "lobby": "A",
+          "startsAt": "2026-11-05T10:54:00.000Z",
+          "roomReleaseAt": "2026-11-05T10:44:00.000Z",
+          "publishedAt": "2026-11-05T10:56:15.180Z",
+          "status": "completed"
+        },
+        "tournament": {
+          "id": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "name": "[QA-2026-11] AEVIC Full E2E Test",
+          "shortName": "QA NOV 2026"
+        },
+        "standings": [
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000002",
+            "placement": 1,
+            "matches": 1,
+            "wwcd": 1,
+            "finishes": 5,
+            "placementPoints": 10,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 15,
+            "bestFinish": 1
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000003",
+            "placement": 2,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 6,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 11,
+            "bestFinish": 2
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000004",
+            "placement": 3,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 5,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 10,
+            "bestFinish": 3
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000005",
+            "placement": 4,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 4,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 9,
+            "bestFinish": 4
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000006",
+            "placement": 5,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 3,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 8,
+            "bestFinish": 5
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000007",
+            "placement": 6,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 2,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 7,
+            "bestFinish": 6
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000008",
+            "placement": 7,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 1,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 6,
+            "bestFinish": 7
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000009",
+            "placement": 8,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 1,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 6,
+            "bestFinish": 8
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000010",
+            "placement": 9,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 0,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 5,
+            "bestFinish": 9
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000011",
+            "placement": 10,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 0,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 5,
+            "bestFinish": 10
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000012",
+            "placement": 11,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 0,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 5,
+            "bestFinish": 11
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "16",
+            "placement": 12,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 12
+          }
+        ],
+        "published": true,
+        "teamResults": [
+          {
+            "teamId": "16",
+            "teamName": "TEST HESABI",
+            "teamSlug": "16",
+            "teamLogo": "https://res.cloudinary.com/xlxr36kf/image/upload/v1791563470/aevic/migrated/nmjjibifcuzjlsvfcaaz/5188d67adb46ae701e74826dc559f49607e832216b302f8332f4a9c15684796d.webp",
+            "placement": 12,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000002",
+            "teamName": "[DEMO] Rəqib 01",
+            "teamSlug": "870000000002",
+            "placement": 1,
+            "finishes": 5,
+            "placementPoints": 10,
+            "totalPoints": 15,
+            "wwcd": true
+          },
+          {
+            "teamId": "870000000003",
+            "teamName": "[DEMO] Rəqib 02",
+            "teamSlug": "870000000003",
+            "placement": 2,
+            "finishes": 5,
+            "placementPoints": 6,
+            "totalPoints": 11,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000004",
+            "teamName": "[DEMO] Rəqib 03",
+            "teamSlug": "870000000004",
+            "placement": 3,
+            "finishes": 5,
+            "placementPoints": 5,
+            "totalPoints": 10,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000005",
+            "teamName": "[DEMO] Rəqib 04",
+            "teamSlug": "870000000005",
+            "placement": 4,
+            "finishes": 5,
+            "placementPoints": 4,
+            "totalPoints": 9,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000006",
+            "teamName": "[DEMO] Rəqib 05",
+            "teamSlug": "870000000006",
+            "placement": 5,
+            "finishes": 5,
+            "placementPoints": 3,
+            "totalPoints": 8,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000007",
+            "teamName": "[DEMO] Rəqib 06",
+            "teamSlug": "870000000007",
+            "placement": 6,
+            "finishes": 5,
+            "placementPoints": 2,
+            "totalPoints": 7,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000008",
+            "teamName": "[DEMO] Rəqib 07",
+            "teamSlug": "870000000008",
+            "placement": 7,
+            "finishes": 5,
+            "placementPoints": 1,
+            "totalPoints": 6,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000009",
+            "teamName": "[DEMO] Rəqib 08",
+            "teamSlug": "870000000009",
+            "placement": 8,
+            "finishes": 5,
+            "placementPoints": 1,
+            "totalPoints": 6,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000010",
+            "teamName": "[DEMO] Rəqib 09",
+            "teamSlug": "870000000010",
+            "placement": 9,
+            "finishes": 5,
+            "placementPoints": 0,
+            "totalPoints": 5,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000011",
+            "teamName": "[DEMO] Rəqib 10",
+            "teamSlug": "870000000011",
+            "placement": 10,
+            "finishes": 5,
+            "placementPoints": 0,
+            "totalPoints": 5,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000012",
+            "teamName": "[DEMO] Rəqib 11",
+            "teamSlug": "870000000012",
+            "placement": 11,
+            "finishes": 5,
+            "placementPoints": 0,
+            "totalPoints": 5,
+            "wwcd": false
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/matches/a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+      "status": 200,
+      "data": {
+        "match": {
+          "id": "a9ef71d4-9e4a-4cd4-9376-40a610be87a8",
+          "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "stage": "final",
+          "day": 1,
+          "round": 4,
+          "map": "Erangel",
+          "lobby": "A",
+          "startsAt": "2026-11-05T10:55:00.000Z",
+          "roomReleaseAt": "2026-11-05T10:45:00.000Z",
+          "publishedAt": "2026-11-05T10:57:47.766Z",
+          "status": "completed"
+        },
+        "tournament": {
+          "id": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+          "name": "[QA-2026-11] AEVIC Full E2E Test",
+          "shortName": "QA NOV 2026"
+        },
+        "standings": [
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000002",
+            "placement": 1,
+            "matches": 1,
+            "wwcd": 1,
+            "finishes": 7,
+            "placementPoints": 10,
+            "finishPoints": 7,
+            "penalties": 0,
+            "totalPoints": 17,
+            "bestFinish": 1
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000003",
+            "placement": 2,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 6,
+            "placementPoints": 6,
+            "finishPoints": 6,
+            "penalties": 0,
+            "totalPoints": 12,
+            "bestFinish": 2
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000004",
+            "placement": 3,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 5,
+            "placementPoints": 5,
+            "finishPoints": 5,
+            "penalties": 0,
+            "totalPoints": 10,
+            "bestFinish": 3
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000005",
+            "placement": 4,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 4,
+            "placementPoints": 4,
+            "finishPoints": 4,
+            "penalties": 0,
+            "totalPoints": 8,
+            "bestFinish": 4
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000006",
+            "placement": 5,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 3,
+            "placementPoints": 3,
+            "finishPoints": 3,
+            "penalties": 0,
+            "totalPoints": 6,
+            "bestFinish": 5
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "16",
+            "placement": 6,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 3,
+            "placementPoints": 2,
+            "finishPoints": 3,
+            "penalties": 0,
+            "totalPoints": 5,
+            "bestFinish": 6
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000007",
+            "placement": 7,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 2,
+            "placementPoints": 1,
+            "finishPoints": 2,
+            "penalties": 0,
+            "totalPoints": 3,
+            "bestFinish": 7
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000008",
+            "placement": 8,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 1,
+            "placementPoints": 1,
+            "finishPoints": 1,
+            "penalties": 0,
+            "totalPoints": 2,
+            "bestFinish": 8
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000009",
+            "placement": 9,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 9
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000010",
+            "placement": 10,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 10
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000011",
+            "placement": 11,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 11
+          },
+          {
+            "tournamentId": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+            "teamId": "870000000012",
+            "placement": 12,
+            "matches": 1,
+            "wwcd": 0,
+            "finishes": 0,
+            "placementPoints": 0,
+            "finishPoints": 0,
+            "penalties": 0,
+            "totalPoints": 0,
+            "bestFinish": 12
+          }
+        ],
+        "published": true,
+        "teamResults": [
+          {
+            "teamId": "16",
+            "teamName": "TEST HESABI",
+            "teamSlug": "16",
+            "teamLogo": "https://res.cloudinary.com/xlxr36kf/image/upload/v1791563470/aevic/migrated/nmjjibifcuzjlsvfcaaz/5188d67adb46ae701e74826dc559f49607e832216b302f8332f4a9c15684796d.webp",
+            "placement": 6,
+            "finishes": 3,
+            "placementPoints": 2,
+            "totalPoints": 5,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000002",
+            "teamName": "[DEMO] Rəqib 01",
+            "teamSlug": "870000000002",
+            "placement": 1,
+            "finishes": 7,
+            "placementPoints": 10,
+            "totalPoints": 17,
+            "wwcd": true
+          },
+          {
+            "teamId": "870000000003",
+            "teamName": "[DEMO] Rəqib 02",
+            "teamSlug": "870000000003",
+            "placement": 2,
+            "finishes": 6,
+            "placementPoints": 6,
+            "totalPoints": 12,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000004",
+            "teamName": "[DEMO] Rəqib 03",
+            "teamSlug": "870000000004",
+            "placement": 3,
+            "finishes": 5,
+            "placementPoints": 5,
+            "totalPoints": 10,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000005",
+            "teamName": "[DEMO] Rəqib 04",
+            "teamSlug": "870000000005",
+            "placement": 4,
+            "finishes": 4,
+            "placementPoints": 4,
+            "totalPoints": 8,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000006",
+            "teamName": "[DEMO] Rəqib 05",
+            "teamSlug": "870000000006",
+            "placement": 5,
+            "finishes": 3,
+            "placementPoints": 3,
+            "totalPoints": 6,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000007",
+            "teamName": "[DEMO] Rəqib 06",
+            "teamSlug": "870000000007",
+            "placement": 7,
+            "finishes": 2,
+            "placementPoints": 1,
+            "totalPoints": 3,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000008",
+            "teamName": "[DEMO] Rəqib 07",
+            "teamSlug": "870000000008",
+            "placement": 8,
+            "finishes": 1,
+            "placementPoints": 1,
+            "totalPoints": 2,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000009",
+            "teamName": "[DEMO] Rəqib 08",
+            "teamSlug": "870000000009",
+            "placement": 9,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000010",
+            "teamName": "[DEMO] Rəqib 09",
+            "teamSlug": "870000000010",
+            "placement": 10,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000011",
+            "teamName": "[DEMO] Rəqib 10",
+            "teamSlug": "870000000011",
+            "placement": 11,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          },
+          {
+            "teamId": "870000000012",
+            "teamName": "[DEMO] Rəqib 11",
+            "teamSlug": "870000000012",
+            "placement": 12,
+            "finishes": 0,
+            "placementPoints": 0,
+            "totalPoints": 0,
+            "wwcd": false
+          }
+        ]
+      }
+    }
+  ]
+}

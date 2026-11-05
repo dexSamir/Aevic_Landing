@@ -1111,6 +1111,8 @@ export interface PlayerClaim {
   safeReason?: string;
 }
 
+export type CurrentResult = RoundResult & { version: number };
+
 export interface ResultVersion {
   id: ID;
   resultId: ID;

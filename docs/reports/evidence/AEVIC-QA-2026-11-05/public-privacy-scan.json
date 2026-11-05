@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "keys": [
+    "tournaments",
+    "teams",
+    "organizations",
+    "leaderboard",
+    "leaderboardTeams",
+    "playerPerformances",
+    "teamComparisonRecords",
+    "teamAchievements"
+  ],
+  "sensitiveNamedFields": []
+}

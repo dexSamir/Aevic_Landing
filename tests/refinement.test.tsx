@@ -37,10 +37,10 @@ describe('public experience refinements', () => {
     view.unmount();
   });
 
-  it('uses one shared desktop active layer without changing the four-link navbar structure', async () => {
+  it('identifies the active destination in the four-link navbar', async () => {
     const view = render(<MemoryRouter initialEntries={['/tournaments']}><PublicSessionProvider><PublicHeader /></PublicSessionProvider></MemoryRouter>);
     const nav = within(view.container).getByRole('navigation', { name: /əsas naviqasiya/i });
-    expect(nav.querySelectorAll('.public-nav-indicator')).toHaveLength(1);
+    expect(nav.querySelectorAll('a[aria-current="page"]')).toHaveLength(1);
     expect(within(nav).getAllByRole('link')).toHaveLength(4);
     expect(within(nav).getByRole('link', { name: 'Turnirlər' })).toHaveClass('active');
     await within(view.container).findByRole('button', { name: /hesab menyusu/i });

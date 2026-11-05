@@ -1,0 +1,8 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "### Result\n{\"sessions\":[{\"role\":\"captain\",\"email\":\"hebibovsamir26@gmail.com\"}],\"url\":\"https://aevic-demo.netlify.app/team/\",\"text\":\"Əsas məzmuna keç\\nKomanda iş sahəsi hazırlanır.\\nMatç analitikası hazırlanır\\n\\nRəsmi nəticələr və komanda göstəriciləri yüklənir.\",\"links\":[{\"text\":\"Əsas məzmuna keç\",\"href\":\"#main-content\"}]}\n### Ran Playwright code\n```js\nawait (async(page)=>{const sessions=[];const listener=async r=>{if(r.url().endsWith('/api/me/session')){const d=await r.json();sessions.push({role:d?.role,email:d?.user?.email})}};page.on('response',listener);await page.goto('https://aevic-demo.netlify.app/team');await page.waitForTimeout(5000);page.off('response',listener);return {sessions,url:page.url(),text:(await page.locator('body').innerText()).slice(0,11000),links:await page.locator('a').evaluateAll(es=>es.map(e=>({text:e.textContent,href:e.getAttribute('href')})))};})(page);\n```\n### Open tabs\n- 0: [](about:blank)\n- 1: (current) [Komanda icmalı | AEVIC Esports](https://aevic-demo.netlify.app/team/) [isolatedContext: qa-public]\n- 2: [Turnir həyat dövrü | AEVIC Esports](https://aevic-demo.netlify.app/admin/tournaments/19130ea6-8fc0-4bc6-9773-12b1a49de0a5/lifecycle) [isolatedContext: qa-public-audit]\n### Page\n- Page URL: https://aevic-demo.netlify.app/team/\n- Page Title: Komanda icmalı | AEVIC Esports\n- Isolated context: qa-public"
+    }
+  ]
+}

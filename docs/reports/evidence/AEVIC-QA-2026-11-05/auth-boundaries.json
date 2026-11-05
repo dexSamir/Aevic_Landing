@@ -1,0 +1,53 @@
+[
+  {
+    "route": "/admin",
+    "url": "https://aevic-demo.netlify.app/admin/login?returnTo=%2Fadmin%2F",
+    "text": "AEVIC secure access\nAdmin girişi\n\nAdministrator hesabınızın e-poçtu və şəxsi şifrəsi ilə daxil olun. Server açarı giriş şifrəsi deyil.\n\nE-poçt\nŞifrə\nMəni xatırla\nŞifrəni unutmusunuz?\nAdmin panelini aç\n\nTəhlükəsiz giriş. Brauzerin parol meneceri və avtomatik doldurma funksiyasından istifadə edə bilərsiniz."
+  },
+  {
+    "route": "/admin/results",
+    "url": "https://aevic-demo.netlify.app/admin/login?returnTo=%2Fadmin%2Fresults%2F",
+    "text": "AEVIC secure access\nAdmin girişi\n\nAdministrator hesabınızın e-poçtu və şəxsi şifrəsi ilə daxil olun. Server açarı giriş şifrəsi deyil.\n\nE-poçt\nŞifrə\nMəni xatırla\nŞifrəni unutmusunuz?\nAdmin panelini aç\n\nTəhlükəsiz giriş. Brauzerin parol meneceri və avtomatik doldurma funksiyasından istifadə edə bilərsiniz."
+  },
+  {
+    "route": "/team",
+    "url": "https://aevic-demo.netlify.app/login?returnTo=%2Fteam%2F",
+    "text": "// AEVIC HESABI\nKomanda panelinə giriş\n\nTəsdiq, slot, check-in, otaq və nəticələr bir paneldə.\n\nGoogle ilə davam et\nBu cihazda məni xatırla (30 gün)\nE-poçt\nŞifrə\nMəni xatırla\nŞifrəni unutmusunuz?\nDaxil ol\n\nƏvvəlki hesabınız varsa, şifrə bərpası ilə yeni şifrə yaradın.\n\nKomandanız yoxdur? Komanda yaradın"
+  },
+  {
+    "route": "/team/tournaments/19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+    "url": "https://aevic-demo.netlify.app/login?returnTo=%2Fteam%2Ftournaments%2F19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+    "text": "// AEVIC HESABI\nKomanda panelinə giriş\n\nTəsdiq, slot, check-in, otaq və nəticələr bir paneldə.\n\nGoogle ilə davam et\nBu cihazda məni xatırla (30 gün)\nE-poçt\nŞifrə\nMəni xatırla\nŞifrəni unutmusunuz?\nDaxil ol\n\nƏvvəlki hesabınız varsa, şifrə bərpası ilə yeni şifrə yaradın.\n\nKomandanız yoxdur? Komanda yaradın"
+  },
+  {
+    "route": "/account/profile",
+    "url": "https://aevic-demo.netlify.app/login?returnTo=%2Faccount%2Fprofile%2F",
+    "text": "// AEVIC HESABI\nKomanda panelinə giriş\n\nTəsdiq, slot, check-in, otaq və nəticələr bir paneldə.\n\nGoogle ilə davam et\nBu cihazda məni xatırla (30 gün)\nE-poçt\nŞifrə\nMəni xatırla\nŞifrəni unutmusunuz?\nDaxil ol\n\nƏvvəlki hesabınız varsa, şifrə bərpası ilə yeni şifrə yaradın.\n\nKomandanız yoxdur? Komanda yaradın"
+  },
+  {
+    "route": "/reset-password?token=QA-invalid-token",
+    "url": "https://aevic-demo.netlify.app/reset-password/",
+    "text": "// AEVIC SECURE ACCESS\nŞifrəni\nbərpa et\nBərpa linki etibarlı deyil\n\nLink natamam, istifadə olunmuş və ya yeni sorğu ilə əvəz edilmiş ola bilər. Ən son sorğunuza aid linki açın və ya yeni link istəyin.\n\nYeni bərpa linki istə\nGirişə qayıt"
+  },
+  {
+    "route": "/verify-email?token=QA-invalid-token",
+    "url": "https://aevic-demo.netlify.app/verify-email/",
+    "text": "Təsdiq linki etibarlı deyil\n\nYeni təsdiq emaili istəyin. Hesabın mövcudluğu barədə əlavə məlumat göstərilmir.\n\nE-poçt ünvanınız\nYenidən göndər\nGirişə qayıt"
+  },
+  {
+    "test": "keyboard-first-focus",
+    "focused": {
+      "tag": "A",
+      "text": "Əsas məzmuna keç",
+      "outline": "rgb(243, 196, 80) solid 2px"
+    }
+  },
+  {
+    "test": "skip-link",
+    "url": "https://aevic-demo.netlify.app/#main-content",
+    "focused": {
+      "tag": "MAIN",
+      "id": "main-content"
+    }
+  }
+]

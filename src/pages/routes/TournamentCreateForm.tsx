@@ -1,3 +1,4 @@
+import { ApiError } from '../../services/apiError';
 import { useState,type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -8,9 +9,9 @@ Select,
 Textarea
 } from "../../components/common/primitives";
 import { serviceCapabilities,services } from "../../services";
-import { invalidateQuery } from "../../services/queryCache";
+import { invalidateQuery, updateCachedQuery } from "../../services/queryCache";
 import "../../styles/lifecycle.css";
-import type { TournamentCreation } from "../../types/domain";
+import type { AdminPlatformSnapshot, TournamentCreation } from "../../types/domain";
 
 export function TournamentCreateForm() {
   const navigate = useNavigate();
@@ -60,10 +61,12 @@ export function TournamentCreateForm() {
       const t = await services.tournaments.create(input, key);
       invalidateQuery("snapshot:admin");
       invalidateQuery("snapshot:public");
+      updateCachedQuery<AdminPlatformSnapshot>('snapshot:admin', snapshot => ({...snapshot, tournaments:[...snapshot.tournaments.filter(item=>item.id!==t.id),t]}));
+      invalidateQuery('snapshot:admin');
       navigate(`/admin/tournaments/${t.id}`);
-    } catch {
+    } catch (error) {
       setError(
-        "Turnir yaradılmadı. Tarix ardıcıllığını və tələb olunan sahələri yoxlayın.",
+        error instanceof ApiError ? error.message : "Turnir yaradılmadı. Tarix ardıcıllığını və tələb olunan sahələri yoxlayın.",
       );
     } finally {
       setBusy(false);

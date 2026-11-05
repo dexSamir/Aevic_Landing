@@ -5,7 +5,7 @@ import {z} from 'zod';
 import type {Env,ApiContext} from '../types';
 import {body,text,pagination} from '../validation/input';
 import {platform,admin,actor} from './context';
-import {audit,notify,transaction,idempotent} from './competition';
+import {audit,notify,notifyTeams,transaction,idempotent} from './competition';
 import {resultInput} from './tournaments';
 import {roundResult} from '../services/data';
 import {ServiceError} from '../errors';
@@ -54,10 +54,16 @@ app.post('/admin/tournaments/:id/cancellation',async c=>{admin(c,['tournament-ma
  const [t]=await tx`select * from aevic.tournaments where id=${id} for update`;if(!t)throw new ServiceError(404,'NOT_FOUND');if(['completed','cancelled'].includes(t.status))throw new ServiceError(409,'TOURNAMENT_CLOSED');
  await tx`update aevic.tournaments set status='cancelled',updated_at=now() where id=${id}`;
  const entries=await tx`select team_id::text from aevic_platform.tournament_registrations where tournament_id=${id} and status in ('pending','confirmed')`;
- for(const e of entries)await notify(tx,e.team_id,'Turnir ləğv edildi',input.reason,`/team/tournaments/${id}`);
+ await notifyTeams(tx,entries.map(e=>e.team_id),'Turnir ləğv edildi',input.reason,`/team/tournaments/${id}`);
  await audit(tx,actor(c),'tournament.cancel','tournament',id,{reason:input.reason});return{id};
  });return c.json(await platform(c).tournament(id));});
 app.post('/admin/tournaments/:id/archive',async c=>{admin(c,['tournament-manager']);const id=uuid(c);await idempotent(platform(c).sql,actor(c),c.req.header('idempotency-key'),'tournament.archive',{id},async tx=>{const rows=await tx`update aevic.tournaments set archived_at=now(),updated_at=now() where id=${id} and status in ('completed','cancelled') returning id`;if(!rows.length)throw new ServiceError(409,'TOURNAMENT_NOT_COMPLETE');await audit(tx,actor(c),'tournament.archive','tournament',id);return{id};});return c.json(await platform(c).tournament(id));});
+app.get('/admin/results/:id',async c=>{
+ admin(c,['result-operator']);
+ const [result]=await platform(c).sql`select *,team_id::text from aevic_platform.team_match_results where id=${uuid(c)} and published=true`;
+ if(!result)throw new ServiceError(404,'RESULT_NOT_FOUND');
+ return c.json({...roundResult(result),version:result.version});
+});
 app.get('/admin/results/:id/versions',async c=>{admin(c,['result-operator']);const rows=await platform(c).sql`select * from aevic_platform.result_versions where result_id=${uuid(c)} order by version desc`;return c.json(rows.map(r=>({id:r.id,resultId:r.result_id,version:r.version,createdAt:r.created_at,createdBy:r.actor_id,reason:r.reason,dataSnapshot:r.result})));});
 app.post('/admin/results/:id/corrections',async c=>{
  admin(c,['result-operator']);const id=uuid(c),input=await body(c,z.object({result:resultInput,reason:text(10,2000),expectedVersion:z.number().int().min(1)}).strict());
@@ -74,7 +80,7 @@ app.post('/admin/results/:id/corrections',async c=>{
   const [updated]=await tx`update aevic_platform.team_match_results set placement=${next.placement},finishes=${next.finishes},placement_points=${placement},finish_points=${finishes},penalties=${next.penalties},notes=${next.notes??null},version=version+1,updated_at=now() where id=${id} returning *,team_id::text`;
   await tx`update aevic.matches set dispute_deadline_at=now()+${t.dispute_duration_minutes}*interval '1 minute',updated_at=now() where id=${m.id}`;
   const entries=await tx`select team_id::text from aevic_platform.tournament_registrations where tournament_id=${t.id} and status='confirmed'`;
-  for(const e of entries)await notify(tx,e.team_id,'Nəticə düzəldildi',input.reason,`/team/tournaments/${t.id}`,'map-result');
+  await notifyTeams(tx,entries.map(e=>e.team_id),'Nəticə düzəldildi',input.reason,`/team/tournaments/${t.id}`,'map-result');
   await captureStandings(tx,t.id,m.id,'correction');
   await audit(tx,actor(c),'result.correct','result',id,{reason:input.reason,version:r.version+1});return {...roundResult(updated),version:r.version+1};
  });return c.json(result);

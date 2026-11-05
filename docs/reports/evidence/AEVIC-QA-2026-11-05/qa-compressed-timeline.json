@@ -1,0 +1,115 @@
+{
+  "id": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+  "name": "[QA-2026-11] AEVIC Full E2E Test",
+  "shortName": "QA NOV 2026",
+  "description": "QA-only audit. Authorized test teams only. No real competition or prizes.",
+  "status": "registration-open",
+  "updatedAt": "2026-11-05T10:46:55.599Z",
+  "startsAt": "2026-11-05T10:52:00.000Z",
+  "endsAt": "2026-11-05T11:06:00.000Z",
+  "registrationOpensAt": "2026-11-04T10:29:00.000Z",
+  "registrationDeadline": "2026-11-05T10:44:00.000Z",
+  "checkInOpensAt": "2026-11-05T10:45:00.000Z",
+  "checkInClosesAt": "2026-11-05T10:51:00.000Z",
+  "maxSlots": 16,
+  "usedSlots": 12,
+  "days": 1,
+  "roundsPerDay": 4,
+  "mapRotation": {
+    "id": "19130ea6-8fc0-4bc6-9773-12b1a49de0a5",
+    "maps": [
+      "Erangel",
+      "Miramar",
+      "Rondo",
+      "Erangel"
+    ]
+  },
+  "pointFormula": {
+    "presetId": "pubgm-international-v1",
+    "placement": [
+      {
+        "points": 10,
+        "placement": 1
+      },
+      {
+        "points": 6,
+        "placement": 2
+      },
+      {
+        "points": 5,
+        "placement": 3
+      },
+      {
+        "points": 4,
+        "placement": 4
+      },
+      {
+        "points": 3,
+        "placement": 5
+      },
+      {
+        "points": 2,
+        "placement": 6
+      },
+      {
+        "points": 1,
+        "placement": 7
+      },
+      {
+        "points": 1,
+        "placement": 8
+      },
+      {
+        "points": 0,
+        "placement": 9
+      },
+      {
+        "points": 0,
+        "placement": 10
+      },
+      {
+        "points": 0,
+        "placement": 11
+      },
+      {
+        "points": 0,
+        "placement": 12
+      },
+      {
+        "points": 0,
+        "placement": 13
+      },
+      {
+        "points": 0,
+        "placement": 14
+      },
+      {
+        "points": 0,
+        "placement": 15
+      },
+      {
+        "points": 0,
+        "placement": 16
+      }
+    ],
+    "wwcdBonus": 0,
+    "tieBreakRules": [
+      "WWCD sayı",
+      "Toplanmış yerləşmə xalları",
+      "Toplanmış eliminasiya xalları",
+      "Son müvafiq matçda daha yaxşı yer"
+    ],
+    "defaultPenalty": 0,
+    "finishPointValue": 1
+  },
+  "rules": [
+    "[QA-2026-11] Authorized QA/demo teams only. No real prizes.",
+    "Placement: 10,6,5,4,3,2,1,1. Each elimination: 1 point.",
+    "Use only QA room credentials and QA results."
+  ],
+  "featured": false,
+  "prizePool": 0,
+  "prizeCurrency": "",
+  "prizeDistribution": [],
+  "disputeDurationMinutes": 60
+}

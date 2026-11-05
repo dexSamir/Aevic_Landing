@@ -1,3 +1,4 @@
+import { statusLabel } from '../../utils/statusLabels';
 import {
 ArrowRight
 } from "lucide-react";
@@ -63,11 +64,11 @@ export function AdminSupportQueuePage() {
           onChange={(event) => setFilter(event.target.value as typeof filter)}
         >
           <option value="">Hamısı</option>
-          <option value="open">Open</option>
-          <option value="waiting-for-user">Waiting for user</option>
-          <option value="under-review">Under review</option>
+          <option value="open">Açıq</option>
+          <option value="waiting-for-user">İstifadəçinin cavabı gözlənilir</option>
+          <option value="under-review">Yoxlanılır</option>
           <option value="resolved">Həll edilib</option>
-          <option value="closed">Closed</option>
+          <option value="closed">Bağlanıb</option>
         </Select>
       </div>
       {!items ? (
@@ -86,7 +87,7 @@ export function AdminSupportQueuePage() {
                   {ticket.category} · {formatDate(ticket.updatedAt)}
                 </small>
               </div>
-              <b>{ticket.status}</b>
+              <b>{statusLabel(ticket.status)}</b>
               <ArrowRight size={17} />
             </Link>
           ))}

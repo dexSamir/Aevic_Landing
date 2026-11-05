@@ -1,0 +1,2078 @@
+{
+  "environment": "isolated real local PostgreSQL and app; synthetic fixture accounts; no deployed mutation",
+  "tournamentId": "86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+  "participants": 16,
+  "rounds": 4,
+  "resultRows": 64,
+  "correctionVersions": 3,
+  "timings": [
+    {
+      "path": "/admin/context",
+      "ms": 18,
+      "status": 200
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "ms": 10,
+      "status": 200
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "ms": 5,
+      "status": 200
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "ms": 7,
+      "status": 200
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 241,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 238,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 236,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 239,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 238,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 237,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 235,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 237,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 238,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 247,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 238,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 237,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 238,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 236,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 236,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 236,
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "ms": 236,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 11,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 8,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 7,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 7,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 7,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 8,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 8,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 7,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 7,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 8,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 8,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 7,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 6,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 7,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 7,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 7,
+      "status": 201
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 6,
+      "status": 201
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/201",
+      "ms": 4,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/202",
+      "ms": 4,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/203",
+      "ms": 4,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/204",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/205",
+      "ms": 4,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/206",
+      "ms": 4,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/207",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/208",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/209",
+      "ms": 4,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/210",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/211",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/212",
+      "ms": 4,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/213",
+      "ms": 4,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/214",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/215",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries/216",
+      "ms": 4,
+      "status": 204
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/entries",
+      "ms": 2,
+      "status": 200
+    },
+    {
+      "path": "/verifications",
+      "ms": 8,
+      "status": 201
+    },
+    {
+      "path": "/roster-requests",
+      "ms": 11,
+      "status": 201
+    },
+    {
+      "path": "/admin/roster-requests/ac4863c9-abef-4d45-bf56-28e6f7d249cb",
+      "ms": 5,
+      "status": 200
+    },
+    {
+      "path": "/me/support/tickets",
+      "ms": 7,
+      "status": 201
+    },
+    {
+      "path": "/admin/support/tickets/6b373c88-67c1-4b97-81c3-f5b155dac908/messages",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/me/support/tickets/6b373c88-67c1-4b97-81c3-f5b155dac908/messages",
+      "ms": 6,
+      "status": 200
+    },
+    {
+      "path": "/admin/support/tickets/6b373c88-67c1-4b97-81c3-f5b155dac908/status",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/me/notification-preferences",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/me/notification-preferences",
+      "ms": 5,
+      "status": 200
+    },
+    {
+      "path": "/me/notification-preferences",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/matches/f669edd0-edf0-479a-91fb-659b86b1e5df/room",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/admin/matches/1dfd6fa1-bd76-4b0f-a7e4-3a71e3851084/room",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/admin/matches/f399f01a-37d8-4363-8c80-38182003ef0d/room",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/admin/matches/1bf72166-2c45-4230-8b2f-d1a51088eecd/room",
+      "ms": 3,
+      "status": 204
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 35,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 11,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 9,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 8,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 7,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 7,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 7,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 7,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 6,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 7,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 7,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 7,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 6,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 6,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 6,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 6,
+      "status": 200
+    },
+    {
+      "path": "/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/check-in",
+      "ms": 6,
+      "status": 200
+    },
+    {
+      "path": "/team/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/rounds/f669edd0-edf0-479a-91fb-659b86b1e5df/room",
+      "ms": 5,
+      "status": 200
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "ms": 10,
+      "status": 200
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 6,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/matches/f669edd0-edf0-479a-91fb-659b86b1e5df/publication",
+      "ms": 7,
+      "status": 204
+    },
+    {
+      "path": "/admin/matches/f669edd0-edf0-479a-91fb-659b86b1e5df/publication",
+      "ms": 2,
+      "status": 204
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 7,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 5,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/matches/1dfd6fa1-bd76-4b0f-a7e4-3a71e3851084/publication",
+      "ms": 5,
+      "status": 204
+    },
+    {
+      "path": "/admin/matches/1dfd6fa1-bd76-4b0f-a7e4-3a71e3851084/publication",
+      "ms": 2,
+      "status": 204
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/matches/f399f01a-37d8-4363-8c80-38182003ef0d/publication",
+      "ms": 5,
+      "status": 204
+    },
+    {
+      "path": "/admin/matches/f399f01a-37d8-4363-8c80-38182003ef0d/publication",
+      "ms": 2,
+      "status": 204
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/results",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/matches/1bf72166-2c45-4230-8b2f-d1a51088eecd/publication",
+      "ms": 5,
+      "status": 204
+    },
+    {
+      "path": "/admin/matches/1bf72166-2c45-4230-8b2f-d1a51088eecd/publication",
+      "ms": 5,
+      "status": 204
+    },
+    {
+      "path": "/leaderboards/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "ms": 4,
+      "status": 200
+    },
+    {
+      "path": "/admin/results?roundId=f669edd0-edf0-479a-91fb-659b86b1e5df",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/disputes",
+      "ms": 13,
+      "status": 201
+    },
+    {
+      "path": "/admin/disputes/88409cdc-3026-4ce1-a787-6b3137144355",
+      "ms": 6,
+      "status": 200
+    },
+    {
+      "path": "/admin/results/9ff64471-e2b0-45c8-983b-c56e3f33fd51/versions",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/leaderboards/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "ms": 7,
+      "status": 200
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "ms": 3,
+      "status": 200
+    },
+    {
+      "path": "/me/context",
+      "ms": 13,
+      "status": 200
+    },
+    {
+      "path": "/roster-requests",
+      "ms": 12,
+      "status": 201
+    },
+    {
+      "path": "/admin/roster-requests/84f03eb9-39d3-4746-9f16-0a80cd949821",
+      "ms": 6,
+      "status": 200
+    }
+  ],
+  "measurements": [
+    {
+      "path": "/admin/legacy-claims",
+      "width": 320,
+      "overflow": 0,
+      "title": "Əvvəlki komandaların sahibliyi"
+    },
+    {
+      "path": "/admin/legacy-claims",
+      "width": 360,
+      "overflow": 0,
+      "title": "Əvvəlki komandaların sahibliyi"
+    },
+    {
+      "path": "/admin/legacy-claims",
+      "width": 390,
+      "overflow": 0,
+      "title": "Əvvəlki komandaların sahibliyi"
+    },
+    {
+      "path": "/admin/legacy-claims",
+      "width": 430,
+      "overflow": 0,
+      "title": "Əvvəlki komandaların sahibliyi"
+    },
+    {
+      "path": "/admin/legacy-claims",
+      "width": 768,
+      "overflow": 0,
+      "title": "Əvvəlki komandaların sahibliyi"
+    },
+    {
+      "path": "/admin/legacy-claims",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Əvvəlki komandaların sahibliyi"
+    },
+    {
+      "path": "/admin/legacy-claims",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Əvvəlki komandaların sahibliyi"
+    },
+    {
+      "path": "/admin/legacy-claims",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Əvvəlki komandaların sahibliyi"
+    },
+    {
+      "path": "/admin",
+      "width": 320,
+      "overflow": 0,
+      "title": "İdarə paneli"
+    },
+    {
+      "path": "/admin",
+      "width": 360,
+      "overflow": 0,
+      "title": "İdarə paneli"
+    },
+    {
+      "path": "/admin",
+      "width": 390,
+      "overflow": 0,
+      "title": "İdarə paneli"
+    },
+    {
+      "path": "/admin",
+      "width": 430,
+      "overflow": 0,
+      "title": "İdarə paneli"
+    },
+    {
+      "path": "/admin",
+      "width": 768,
+      "overflow": 0,
+      "title": "İdarə paneli"
+    },
+    {
+      "path": "/admin",
+      "width": 1024,
+      "overflow": 0,
+      "title": "İdarə paneli"
+    },
+    {
+      "path": "/admin",
+      "width": 1280,
+      "overflow": 0,
+      "title": "İdarə paneli"
+    },
+    {
+      "path": "/admin",
+      "width": 1440,
+      "overflow": 0,
+      "title": "İdarə paneli"
+    },
+    {
+      "path": "/admin/tournaments",
+      "width": 320,
+      "overflow": 0,
+      "title": "Turnirlər"
+    },
+    {
+      "path": "/admin/tournaments",
+      "width": 360,
+      "overflow": 0,
+      "title": "Turnirlər"
+    },
+    {
+      "path": "/admin/tournaments",
+      "width": 390,
+      "overflow": 0,
+      "title": "Turnirlər"
+    },
+    {
+      "path": "/admin/tournaments",
+      "width": 430,
+      "overflow": 0,
+      "title": "Turnirlər"
+    },
+    {
+      "path": "/admin/tournaments",
+      "width": 768,
+      "overflow": 0,
+      "title": "Turnirlər"
+    },
+    {
+      "path": "/admin/tournaments",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Turnirlər"
+    },
+    {
+      "path": "/admin/tournaments",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Turnirlər"
+    },
+    {
+      "path": "/admin/tournaments",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Turnirlər"
+    },
+    {
+      "path": "/admin/tournaments/new",
+      "width": 320,
+      "overflow": 0,
+      "title": "Yeni turnir"
+    },
+    {
+      "path": "/admin/tournaments/new",
+      "width": 360,
+      "overflow": 0,
+      "title": "Yeni turnir"
+    },
+    {
+      "path": "/admin/tournaments/new",
+      "width": 390,
+      "overflow": 0,
+      "title": "Yeni turnir"
+    },
+    {
+      "path": "/admin/tournaments/new",
+      "width": 430,
+      "overflow": 0,
+      "title": "Yeni turnir"
+    },
+    {
+      "path": "/admin/tournaments/new",
+      "width": 768,
+      "overflow": 0,
+      "title": "Yeni turnir"
+    },
+    {
+      "path": "/admin/tournaments/new",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Yeni turnir"
+    },
+    {
+      "path": "/admin/tournaments/new",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Yeni turnir"
+    },
+    {
+      "path": "/admin/tournaments/new",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Yeni turnir"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "width": 320,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "width": 360,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "width": 390,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "width": 430,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "width": 768,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "width": 1024,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "width": 1280,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976",
+      "width": 1440,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/lifecycle",
+      "width": 320,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/lifecycle",
+      "width": 360,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/lifecycle",
+      "width": 390,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/lifecycle",
+      "width": 430,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/lifecycle",
+      "width": 768,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/lifecycle",
+      "width": 1024,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/lifecycle",
+      "width": 1280,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/tournaments/86803ab6-8148-4e2e-8fc8-cca3fe1e4976/lifecycle",
+      "width": 1440,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/check-ins/missed",
+      "width": 320,
+      "overflow": 0,
+      "title": "Missed check-ins"
+    },
+    {
+      "path": "/admin/check-ins/missed",
+      "width": 360,
+      "overflow": 0,
+      "title": "Missed check-ins"
+    },
+    {
+      "path": "/admin/check-ins/missed",
+      "width": 390,
+      "overflow": 0,
+      "title": "Missed check-ins"
+    },
+    {
+      "path": "/admin/check-ins/missed",
+      "width": 430,
+      "overflow": 0,
+      "title": "Missed check-ins"
+    },
+    {
+      "path": "/admin/check-ins/missed",
+      "width": 768,
+      "overflow": 0,
+      "title": "Missed check-ins"
+    },
+    {
+      "path": "/admin/check-ins/missed",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Missed check-ins"
+    },
+    {
+      "path": "/admin/check-ins/missed",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Missed check-ins"
+    },
+    {
+      "path": "/admin/check-ins/missed",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Missed check-ins"
+    },
+    {
+      "path": "/admin/teams",
+      "width": 320,
+      "overflow": 0,
+      "title": "Komandalar"
+    },
+    {
+      "path": "/admin/teams",
+      "width": 360,
+      "overflow": 0,
+      "title": "Komandalar"
+    },
+    {
+      "path": "/admin/teams",
+      "width": 390,
+      "overflow": 0,
+      "title": "Komandalar"
+    },
+    {
+      "path": "/admin/teams",
+      "width": 430,
+      "overflow": 0,
+      "title": "Komandalar"
+    },
+    {
+      "path": "/admin/teams",
+      "width": 768,
+      "overflow": 0,
+      "title": "Komandalar"
+    },
+    {
+      "path": "/admin/teams",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Komandalar"
+    },
+    {
+      "path": "/admin/teams",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Komandalar"
+    },
+    {
+      "path": "/admin/teams",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Komandalar"
+    },
+    {
+      "path": "/admin/teams/201",
+      "width": 320,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/teams/201",
+      "width": 360,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/teams/201",
+      "width": 390,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/teams/201",
+      "width": 430,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/teams/201",
+      "width": 768,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/teams/201",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/teams/201",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/teams/201",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/organizations",
+      "width": 320,
+      "overflow": 0,
+      "title": "Təşkilatlar"
+    },
+    {
+      "path": "/admin/organizations",
+      "width": 360,
+      "overflow": 0,
+      "title": "Təşkilatlar"
+    },
+    {
+      "path": "/admin/organizations",
+      "width": 390,
+      "overflow": 0,
+      "title": "Təşkilatlar"
+    },
+    {
+      "path": "/admin/organizations",
+      "width": 430,
+      "overflow": 0,
+      "title": "Təşkilatlar"
+    },
+    {
+      "path": "/admin/organizations",
+      "width": 768,
+      "overflow": 0,
+      "title": "Təşkilatlar"
+    },
+    {
+      "path": "/admin/organizations",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Təşkilatlar"
+    },
+    {
+      "path": "/admin/organizations",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Təşkilatlar"
+    },
+    {
+      "path": "/admin/organizations",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Təşkilatlar"
+    },
+    {
+      "path": "/admin/results",
+      "width": 320,
+      "overflow": 0,
+      "title": "Nəticə girişi"
+    },
+    {
+      "path": "/admin/results",
+      "width": 360,
+      "overflow": 0,
+      "title": "Nəticə girişi"
+    },
+    {
+      "path": "/admin/results",
+      "width": 390,
+      "overflow": 0,
+      "title": "Nəticə girişi"
+    },
+    {
+      "path": "/admin/results",
+      "width": 430,
+      "overflow": 0,
+      "title": "Nəticə girişi"
+    },
+    {
+      "path": "/admin/results",
+      "width": 768,
+      "overflow": 0,
+      "title": "Nəticə girişi"
+    },
+    {
+      "path": "/admin/results",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Nəticə girişi"
+    },
+    {
+      "path": "/admin/results",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Nəticə girişi"
+    },
+    {
+      "path": "/admin/results",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Nəticə girişi"
+    },
+    {
+      "path": "/admin/results/9ff64471-e2b0-45c8-983b-c56e3f33fd51/correct",
+      "width": 320,
+      "overflow": 0,
+      "title": "Nəticəni düzəlt"
+    },
+    {
+      "path": "/admin/results/9ff64471-e2b0-45c8-983b-c56e3f33fd51/correct",
+      "width": 360,
+      "overflow": 0,
+      "title": "Nəticəni düzəlt"
+    },
+    {
+      "path": "/admin/results/9ff64471-e2b0-45c8-983b-c56e3f33fd51/correct",
+      "width": 390,
+      "overflow": 0,
+      "title": "Nəticəni düzəlt"
+    },
+    {
+      "path": "/admin/results/9ff64471-e2b0-45c8-983b-c56e3f33fd51/correct",
+      "width": 430,
+      "overflow": 0,
+      "title": "Nəticəni düzəlt"
+    },
+    {
+      "path": "/admin/results/9ff64471-e2b0-45c8-983b-c56e3f33fd51/correct",
+      "width": 768,
+      "overflow": 0,
+      "title": "Nəticəni düzəlt"
+    },
+    {
+      "path": "/admin/results/9ff64471-e2b0-45c8-983b-c56e3f33fd51/correct",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Nəticəni düzəlt"
+    },
+    {
+      "path": "/admin/results/9ff64471-e2b0-45c8-983b-c56e3f33fd51/correct",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Nəticəni düzəlt"
+    },
+    {
+      "path": "/admin/results/9ff64471-e2b0-45c8-983b-c56e3f33fd51/correct",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Nəticəni düzəlt"
+    },
+    {
+      "path": "/admin/messages",
+      "width": 320,
+      "overflow": 0,
+      "title": "Mesaj mərkəzi"
+    },
+    {
+      "path": "/admin/messages",
+      "width": 360,
+      "overflow": 0,
+      "title": "Mesaj mərkəzi"
+    },
+    {
+      "path": "/admin/messages",
+      "width": 390,
+      "overflow": 0,
+      "title": "Mesaj mərkəzi"
+    },
+    {
+      "path": "/admin/messages",
+      "width": 430,
+      "overflow": 0,
+      "title": "Mesaj mərkəzi"
+    },
+    {
+      "path": "/admin/messages",
+      "width": 768,
+      "overflow": 0,
+      "title": "Mesaj mərkəzi"
+    },
+    {
+      "path": "/admin/messages",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Mesaj mərkəzi"
+    },
+    {
+      "path": "/admin/messages",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Mesaj mərkəzi"
+    },
+    {
+      "path": "/admin/messages",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Mesaj mərkəzi"
+    },
+    {
+      "path": "/admin/blacklist",
+      "width": 320,
+      "overflow": 0,
+      "title": "Qara siyahı"
+    },
+    {
+      "path": "/admin/blacklist",
+      "width": 360,
+      "overflow": 0,
+      "title": "Qara siyahı"
+    },
+    {
+      "path": "/admin/blacklist",
+      "width": 390,
+      "overflow": 0,
+      "title": "Qara siyahı"
+    },
+    {
+      "path": "/admin/blacklist",
+      "width": 430,
+      "overflow": 0,
+      "title": "Qara siyahı"
+    },
+    {
+      "path": "/admin/blacklist",
+      "width": 768,
+      "overflow": 0,
+      "title": "Qara siyahı"
+    },
+    {
+      "path": "/admin/blacklist",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Qara siyahı"
+    },
+    {
+      "path": "/admin/blacklist",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Qara siyahı"
+    },
+    {
+      "path": "/admin/blacklist",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Qara siyahı"
+    },
+    {
+      "path": "/admin/roster-requests",
+      "width": 320,
+      "overflow": 0,
+      "title": "Heyət sorğuları"
+    },
+    {
+      "path": "/admin/roster-requests",
+      "width": 360,
+      "overflow": 0,
+      "title": "Heyət sorğuları"
+    },
+    {
+      "path": "/admin/roster-requests",
+      "width": 390,
+      "overflow": 0,
+      "title": "Heyət sorğuları"
+    },
+    {
+      "path": "/admin/roster-requests",
+      "width": 430,
+      "overflow": 0,
+      "title": "Heyət sorğuları"
+    },
+    {
+      "path": "/admin/roster-requests",
+      "width": 768,
+      "overflow": 0,
+      "title": "Heyət sorğuları"
+    },
+    {
+      "path": "/admin/roster-requests",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Heyət sorğuları"
+    },
+    {
+      "path": "/admin/roster-requests",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Heyət sorğuları"
+    },
+    {
+      "path": "/admin/roster-requests",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Heyət sorğuları"
+    },
+    {
+      "path": "/admin/roster-requests/ac4863c9-abef-4d45-bf56-28e6f7d249cb",
+      "width": 320,
+      "overflow": 0,
+      "title": "Heyət dəyişikliyi"
+    },
+    {
+      "path": "/admin/roster-requests/ac4863c9-abef-4d45-bf56-28e6f7d249cb",
+      "width": 360,
+      "overflow": 0,
+      "title": "Heyət dəyişikliyi"
+    },
+    {
+      "path": "/admin/roster-requests/ac4863c9-abef-4d45-bf56-28e6f7d249cb",
+      "width": 390,
+      "overflow": 0,
+      "title": "Heyət dəyişikliyi"
+    },
+    {
+      "path": "/admin/roster-requests/ac4863c9-abef-4d45-bf56-28e6f7d249cb",
+      "width": 430,
+      "overflow": 0,
+      "title": "Heyət dəyişikliyi"
+    },
+    {
+      "path": "/admin/roster-requests/ac4863c9-abef-4d45-bf56-28e6f7d249cb",
+      "width": 768,
+      "overflow": 0,
+      "title": "Heyət dəyişikliyi"
+    },
+    {
+      "path": "/admin/roster-requests/ac4863c9-abef-4d45-bf56-28e6f7d249cb",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Heyət dəyişikliyi"
+    },
+    {
+      "path": "/admin/roster-requests/ac4863c9-abef-4d45-bf56-28e6f7d249cb",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Heyət dəyişikliyi"
+    },
+    {
+      "path": "/admin/roster-requests/ac4863c9-abef-4d45-bf56-28e6f7d249cb",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Heyət dəyişikliyi"
+    },
+    {
+      "path": "/admin/disputes",
+      "width": 320,
+      "overflow": 0,
+      "title": "Nəticə etirazları"
+    },
+    {
+      "path": "/admin/disputes",
+      "width": 360,
+      "overflow": 0,
+      "title": "Nəticə etirazları"
+    },
+    {
+      "path": "/admin/disputes",
+      "width": 390,
+      "overflow": 0,
+      "title": "Nəticə etirazları"
+    },
+    {
+      "path": "/admin/disputes",
+      "width": 430,
+      "overflow": 0,
+      "title": "Nəticə etirazları"
+    },
+    {
+      "path": "/admin/disputes",
+      "width": 768,
+      "overflow": 0,
+      "title": "Nəticə etirazları"
+    },
+    {
+      "path": "/admin/disputes",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Nəticə etirazları"
+    },
+    {
+      "path": "/admin/disputes",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Nəticə etirazları"
+    },
+    {
+      "path": "/admin/disputes",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Nəticə etirazları"
+    },
+    {
+      "path": "/admin/disputes/88409cdc-3026-4ce1-a787-6b3137144355",
+      "width": 320,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/disputes/88409cdc-3026-4ce1-a787-6b3137144355",
+      "width": 360,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/disputes/88409cdc-3026-4ce1-a787-6b3137144355",
+      "width": 390,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/disputes/88409cdc-3026-4ce1-a787-6b3137144355",
+      "width": 430,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/disputes/88409cdc-3026-4ce1-a787-6b3137144355",
+      "width": 768,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/disputes/88409cdc-3026-4ce1-a787-6b3137144355",
+      "width": 1024,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/disputes/88409cdc-3026-4ce1-a787-6b3137144355",
+      "width": 1280,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/disputes/88409cdc-3026-4ce1-a787-6b3137144355",
+      "width": 1440,
+      "overflow": 0,
+      "title": "[QA-2026-11] Local Remediation Cup"
+    },
+    {
+      "path": "/admin/players/pubg-9990001234",
+      "width": 320,
+      "overflow": 0,
+      "title": "QA Reserve"
+    },
+    {
+      "path": "/admin/players/pubg-9990001234",
+      "width": 360,
+      "overflow": 0,
+      "title": "QA Reserve"
+    },
+    {
+      "path": "/admin/players/pubg-9990001234",
+      "width": 390,
+      "overflow": 0,
+      "title": "QA Reserve"
+    },
+    {
+      "path": "/admin/players/pubg-9990001234",
+      "width": 430,
+      "overflow": 0,
+      "title": "QA Reserve"
+    },
+    {
+      "path": "/admin/players/pubg-9990001234",
+      "width": 768,
+      "overflow": 0,
+      "title": "QA Reserve"
+    },
+    {
+      "path": "/admin/players/pubg-9990001234",
+      "width": 1024,
+      "overflow": 0,
+      "title": "QA Reserve"
+    },
+    {
+      "path": "/admin/players/pubg-9990001234",
+      "width": 1280,
+      "overflow": 0,
+      "title": "QA Reserve"
+    },
+    {
+      "path": "/admin/players/pubg-9990001234",
+      "width": 1440,
+      "overflow": 0,
+      "title": "QA Reserve"
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 320,
+      "overflow": 0,
+      "title": "Təsdiq sorğuları"
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 360,
+      "overflow": 0,
+      "title": "Təsdiq sorğuları"
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 390,
+      "overflow": 0,
+      "title": "Təsdiq sorğuları"
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 430,
+      "overflow": 0,
+      "title": "Təsdiq sorğuları"
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 768,
+      "overflow": 0,
+      "title": "Təsdiq sorğuları"
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Təsdiq sorğuları"
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Təsdiq sorğuları"
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Təsdiq sorğuları"
+    },
+    {
+      "path": "/admin/verifications/b188c692-cb60-4b52-afcb-0764d3f53159",
+      "width": 320,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/verifications/b188c692-cb60-4b52-afcb-0764d3f53159",
+      "width": 360,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/verifications/b188c692-cb60-4b52-afcb-0764d3f53159",
+      "width": 390,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/verifications/b188c692-cb60-4b52-afcb-0764d3f53159",
+      "width": 430,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/verifications/b188c692-cb60-4b52-afcb-0764d3f53159",
+      "width": 768,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/verifications/b188c692-cb60-4b52-afcb-0764d3f53159",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/verifications/b188c692-cb60-4b52-afcb-0764d3f53159",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/verifications/b188c692-cb60-4b52-afcb-0764d3f53159",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Isolated Team 201"
+    },
+    {
+      "path": "/admin/support",
+      "width": 320,
+      "overflow": 0,
+      "title": "Dəstək sorğuları"
+    },
+    {
+      "path": "/admin/support",
+      "width": 360,
+      "overflow": 0,
+      "title": "Dəstək sorğuları"
+    },
+    {
+      "path": "/admin/support",
+      "width": 390,
+      "overflow": 0,
+      "title": "Dəstək sorğuları"
+    },
+    {
+      "path": "/admin/support",
+      "width": 430,
+      "overflow": 0,
+      "title": "Dəstək sorğuları"
+    },
+    {
+      "path": "/admin/support",
+      "width": 768,
+      "overflow": 0,
+      "title": "Dəstək sorğuları"
+    },
+    {
+      "path": "/admin/support",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Dəstək sorğuları"
+    },
+    {
+      "path": "/admin/support",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Dəstək sorğuları"
+    },
+    {
+      "path": "/admin/support",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Dəstək sorğuları"
+    },
+    {
+      "path": "/admin/audit",
+      "width": 320,
+      "overflow": 0,
+      "title": "Audit jurnalı"
+    },
+    {
+      "path": "/admin/audit",
+      "width": 360,
+      "overflow": 0,
+      "title": "Audit jurnalı"
+    },
+    {
+      "path": "/admin/audit",
+      "width": 390,
+      "overflow": 0,
+      "title": "Audit jurnalı"
+    },
+    {
+      "path": "/admin/audit",
+      "width": 430,
+      "overflow": 0,
+      "title": "Audit jurnalı"
+    },
+    {
+      "path": "/admin/audit",
+      "width": 768,
+      "overflow": 0,
+      "title": "Audit jurnalı"
+    },
+    {
+      "path": "/admin/audit",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Audit jurnalı"
+    },
+    {
+      "path": "/admin/audit",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Audit jurnalı"
+    },
+    {
+      "path": "/admin/audit",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Audit jurnalı"
+    },
+    {
+      "path": "/admin/users",
+      "width": 320,
+      "overflow": 0,
+      "title": "Admin istifadəçiləri"
+    },
+    {
+      "path": "/admin/users",
+      "width": 360,
+      "overflow": 0,
+      "title": "Admin istifadəçiləri"
+    },
+    {
+      "path": "/admin/users",
+      "width": 390,
+      "overflow": 0,
+      "title": "Admin istifadəçiləri"
+    },
+    {
+      "path": "/admin/users",
+      "width": 430,
+      "overflow": 0,
+      "title": "Admin istifadəçiləri"
+    },
+    {
+      "path": "/admin/users",
+      "width": 768,
+      "overflow": 0,
+      "title": "Admin istifadəçiləri"
+    },
+    {
+      "path": "/admin/users",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Admin istifadəçiləri"
+    },
+    {
+      "path": "/admin/users",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Admin istifadəçiləri"
+    },
+    {
+      "path": "/admin/users",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Admin istifadəçiləri"
+    },
+    {
+      "path": "/admin/settings",
+      "width": 320,
+      "overflow": 0,
+      "title": "Admin parametrləri"
+    },
+    {
+      "path": "/admin/settings",
+      "width": 360,
+      "overflow": 0,
+      "title": "Admin parametrləri"
+    },
+    {
+      "path": "/admin/settings",
+      "width": 390,
+      "overflow": 0,
+      "title": "Admin parametrləri"
+    },
+    {
+      "path": "/admin/settings",
+      "width": 430,
+      "overflow": 0,
+      "title": "Admin parametrləri"
+    },
+    {
+      "path": "/admin/settings",
+      "width": 768,
+      "overflow": 0,
+      "title": "Admin parametrləri"
+    },
+    {
+      "path": "/admin/settings",
+      "width": 1024,
+      "overflow": 0,
+      "title": "Admin parametrləri"
+    },
+    {
+      "path": "/admin/settings",
+      "width": 1280,
+      "overflow": 0,
+      "title": "Admin parametrləri"
+    },
+    {
+      "path": "/admin/settings",
+      "width": 1440,
+      "overflow": 0,
+      "title": "Admin parametrləri"
+    }
+  ],
+  "errors": []
+}

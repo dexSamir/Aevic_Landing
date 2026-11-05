@@ -1,0 +1,122 @@
+/* Admin uses the existing Team panel tokens and primitive hierarchy. */
+.product-shell--admin .side-nav { flex:1; min-height:0; gap:4px; scrollbar-color:var(--team-surface-raised) transparent; }
+.product-shell--admin .side-nav__group { min-height:44px; margin:14px 0 2px; padding:4px 10px; color:var(--team-text-muted); letter-spacing:.07em; }
+.product-shell--admin .side-nav__group small { font-size:.75rem; }
+.product-shell--admin .side-nav__section:first-child .side-nav__group { margin-top:0; }
+.product-shell--admin .side-nav a { min-height:44px; padding:10px 12px; gap:10px; border:0; border-radius:var(--team-control-radius); font-size:.8125rem; font-weight:500; color:var(--team-text-navigation); transition:background-color var(--workspace-fast) ease,color var(--workspace-fast) ease; }
+.product-shell--admin .side-nav a:hover { color:var(--team-text-primary); background:var(--team-surface-secondary); }
+.product-shell--admin .side-nav a.active { color:var(--team-text-primary); box-shadow:none; font-weight:700; }
+.product-shell--admin .side-nav a.active .side-nav__icon { background:none; }
+.product-shell--admin .side-nav a.active::after { display:none; }
+.product-shell--admin .side-nav a b { color:var(--text-on-gold); background:var(--color-brand-primary); border-radius:6px; }
+.product-shell--admin .sidebar-note { padding:16px 10px; border:0; border-radius:var(--team-control-radius); background:transparent; color:var(--team-text-muted); }
+.product-shell--admin .sidebar-note strong { color:var(--team-text-secondary); font-size:.8125rem; }
+.product-shell--admin .product-topbar__route { display:flex; align-items:center; gap:12px; }
+.product-shell--admin .product-topbar__route > span { color:var(--team-text-muted); font-size:.75rem; }
+.product-shell--admin .product-topbar__route > strong { margin:0; font:600 .8125rem/1.4 var(--font-ui); }
+.product-shell--admin .product-topbar__actions { margin-left:auto; gap:8px; }
+.product-shell--admin .product-topbar__actions .icon-button { min-width:44px; min-height:44px; border:0; border-radius:var(--team-control-radius); color:var(--team-text-secondary); background:transparent; }
+.product-shell--admin .product-topbar__actions .icon-button:hover { background:var(--team-surface-secondary); color:var(--team-text-primary); }
+.product-shell--admin .product-page > .motion-page { padding-bottom:0; }
+.product-shell--admin .page-header { min-height:0; margin-bottom:var(--workspace-section); padding:0; border:0; align-items:flex-end; gap:20px; }
+.product-shell--admin .page-header__copy { padding:0; gap:8px; }
+.product-shell--admin :is(.page-header,.page-header__copy,.section-heading)::before,
+.product-shell--admin :is(.page-header,.section-heading)::after { display:none; }
+.product-shell--admin .page-header__eyebrow { color:var(--team-text-muted); font-size:.75rem; line-height:1.5; font-weight:600; letter-spacing:.08em; }
+.product-shell--admin .page-header h1 { max-width:30ch; font:650 clamp(1.85rem,3.2vw,2.65rem)/1.15 var(--font-ui); letter-spacing:-.03em; text-transform:none; text-wrap:balance; }
+.product-shell--admin .page-header p { max-width:68ch; color:var(--team-text-muted); font-size:.875rem; line-height:1.65; }
+.product-shell--admin :is(h2,h3) { font-family:var(--font-ui); letter-spacing:-.02em; text-transform:none; }
+.product-shell--admin .section-heading { margin-block:28px 16px; padding:0; border:0; }
+.product-shell--admin .section-heading h2 { font-size:1.125rem; font-weight:650; }
+.product-shell--admin :is(.section-heading p,.empty-state p) { color:var(--team-text-muted); font-size:.875rem; }
+.product-shell--admin .button { min-height:var(--workspace-control); padding:10px 16px; border-radius:var(--team-control-radius); box-shadow:none; font:600 .8125rem/1.5 var(--font-ui); text-transform:none; letter-spacing:0; transition:background-color var(--workspace-fast) ease,opacity 100ms ease,transform 100ms ease; }
+.product-shell--admin .button:active { transform:scale(.985); }
+.product-shell--admin :is(.button--secondary,.button--ghost) { border-color:transparent; }
+.product-shell--admin .button--secondary { background:var(--team-surface-raised); color:var(--team-text-primary); }
+.product-shell--admin :is(a,button,input,select,textarea):focus-visible { outline:2px solid var(--color-brand-primary); outline-offset:3px; }
+.product-shell--admin .empty-state { padding:clamp(28px,6vw,56px) 24px; border:0; border-radius:var(--team-card-radius); background:var(--team-surface-primary); gap:12px; }
+.product-shell--admin .empty-state > svg { color:var(--team-accent-secondary); }
+.product-shell--admin .empty-state :is(h1,h2,h3) { max-width:32ch; font:600 1.2rem/1.35 var(--font-ui); }
+.product-shell--admin :is(.field input,.field select,.field textarea,.search-field input) { min-height:46px; border:1px solid var(--team-border-default); border-radius:var(--team-control-radius); background:var(--team-surface-inset); color:var(--team-text-primary); font-size:1rem; }
+.product-shell--admin .field textarea { min-height:128px; line-height:1.6; }
+.product-shell--admin .field > span { font-size:.8125rem; }
+.product-shell--admin :is(.field input,.field select,.field textarea):hover { border-color:var(--team-border-hover); }
+.product-shell--admin .tabs { width:fit-content; max-width:100%; margin-bottom:24px; padding:4px; gap:4px; border:0; border-radius:10px; background:var(--team-surface-primary); overflow-x:auto; scrollbar-width:none; }
+.product-shell--admin .tabs button { border:0; border-radius:7px; font-size:.8125rem; color:var(--team-text-muted); }
+.product-shell--admin .tabs button[aria-selected='true'] { color:var(--team-text-primary); background:var(--team-surface-raised); box-shadow:0 2px 5px #0002; }
+.product-shell--admin .tabs button::after { display:none; }
+/* Lists remain lists. Space and alternating tones replace rules, not nested cards. */
+.product-shell--admin :is(.data-table,.mobile-data-list,.request-ledger,.notification-center-list,.entity-ledger,.authority-ledger,.invitation-ledger,.history-ledger,.roster-management) { border:0; border-radius:10px; background:var(--team-surface-primary); gap:0; }
+.product-shell--admin .data-table { overflow-x:auto; }
+.product-shell--admin .data-table :is(th,td) { border:0; }
+.product-shell--admin .data-table th { background:var(--team-surface-secondary); color:var(--team-text-muted); font-size:.75rem; }
+.product-shell--admin .data-table tbody tr:nth-child(even) { background:var(--team-surface-secondary); }
+.product-shell--admin :is(.request-ledger>a,.entity-ledger>a,.entity-ledger>article,.authority-ledger>article,.invitation-ledger>article,.history-ledger>article,.roster-management>article,.notification-center-list>div) { border:0; background:transparent; padding:20px; }
+.product-shell--admin :is(.request-ledger>a,.entity-ledger>a,.roster-management>article):hover { background:var(--team-surface-secondary); }
+.product-shell--admin :is(.request-ledger>a,.entity-ledger>article,.invitation-ledger>article,.history-ledger>article,.roster-management>article):nth-child(even) { background:var(--team-surface-secondary); }
+.product-shell--admin :is(.team-tournament-list>article,.history-tournament,.inbox-list,.inbox-layout>aside,.operation-form,.request-detail-grid>section,.request-detail-grid>aside,.completion-grid>section,.completion-grid>form,.settings-panel,.badge-editor,.profile-card-studio>aside) { border:0; border-radius:var(--team-card-radius); background:var(--team-surface-primary); box-shadow:none; }
+.product-shell--admin :is(.team-tournament-list,.completion-grid,.request-detail-grid,.inbox-layout,.settings-workspace) { gap:var(--workspace-gap); }
+.product-shell--admin .product-topbar__route { padding-left:2rem; }
+.product-shell--admin .admin-identity { display:flex; gap:12px; margin:0 0 20px; padding:16px 12px; border:0; border-radius:var(--team-control-radius); background:var(--team-surface-secondary); }
+.product-shell--admin .admin-identity strong { font:600 .875rem/1.4 var(--font-ui); }
+.product-shell--admin .admin-identity span { color:var(--team-text-muted); font-size:.75rem; }
+.product-shell--admin .admin-identity svg { color:var(--team-text-secondary); flex-shrink:0; }
+.product-shell--admin .workspace-brand { margin-bottom:20px; }
+.product-shell--admin .workspace-brand .brand-mark { margin:0; }
+.product-shell--admin :is(.admin-dashboard-grid,.admin-entity-detail,.request-detail-grid,.completion-grid,.message-admin-layout) { gap:var(--workspace-gap); }
+.product-shell--admin :is(.admin-dashboard-grid>section,.admin-entity-detail>section,.admin-entity-detail>aside,.request-detail-grid>section,.request-detail-grid>aside,.completion-grid>section,.completion-grid>form,.message-admin-layout>form,.message-admin-layout>section,.operation-form,.capacity-overview,.admin-tournament-table,.admin-team-table,.slot-management-grid,.audit-ledger,.admin-user-list) { min-width:0; border:0; border-radius:var(--team-card-radius); background:var(--team-surface-primary); box-shadow:none; }
+.product-shell--admin :is(.admin-dashboard-grid>section,.message-admin-layout>form,.message-admin-layout>section,.operation-form) { padding:var(--workspace-gap); }
+.product-shell--admin .operation-form { max-width:none; margin-block:var(--workspace-gap); }
+.product-shell--admin .narrow-form { max-width:48rem; }
+.product-shell--admin .operation-form form { display:grid; gap:var(--space-md); }
+.product-shell--admin .operation-form summary { min-height:44px; align-content:center; cursor:pointer; font-weight:600; }
+.product-shell--admin :is(.admin-tournament-table,.admin-team-table,.audit-ledger,.admin-user-list,.slot-management-grid) { overflow:hidden; gap:0; }
+.product-shell--admin :is(.admin-tournament-table>article,.admin-team-table>article,.audit-ledger>article,.admin-user-list>article,.slot-management-item,.recent-message,.sent-message) { border:0; background:transparent; padding:16px 20px; }
+.product-shell--admin :is(.admin-tournament-table>article,.admin-team-table>article,.audit-ledger>article,.admin-user-list>article,.slot-management-item,.sent-message):nth-child(even) { background:var(--team-surface-secondary); }
+.product-shell--admin .slot-management-item { min-height:88px; }
+.product-shell--admin .filter-row { background:transparent; padding:0; gap:12px; flex-wrap:wrap; }
+.product-shell--admin :is(.request-ledger a,.audit-ledger article,.admin-user-list article) { overflow-wrap:anywhere; }
+.product-shell--admin :is(.status,.badge) { white-space:normal; text-align:center; }
+.product-shell--admin :is(.admin-tournament-table,.admin-team-table) a { min-height:44px; display:inline-flex; align-items:center; gap:8px; }
+.product-shell--admin .operation-form .queue-item { padding:12px 16px; min-height:64px; background:var(--team-surface-secondary); border-radius:var(--team-control-radius); }
+.product-shell--admin .data-table { max-width:100%; }
+.product-shell--admin :is(.field,input,select,textarea) { min-width:0; max-width:100%; }
+.product-shell--admin .product-page h1 { overflow-wrap:anywhere; }
+@media(max-width:1180px) { .product-shell--admin .product-topbar__route { padding-left:0; } }
+@media(max-width:768px) {
+ .product-shell--admin .page-header { align-items:stretch; flex-direction:column; }
+ .product-shell--admin .page-header__actions { flex-wrap:wrap; width:100%; }
+ .product-shell--admin :is(.admin-dashboard-grid,.admin-entity-detail,.request-detail-grid,.completion-grid,.message-admin-layout,.slot-management-grid,.form-grid) { grid-template-columns:minmax(0,1fr); }
+ .product-shell--admin :is(.admin-user-list article,.audit-ledger article) { display:flex; flex-wrap:wrap; gap:12px; }
+ .product-shell--admin .product-topbar__route>span { display:none; }
+ .product-shell--admin .product-topbar__route>strong { font-size:.75rem; }
+ .product-shell--admin .product-topbar { gap:8px; }
+ .product-shell--admin .button { white-space:normal; overflow-wrap:anywhere; max-width:100%; }
+}
+@media(max-width:430px) { .product-shell--admin .product-topbar__route { display:none; } }
+@media(prefers-reduced-motion:reduce) { .product-shell--admin * { scroll-behavior:auto; } }
+/* Keep compact metadata aligned with the identity instead of inheriting the generic grid. */
+.product-shell--admin .admin-tournament-table article>.admin-tournament-table__identity { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; }
+.product-shell--admin .admin-tournament-table__identity>span { width:auto; display:block; font-family:var(--font-ui); }
+.product-shell--admin .admin-toolbar { padding:0; background:transparent; gap:16px; }
+.product-shell--admin .search-field { min-height:46px; border:1px solid var(--team-border-default); border-radius:var(--team-control-radius); background:var(--team-surface-inset); }
+.product-shell--admin .search-field input { min-height:44px; border:0; border-radius:0; background:transparent; box-shadow:none; }
+.product-shell--admin .search-field:focus-within { outline:2px solid var(--color-brand-primary); outline-offset:3px; }
+.product-shell--admin .search-field input:focus-visible { outline:0; }
+.product-shell--admin .admin-user-list article>.status { justify-self:start; width:auto; height:auto; min-height:0; display:inline-flex; padding:.35rem .6rem; }
+.product-shell--admin .request-ledger>a>span:not(.status) { color:var(--team-text-muted); font-size:.75rem; font-weight:500; overflow-wrap:anywhere; }
+.product-shell--admin .request-ledger>a>span>svg { flex-shrink:0; }
+.product-shell--admin .legacy-holdings-ledger { margin-block:20px 28px; }
+.product-shell--admin .legacy-holdings-ledger article { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:center; gap:20px; }
+.product-shell--admin .legacy-holdings-ledger article>div { display:grid; gap:4px; }
+.product-shell--admin .legacy-holdings-ledger :is(small,dt) { color:var(--team-text-muted); font-size:.75rem; }
+.product-shell--admin .legacy-holdings-ledger dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.product-shell--admin .legacy-holdings-ledger dd { margin:4px 0 0; font-size:.8125rem; }
+@media(max-width:768px) {
+ .product-shell--admin .request-ledger>a>span:not(.status),.product-shell--admin .request-ledger>a>div { grid-column:1/-1; }
+ .product-shell--admin .request-ledger>a>.status { grid-column:1; justify-self:start; }
+ .product-shell--admin .request-ledger>a>svg { grid-column:2; }
+ .product-shell--admin .legacy-holdings-ledger article { grid-template-columns:minmax(0,1fr); gap:12px; }
+}
+/* Secondary text stays readable on both ledger tones. */
+.product-shell--admin .legacy-holdings-ledger :is(small,dt),.product-shell--admin .settings-savebar>span { color:var(--team-text-secondary); }

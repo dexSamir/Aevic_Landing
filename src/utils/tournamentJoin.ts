@@ -32,6 +32,11 @@ export function resolveTournamentJoinState(options: {
 }): TournamentJoinViewState {
   if (options.checking) return 'checking';
   if (options.failureCode === 'UNKNOWN') return 'error';
+  // Participation remains visible, but unavailable events must never invite a new registration.
+  if (!['approved','pending','registered'].includes(options.participation ?? '')) {
+    if (!tournamentAcceptsRegistration(options.tournament, options.now ?? Date.now())) return 'closed';
+    if (options.tournament.usedSlots >= options.tournament.maxSlots) return 'full';
+  }
   if (!options.authenticated) return 'login';
   if (!options.team) return 'create-team';
   if (options.registering) return 'registering';

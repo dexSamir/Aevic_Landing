@@ -1,0 +1,134 @@
+[
+  {
+    "path": "/",
+    "width": 390,
+    "metrics": {
+      "lcpMs": 2360,
+      "cls": 0.03696419060620449,
+      "domContentLoadedMs": 1211.4000000357628,
+      "loadMs": 1571.699999988079,
+      "ttfbMs": 583,
+      "api": [
+        {
+          "path": "/api/public/context",
+          "durationMs": 2529.899999976158,
+          "status": 200
+        },
+        {
+          "path": "/api/public/settings",
+          "durationMs": 1724.8999999761581,
+          "status": 200
+        },
+        {
+          "path": "/api/auth/refresh",
+          "durationMs": 291.80000001192093,
+          "status": 200
+        },
+        {
+          "path": "/api/me/session",
+          "durationMs": 271.69999998807907,
+          "status": 200
+        }
+      ]
+    }
+  },
+  {
+    "path": "/tournaments",
+    "width": 390,
+    "metrics": {
+      "lcpMs": 1516,
+      "cls": 0.21777777777777776,
+      "domContentLoadedMs": 763.8000000119209,
+      "loadMs": 769.6999999880791,
+      "ttfbMs": 732.8000000119209,
+      "api": [
+        {
+          "path": "/api/public/context",
+          "durationMs": 78.19999998807907,
+          "status": 200
+        },
+        {
+          "path": "/api/public/settings",
+          "durationMs": 1675.5,
+          "status": 200
+        },
+        {
+          "path": "/api/auth/refresh",
+          "durationMs": 194.60000002384186,
+          "status": 200
+        },
+        {
+          "path": "/api/me/session",
+          "durationMs": 216.60000002384186,
+          "status": 200
+        }
+      ]
+    }
+  },
+  {
+    "path": "/",
+    "width": 1440,
+    "metrics": {
+      "lcpMs": 1216,
+      "cls": 0.0014983527875567985,
+      "domContentLoadedMs": 781.4000000357628,
+      "loadMs": 1172.699999988079,
+      "ttfbMs": 336.10000002384186,
+      "api": [
+        {
+          "path": "/api/public/context",
+          "durationMs": 473.60000002384186,
+          "status": 200
+        },
+        {
+          "path": "/api/public/settings",
+          "durationMs": 1758,
+          "status": 200
+        },
+        {
+          "path": "/api/auth/refresh",
+          "durationMs": 203.69999998807907,
+          "status": 200
+        },
+        {
+          "path": "/api/me/session",
+          "durationMs": 245.19999998807907,
+          "status": 200
+        }
+      ]
+    }
+  },
+  {
+    "path": "/tournaments",
+    "width": 1440,
+    "metrics": {
+      "lcpMs": 868,
+      "cls": 0.17005896463276426,
+      "domContentLoadedMs": 394.30000001192093,
+      "loadMs": 401.5,
+      "ttfbMs": 367.5,
+      "api": [
+        {
+          "path": "/api/public/context",
+          "durationMs": 74.89999997615814,
+          "status": 200
+        },
+        {
+          "path": "/api/public/settings",
+          "durationMs": 1874.2000000476837,
+          "status": 200
+        },
+        {
+          "path": "/api/auth/refresh",
+          "durationMs": 187.89999997615814,
+          "status": 200
+        },
+        {
+          "path": "/api/me/session",
+          "durationMs": 194.80000001192093,
+          "status": 200
+        }
+      ]
+    }
+  }
+]

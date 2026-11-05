@@ -1,0 +1,8 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "### Result\n{\"notice\":[\"Dərc tamamlanmadı. Hər təsdiqlənmiş komandanın nəticəsi tələb olunur.\"],\"resources\":[{\"path\":\"/api/admin/matches/0ab9666e-5501-47b2-b99e-ce2be068fafc/publication\",\"status\":409,\"duration\":5099.800000011921},{\"path\":\"/api/admin/matches/0ab9666e-5501-47b2-b99e-ce2be068fafc/publication\",\"status\":0,\"duration\":10001.700000047684}]}\n### Ran Playwright code\n```js\nawait (async(page)=>{const a=page.context().browser().contexts()[2].pages()[0];await a.getByRole('button',{name:'Bütün raund nəticələrini dərc et',exact:true}).click();await a.waitForTimeout(11000);await a.screenshot({path:'/Users/samirhebibov/Documents/Aevic_Landing/docs/reports/evidence/AEVIC-QA-2026-11-05/result-publish-ui.png',fullPage:true});return {notice:await a.locator('[role=\"status\"]').allTextContents(),resources:await a.evaluate(()=>performance.getEntriesByType('resource').filter(r=>r.name.endsWith('/publication')).map(r=>({path:new URL(r.name).pathname,status:r.responseStatus,duration:r.duration})))};})(page);\n```"
+    }
+  ]
+}

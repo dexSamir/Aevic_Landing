@@ -18,7 +18,7 @@ export function PerformanceSummary({ result, recentMatches }: { result: TeamTour
 
 function comparableValue(record: TeamComparisonRecord, key: keyof TeamComparisonRecord) {
   const value = record[key];
-  return typeof value === 'number' ? String(value) : '—';
+  return typeof value === 'number' && Number.isFinite(value) ? key === 'averagePoints' || key === 'averagePlacement' ? value.toFixed(1) : String(value) : '—';
 }
 
 export function TeamComparison({ records, initialLeftId, initialRightId, invalidSelection = false }: { records: TeamComparisonRecord[]; initialLeftId?: string; initialRightId?: string; invalidSelection?: boolean }) {

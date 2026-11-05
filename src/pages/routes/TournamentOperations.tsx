@@ -1,3 +1,4 @@
+import { statusLabel } from '../../utils/statusLabels';
 import { useEffect,useState,type FormEvent } from "react";
 import {
 Button,
@@ -69,7 +70,7 @@ export function TournamentOperations({
           <div className="settings-savebar" key={e.id}>
             <span>
               {teams.find((t) => t.id === e.teamId)?.name ?? e.teamId} ·{" "}
-              {e.status}
+              {statusLabel(e.status)}
             </span>
             {e.status === "pending" && (
               <div className="decision-actions">

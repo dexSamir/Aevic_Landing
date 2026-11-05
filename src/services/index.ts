@@ -56,7 +56,9 @@ export function competitionNow() { return new Date(); }
 const submitRegistration=services.registration.submit;
 services.registration.submit=async(...args)=>{const receipt=await submitRegistration(...args);invalidateVerifiedSession();await services.auth.getSession().catch(()=>null);channel?.postMessage('changed');notifyIdentity();return receipt;};
 const changePassword=services.account.changePassword;
-services.account.changePassword=async(...args)=>{await changePassword(...args);invalidateVerifiedSession();channel?.postMessage('changed');notifyIdentity();};
+// The server preserves this verified session and revokes the other devices.
+// Revalidate peers without unmounting the current password form and its acknowledgement.
+services.account.changePassword=async(...args)=>{await changePassword(...args);invalidateVerifiedSession();channel?.postMessage('changed');};
 
 const selectWorkspace = services.auth.selectWorkspace;
 services.auth.selectWorkspace = async (...args) => {

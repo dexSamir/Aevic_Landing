@@ -1,3 +1,4 @@
+import { ApiError } from './apiError';
 import type { PlatformServices } from './contracts';
 import {sessionTransport} from './tokenSession';
 import { invalidateQuery } from './queryCache';
@@ -12,11 +13,17 @@ export function createApiServices(baseUrl: string): PlatformServices {
   const request = async <T,>(path: string, options: RequestOptions = {}): Promise<T> => {
     const { nullStatuses = [], timeoutMs, body, ...fetchOptions } = options;
     const csrfToken = typeof document === 'undefined' ? undefined : document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-    const result = await transport.request<T>(path, {
+    const writing = !!fetchOptions.method && !['GET','HEAD'].includes(fetchOptions.method);
+    let result: T;
+    try { result = await transport.request<T>(path, {
       ...fetchOptions, credentials: 'include',
       headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}), ...(csrfToken && fetchOptions.method && fetchOptions.method !== 'GET' ? { 'X-CSRF-Token': csrfToken } : {}), ...options.headers },
       body: body ? JSON.stringify(body) : undefined,
-    }, nullStatuses, timeoutMs);
+    }, nullStatuses, timeoutMs ?? (writing ? 30_000 : undefined));
+    } catch(error) {
+      if(writing && !path.startsWith('/auth/') && error instanceof ApiError && ['network','timeout','server'].includes(error.kind)) { invalidateMutation(path); error.message = 'Əməliyyatın nəticəsi təsdiqlənmədi. Son vəziyyəti yoxlayın; dəyişiklik saxlanmış ola bilər.'; }
+      throw error;
+    }
     if (fetchOptions.method && !['GET','HEAD'].includes(fetchOptions.method) && !path.endsWith('/inspect') && path !== '/media/validate') invalidateMutation(path);
     return result;
   };
@@ -28,6 +35,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
     return serialized ? `?${serialized}` : '';
   };
 
+  const pendingUpdates = new Map<string,string>();
   return {
     legacyClaims: {
       activate: (email,password) => request('/auth/legacy-activation',{method:'POST',body:{email,password}}),
@@ -83,7 +91,13 @@ export function createApiServices(baseUrl: string): PlatformServices {
     tournaments: {
       assignSlot:(id,body,key)=>request(`/admin/tournaments/${encodeURIComponent(id)}/slot-assignment`,{method:'POST',body,headers:{'Idempotency-Key':key}}),
       correctCheckIn:(id,body,key)=>request(`/admin/tournaments/${encodeURIComponent(id)}/check-in-correction`,{method:'POST',body,headers:{'Idempotency-Key':key}}),
-      update: (id,body) => request(`/admin/tournaments/${encodeURIComponent(id)}`,{method:'PATCH',body}),
+      update: async (id,body) => {
+        const intent=JSON.stringify({id,body});
+        let key=pendingUpdates.get(intent);
+        if(!key){ key=crypto.randomUUID(); if(pendingUpdates.size>=32) pendingUpdates.delete(pendingUpdates.keys().next().value!); pendingUpdates.set(intent,key); }
+        const result=await request<import('../types/domain').Tournament>(`/admin/tournaments/${encodeURIComponent(id)}`,{method:'PATCH',body,headers:{'Idempotency-Key':key}});
+        pendingUpdates.delete(intent); return result;
+      },
       create: (body,idempotencyKey) => request('/admin/tournaments',{method:'POST',body,headers:{'Idempotency-Key':idempotencyKey}}),
       entries: id => request(`/admin/tournaments/${encodeURIComponent(id)}/entries`),
       reviewEntry: (tournamentId,teamId,status) => request(`/admin/tournaments/${encodeURIComponent(tournamentId)}/entries/${encodeURIComponent(teamId)}`,{method:'PATCH',body:{status}}),
@@ -196,6 +210,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
     },
     rooms: { getForEligibleTeam: (tournamentId, roundId, signal) => request(`/team/tournaments/${encodeURIComponent(tournamentId)}/rounds/${encodeURIComponent(roundId)}/room`, { signal, cache: 'no-store' }) },
     results: {
+      current: (resultId) => request(`/admin/results/${encodeURIComponent(resultId)}`),
       ownExport: (id) => request(`/team/tournaments/${encodeURIComponent(id)}/result-export`),
       roundEntries: (roundId) => request(`/admin/results?roundId=${encodeURIComponent(roundId)}`),
       leaderboard: (tournamentId, signal) => request(`/leaderboards/${encodeURIComponent(tournamentId)}`, { signal }),

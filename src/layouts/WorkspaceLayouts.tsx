@@ -22,7 +22,7 @@ Users
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link,useLocation } from 'react-router-dom';
-import { BrandMark } from '../components/brand/BrandMark';
+import { BrandMark, BrandEmblem } from '../components/brand/BrandMark';
 import { RouteTransitionOutlet } from '../components/common/Motion';
 import { Drawer,EmptyState,IconButton,StatusBadge,TeamLogo,Select } from '../components/common/primitives';
 import { RouteSeo } from '../components/common/Seo';
@@ -65,6 +65,7 @@ const adminLinks = [
   { to: '/admin/results', label: 'Nəticələr', icon: FileText, group: 'Yarış' },
   { to: '/admin/teams', label: 'Komandalar', icon: Users, group: 'Qurumlar' },
   { to: '/admin/organizations', label: 'Təşkilatlar', icon: Sparkles, group: 'Qurumlar' },
+  { to: '/admin/legacy-claims', label: 'Əvvəlki hesablar', icon: History, group: 'Qurumlar' },
   { to: '/admin/verifications', label: 'Təsdiqlər', icon: ShieldAlert, group: 'Qurumlar' },
   { to: '/admin/support', label: 'Dəstək', icon: MessageSquare, group: 'Dəstək' },
   { to: '/admin/messages', label: 'Mesajlar', icon: MessageSquare, group: 'Moderasiya' },
@@ -114,6 +115,9 @@ export function TeamLayout() {
 export function AdminLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
-  return <div className="product-shell product-shell--admin"><RouteSeo /><aside className="product-sidebar"><BrandMark /><div className="admin-identity"><UserRoundCog size={20} /><div><strong>Yarış əməliyyatları</strong><span>Admin iş sahəsi</span></div></div><SidebarNav links={adminLinks} label="Admin naviqasiyası" /></aside><div className="product-main"><ProductTopbar metadata={productRouteMetadata(pathname, 'admin')} admin menuOpen={menuOpen} onMenu={() => setMenuOpen(true)} /><main id="main-content" className="product-page" tabIndex={-1}><RouteTransitionOutlet family="admin" /></main></div><Drawer id="admin-navigation-drawer" open={menuOpen} title="Admin naviqasiyası" onClose={() => setMenuOpen(false)}><SidebarNav links={adminLinks} label="Admin naviqasiyası" onNavigate={() => setMenuOpen(false)} /></Drawer></div>;
+  return <TeamWorkspaceFrame area="admin"
+    sidebar={<><Link className="workspace-brand" to="/admin"><BrandEmblem variant="compact"/><span>AEVIC<small>Admin iş sahəsi</small></span></Link><div className="admin-identity"><UserRoundCog size={20}/><div><strong>Yarış əməliyyatları</strong><span>İdarəetmə mərkəzi</span></div></div><SidebarNav revealActive links={adminLinks} label="Admin naviqasiyası"/></>}
+    header={<ProductTopbar metadata={productRouteMetadata(pathname,'admin')} admin menuOpen={menuOpen} onMenu={()=>setMenuOpen(true)}/>}
+    overlays={<Drawer id="admin-navigation-drawer" open={menuOpen} title="Admin naviqasiyası" onClose={()=>setMenuOpen(false)}><SidebarNav revealActive links={adminLinks} label="Admin naviqasiyası" onNavigate={()=>setMenuOpen(false)}/></Drawer>}
+  ><RouteSeo/><RouteTransitionOutlet family="admin"/></TeamWorkspaceFrame>;
 }
-

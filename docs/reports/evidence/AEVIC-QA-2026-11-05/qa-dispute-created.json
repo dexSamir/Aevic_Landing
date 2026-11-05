@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "### Error\nError: locator.fill: Error: strict mode violation: locator('[name=description]') resolved to 2 elements:\n    1) <meta name=\"description\" content=\"Yeni etiraz — AEVIC ictimai və yarış iş axını.\"/> aka locator('meta[name=\"description\"]')\n    2) <textarea id=\"_r_5_\" required=\"\" minlength=\"20\" maxlength=\"6000\" name=\"description\" aria-invalid=\"false\" placeholder=\"Nəyin səhv olduğunu və gözlənilən düzgün nəticəni faktlarla yazın.\"></textarea> aka getByRole('textbox', { name: 'Təsvir' })\n\nCall log:\n  - waiting for locator('[name=description]')\n"
+    }
+  ],
+  "isError": true
+}

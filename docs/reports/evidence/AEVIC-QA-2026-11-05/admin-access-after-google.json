@@ -1,0 +1,8 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "### Result\n{\"url\":\"https://aevic-demo.netlify.app/forbidden\",\"out\":[{\"path\":\"/api/me/session\",\"status\":200,\"role\":\"captain\",\"email\":\"aevicesports@gmail.com\",\"keys\":[\"user\",\"role\"]}],\"text\":\"Bu əməliyyat üçün icazəniz yoxdur\\n\\nHesabınızın bu əməliyyat üçün icazəsi yoxdur. Dəstək mərkəzinə müraciət edə bilərsiniz.\\n\\nGirişə keç\\nDəstək mərkəzi\"}\n### Ran Playwright code\n```js\nawait (async (page) => {const out=[]; const listener=async r=>{if(/\\/api\\/(me\\/session|admin\\/context)/.test(r.url())){let d;try{d=await r.json()}catch{};out.push({path:new URL(r.url()).pathname,status:r.status(),role:d?.role,email:d?.user?.email,code:d?.error?.code??d?.code,keys:d?Object.keys(d):[]});}};page.on('response',listener);await page.goto('https://aevic-demo.netlify.app/admin/tournaments/new');await page.waitForTimeout(6000);page.off('response',listener);await page.screenshot({path:'/Users/samirhebibov/Documents/Aevic_Landing/docs/reports/evidence/AEVIC-QA-2026-11-05/admin-access-after-google.png'});return {url:page.url().split('?')[0],out,text:(await page.locator('main').innerText()).slice(0,1600)};})(page);\n```\n### Open tabs\n- 0: [](about:blank)\n- 1: [Hesaba giriş | AEVIC Esports](https://aevic-demo.netlify.app/login/) [isolatedContext: qa-public]\n- 2: (current) [İcazə yoxdur | AEVIC Esports](https://aevic-demo.netlify.app/forbidden) [isolatedContext: qa-public-audit]\n### Page\n- Page URL: https://aevic-demo.netlify.app/forbidden\n- Page Title: İcazə yoxdur | AEVIC Esports\n- Isolated context: qa-public-audit\n- Console: 1 errors, 0 warnings\n### Events\n- New console entries: .playwright-mcp/console-2026-11-05T10-25-23-869Z.log#L15"
+    }
+  ]
+}

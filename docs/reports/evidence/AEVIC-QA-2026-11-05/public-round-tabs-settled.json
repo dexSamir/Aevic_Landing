@@ -1,0 +1,8 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "### Result\n[{\"round\":1,\"rows\":12,\"participant\":\"#1\\t\\nTEST HESABI\\n\\t8\\t1\\t10\\t8\\t—\\t18\"},{\"round\":2,\"rows\":12,\"participant\":\"#4\\t\\nTEST HESABI\\n\\t4\\t0\\t6\\t4\\t—\\t10\"},{\"round\":3,\"rows\":12,\"participant\":\"#12\\t\\nTEST HESABI\\n\\t0\\t0\\t0\\t0\\t—\\t0\"},{\"round\":4,\"rows\":12,\"participant\":\"#6\\t\\nTEST HESABI\\n\\t3\\t0\\t2\\t3\\t—\\t5\"}]\n### Ran Playwright code\n```js\nawait (async(page)=>{\nconst out=[];for(const [n,points] of [[1,'18'],[2,'10'],[3,'0'],[4,'5']]){await page.getByRole('tab',{name:'Matç '+n,exact:true}).click();await page.waitForFunction(({points})=>{const trs=[...document.querySelectorAll('tbody tr')];const row=trs.find(r=>r.textContent.includes('TEST HESABI'));return trs.length===12&&row?.lastElementChild?.textContent?.trim()===points},{points},{timeout:20000});out.push(await page.locator('tbody').evaluate((e,n)=>({round:n,rows:e.querySelectorAll('tr').length,participant:[...e.querySelectorAll('tr')].find(r=>r.textContent.includes('TEST HESABI'))?.innerText}),n));}await page.getByRole('tab',{name:'Ümumi',exact:true}).click();return out;\n})(page);\n```"
+    }
+  ]
+}

@@ -251,6 +251,7 @@ export interface RoomService {
 }
 
 export interface ResultService {
+  current(resultId: string): Promise<import('../types/domain').CurrentResult>;
   roundEntries(roundId:string):Promise<RoundResult[]>;
   leaderboard(tournamentId: string, signal?: AbortSignal): Promise<TeamTournamentResult[]>;
   ownExport(tournamentId: string): Promise<{ teamId: string; result?: TeamTournamentResult; reason?: 'not-participant' | 'no-result' }>;
@@ -258,7 +259,7 @@ export interface ResultService {
   movement(tournamentId: string, signal?: AbortSignal): Promise<RankMovementData[]>;
   saveRound(result: RoundResult): Promise<RoundResult>;
   versions(resultId: string): Promise<ResultVersion[]>;
-  correct(resultId: string, result: RoundResult, reason: string, expectedVersion: number, idempotencyKey: string): Promise<ResultVersion>;
+  correct(resultId: string, result: RoundResult, reason: string, expectedVersion: number, idempotencyKey: string): Promise<import('../types/domain').CurrentResult>;
 }
 
 export interface NotificationService {
