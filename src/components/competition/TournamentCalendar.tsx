@@ -1,3 +1,4 @@
+import { useOptionalPublicSession } from '../../services/PublicSessionContext';
 import { TournamentRow } from './TournamentRow';
 import { ArrowRight, CalendarClock, Check, ChevronLeft, ChevronRight, LockKeyhole, Radio, Clock3, Users, Layers3, Crown, CalendarDays } from 'lucide-react';
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
@@ -47,6 +48,8 @@ function StatusIcon({ status }: { status: TournamentCalendarStatus }) {
 }
 
 export function TournamentCalendar({ tournaments, compact = false, overview = false, planning = false, cinematic = false, onDateSelect, currentTime, selection, onSelectionChange, participationVersion = 0, onParticipationChange }: { tournaments: Tournament[]; compact?: boolean; overview?: boolean; planning?: boolean; cinematic?: boolean; onDateSelect?: (date: string) => void; currentTime?: Date; selection?: { date: string; tournamentId: string }; onSelectionChange?: (selection: { date: string; tournamentId: string }) => void; participationVersion?: number; onParticipationChange?: (id: string) => void }) {
+  const identity=useOptionalPublicSession();
+  const setupPath=identity?.session?identity.session.user.teamId?'/team':'/team/setup':'/register';
   const EventHeading = compact ? 'h3' : 'h2';
   const [localNow, setNow] = useState(competitionNow);
   const now = currentTime ?? localNow;
@@ -118,7 +121,7 @@ export function TournamentCalendar({ tournaments, compact = false, overview = fa
       icon={<CalendarClock size={28} />}
       title="Növbəti yarış elanları burada yayımlanacaq"
       body="Hazırda dərc edilmiş turnir yoxdur. Elan gözləyərkən heyət, iştirak və xal şərtləri ilə tanış olun."
-      action={<Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/regulations'}><span>{serviceCapabilities.register ? 'Komandanı hazırla' : 'Yarış qaydalarına bax'}</span><ArrowRight size={17} /></Link>}
+      action={<Link className="button button--secondary" to={serviceCapabilities.register ? setupPath : '/regulations'}><span>{serviceCapabilities.register ? 'Komandanı hazırla' : 'Yarış qaydalarına bax'}</span><ArrowRight size={17} /></Link>}
     />
   </section>;
 

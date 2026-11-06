@@ -2,7 +2,7 @@ import {
 Bell,
 Laptop,
 LockKeyhole,
-UserRound
+UserRound, Users
 } from "lucide-react";
 import "../../app/workspaceStyles";
 import { services } from "../../services";
@@ -12,6 +12,8 @@ AccountProfile
 } from "../../types/domain";
 
 export const accountLinks = [
+  {to:"/account/onboarding",label:"Hesab məqsədi",icon:UserRound},
+  {to:"/account/invitations",label:"Dəvətlər",icon:Users},
   { to: "/account/profile", label: "Profil", icon: UserRound },
   { to: "/account/security", label: "Təhlükəsizlik", icon: LockKeyhole },
   { to: "/account/notifications", label: "Bildirişlər", icon: Bell },

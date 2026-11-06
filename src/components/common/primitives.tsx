@@ -1,3 +1,4 @@
+import { useSiteHeader } from '../site/SiteContent';
 import '../../styles/components.css';
 import { createPortal } from 'react-dom';
 import { enterModal, isTopModal } from './modalEnvironment';
@@ -239,6 +240,9 @@ export function CopyButton({ value, label = 'Kopyala' }: { value: string; label?
 }
 
 export function PageHeader({ eyebrow, title, description, actions, className = '' }: { eyebrow?: string; title: string; description?: string; actions?: ReactNode; className?: string }) {
+  const content=useSiteHeader();
+  if(typeof content?.title==='string'&&content.title)title=content.title;
+  if(typeof content?.description==='string'&&content.description)description=content.description;
   return <header className={`page-header ${className}`.trim()}><div className="page-header__copy">{eyebrow && <span className="page-header__eyebrow">{eyebrow}</span>}<h1>{title}</h1>{description && <p>{description}</p>}</div>{actions && <div className="page-header__actions">{actions}</div>}</header>;
 }
 

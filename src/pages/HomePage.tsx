@@ -1,8 +1,9 @@
+import { useSiteContent } from '../components/site/SiteContent';
 import { GuestOnly } from '../services/PublicSessionContext';
 import { RosterTeamCard } from '../components/common/RosterTeamCard';
 import { BrandJoinCta } from '../components/common/BrandJoinCta';
 import { ArrowRight, ChevronLeft, ChevronRight, Crown } from 'lucide-react';
-import { lazy, Suspense, useRef } from 'react';
+import { lazy, Suspense, useRef, Fragment, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { homeArtwork } from '../assets/home';
 import { MediaBackdrop } from '../components/common/MediaBackdrop';
@@ -20,6 +21,7 @@ function ProgramSkeleton() {
 }
 
 export function HomePage() {
+  const content=useSiteContent('home');
   const publicQuery = usePlatformQuery({ key: 'snapshot:public', scope: 'public', query: (signal) => services.snapshots.public(signal), staleTime: queryPolicy.publicCompetition });
   const tournaments = publicQuery.data?.tournaments ?? [];
   const teams = publicQuery.data?.teams ?? [];
@@ -32,16 +34,29 @@ export function HomePage() {
   const teamRail = useRef<HTMLDivElement>(null);
   const moveTeams = (direction: number) => { const rail = teamRail.current; if (rail) rail.scrollBy({ left: direction * rail.clientWidth * .8, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }); };
   const startTime = featured ? formatEventTime(featured.startsAt, AEVIC_EVENT_TIMEZONE) : '';
+  const homeSections:Record<string,ReactNode> = {'calendar':(<section className="home-calendar-section" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>TURNİR TƏQVİMİ</span><h2>{content.document?.fields['calendar.title']?content.text('calendar.title',''):<>Yaxın <em>turnirlər.</em></>}</h2><p>{content.text('calendar.body','Növbəti vacib turnirləri qaçırma.')}</p></div><Link to="/tournaments">Bütün turnirlər <ArrowRight size={16} /></Link></header><div className="home-competition-program">{publicQuery.loading ? <ProgramSkeleton /> : !featured ? <div className="home-program-empty"><EmptyState title={publicQuery.error ? "Turnir təqvimi yüklənmədi" : "Hazırda dərc edilmiş turnir yoxdur"} body={publicQuery.error ? "Yarış məlumatı bölməsində yenidən yoxlaya bilərsiniz." : "Növbəti yarışın proqramı dərc edildikdə burada görünəcək."} /></div> : <Suspense fallback={<ProgramSkeleton />}><HomeCompetitionProgram featured={featured} tournaments={tournaments} /></Suspense>}</div></div></section>),
+'maps':(<section className="home-rotation" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>XƏRİTƏLƏR</span><h2>{content.document?.fields['maps.title']?content.text('maps.title',''):<>Hər xəritə,<br />yeni hekayə.</>}</h2></div><p>{content.text('maps.body','Fərqli arenalarda fərqli sınaqlar.')}</p></header><MapRotation variant="program" statuses={[]} ariaLabel={featured ? "Turnirin xəritə rotasiyası" : "PUBG Mobile xəritələri"} maps={featured?.mapRotation.maps.length ? featured.mapRotation.maps.slice(0, 4) : undefined} showRoundLabels={Boolean(featured?.mapRotation.maps.length)} /></div></section>),
+'teams':(<section className="home-teams-section" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>TOP KOMANDALAR</span><h2>{content.text('teams.title','Səhnədəki güclər.')}</h2></div><Link to="/teams">Bütün komandalar <ArrowRight size={16} /></Link></header>{publicQuery.loading ? <div className="home-team-placeholder"><LoadingSkeleton variant="team-rail" rows={5}/></div> : !publicQuery.data ? <p role="status">{publicQuery.error ? 'Komanda kataloqu yüklənmədi. Yarış məlumatı bölməsində yenidən yoxlaya bilərsiniz.' : 'Təsdiqlənmiş komanda kataloqu yüklənir…'}</p> : featuredPublicTeams.length > 0 ? <><div className="home-team-controls"><button type="button" aria-label="Əvvəlki komandalar" onClick={() => moveTeams(-1)}><ChevronLeft size={17} /></button><button type="button" aria-label="Növbəti komandalar" onClick={() => moveTeams(1)}><ChevronRight size={17} /></button></div><div ref={teamRail} tabIndex={0} className="home-team-stage" role="list" aria-label="AEVIC komanda işarələri">{featuredPublicTeams.map((team, index) => <div role="listitem" key={team.id}>
+          <RosterTeamCard name={team.name} logoUrl={team.logoUrl} roster={team.roster} className={`home-ranked-team ${index === 0 && team.resultCount ? 'home-ranked-team--leader' : ''}`} href={`/teams/${team.slug}`} context={<>
+            <span className="home-ranked-team__rank">{team.resultCount ? `#${index + 1}` : '—'}</span>
+            {index === 0 && team.resultCount > 0 && <Crown className="home-ranked-team__crown" size={15} aria-hidden="true" />}
+            </>}>
+            <strong>{team.name}</strong>
+            <span>{team.resultCount ? `${team.points} xal` : 'Nəticə gözlənilir'}</span>
+            <small>{team.resultCount ? `${team.resultCount} turnir · dərc edilmiş nəticələr` : `${team.rosterSize} oyunçu`}</small>
+          </RosterTeamCard>
+        </div>)}</div></> : <EmptyState title="Komandanızla səhnəyə çıxın" body="Hazırda ictimai komanda profili yoxdur. Komandanızı yaradın və PUBG Mobile icmasına qoşulun." action={<Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/regulations#rule-1'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'İştirak şərtlərinə bax'}</span><ArrowRight size={17} /></Link>} />}</div></section>),
+'join':(<BrandJoinCta />)};
   return <>
     <section className="home-live-hero">
-      <MediaBackdrop {...homeArtwork.hero} sizes="(max-width: 800px) 1400px, 100vw" className="home-live-hero__media" priority focalDesktop="55% 0%" focalMobile="63% 0%" />
+      <MediaBackdrop {...homeArtwork.hero} {...(content.media('hero.media')?{src:content.media('hero.media')!,srcSet:undefined,sources:undefined,localPreview:true}: {})} sizes="(max-width: 800px) 1400px, 100vw" className="home-live-hero__media" priority focalDesktop="55% 0%" focalMobile="63% 0%" />
       <div className="container home-live-hero__stage">
         <div className="home-live-hero__cover">
           <div className="home-live-hero__copy">
-            <span>AZƏRBAYCAN · PUBG MOBILE · AEVIC</span>
-            <h1>Rəqabətin <em>yeni səhnəsi.</em></h1>
-            <p>Turnirlər, komandalar, oyunçular və daha böyük bir e-sport ekosistemi.</p>
-            <div className="hero-actions"><Link className="button button--primary" to="/tournaments"><span>Turnirləri kəşf et</span><ArrowRight size={18} /></Link><GuestOnly><Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/teams'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'Komandaları kəşf et'}</span></Link></GuestOnly></div>
+            <span>{content.text('hero.eyebrow','AZƏRBAYCAN · PUBG MOBILE · AEVIC')}</span>
+            <h1>{content.text('hero.title','Rəqabətin')} <em>{content.text('hero.accent','yeni səhnəsi.')}</em></h1>
+            <p>{content.text('hero.body','Turnirlər, komandalar, oyunçular və daha böyük bir e-sport ekosistemi.')}</p>
+            <div className="hero-actions"><Link className="button button--primary" to={content.text('hero.href','/tournaments')}><span>{content.text('hero.cta','Turnirləri kəşf et')}</span><ArrowRight size={18} /></Link><GuestOnly><Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/teams'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'Komandaları kəşf et'}</span></Link></GuestOnly></div>
           </div>
         </div>
         <div className="home-competition-slot">{publicQuery.loading ? <LoadingSkeleton variant="rail"/> : !publicQuery.data ? <div className="home-competition-rail home-competition-rail--empty" aria-live="polite"><div><span>YARIŞ VƏZİYYƏTİ</span><h2>{publicQuery.error ? (publicQuery.error.code==='SERVER_NOT_CONFIGURED'?'Platform xidməti hələ konfiqurasiya edilməyib.':'Yarış məlumatı yüklənmədi.') : 'Yarış məlumatı yoxlanılır…'}</h2></div>{publicQuery.error?.retryable && <Button variant="secondary" disabled={publicQuery.retryAfterSeconds > 0} onClick={publicQuery.refetch}>{publicQuery.retryAfterSeconds > 0 ? `${publicQuery.retryAfterSeconds} san. sonra yoxla` : 'Yenidən yoxla'}</Button>}</div> : featured ? <article className="home-competition-rail">
@@ -54,23 +69,6 @@ export function HomePage() {
 
 
 
-    <section className="home-calendar-section" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>TURNİR TƏQVİMİ</span><h2>Yaxın <em>turnirlər.</em></h2><p>Növbəti vacib turnirləri qaçırma.</p></div><Link to="/tournaments">Bütün turnirlər <ArrowRight size={16} /></Link></header><div className="home-competition-program">{publicQuery.loading ? <ProgramSkeleton /> : !featured ? <div className="home-program-empty"><EmptyState title={publicQuery.error ? "Turnir təqvimi yüklənmədi" : "Hazırda dərc edilmiş turnir yoxdur"} body={publicQuery.error ? "Yarış məlumatı bölməsində yenidən yoxlaya bilərsiniz." : "Növbəti yarışın proqramı dərc edildikdə burada görünəcək."} /></div> : <Suspense fallback={<ProgramSkeleton />}><HomeCompetitionProgram featured={featured} tournaments={tournaments} /></Suspense>}</div></div></section>
-
-
-    <section className="home-rotation" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>XƏRİTƏLƏR</span><h2>Hər xəritə,<br />yeni hekayə.</h2></div><p>Fərqli arenalarda fərqli sınaqlar.</p></header><MapRotation variant="program" statuses={[]} ariaLabel={featured ? "Turnirin xəritə rotasiyası" : "PUBG Mobile xəritələri"} maps={featured?.mapRotation.maps.length ? featured.mapRotation.maps.slice(0, 4) : undefined} showRoundLabels={Boolean(featured?.mapRotation.maps.length)} /></div></section>
-
-    <section className="home-teams-section" ><div className="container"><header className="home-section-intro" data-reveal data-reveal-variant="fade-up"><div><span>TOP KOMANDALAR</span><h2>Səhnədəki güclər.</h2></div><Link to="/teams">Bütün komandalar <ArrowRight size={16} /></Link></header>{publicQuery.loading ? <div className="home-team-placeholder"><LoadingSkeleton variant="team-rail" rows={5}/></div> : !publicQuery.data ? <p role="status">{publicQuery.error ? 'Komanda kataloqu yüklənmədi. Yarış məlumatı bölməsində yenidən yoxlaya bilərsiniz.' : 'Təsdiqlənmiş komanda kataloqu yüklənir…'}</p> : featuredPublicTeams.length > 0 ? <><div className="home-team-controls"><button type="button" aria-label="Əvvəlki komandalar" onClick={() => moveTeams(-1)}><ChevronLeft size={17} /></button><button type="button" aria-label="Növbəti komandalar" onClick={() => moveTeams(1)}><ChevronRight size={17} /></button></div><div ref={teamRail} tabIndex={0} className="home-team-stage" role="list" aria-label="AEVIC komanda işarələri">{featuredPublicTeams.map((team, index) => <div role="listitem" key={team.id}>
-          <RosterTeamCard name={team.name} logoUrl={team.logoUrl} roster={team.roster} className={`home-ranked-team ${index === 0 && team.resultCount ? 'home-ranked-team--leader' : ''}`} href={`/teams/${team.slug}`} context={<>
-            <span className="home-ranked-team__rank">{team.resultCount ? `#${index + 1}` : '—'}</span>
-            {index === 0 && team.resultCount > 0 && <Crown className="home-ranked-team__crown" size={15} aria-hidden="true" />}
-            </>}>
-            <strong>{team.name}</strong>
-            <span>{team.resultCount ? `${team.points} xal` : 'Nəticə gözlənilir'}</span>
-            <small>{team.resultCount ? `${team.resultCount} turnir · dərc edilmiş nəticələr` : `${team.rosterSize} oyunçu`}</small>
-          </RosterTeamCard>
-        </div>)}</div></> : <EmptyState title="Komandanızla səhnəyə çıxın" body="Hazırda ictimai komanda profili yoxdur. Komandanızı yaradın və PUBG Mobile icmasına qoşulun." action={<Link className="button button--secondary" to={serviceCapabilities.register ? '/register' : '/regulations#rule-1'}><span>{serviceCapabilities.register ? 'Komanda yarat' : 'İştirak şərtlərinə bax'}</span><ArrowRight size={17} /></Link>} />}</div></section>
-
-
-    <BrandJoinCta />
+    {content.order(['calendar','maps','teams','join']).filter(id=>content.visible(`${id}.visible`)).map(id=><Fragment key={id}>{homeSections[id]}</Fragment>)}
   </>;
 }

@@ -1,9 +1,15 @@
+import { useSiteContent } from '../site/SiteContent';
+import { services } from '../../services';
+import { usePlatformQuery } from '../../services/queryCache';
 import { useId } from 'react';
 import { ArrowDown } from 'lucide-react';
 import { FooterLinks } from './FooterLinks';
 import '../../styles/cinematic-footer.css';
 
 export function CinematicFooter() {
+  const content=useSiteContent('global');
+  const {data:settings}=usePlatformQuery({key:'platform:settings',scope:'public',query:()=>services.admin.publicSettings()});
+  const email=settings?.supportEmail??'aevicesports@gmail.com';
   const socialId = useId();
   const glassId = useId();
   const maskId = useId();
@@ -12,12 +18,12 @@ export function CinematicFooter() {
     <footer className="cinematic-footer" aria-label="AEVIC Esports">
       <div className="cinematic-footer__scene container">
         <div className="cinematic-footer__top">
-          <p>Turnirlər.<br />Komandalar.<br />Oyunçular.</p>
-          <p>Rəqabətin<br />yeni səhnəsi.</p>
-          <p>Azərbaycandan<br />dünya səhnəsinə.</p>
+          <p style={{whiteSpace:'pre-line'}}>{content.text('footer.column1','Turnirlər.\nKomandalar.\nOyunçular.')}</p>
+          <p style={{whiteSpace:'pre-line'}}>{content.text('footer.column2','Rəqabətin\nyeni səhnəsi.')}</p>
+          <p style={{whiteSpace:'pre-line'}}>{content.text('footer.column3','Azərbaycandan\ndünya səhnəsinə.')}</p>
           <a className="cinematic-footer__follow" href={`#${socialId}`}><ArrowDown size={27} strokeWidth={1.3} aria-hidden="true" /><span>BİZİ İZLƏ</span></a>
         </div>
-        <p className="cinematic-footer__statement"><span>Gəlin e-sportun gələcəyini birlikdə quraq.</span><a href="mailto:aevicesports@gmail.com">aevicesports@gmail.com</a></p>
+        <p className="cinematic-footer__statement"><span>{content.text('footer.statement','Gəlin e-sportun gələcəyini birlikdə quraq.')}</span><a href={`mailto:${email}`}>{email}</a></p>
         <FooterLinks socialId={socialId} />
         {/* Original wordmark contours are artwork, independent of UI fonts. */}
         <svg className="cinematic-footer__wordmark" viewBox="0 180 2648 730" aria-hidden="true" focusable="false">
@@ -30,7 +36,7 @@ export function CinematicFooter() {
           </g>
           <g clipPath={`url(#${maskId})`}><g className="cinematic-footer__reflection"><path d="M -500 -400 L -260 -400 L -960 1300 L -1200 1300 Z" fill={`url(#${beamId})`} /></g></g>
         </svg>
-        <div className="cinematic-footer__bottom"><small>© {new Date().getFullYear()} AEVIC Esports</small><span>AD AETERNAM VICTORIAM</span></div>
+        <div className="cinematic-footer__bottom"><small>© {new Date().getFullYear()} AEVIC Esports</small><span>{content.text('footer.motto','AD AETERNAM VICTORIAM')}</span></div>
       </div>
     </footer>
   );

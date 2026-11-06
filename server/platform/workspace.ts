@@ -8,7 +8,7 @@ export function workspaceRequest(path:string){
  path=path.replace(/^\/api/,'');
  return /^\/(teams\/|team\/|roster-requests(?:\/|$)|disputes(?:\/|$))/.test(path)
   ||/^\/tournaments\/[^/]+\/(entries|check-in|withdraw)$/.test(path)
-  ||/^\/me\/(context|team|legacy-roster|messages|notifications|notification-preferences)(\/|$)/.test(path)
+  ||/^\/me\/(context|team|legacy-roster|messages)(\/|$)/.test(path)
   ||/^\/media(?:\/|$)/.test(path)
   ||/^\/verifications(?:\/|$)/.test(path);
 }

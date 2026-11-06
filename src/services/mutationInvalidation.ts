@@ -3,6 +3,9 @@ import { clearQueryCache, invalidateQuery, invalidateTeamProfile, invalidateTeam
 /** Mutation families correspond to public projections; private snapshots remain isolated. */
 export function mutationResources(path: string): string[] {
   if (/^\/auth\//.test(path)) return [];
+  if(path.startsWith('/admin/site-content/'))return ['site-content:'];
+  if(path==='/admin/settings')return ['platform:settings','admin:settings'];
+  if(path==='/me/onboarding/team')return ['snapshot:', 'profile:', 'account:onboarding:'];
   // These endpoints preserve the verified current session. Rechecking the guard
   // unmounts enrollment and discards its one-time QR/recovery state.
   if (path === '/me/account/password' || /^\/me\/2fa(?:\/|$)/.test(path)) return ['account:'];
@@ -19,6 +22,8 @@ export function mutationResources(path: string): string[] {
 export function invalidateMutation(path: string) {
   // Workspace changes alter every private resource's authority. Never retain the old
   // workspace as stale-while-revalidate content, or accept its in-flight responses.
+  if(path==='/admin/settings'){invalidateQuery('platform:settings');invalidateQuery('admin:settings');return;}
+  if(path.startsWith('/admin/site-content/')){invalidateQuery('site-content:');return;}
   if (path === '/me/workspace') { clearQueryCache('private'); return; }
   if (/^\/auth\/(login|admin\/login|logout|password-reset\/confirm)$/.test(path)) clearQueryCache('private');
   const teamId = path.match(/^\/(?:admin\/)?teams\/([^/]+)/)?.[1];

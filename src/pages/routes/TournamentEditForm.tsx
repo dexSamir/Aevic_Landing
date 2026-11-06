@@ -1,208 +1,44 @@
-import { ApiError } from '../../services/apiError';
-import { useState,type FormEvent } from "react";
-import {
-Button,
-Input,
-Select,
-Textarea
-} from "../../components/common/primitives";
-import { services } from "../../services";
+import { useRef, useState, type FormEvent } from 'react';
+import { Button, Input, Select, Textarea } from '../../components/common/primitives';
+import { TournamentSchedule } from '../../components/admin/TournamentSchedule';
+import { TournamentBannerEditor } from '../../components/admin/TournamentBannerEditor';
+import { services } from '../../services';
 import { invalidateQuery } from '../../services/queryCache';
-import { useAdminPlatformData } from "../../services/PlatformDataContext";
-import "../../styles/lifecycle.css";
+import { useAdminPlatformData } from '../../services/PlatformDataContext';
+import { bakuInput, tournamentWizardPayload, validateTournamentWizard, type WizardFields, type WizardRound } from '../../utils/tournamentWizard';
+import type { MatchScheduleItem, Tournament } from '../../types/domain';
+import '../../styles/lifecycle.css';
 
-export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
-  const snapshot = useAdminPlatformData();
-  const tournament = snapshot.tournaments.find((t) => t.id === tournamentId);
-  const [busy, setBusy] = useState(false),
-    [notice, setNotice] = useState("");
-  const rounds = (snapshot.matchSchedule ?? [])
-    .filter((m) => m.tournamentId === tournamentId)
-    .sort((a, b) => a.round - b.round);
-  const localTime = (iso: string) => {
-    const d = new Date(iso);
-    return new Date(d.getTime() - d.getTimezoneOffset() * 60_000)
-      .toISOString()
-      .slice(0, 16);
-  };
-  if (!tournament) return null;
-  const scheduleReady = rounds.length === tournament.days * tournament.roundsPerDay && rounds.length > 0;
-  const locked =
-    Date.now() >= Date.parse(tournament.registrationDeadline) ||
-    ["ongoing", "completed", "cancelled"].includes(tournament.status);
-  const terminal = ['completed', 'cancelled'].includes(tournament.status);
-  const nextStatuses: Record<string,string[]> = {draft:['draft','published'],published:['published','registration-open'],'registration-open':['registration-open','ongoing'],ongoing:['ongoing','completed'],completed:['completed'],cancelled:['cancelled']};
-  const statusLabels:Record<string,string> = {draft:'Qaralama',published:'Dərc edilib','registration-open':'Qeydiyyat açıqdır',ongoing:'Davam edir',completed:'Tamamlandı',cancelled:'Ləğv edildi'};
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (busy || terminal || !scheduleReady || !tournament.updatedAt) return;
-    setBusy(true);
-    setNotice("");
-    const data = new FormData(e.currentTarget);
-    const value = (key: string) => String(data.get(key) ?? "");
-    const time = (
-      key:
-        | "startsAt"
-        | "endsAt"
-        | "registrationOpensAt"
-        | "registrationDeadline"
-        | "checkInOpensAt"
-        | "checkInClosesAt",
-    ) => (locked ? tournament[key] : new Date(value(key)).toISOString());
-    try {
-      await services.tournaments.update(tournamentId, {
-        name: value("name"),
-        shortName: value("shortName"),
-        description: value("description"),
-        rules: value("rules")
-          .split("\n")
-          .map((v) => v.trim())
-          .filter(Boolean),
-        status: value("status") as typeof tournament.status,
-        expectedUpdatedAt: tournament.updatedAt,
-        maxSlots: locked ? tournament.maxSlots : Number(value("maxSlots")),
-        startsAt: time("startsAt"),
-        endsAt: time("endsAt"),
-        registrationOpensAt: time("registrationOpensAt"),
-        registrationDeadline: time("registrationDeadline"),
-        checkInOpensAt: time("checkInOpensAt"),
-        checkInClosesAt: time("checkInClosesAt"),
-        rounds: rounds.map((m) => ({
-          id: m.id,
-          map: (locked ? m.map : value(`map:${m.id}`)) as
-            | "Erangel"
-            | "Miramar"
-            | "Rondo",
-          startsAt: locked
-            ? m.startsAt
-            : new Date(value(`time:${m.id}`)).toISOString(),
-        })),
-      });
-      invalidateQuery("snapshot:admin");
-      invalidateQuery("snapshot:public");
-      setNotice("Turnir yeniləndi.");
-    } catch (error) {
-      setNotice(
-        error instanceof Error &&
-          "code" in error &&
-          ["TOURNAMENT_VERSION_CONFLICT","STALE_VERSION"].includes(String(error.code))
-          ? "Turnir başqa administrator tərəfindən dəyişdirilib. Məlumatları yeniləyib yenidən cəhd edin."
-          : error instanceof ApiError ? error.message : "Dəyişiklik saxlanılmadı. İcazəni, vaxtları və cədvəlin kilid vəziyyətini yoxlayın.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <details className="operation-form">
-      <summary>Turniri redaktə et</summary>
-      {!scheduleReady && <p role="status">Raund cədvəli yüklənir. Redaktə üçün cədvəlin tam yüklənməsini gözləyin.</p>}
-      {notice && <p role="status">{notice}</p>}
-      <form key={tournament.updatedAt} onSubmit={submit}>
-        <section className="admin-field-group"><h3>Turnirin kimliyi</h3><div className="form-grid">
-          <Input
-            label="Turnir adı"
-            name="name"
-            defaultValue={tournament.name}
-            minLength={2}
-            maxLength={120}
-            required
-          />
-          <Input
-            label="Qısa ad"
-            name="shortName"
-            defaultValue={tournament.shortName}
-            minLength={2}
-            maxLength={50}
-            required
-          />
-        </div>
-        <Textarea
-          name="description"
-          label="Təsvir"
-          defaultValue={tournament.description}
-          maxLength={3000}
-        />
-        </section><section className="admin-field-group"><h3>Dərc və qeydiyyat</h3><Select
-          name="status"
-          label="Nəşr statusu"
-          defaultValue={tournament.status}
-          disabled={terminal}
-        >
-          {(nextStatuses[tournament.status] ?? [tournament.status]).map(status => <option key={status} value={status}>{statusLabels[status] ?? status}</option>)}
-        </Select>
-        <p>
-          Qeydiyyat olduqda turniri gizlətmək mümkün deyil. Qeydiyyat
-          bağlandıqdan sonra cədvəl və tutum kilidlənir.
-        </p>
-        </section><section className="admin-field-group"><h3>Tarix və check-in</h3><div className="form-grid">
-          {(
-            [
-              ["startsAt", "Turnirin başlanğıcı"],
-              ["endsAt", "Turnirin bitməsi"],
-              ["registrationOpensAt", "Qeydiyyat açılır"],
-              ["registrationDeadline", "Qeydiyyat bağlanır"],
-              ["checkInOpensAt", "Check-in açılır"],
-              ["checkInClosesAt", "Check-in bağlanır"],
-            ] as const
-          ).map(([key, label]) => (
-            <Input
-              key={key}
-              name={key}
-              label={label}
-              type="datetime-local"
-              defaultValue={localTime(tournament[key])}
-              disabled={locked}
-              required
-            />
-          ))}
-        </div>
-        </section><section className="admin-field-group"><h3>Tutum və raundlar</h3><Input
-          name="maxSlots"
-          label="Maksimum komanda sayı"
-          type="number"
-          min={1}
-          max={100}
-          defaultValue={tournament.maxSlots}
-          disabled={locked}
-          required
-        />
-        {rounds.map((m) => (
-          <div className="form-grid" key={m.id}>
-            <Select
-              name={`map:${m.id}`}
-              label={`${m.round}. raund xəritəsi`}
-              defaultValue={m.map}
-              disabled={locked}
-            >
-              {["Erangel", "Miramar", "Rondo"].map((map) => (
-                <option key={map}>{map}</option>
-              ))}
-            </Select>
-            <Input
-              name={`time:${m.id}`}
-              label={`${m.round}. raund başlayır`}
-              type="datetime-local"
-              defaultValue={localTime(m.startsAt)}
-              disabled={locked}
-              required
-            />
-          </div>
-        ))}
-        </section><section className="admin-field-group"><h3>Yarış qaydaları</h3><Textarea
-          label="Qaydalar — hər sətirdə bir qayda"
-          name="rules"
-          defaultValue={tournament.rules.join("\n")}
-          maxLength={10000}
-        />
-        </section><Button
-          type="submit"
-          loading={busy}
-          disabled={!tournament.updatedAt || terminal || !scheduleReady}
-        >
-          Dəyişiklikləri saxla
-        </Button>
-      </form>
-    </details>
-  );
+export function TournamentEditForm({tournamentId}:{tournamentId:string}) {
+ const snapshot=useAdminPlatformData(),tournament=snapshot.tournaments.find(t=>t.id===tournamentId);
+ if(!tournament)return null;
+ return <Editor key={tournament.updatedAt} tournament={tournament} matches={(snapshot.matchSchedule??[]).filter(m=>m.tournamentId===tournamentId).sort((a,b)=>a.round-b.round)}/>;
+}
+function Editor({tournament:t,matches}:{tournament:Tournament;matches:MatchScheduleItem[]}) {
+ const [fields,setFields]=useState<WizardFields>(()=>({name:t.name,shortName:t.shortName,description:t.description,maxSlots:String(t.maxSlots),rules:t.rules.join('\n'),...Object.fromEntries((['startsAt','endsAt','registrationOpensAt','registrationDeadline','checkInOpensAt','checkInClosesAt'] as const).map(k=>[k,bakuInput(t[k])]))} as WizardFields));
+ // Match identity is taken only from the authoritative snapshot, never from a form.
+ const [times,setTimes]=useState<WizardRound[]|null>(null),rounds=times??matches.map(m=>({map:m.map as WizardRound['map'],startsAt:bakuInput(m.startsAt)}));
+ const [status,setStatus]=useState(t.status),[banner,setBanner]=useState<string|null>(t.bannerMediaId??null),[uploading,setUploading]=useState(false),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[validated,setValidated]=useState(false);
+ const pending=useRef(false);
+ const locked=Date.now()>=Date.parse(t.registrationDeadline)||['ongoing','completed','cancelled'].includes(t.status),terminal=['completed','cancelled'].includes(t.status);
+ const ready=matches.length===t.days*t.roundsPerDay&&matches.length>0;
+ const issues=validateTournamentWizard(fields,rounds),error=(key:string)=>validated?issues.find(i=>i.field===key)?.message:undefined;
+ const set=(key:keyof WizardFields,value:string)=>setFields(f=>({...f,[key]:value}));
+ const statuses:Record<string,string[]>={draft:['draft','published'],published:['published','registration-open'],'registration-open':['registration-open','ongoing'],ongoing:['ongoing','completed'],completed:['completed'],cancelled:['cancelled']};
+ const labels:Record<string,string>={draft:'Qaralama',published:'Dərc edilib','registration-open':'Qeydiyyat açıqdır',ongoing:'Davam edir',completed:'Tamamlandı',cancelled:'Ləğv edildi'};
+ const submit=async(e:FormEvent)=>{
+  e.preventDefault();if(pending.current||uploading||terminal||!ready||!t.updatedAt)return;setValidated(true);
+  if(issues.length){setNotice(issues[0].message);return;}
+  pending.current=true;setBusy(true);setNotice('');
+  try{const payload=tournamentWizardPayload(fields,rounds);if(locked){for(const k of ['startsAt','endsAt','registrationOpensAt','registrationDeadline','checkInOpensAt','checkInClosesAt'] as const)payload[k]=t[k];payload.rounds=matches.map(m=>({map:m.map as WizardRound['map'],startsAt:m.startsAt}));}await services.tournaments.update(t.id,{...payload,bannerMediaId:banner,status,expectedUpdatedAt:t.updatedAt,rounds:payload.rounds.map((r,i)=>({...r,id:matches[i].id}))});invalidateQuery('snapshot:admin');invalidateQuery('snapshot:public');setNotice('Turnir yeniləndi.');}
+  catch(e){setNotice(e instanceof Error?e.message:'Dəyişiklik saxlanılmadı.');}finally{pending.current=false;setBusy(false);}
+ };
+ return <details className="operation-form"><summary>Turniri redaktə et</summary>{!ready&&<p role="status">Raund cədvəli yüklənir…</p>}{notice&&<p role="status">{notice}</p>}<form onSubmit={submit} noValidate><fieldset className="admin-wizard-fields" disabled={busy||terminal}>
+  <section className="admin-field-group"><h3>Turnirin kimliyi</h3><div className="form-grid"><Input label="Turnir adı" value={fields.name} required maxLength={120} onChange={e=>set('name',e.target.value)} error={error('name')}/><Input label="Qısa ad" value={fields.shortName} required maxLength={50} onChange={e=>set('shortName',e.target.value)} error={error('shortName')}/></div><Textarea label="Təsvir" value={fields.description} maxLength={3000} onChange={e=>set('description',e.target.value)}/><TournamentBannerEditor value={banner} onChange={setBanner} onBusy={setUploading}/></section>
+  <section className="admin-field-group"><Select label="Nəşr statusu" value={status} onChange={e=>setStatus(e.target.value as typeof status)}>{(statuses[t.status]??[t.status]).map(s=><option key={s} value={s}>{labels[s]}</option>)}</Select>{locked&&<p className="admin-field-hint">Cədvəl və tutum kilidlənib.</p>}</section>
+  <TournamentSchedule fields={fields} rounds={rounds} onChange={(f,r)=>{setFields(f);setTimes(r);}} error={error} locked={locked} existing template={{name:t.name,startsAt:t.startsAt,endsAt:t.endsAt,rounds:matches}}/>
+  <section className="admin-field-group"><Input label="Maksimum komanda sayı" type="number" min={1} max={100} required value={fields.maxSlots} onChange={e=>set('maxSlots',e.target.value)} disabled={locked} error={error('maxSlots')}/>{rounds.map((r,i)=><Select key={matches[i]?.id??i} label={`${i+1}. raund xəritəsi`} value={r.map} disabled={locked} onChange={e=>setTimes(rounds.map((r,n)=>n===i?{...r,map:e.target.value as WizardRound['map']}:r))}>{['Erangel','Miramar','Rondo'].map(map=><option key={map}>{map}</option>)}</Select>)}</section>
+  <Textarea label="Qaydalar — hər sətirdə bir qayda" value={fields.rules} onChange={e=>set('rules',e.target.value)} error={error('rules')}/>
+  <Button type="submit" loading={busy} disabled={!t.updatedAt||!ready||uploading}>Dəyişiklikləri saxla</Button>
+ </fieldset></form></details>;
 }

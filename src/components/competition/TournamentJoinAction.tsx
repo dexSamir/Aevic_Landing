@@ -54,8 +54,9 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
     const sessionRead = sharedIdentity ? Promise.resolve(sharedIdentity.session) : services.auth.getSession();
     void sessionRead.then(async (session) => {
       if (!active) return;
-      if (!session || !['captain', 'team', 'admin'].includes(session.role)) { setAuthenticated(false); return; }
+      if (!session) { setAuthenticated(false); return; }
       setAuthenticated(true);
+      if(session.role==='visitor')return;
       const currentTeam = sharedIdentity ? sharedIdentity.team : await services.teams.current();
       if (!active) return;
       setTeam(currentTeam);
@@ -114,7 +115,7 @@ export function TournamentJoinAction({ tournament, showTeamState = false, onStat
   const action = (() => {
     if (!serviceCapabilities.teamWorkspace) return <Button variant="secondary" disabled>Turnir qeydiyyatı hələ əlçatan deyil</Button>;
     if (state === 'login') return <Link className="button button--primary" to={`/login?returnTo=${encodeURIComponent(`/tournaments/${tournament.id}`)}`}><UserPlus size={17} /><span>Daxil ol və qoşul</span></Link>;
-    if (state === 'create-team') return <Link className="button button--primary" to="/register"><Users size={17} /><span>Komanda yarat</span></Link>;
+    if (state === 'create-team') return <Link className="button button--primary" to="/team/setup"><Users size={17} /><span>Komanda yarat</span></Link>;
     if (state === 'roster-incomplete') return <Link className="button button--secondary" to="/team/roster"><ShieldAlert size={17} /><span>Heyəti tamamla</span></Link>;
     if (state === 'join') return <Button icon={<Check size={17} />} onClick={() => setConfirmOpen(true)}>{joinLabel}</Button>;
     if (state === 'registering') return <Button loading disabled>Qeydiyyat göndərilir</Button>;

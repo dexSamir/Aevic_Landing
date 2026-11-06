@@ -31,8 +31,8 @@ export function AccountLayout() {
           ))}
         </nav>
         <NavLink to="/account/legacy-claim">Əvvəlki komandanı bağla</NavLink>
-        <NavLink className="account-shell__team-link" to="/team">
-          Komanda panelinə qayıt
+        <NavLink className="account-shell__team-link" to={session?.user.teamId?"/team":"/team/setup"}>
+          {session?.user.teamId?'Komanda panelinə qayıt':'Komanda yarat'}
         </NavLink>
       </aside>
       <main id="account-content">

@@ -1,3 +1,4 @@
+import {accountSession} from '../platform/onboarding';
 import { passwordFeedback } from '../../src/utils/passwordStrength';
 import {persistentLimit} from '../auth/persistent-limit';
 import {issueTokens,saveTokens,tokensEnabled,clearTokenCookies,tokenMode} from '../auth/platform-tokens';
@@ -51,7 +52,7 @@ export function captainRoutes(deps:CaptainDependencies={}) {
   attempt(c,'login');const input=await body(c,z.object({email,password:z.string().min(1).max(128),remember:z.boolean().default(false),otp:z.string().max(40).optional()}).strict());
   limit('login-account',input.email,10);if(c.get('platform'))await persistentLimit(c,c.get('platform')!.sql,'login-account',input.email,10);const auth=service(c),result=await auth.login(input.email,input.password,input.remember);
   const issued=c.get('platform')?await transaction(c.get('platform')!.sql,async tx=>{const current=await lockAccount(tx,result.row.id);if(current.password_hash!==result.row.password_hash||current.status==='banned')throw new ServiceError(401,'LOGIN_FAILED');const verified=await consumeFactor(tx,{teamId:result.row.id},c.get('config').sessionSecret??'',input.otp);if(tokensEnabled(c))return issueTokens(c,tx,{accountId:result.row.id},current.password_hash,input.remember,verified);await tx`insert into aevic_platform.sessions(token_digest,team_id,expires_at,device,mfa_verified_at) values(${tokenDigest(result.cookie)},${result.row.id},to_timestamp(${Number(result.cookie.split('.')[1])}),${(c.req.header('user-agent')??'Browser').slice(0,300)},case when ${verified} then clock_timestamp() else null end)`;}):undefined;
-  if(issued)saveTokens(c,issued);else save(c,result.cookie,input.remember);return c.json(c.get('platform')?{user:accountUser(result.row),role:'captain',...(issued?{accessToken:issued.accessToken,accessExpiresAt:issued.accessExpiresAt,sessionMode:'tokens'}:{})}:auth.sessionView(result.row));
+  if(issued)saveTokens(c,issued);else save(c,result.cookie,input.remember);return c.json(c.get('platform')?{...await accountSession(c.get('platform')!.sql,result.row.id),...(issued?{accessToken:issued.accessToken,accessExpiresAt:issued.accessExpiresAt,sessionMode:'tokens'}:{})}:auth.sessionView(result.row));
  });
  app.get('/me/session',async c=>{
   if(!cookie(c))return c.json(null);

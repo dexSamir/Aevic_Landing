@@ -1,3 +1,4 @@
+import { useSiteContent } from '../../components/site/SiteContent';
 import '../../styles/records-archive.css';
 import {
 ArrowRight
@@ -18,6 +19,7 @@ import type { RecordEntry } from "../../types/domain";
 import { recordCategory,recordCategoryLabels,RecordFeatured,RecordInlineDetail,recordValue } from './PublicArchivePagesShared';
 import { RecordCard } from './RecordCard';
 export function RecordsCenterPage() {
+ const content=useSiteContent('records');
   const [records, setRecords] = useState<RecordEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(
     serviceCapabilities.publicRecords,
@@ -63,7 +65,7 @@ export function RecordsCenterPage() {
         <div className="container">
           <header className="records-center__masthead">
             <span>AEVIC REKORD ARXİVİ</span>
-            <h1>Rekordlar tarixə necə düşür.</h1>
+            <h1>{content.text('title','Rekordlar tarixə necə düşür.')||'Rekordlar tarixə necə düşür.'}</h1>
             <p>
               Dərc edilmiş nəticə, nailiyyət tarixi və tarixi heyət mənbəyi ilə
               daimi yarış arxivi.
@@ -87,10 +89,9 @@ export function RecordsCenterPage() {
       <div className="container">
         <header className="records-center__masthead">
           <span>AEVIC REKORD ARXİVİ</span>
-          <h1>Rekordlar tarixə necə düşür.</h1>
+          <h1>{content.text('title','Rekordlar tarixə necə düşür.')||'Rekordlar tarixə necə düşür.'}</h1>
           <p>
-            Dərc edilmiş nəticə, nailiyyət tarixi və tarixi heyət mənbəyi ilə
-            daimi yarış arxivi.
+            {content.text('description','Dərc edilmiş nəticə, nailiyyət tarixi və tarixi heyət mənbəyi ilə daimi yarış arxivi.')||'Dərc edilmiş nəticə, nailiyyət tarixi və tarixi heyət mənbəyi ilə daimi yarış arxivi.'}
           </p>
         </header>
         {loading && (

@@ -29,7 +29,7 @@ app.post('/me/workspace',async c=>{
 });
 app.get('/me/context',async c=>{
  const a=actor(c);if(!a.teamId)throw new ServiceError(409,'TEAM_WORKSPACE_REQUIRED');
- return c.json({...await platform(c).teamSnapshot(captain(c),captain(c)),dataSource:'public.teams',historyAvailable:true,accountId:account(c),workspaceRole:a.teamRole});
+ return c.json({...await platform(c).teamSnapshot(captain(c),account(c)),dataSource:'public.teams',historyAvailable:true,accountId:account(c),workspaceRole:a.teamRole});
 });
 app.get('/teams/:id/authority',async c=>{const id=teamId.parse(c.req.param('id'));await transaction(platform(c).sql,tx=>access(tx,id,account(c)));return c.json(await members(platform(c).sql,id));});
 app.get('/team-invitations',async c=>{
@@ -51,7 +51,7 @@ app.post('/teams/:id/invitations',async c=>{
   await tx`update aevic_platform.team_invitations set status='EXPIRED' where team_id=${id} and recipient_id=${recipient.id} and status='PENDING' and expires_at<=now()`;
   if((await tx`select id from aevic_platform.team_invitations where team_id=${id} and recipient_id=${recipient.id} and status='PENDING'`).length)throw new ServiceError(409,'INVITATION_PENDING');
   const [r]=await tx`insert into aevic_platform.team_invitations(team_id,recipient_id,role) values(${id},${recipient.id},${input.role}) returning id`;
-  await audit(tx,actor(c),'team.invite','team',id,{invitationId:r.id,role:input.role});await notify(tx,recipient.id,'Komanda dəvəti',team.team_name+' sizə dəvət göndərdi.','/team/invitations','system');return await inviteById(tx,r.id);
+  await audit(tx,actor(c),'team.invite','team',id,{invitationId:r.id,role:input.role});await notify(tx,recipient.id,'Komanda dəvəti',team.team_name+' sizə dəvət göndərdi.','/account/invitations','system');return await inviteById(tx,r.id);
  });return c.json(result,201);
 });
 app.post('/team-invitations/:id/response',async c=>{
@@ -63,6 +63,7 @@ app.post('/team-invitations/:id/response',async c=>{
   if(r.status!=='PENDING'||new Date(r.expires_at).getTime()<=Date.now())throw new ServiceError(409,'INVITATION_CLOSED');
   if((await tx`select team_id from aevic_platform.team_details where team_id=${r.team_id} and archived_at is not null`).length)throw new ServiceError(409,'TEAM_ARCHIVED');
   if(input.response==='ACCEPTED')await tx`insert into aevic_platform.team_authority(team_id,account_id,role) values(${r.team_id},${owner},${r.role}) on conflict(team_id,account_id) do nothing`;
+  if(input.response==='ACCEPTED')await tx`update aevic_platform.account_onboarding set team_id=${r.team_id},completed_at=now(),draft='{}',revision=revision+1,updated_at=now() where account_id=${owner} and purpose='team' and completed_at is null`;
   await tx`update aevic_platform.team_invitations set status=${input.response},responded_at=now() where id=${id}`;await audit(tx,actor(c),'team.invitation-response','team',String(r.team_id),{invitationId:id,response:input.response});return await inviteById(tx,id);
  });return c.json(result);
 });

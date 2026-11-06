@@ -4,12 +4,38 @@ import {body} from '../validation/input';
 import {Hono} from 'hono';
 import {z} from 'zod';
 import type {Env} from '../types';
-import {platform,ownTeam,actor} from './context';
+import {platform,ownTeam,actor,admin} from './context';
 import {transaction,audit} from './competition';
 import {validateImage} from '../captain/media';
 import {ServiceError} from '../errors';
 import {createAttemptLimiter} from '../captain/limit';
 const app=new Hono<Env>(),limit=createAttemptLimiter();
+app.post('/admin/tournament-banners',async c=>{
+ const owner=admin(c,['tournament-manager']);limit('tournament-banner',owner,20);
+ const form=await c.req.formData(),file=form.get('file');
+ if(!(file instanceof File)||!file.size)throw new ServiceError(422,'INVALID_IMAGE');
+ if(file.size>4_000_000)throw new ServiceError(413,'FILE_TOO_LARGE');
+ const raw=Buffer.from(await file.arrayBuffer());await validateImage(raw,file.type);
+ const {default:sharp}=await import('sharp');
+ const bytes=await sharp(raw,{limitInputPixels:20_000_000}).rotate().resize({width:1920,height:1080,fit:'inside',withoutEnlargement:true}).webp({quality:85}).toBuffer();
+ if(bytes.length>4_000_000)throw new ServiceError(413,'FILE_TOO_LARGE');
+ const id=crypto.randomUUID();
+ await transaction(platform(c).sql,async tx=>{
+  await tx`insert into aevic_platform.tournament_banners(id,uploaded_by,file_name,bytes) values(${id},${owner},${file.name.slice(0,200)},${bytes})`;
+  await audit(tx,actor(c),'tournament.banner-upload','media',id);
+ });
+ return c.json({id,url:`/api/media/tournament-banners/${id}`},201);
+});
+app.get('/media/tournament-banners/:id',async c=>{
+ const id=z.uuid().parse(c.req.param('id')),r=platform(c);
+ const [row]=await r.sql`select b.bytes,(exists(select 1 from aevic.tournaments t where t.banner_media_id=b.id and t.status<>'draft' and t.archived_at is null) or exists(select 1 from aevic_platform.settings s where s.key like 'site:%' and s.value->'published'->'fields' @> jsonb_build_object('hero.media',b.id::text)) or exists(select 1 from aevic_platform.settings s where s.key like 'site:%' and s.value->'published'->'fields' @> jsonb_build_object('join.media',b.id::text))) as published from aevic_platform.tournament_banners b where b.id=${id} and (${Boolean(r.actor.adminId)} or (exists(select 1 from aevic.tournaments t where t.banner_media_id=b.id and t.status<>'draft' and t.archived_at is null) or exists(select 1 from aevic_platform.settings s where s.key like 'site:%' and s.value->'published'->'fields' @> jsonb_build_object('hero.media',b.id::text)) or exists(select 1 from aevic_platform.settings s where s.key like 'site:%' and s.value->'published'->'fields' @> jsonb_build_object('join.media',b.id::text))))`;
+ if(!row)throw new ServiceError(404,'MEDIA_NOT_FOUND');
+ // Revalidate visibility on every use, including after detaching/archiving.
+ const etag=`"tournament-banner-${id}"`;
+ const headers={'Content-Type':'image/webp','Cache-Control':row.published?'public, max-age=0, must-revalidate':'private, no-store','X-Content-Type-Options':'nosniff',...(row.published?{ETag:etag}:{})};
+ if(row.published&&c.req.header('if-none-match')===etag)return new Response(null,{status:304,headers});
+ return new Response(new Uint8Array(row.bytes).buffer,{headers});
+});
 app.post('/media/validate',async c=>{
  const input=await body(c,z.object({ownerType:z.literal('team'),ownerId:z.string(),assetType:z.enum(['logo','banner']),fileName:z.string().min(1).max(200),mimeType:z.string().max(100),sizeBytes:z.number().int().positive(),width:z.number().int().positive(),height:z.number().int().positive()}).strict());
  ownTeam(c,input.ownerId);return c.json(validateBrandAssetRequest(input));

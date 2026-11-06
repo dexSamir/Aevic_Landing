@@ -1,0 +1,58 @@
+import { useEffect, useState, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowDown, ArrowUp, ArrowUpRight, FileText, Globe, Image, Save } from 'lucide-react';
+import { Button, Input, Textarea, Switch, Select, PageHeader, LoadingSkeleton } from '../../components/common/primitives';
+import { TournamentBannerEditor } from '../../components/admin/TournamentBannerEditor';
+import { sitePages, sitePage, emptyDocument, type SiteDocument, type SiteRecord, type ContentValue } from '../../content/siteManagement';
+import { services } from '../../services';
+import { usePlatformQuery } from '../../services/queryCache';
+import { notifySitePublication } from '../../components/site/SiteContent';
+import '../../styles/site-management.css';
+
+const related=[['/admin/settings','Elanlar və əlaqə'],['/admin/tournaments','Turnirlər və bannerlər'],['/admin/results','Nəticələr və xallar'],['/admin/teams','Komandalar və moderasiya'],['/admin/organizations','Təşkilatlar'],['/admin/support','Dəstək'],['/admin/audit','Audit tarixçəsi']];
+export function AdminSitePage(){
+ const [params,setParams]=useSearchParams(),selected=sitePage(params.get('page')??'global')??sitePages[0];
+ const loadedPage=useRef(selected.id);
+ const query=usePlatformQuery({key:'site-content:admin',query:()=>services.siteContent.admin()});
+ const [record,setRecord]=useState<SiteRecord>(),[document,setDocument]=useState<SiteDocument>(emptyDocument),[dirty,setDirty]=useState(false),[busy,setBusy]=useState(false),[uploading,setUploading]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
+ const [sectionId,setSectionId]=useState(selected.sections[0].id),[confirm,setConfirm]=useState<'publish'|'unpublish'|null>(null);
+ const section=selected.sections.find(s=>s.id===sectionId)??selected.sections[0];
+ const media=usePlatformQuery({key:'site-content:media',query:()=>services.siteContent.media(),enabled:section.fields.some(f=>f.kind==='media')});
+ useEffect(()=>{const changed=loadedPage.current!==selected.id;if(changed){loadedPage.current=selected.id;setDirty(false);setSectionId(selected.sections[0].id);setNotice('');setError('');setConfirm(null);}if(dirty&&!changed||!query.data?.[selected.id])return;setRecord(query.data[selected.id]);setDocument(query.data[selected.id].draft);},[query.data,selected.id,dirty]);
+ useEffect(()=>{if(!dirty)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[dirty]);
+ const select=(id:string)=>{if(dirty&&!window.confirm('Saxlanılmamış dəyişikliklər var. Səhifəni dəyişmək istəyirsiniz?'))return;setParams({page:id});setDirty(false);setRecord(undefined);setDocument(emptyDocument());setError('');setNotice('');setConfirm(null);setSectionId(sitePage(id)!.sections[0].id);};
+ const change=(key:string,value:ContentValue)=>{setDocument(current=>({...current,fields:{...current.fields,[key]:value}}));setDirty(true);setNotice('');setConfirm(null);};
+ const save=async(action:'save'|'publish'|'unpublish')=>{
+  if(!record)return;setBusy(true);setError('');setNotice('');
+  try{const next=await services.siteContent.update(selected.id,{revision:record.revision,document,action});setRecord(next);setDocument(next.draft);setDirty(false);setConfirm(null);setNotice(action==='save'?'Qaralama saxlanıldı. Sayt dəyişməyib.':action==='publish'?'Dərc edildi. Saytda yenilənib.':'Dərc edilmiş dəyişikliklər çıxarıldı. Standart məzmun göstərilir.');if(action!=='save')notifySitePublication();}
+  catch(e){setError(e instanceof Error?e.message:'Məzmun saxlanılmadı. Yenidən yoxlayın.');}
+  finally{setBusy(false);}
+ };
+ const ids=selected.orderable??selected.sections.filter(s=>s.id!=='seo'&&s.id!=='header'&&s.id!=='hero').map(s=>s.id);
+ const order=[...document.order.filter(id=>ids.includes(id)),...ids.filter(id=>!document.order.includes(id))];
+ const move=(id:string,direction:number)=>{const i=order.indexOf(id),j=i+direction;if(j<0||j>=order.length)return;const next=[...order];[next[i],next[j]]=[next[j],next[i]];setDocument({...document,order:next});setDirty(true);};
+ return <><PageHeader title="Saytın idarə edilməsi" description="Məzmunu hazırlayın, önbaxışda yoxlayın və hazır olduqda dərc edin."/>
+ <div className="site-management-links">{related.map(([to,label])=><Link key={to} to={to}>{label}<ArrowUpRight size={14}/></Link>)}</div>
+ {query.loading&&!record?<LoadingSkeleton variant="form" rows={4}/>:query.error&&!record?<div role="alert"><p>Sayt məzmunu yüklənmədi. Baş administrator səlahiyyəti tələb olunur.</p><Button onClick={query.refetch}>Yenidən yoxla</Button></div>:
+ <div className="site-management"><div className="site-management-mobile"><Select label="Redaktə edilən səhifə" value={selected.id} disabled={busy||uploading} onChange={e=>select(e.target.value)}>{[...new Set(sitePages.map(p=>p.group))].map(group=><optgroup key={group} label={group}>{sitePages.filter(p=>p.group===group).map(page=><option key={page.id} value={page.id}>{page.title}</option>)}</optgroup>)}</Select></div><nav className="site-management-pages" aria-label="İdarə edilən səhifələr">{[...new Set(sitePages.map(p=>p.group))].map(group=><section key={group}><h2>{group}</h2>{sitePages.filter(p=>p.group===group).map(page=><button type="button" key={page.id} disabled={busy||uploading} aria-current={page.id===selected.id?'page':undefined} onClick={()=>select(page.id)}><FileText size={16}/><span>{page.title}</span>{query.data?.[page.id]?.publishedAt&&<i title="Dərc edilib"/>}</button>)}</section>)}</nav>
+ <section className="site-management-editor" aria-label={`${selected.title} redaktoru`}>
+ <header className="site-management-heading"><div><span><Globe size={15}/> {selected.path}</span><h2>{selected.title}</h2><p>{record?.publishedAt?`Son dərc: ${new Date(record.publishedAt).toLocaleString('az-AZ',{timeZone:'Asia/Baku'})} · Bakı`:'Standart məzmun göstərilir'} · Rev. {record?.revision??0}</p></div><a className="button button--secondary" target="_blank" rel="noopener noreferrer" href={selected.path}>Səhifəyə bax <ArrowUpRight size={16}/></a></header>
+ {selected.editor&&<Link className="site-management-context" to={selected.editor}>Bu səhifənin məlumatlarını mövcud idarəetmə bölməsində aç <ArrowUpRight size={15}/></Link>}
+ <p className="admin-field-hint">Mətn dili: Azərbaycan dili. Boş SEO və giriş sahələri mövcud səhifə mətnini saxlayır.</p>
+ {selected.id==='regulations'&&<p className="admin-field-hint">Bu mətn reqlamentin təqdimatıdır. Xal hesablanması və turnir şərtləri öz idarəetmə bölmələrində qalır.</p>}
+ <div className="site-management-sections" role="group" aria-label="Səhifə bölmələri">{selected.sections.map(s=><button type="button" key={s.id} aria-pressed={s.id===section.id} onClick={()=>setSectionId(s.id)}>{s.label}</button>)}</div>
+ <form onSubmit={e=>{e.preventDefault();void save('save');}}>
+ <fieldset disabled={busy||uploading||!record}><legend>{section.label}</legend><div className="site-management-fields">{section.fields.map(field=>{
+  const value=document.fields[field.id]??field.fallback;
+  return <div key={field.id}>{field.kind==='toggle'?<Switch label={field.label} checked={value===true} onChange={()=>change(field.id,value!==true)}/>:field.kind==='media'?<><h3><Image size={16}/> {field.label}</h3><Select label="Mövcud media · son 100 fayl" value={typeof value==='string'?value:''} onChange={e=>change(field.id,e.target.value||null)}><option value="">Standart görünüş</option>{typeof value==='string'&&!media.data?.some(item=>item.id===value)&&<option value={value}>Cari seçilmiş banner</option>}{media.data?.map(item=><option key={item.id} value={item.id}>{item.name} · {new Date(item.createdAt).toLocaleDateString('az-AZ')}</option>)}</Select>{media.error&&<p role="status">Media siyahısı yüklənmədi. Yeni fayl seçə bilərsiniz.</p>}<TournamentBannerEditor label={field.label} value={typeof value==='string'?value:null} onChange={id=>{change(field.id,id);media.refetch();}} onBusy={setUploading}/></>:field.kind==='paragraph'?<Textarea label={field.label} value={String(value??'')} maxLength={field.max} rows={5} onChange={e=>change(field.id,e.target.value)}/>:<Input label={field.label} value={String(value??'')} maxLength={field.max} onChange={e=>change(field.id,e.target.value)} hint={field.kind==='link'?'Saytdaxili /keçid və ya https:// ünvanı':undefined}/>}</div>;
+ })}</div></fieldset>
+ {notice&&<p className="site-management-notice" role="status">{notice}</p>}{error&&<div role="alert"><p>{error}</p><Button variant="secondary" onClick={()=>{if(window.confirm('Cari qaralamanı yenidən yükləmək yerli dəyişiklikləri əvəz edəcək. Davam edilsin?')){setDirty(false);query.refetch();}}}>Serverdəki qaralamanı yenidən yüklə</Button></div>}
+ <footer className="site-management-savebar"><span>{dirty?'Saxlanılmamış dəyişikliklər':'Qaralama hazırdır'}</span><Button type="submit" variant="secondary" icon={<Save size={16}/>} disabled={!record||busy||uploading} loading={busy}>Qaralamanı saxla</Button><Button disabled={!record||busy||uploading} onClick={()=>setConfirm('publish')}>Dərc et</Button></footer>
+ </form>
+ {confirm&&<div className="site-management-confirm" role="group" aria-label="Dərc təsdiqi"><p>{confirm==='publish'?`${selected.title}: bu qaralama dərhal saytda göstəriləcək.`:'Saytda standart məzmun bərpa ediləcək. Qaralama saxlanılacaq.'}</p><Button disabled={busy||uploading} onClick={()=>void save(confirm)}>Təsdiq et</Button><Button variant="ghost" onClick={()=>setConfirm(null)}>Ləğv et</Button></div>}
+ <div className="site-management-preview"><h3>Önbaxış və tarixçə</h3><p>Saxlanmış qaralamanı səhifənin özündə yoxlayın. Şəxsi komanda məlumatları yalnız mövcud komanda səlahiyyətləri ilə açılır.</p>{selected.id!=='team-guide'&&<a aria-disabled={dirty||undefined} className="button button--secondary" href={`${selected.path}?sitePreview=${selected.id}`} target="_blank" rel="noopener noreferrer" onClick={e=>{if(dirty){e.preventDefault();setError('Önbaxışdan əvvəl qaralamanı saxlayın.');}}}>Saxlanmış qaralamaya bax <ArrowUpRight size={16}/></a>}{selected.id==='team-guide'&&<aside className="site-guidance"><strong>{String(document.fields.title??'Yarışa hazırlıq')}</strong><p>{String(document.fields.body??sitePage('team-guide')!.sections[0].fields.find(f=>f.id==='body')!.fallback)}</p><span>{String(document.fields.cta??'Qaydalara bax')}</span></aside>}
+ {selected.reorder&&<details><summary>Bölmələrin sırası</summary><ol className="site-management-order">{order.map((id,i)=><li key={id}><span>{selected.sections.find(s=>s.id===id)?.label}</span><Button variant="ghost" disabled={i===0||busy} aria-label={`${id} yuxarı`} onClick={()=>move(id,-1)}><ArrowUp size={16}/></Button><Button variant="ghost" disabled={i===order.length-1||busy} aria-label={`${id} aşağı`} onClick={()=>move(id,1)}><ArrowDown size={16}/></Button></li>)}</ol></details>}
+ <details><summary>Son 20 dəyişiklik</summary>{record?.history.map(entry=><div className="site-management-history" key={entry.revision}><span>Rev. {entry.revision} · {entry.action==='publish'?'Dərc':entry.action==='unpublish'?'Dərcdən çıxarılıb':'Qaralama'} · {new Date(entry.at).toLocaleString('az-AZ',{timeZone:'Asia/Baku'})}</span><Button variant="ghost" disabled={busy} onClick={()=>{setDocument(entry.document);setDirty(true);setNotice('Tarixçə qaralamaya köçürüldü. Dərc etmək üçün yenidən təsdiq edin.');}}>Qaralamaya köçür</Button></div>)}</details>
+ {record?.published&&<Button variant="ghost" disabled={busy||uploading} onClick={()=>setConfirm('unpublish')}>Dərcdən çıxar · standart məzmuna qayıt</Button>}
+ </div></section></div>}</>;
+}

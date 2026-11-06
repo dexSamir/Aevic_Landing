@@ -10,6 +10,7 @@ type MediaStyle = CSSProperties & {
 
 export function MediaBackdrop({
   src,
+  localPreview = false,
   alt = '',
   className = '',
   priority = false,
@@ -23,6 +24,7 @@ export function MediaBackdrop({
   sources,
 }: {
   src: string;
+  localPreview?: boolean;
   alt?: string;
   className?: string;
   priority?: boolean;
@@ -35,7 +37,7 @@ export function MediaBackdrop({
   sizes?: string;
   sources?: readonly ResponsiveImageSource[];
 }) {
-  const safeSrc = publicImageUrl(src);
+  const safeSrc = localPreview && src.startsWith('blob:') ? src : publicImageUrl(src);
   const { pictureRef, ready } = useImageApproach(deferred && !priority);
   const imageRef = useLocalImageFallback(src, ready);
   if (!safeSrc) return null;

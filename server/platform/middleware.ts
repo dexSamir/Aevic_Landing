@@ -76,7 +76,7 @@ export function platformMiddleware(testSql?:Sql){
   if(identity.accountId&&workspaceRequest(c.req.path)){await selectWorkspace(sql,identity,getCookie(c,'aevic-workspace'));if(!['GET','HEAD','OPTIONS'].includes(c.req.method)&&!/^\/api\/teams\/[^/]+\/(authority|invitations|ownership|leave|archive)(\/|$)/.test(c.req.path))requireWorkspaceWrite(identity);}
   c.set('platform',new PlatformRepository(c.get('db'),sql,identity));
   await next();
-  if (!['GET','HEAD','OPTIONS'].includes(c.req.method) && c.res.status < 400 && /\/(teams|roster|roster-requests|tournaments|matches|results|verification|verifications|registrations|organizations|players|legacy-claims|legacy-roster|media|blacklist)(\/|$)/.test(c.req.path)) {
+  if (!['GET','HEAD','OPTIONS'].includes(c.req.method) && c.res.status < 400 && (/\/(teams|roster|roster-requests|tournaments|matches|results|verification|verifications|registrations|organizations|players|legacy-claims|legacy-roster|media|blacklist)(\/|$)/.test(c.req.path)||c.req.path==='/api/me/onboarding/team')) {
    invalidatePublicSnapshot(sql);
    const team=c.req.path.match(/^\/api\/(?:admin\/)?teams\/([^/]+)/)?.[1];
    const tournament=c.req.path.match(/^\/api\/(?:admin\/)?tournaments\/([^/]+)/)?.[1];

@@ -14,7 +14,7 @@ export function publicImageSrcSet(value: unknown, widths: readonly number[] = [3
     return widths.map(width => `${source.replace('/image/upload/', `/image/upload/f_auto,q_auto,c_limit,w_${width}/`)} ${width}w`).join(', ');
   }
   if (!import.meta.env.PROD) return undefined;
-  const legacy = /^\/api\/media\/[0-9a-f-]{36}$/i.test(source);
+  const legacy = /^\/api\/media\/(?:tournament-banners\/)?[0-9a-f-]{36}$/i.test(source);
   const storage = /^https:\/\/nmjjibifcuzjlsvfcaaz\.supabase\.co\/storage\/v1\/object\/public\//.test(source);
   if (!legacy && !storage) return undefined;
   return widths.map(width => `/.netlify/images?${new URLSearchParams({ url: source, w: String(width), fit: 'contain', fm: 'webp', q: '85' })} ${width}w`).join(', ');

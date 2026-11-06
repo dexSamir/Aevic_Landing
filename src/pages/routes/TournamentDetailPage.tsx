@@ -1,6 +1,8 @@
+import { publicImageSrcSet, restoreOriginalUpload } from '../../utils/mediaUrl';
 import { RosterTeamCard } from '../../components/common/RosterTeamCard';
 import { Seo } from '../../components/common/Seo';
 import '../../styles/tournament-detail.css';
+import '../../styles/tournament-editor.css';
 import {
 ArrowRight,
 Skull,
@@ -59,8 +61,9 @@ export function TournamentDetailPage() {
   const example = scoreMatch(tournament.pointFormula, 1, 8);
   const placements = placementPointGroups(tournament.pointFormula, tournament.maxSlots);
   const statusLabel = open ? 'AÇIQDIR' : phase === 'upcoming' ? 'TEZLİKLƏ' : phase === 'live' ? 'CANLI' : phase === 'completed' ? 'TAMAMLANIB' : phase === 'cancelled' ? 'LƏĞV EDİLİB' : 'BAĞLIDIR';
-  return <article className="tournament-destination"><Seo title={tournament.name} description={tournament.description} canonicalPath={`/tournaments/${tournament.id}`} publicEntity />
-    <header className="tournament-detail-hero">
+  return <article className="tournament-destination"><Seo title={tournament.name} description={tournament.description} canonicalPath={`/tournaments/${tournament.id}`} image={tournament.bannerUrl} publicEntity />
+    <header className={`tournament-detail-hero${tournament.bannerUrl?' has-banner':''}`}>
+      {tournament.bannerUrl&&<img className="tournament-detail-banner" src={tournament.bannerUrl} srcSet={publicImageSrcSet(tournament.bannerUrl,[640,960,1280,1920])} sizes="100vw" onError={e=>restoreOriginalUpload(e.currentTarget)} alt={`${tournament.name} banneri`} width={1920} height={600} fetchPriority="high"/>}
       <div className="tournament-detail-width tournament-detail-hero__stage">
         <div className="tournament-detail-hero__copy"><span className="tournament-detail-eyebrow">// AEVIC REYTİNQ TURNİRİ</span><h1>{tournament.name}</h1><p>{tournament.description}</p><div className="tournament-detail-meta"><span><CalendarDays size={20} />{formatDate(tournament.startsAt)}{formatDate(tournament.startsAt) !== formatDate(tournament.endsAt) && <> – {formatDate(tournament.endsAt)}</>}</span><span><MapPin size={20} />PUBG MOBILE</span><span><Users size={20} />Squad (4 nəfər)</span></div></div>
         <aside className="tournament-registration" aria-label="Qeydiyyat pəncərəsi"><header><h2><span>//</span> QEYDİYYAT PƏNCƏRƏSİ</h2><span className={open ? 'is-open' : ''}>{statusLabel}</span></header><Countdown key={`${tournament.id}:${phase}`} target={phase === 'upcoming' ? tournament.registrationOpensAt : tournament.registrationDeadline} /><p>{open ? 'Qeydiyyat mövcud komandaların iştirakına təsir etmir — matç vaxtları artıq təsdiqlənib.' : phase === 'upcoming' ? 'Qeydiyyat pəncərəsi açıldıqda uyğun komandalar qoşula bilər.' : 'Qeydiyyat başa çatıb. Turnirin cədvəlini və dərc edilmiş nəticələrini izləyin.'}</p><TournamentJoinAction tournament={tournament} currentTime={now} joinLabel="İştirak et" />{phase === 'completed' && <Link className="tournament-detail-link" to={`/tournaments/${tournament.id}/recap`}>Final icmalı<ArrowRight size={17} /></Link>}</aside>

@@ -41,6 +41,7 @@ services.auth.getSession = async (signal) => {
   catch (error) { if(revision===identityRevision && error instanceof ApiError && error.status===401){synchronizeSessionCache(null);clearQueryCache();} throw error; }
 };
 services.auth.login = async (...args) => { identityRevision++; const session = await auth.login(...args); synchronizeSessionCache(`${session.user.id}:${session.role}`); channel?.postMessage('changed'); notifyIdentity(); verifiedSession = { value: session, at: Date.now() }; return session; };
+services.auth.registerAccount = async (...args) => { const session=await auth.registerAccount(...args); channel?.postMessage('changed'); notifyIdentity(); verifiedSession={value:session,at:Date.now()}; return session; };
 services.auth.logout = async () => {
   await auth.logout();
   // Invalidate only after revocation succeeds: early invalidation refetches with

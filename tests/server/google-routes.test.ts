@@ -58,7 +58,8 @@ it('rejects wrong state, expired callbacks and replay before provider exchange',
 it('automatically creates a regular account without a team, consumes the flow and rejects replay',async()=>{
  existing=false;workspace=false;flow={token_digest:tokenDigest('state'),browser_digest:tokenDigest('browser'),expires_at:Date.now()+10000,nonce:'nonce',verifier:'verifier'};
  const a=app(),url='/api/auth/google/callback?state=state&code=code',options={headers:{cookie:'aevic-google=browser'}};
- expect((await a.request(url,options)).headers.get('location')).toBe('/');
+ expect((await a.request(url,options)).headers.get('location')).toBe('/account/onboarding');
+ expect(queries.some(q=>q.includes('insert into aevic_platform.account_onboarding'))).toBe(true);
  expect(queries.some(q=>q.includes('insert into aevic_platform.accounts('))).toBe(true);
  expect(queries.some(q=>q.includes('insert into aevic_platform.sessions'))).toBe(true);
  expect(queries.some(q=>q.includes('insert into public.teams')||q.includes('admin_accounts')||q.includes('insert into aevic_platform.team_authority'))).toBe(false);
@@ -149,7 +150,7 @@ it('honors closed registration without creating an account or session',async()=>
 it('automatically registers a verified Supabase user with the existing token session protocol',async()=>{
  existing=false;workspace=false;callbackFlow();flow.nonce='supabase:nonce';
  const response=await app({google:{provider:'supabase'},sessionMode:'tokens'}).request('/api/auth/google/callback?state=state&code=code',{headers:{cookie:'aevic-google=browser'}});
- expect(response.headers.get('location')).toBe('/');expect(response.headers.get('set-cookie')).toContain('aevic-refresh-v2=');
+ expect(response.headers.get('location')).toBe('/account/onboarding');expect(response.headers.get('set-cookie')).toContain('aevic-refresh-v2=');
  expect(queries.filter(q=>q.includes('insert into aevic_platform.accounts('))).toHaveLength(1);
  expect(queries.some(q=>q.includes('email_verified_at'))).toBe(true);
  expect(queries.some(q=>q.includes('insert into aevic_platform.refresh_tokens'))).toBe(true);

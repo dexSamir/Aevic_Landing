@@ -1,8 +1,10 @@
+import { SiteContentProvider } from '../components/site/SiteContent';
 import { Outlet, useLocation } from 'react-router-dom';
+import { OnboardingReminder } from '../components/auth/OnboardingReminder';
 import { PublicSessionProvider } from '../services/PublicSessionContext';
 function SessionRoot() {
   const { pathname } = useLocation();
-  return <PublicSessionProvider enrichTeam={!/^\/(?:login|register|admin|account|team|forgot-password|reset-password)(?:\/|$)/.test(pathname)}><Outlet /></PublicSessionProvider>;
+  return <PublicSessionProvider enrichTeam={!/^\/(?:login|register|admin|account|team|forgot-password|reset-password)(?:\/|$)/.test(pathname)}><SiteContentProvider><Outlet /><OnboardingReminder /></SiteContentProvider></PublicSessionProvider>;
 }
 import { PublicLayout, RouteError } from "../layouts/layouts";
 import { HomePage } from "../pages/HomePage";
@@ -21,6 +23,7 @@ export const routes = applyRouteCapabilities([
     errorElement: <RouteError />,
     HydrateFallback: AevicHydrationFallback,
     children: [
+      {path:'/team/setup',lazy:async()=>({Component:(await import('../pages/routes/TeamSetupPage')).TeamSetupPage})},
       {
         element: <PublicLayout />,
         errorElement: <RouteError />,
@@ -498,6 +501,7 @@ export const routes = applyRouteCapabilities([
         path: routePath("admin"),
         lazy: () => import("./AdminRoute"),
         children: [
+          {path:'site',lazy:async()=>({Component:(await import('../pages/routes/AdminSitePage')).AdminSitePage})},
           {
             index: true,
             lazy: async () => ({
@@ -705,6 +709,8 @@ export const routes = applyRouteCapabilities([
           };
         },
         children: [
+          {path:'invitations',lazy:async()=>({Component:(await import('../pages/routes/TeamInvitationsPage')).TeamInvitationsPage})},
+          {path:'onboarding',lazy:async()=>({Component:(await import('../pages/routes/AccountOnboardingPage')).AccountOnboardingPage})},
           {
             index: true,
             lazy: async () => ({

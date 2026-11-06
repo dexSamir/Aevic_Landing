@@ -55,7 +55,7 @@ for(const kind of ['member','team'] as const)app.post(`/organizations/:id/${kind
   await tx`update aevic_platform.organization_invitations set status='EXPIRED' where organization_id=${id} and kind=${type} and (${kind==='member'} and recipient_id=${recipient.id} or ${kind==='team'} and target_team_id=${'teamId' in input?input.teamId:null}) and status='PENDING' and expires_at<=now()`;
   if((await tx`select id from aevic_platform.organization_invitations where organization_id=${id} and kind=${type} and (${kind==='member'} and recipient_id=${recipient.id} or ${kind==='team'} and target_team_id=${'teamId' in input?input.teamId:null}) and status='PENDING'`).length)throw new ServiceError(409,'INVITATION_PENDING');
   const [row]=await tx`insert into aevic_platform.organization_invitations(organization_id,recipient_id,target_team_id,kind,role) values(${id},${recipient.id},${'teamId' in input?input.teamId:null},${type},${'role' in input?input.role:null}) returning id`;
-  await audit(tx,actor(c),'organization.invite','organization',id,{invitationId:row.id,kind});await notify(tx,recipient.id,'Təşkilat dəvəti',org.name+' sizə dəvət göndərdi.','/team/invitations','system');return await invitationById(tx,row.id);
+  await audit(tx,actor(c),'organization.invite','organization',id,{invitationId:row.id,kind});await notify(tx,recipient.id,'Təşkilat dəvəti',org.name+' sizə dəvət göndərdi.','/account/invitations','system');return await invitationById(tx,row.id);
  });return c.json(out,201);
 });
 app.post('/organization-invitations/:id/response',async c=>{
@@ -87,7 +87,7 @@ app.post('/organizations/:id/ownership',async c=>{
   const org=await authority(tx,id,owner,['OWNER']);if(input.confirmation!==org.name)throw new ServiceError(422,'CONFIRMATION_MISMATCH');
   const [target]=await tx`select account_id::text from aevic_platform.organization_members where organization_id=${id} and id=${input.memberId} and role<>'OWNER'`;if(!target)throw new ServiceError(422,'MEMBER_REQUIRED');
   await tx`update aevic_platform.organization_members set role='MANAGER' where organization_id=${id} and role='OWNER'`;await tx`update aevic_platform.organization_members set role='OWNER' where id=${input.memberId}`;
-  await audit(tx,actor(c),'organization.ownership','organization',id,{newOwner:target.account_id});await notify(tx,target.account_id,'Təşkilat sahibliyi',org.name+' təşkilatının sahibliyi sizə ötürüldü.','/team/invitations','system');return {members:await members(tx,id)};
+  await audit(tx,actor(c),'organization.ownership','organization',id,{newOwner:target.account_id});await notify(tx,target.account_id,'Təşkilat sahibliyi',org.name+' təşkilatının sahibliyi sizə ötürüldü.','/account/invitations','system');return {members:await members(tx,id)};
  });return c.json(out.members);
 });
 export default app;

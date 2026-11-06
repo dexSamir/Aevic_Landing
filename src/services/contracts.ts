@@ -79,6 +79,7 @@ import type {
 } from '../types/domain';
 
 export interface AuthService {
+  registerAccount(input:{firstName:string;lastName:string;email:string;password:string;purpose:'spectator'|'team';idempotencyKey:string}):Promise<{user:User;role:UserRole}>;
   workspaces(): Promise<Array<{id:string;name:string;role:TeamAuthorityRole}>>;
   selectWorkspace(teamId:string): Promise<void>;
   getSession(signal?: AbortSignal): Promise<{ user: User; role: UserRole } | null>;
@@ -93,6 +94,9 @@ export interface AuthService {
 }
 
 export interface AccountService {
+  onboarding():Promise<import('../types/domain').AccountOnboarding>;
+  saveOnboarding(input:{purpose:'spectator'|'team';revision:number;draft?:import('../types/domain').AccountOnboarding['draft']}):Promise<import('../types/domain').AccountOnboarding>;
+  completeTeamSetup(input:Omit<import('../types/domain').TeamRegistrationDraft,'email'>,key:string):Promise<{teamId:string}>;
   profile(): Promise<AccountProfile>;
   updateProfile(profile: Pick<User, 'firstName' | 'lastName' | 'phone'>): Promise<AccountProfile>;
   changePassword(currentPassword: string, newPassword: string): Promise<void>;
@@ -117,6 +121,8 @@ export interface RegistrationService {
 }
 
 export interface TournamentService {
+  bannerPreview(id:string,signal?:AbortSignal):Promise<Blob>;
+  uploadBanner(file:File): Promise<{id:string;url:string}>;
   assignSlot(tournamentId:string,input:{teamId:string;slotNumber:number;expectedSlotNumber:number|null;reason:string},idempotencyKey:string):Promise<void>;
   correctCheckIn(tournamentId:string,input:{teamId:string;checkedIn:boolean;expectedCheckedIn:boolean;reason:string},idempotencyKey:string):Promise<void>;
   update(id: string, input: import('../types/domain').TournamentUpdate): Promise<Tournament>;
@@ -331,6 +337,8 @@ export interface AdminService {
 }
 
 export interface PlatformServices {
+  siteContent: { media():Promise<{id:string;name:string;createdAt:string}[]>; published(signal?:AbortSignal):Promise<Record<string,import('../content/siteManagement').SiteDocument>>; admin():Promise<Record<string,import('../content/siteManagement').SiteRecord>>; update(id:string,body:{revision:number;document:import('../content/siteManagement').SiteDocument;action:'save'|'publish'|'unpublish'}):Promise<import('../content/siteManagement').SiteRecord> };
+
   legacyClaims: LegacyClaimService;
   snapshots: PlatformSnapshotService;
   auth: AuthService;

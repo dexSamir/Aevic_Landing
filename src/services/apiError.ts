@@ -75,6 +75,16 @@ function safeFieldErrors(value: unknown) {
 }
 
 const operationMessages: Record<string,string> = {
+ ONBOARDING_NOT_PENDING:'Komanda quruluşu artıq tamamlanıb. Hesabın son vəziyyətini yeniləyin.',
+ ALREADY_MEMBER:'Artıq komanda iş sahəniz var. Komanda panelini açın.',
+ REGISTRATION_CONFLICT:'Bu e-poçt və ya komanda adı artıq istifadə olunur.',
+ PLAYER_ALREADY_REGISTERED:'Heyətdəki PUBG ID başqa komandada istifadə olunur.',
+ INVALID_BANNER_REFERENCE:'Banner etibarlı deyil. Yenidən yükləyin.',
+ TOURNAMENT_SCHEDULE_LOCKED:'Qeydiyyat bağlandıqdan sonra cədvəl dəyişdirilə bilməz.',
+ INVALID_CONTENT_FIELD:'Mətnin növünü, uzunluğunu və keçidin düzgünlüyünü yoxlayın.',
+ INVALID_CONTENT_MEDIA:'Seçilmiş media tapılmadı. Faylı yenidən seçin.',
+ INVALID_CONTENT_ORDER:'Bölmələrin sırası etibarlı deyil. Qaralamanı yenidən yükləyin.',
+ CONTENT_TOO_LARGE:'Məzmun çox uzundur. Mətni qısaldın.',
  STALE_VERSION:'Məlumat dəyişib. Son versiyanı yükləyib yenidən yoxlayın.',
  INCOMPLETE_RESULTS:'Hər təsdiqlənmiş komandanın nəticəsini daxil edin.',
  DUPLICATE_PLACEMENT:'Eyni yerləşmə iki komandaya verilə bilməz.',

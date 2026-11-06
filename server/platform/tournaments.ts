@@ -5,33 +5,44 @@ import type {Sql,TransactionSql} from 'postgres';
 import type {Actor} from './repository';
 import {ServiceError} from '../errors';
 import {text} from '../validation/input';
-import {audit,idempotent,notify,notifyTeams,transaction} from './competition';
-export const tournamentInput=z.object({name:text(2,120),shortName:text(2,50),description:text(0,3000),startsAt:z.iso.datetime({offset:true}),endsAt:z.iso.datetime({offset:true}),registrationOpensAt:z.iso.datetime({offset:true}),registrationDeadline:z.iso.datetime({offset:true}),checkInOpensAt:z.iso.datetime({offset:true}),checkInClosesAt:z.iso.datetime({offset:true}),maxSlots:z.number().int().min(1).max(100),rules:z.array(text(1,500)).max(50),rounds:z.array(z.object({id:z.uuid().optional(),map:z.enum(['Erangel','Miramar','Rondo']),startsAt:z.iso.datetime({offset:true})})).min(1).max(20)}).strict();
+import {audit,idempotent,notifyTeams,transaction} from './competition';
+export const tournamentInput=z.object({name:text(2,120),shortName:text(2,50),description:text(0,3000),startsAt:z.iso.datetime({offset:true}),endsAt:z.iso.datetime({offset:true}),registrationOpensAt:z.iso.datetime({offset:true}),registrationDeadline:z.iso.datetime({offset:true}),checkInOpensAt:z.iso.datetime({offset:true}),checkInClosesAt:z.iso.datetime({offset:true}),bannerMediaId:z.uuid().nullable().optional(),maxSlots:z.number().int().min(1).max(100),rules:z.array(text(1,500)).max(50),rounds:z.array(z.object({id:z.uuid().optional(),map:z.enum(['Erangel','Miramar','Rondo']),startsAt:z.iso.datetime({offset:true})})).min(1).max(20)}).strict();
 export const editTournamentInput=tournamentInput.extend({expectedUpdatedAt:z.iso.datetime({offset:true}),status:z.enum(['draft','published','registration-open','ongoing','completed'])});
 type Input=z.infer<typeof tournamentInput>;
 function validate(input:Input){
  const start=Date.parse(input.startsAt),end=Date.parse(input.endsAt),open=Date.parse(input.registrationOpensAt),close=Date.parse(input.registrationDeadline),checkOpen=Date.parse(input.checkInOpensAt),checkClose=Date.parse(input.checkInClosesAt);
  if(!(end>start&&close>open&&close<=checkOpen&&checkClose>checkOpen&&checkClose<=start))throw new ServiceError(422,'INVALID_TIMELINE');
- if(input.rounds.some(r=>Date.parse(r.startsAt)<start||Date.parse(r.startsAt)>=end)||new Set(input.rounds.map(r=>r.startsAt)).size!==input.rounds.length)throw new ServiceError(422,'INVALID_ROUND_SCHEDULE');
+ if(input.rounds.some(r=>Date.parse(r.startsAt)<start||Date.parse(r.startsAt)>=end)||new Set(input.rounds.map(r=>Date.parse(r.startsAt))).size!==input.rounds.length)throw new ServiceError(422,'INVALID_ROUND_SCHEDULE');
+}
+async function validateBanner(tx:TransactionSql,actor:Actor,id?:string|null,current?:string|null){
+ if(!id||id===current)return;
+ const [found]=await tx`select id from aevic_platform.tournament_banners where id=${id} and uploaded_by=${actor.adminId??null} for share`;
+ if(!found)throw new ServiceError(422,'INVALID_BANNER_REFERENCE');
 }
 export async function createTournament(sql:Sql,actor:Actor,input:Input,key?:string){validate(input);return idempotent(sql,actor,key,'tournament.create',input,async tx=>{
  const id=crypto.randomUUID(),slug=`tournament-${id}`;
- await tx`insert into aevic.tournaments(id,slug,name,short_name,description,starts_at,ends_at,registration_opens_at,registration_deadline,check_in_opens_at,check_in_closes_at,max_slots,rules,map_rotation,rounds_per_day,point_formula) values(${id},${slug},${input.name},${input.shortName},${input.description},${input.startsAt},${input.endsAt},${input.registrationOpensAt},${input.registrationDeadline},${input.checkInOpensAt},${input.checkInClosesAt},${input.maxSlots},${input.rules},${input.rounds.map(r=>r.map)},${input.rounds.length},${tx.json(JSON.parse(JSON.stringify(internationalFormula)))})`;
+ await validateBanner(tx,actor,input.bannerMediaId);
+ await tx`insert into aevic.tournaments(id,slug,name,short_name,description,banner_media_id,starts_at,ends_at,registration_opens_at,registration_deadline,check_in_opens_at,check_in_closes_at,max_slots,rules,map_rotation,rounds_per_day,point_formula) values(${id},${slug},${input.name},${input.shortName},${input.description},${input.bannerMediaId??null},${input.startsAt},${input.endsAt},${input.registrationOpensAt},${input.registrationDeadline},${input.checkInOpensAt},${input.checkInClosesAt},${input.maxSlots},${input.rules},${input.rounds.map(r=>r.map)},${input.rounds.length},${tx.json(JSON.parse(JSON.stringify(internationalFormula)))})`;
  for(const [index,r] of input.rounds.entries())await tx`insert into aevic.matches(tournament_id,round,map,scheduled_at,room_release_at) values(${id},${index+1},${r.map},${r.startsAt},${r.startsAt}::timestamptz-interval '10 minutes')`;
  await audit(tx,actor,'tournament.create','tournament',id);return{id};
 });}
 export async function editTournament(sql:Sql,actor:Actor,id:string,input:z.infer<typeof editTournamentInput>,key?:string){validate(input);const work=async (tx:TransactionSql)=>{
  const [t]=await tx`select * from aevic.tournaments where id=${id} for update`;if(!t)throw new ServiceError(404,'TOURNAMENT_NOT_FOUND');
  if(new Date(t.updated_at).getTime()!==Date.parse(input.expectedUpdatedAt))throw new ServiceError(409,'STALE_VERSION');
+ await validateBanner(tx,actor,input.bannerMediaId,t.banner_media_id);
  const transitions:Record<string,string[]>={draft:['draft','published'],published:['published','registration-open'], 'registration-open':['registration-open','ongoing'],ongoing:['ongoing','completed'],completed:[],cancelled:[]};
  if(!transitions[t.status]?.includes(input.status))throw new ServiceError(409,'INVALID_LIFECYCLE_TRANSITION');
  const rounds=await tx`select * from aevic.matches where tournament_id=${id} order by round for update`;
  if(rounds.length!==input.rounds.length||input.rounds.some(r=>!rounds.some(m=>m.id===r.id)))throw new ServiceError(422,'ROUND_ID_MISMATCH');
+ if(Date.now()>=new Date(t.registration_deadline).getTime()||['ongoing','completed','cancelled'].includes(t.status)){
+  const keys={startsAt:'starts_at',endsAt:'ends_at',registrationOpensAt:'registration_opens_at',registrationDeadline:'registration_deadline',checkInOpensAt:'check_in_opens_at',checkInClosesAt:'check_in_closes_at'} as const;
+  if(input.maxSlots!==t.max_slots||Object.entries(keys).some(([key,column])=>Date.parse(input[key as keyof typeof keys])!==new Date(t[column]).getTime())||input.rounds.some(r=>{const m=rounds.find(m=>m.id===r.id);return !m||m.map!==r.map||new Date(m.scheduled_at).getTime()!==Date.parse(r.startsAt);}))throw new ServiceError(409,'TOURNAMENT_SCHEDULE_LOCKED');
+ }
  const [count]=await tx`select count(*)::int as n,coalesce(max(slot_number),0)::int as max_slot from aevic_platform.tournament_registrations where tournament_id=${id} and status in ('pending','confirmed')`;
  if(input.maxSlots<Math.max(count.n,count.max_slot))throw new ServiceError(409,'CAPACITY_BELOW_REGISTRATIONS');
  if(rounds.some(m=>m.published_at&&input.rounds.some(r=>r.id===m.id&&(r.map!==m.map||Date.parse(r.startsAt)!==new Date(m.scheduled_at).getTime()))))throw new ServiceError(409,'PUBLISHED_ROUND_IMMUTABLE');
  if(input.status==='completed'&&rounds.some(m=>!m.published_at))throw new ServiceError(409,'UNPUBLISHED_ROUNDS');
- await tx`update aevic.tournaments set name=${input.name},short_name=${input.shortName},description=${input.description},status=${input.status},starts_at=${input.startsAt},ends_at=${input.endsAt},registration_opens_at=${input.registrationOpensAt},registration_deadline=${input.registrationDeadline},check_in_opens_at=${input.checkInOpensAt},check_in_closes_at=${input.checkInClosesAt},max_slots=${input.maxSlots},rules=${input.rules},map_rotation=${input.rounds.map(r=>r.map)},updated_at=clock_timestamp() where id=${id}`;
+ await tx`update aevic.tournaments set name=${input.name},short_name=${input.shortName},description=${input.description},banner_media_id=${input.bannerMediaId===undefined?t.banner_media_id:input.bannerMediaId},status=${input.status},starts_at=${input.startsAt},ends_at=${input.endsAt},registration_opens_at=${input.registrationOpensAt},registration_deadline=${input.registrationDeadline},check_in_opens_at=${input.checkInOpensAt},check_in_closes_at=${input.checkInClosesAt},max_slots=${input.maxSlots},rules=${input.rules},map_rotation=${input.rounds.map(r=>r.map)},updated_at=clock_timestamp() where id=${id}`;
  for(const r of input.rounds)await tx`update aevic.matches set map=${r.map},scheduled_at=${r.startsAt},room_release_at=${r.startsAt}::timestamptz-interval '10 minutes',updated_at=now() where id=${r.id!} and published_at is null`;
  await audit(tx,actor,'tournament.update','tournament',id,{status:input.status});
  const entries=await tx`select team_id::text from aevic_platform.tournament_registrations where tournament_id=${id} and status in ('pending','confirmed')`;

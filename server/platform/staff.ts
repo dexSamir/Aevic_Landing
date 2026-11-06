@@ -5,7 +5,7 @@ import {z} from 'zod';
 import type {Env,ApiContext} from '../types';
 import {body,text,pagination} from '../validation/input';
 import {platform,admin,actor} from './context';
-import {audit,notify,notifyTeams,transaction,idempotent} from './competition';
+import {audit,notifyTeams,transaction,idempotent} from './competition';
 import {resultInput} from './tournaments';
 import {roundResult} from '../services/data';
 import {ServiceError} from '../errors';
@@ -32,7 +32,7 @@ app.post('/admin/tournaments/:id/slot-assignment',async c=>{
   if(roster.length<4)throw new ServiceError(422,'ROSTER_INCOMPLETE');
   const [saved]=await tx`insert into aevic_platform.tournament_registrations(tournament_id,team_id,status,slot_number,roster_lock_at,roster,reason) values(${id},${input.teamId},'confirmed',${input.slotNumber},${t.registration_deadline},${tx.json(roster)},${input.reason}) on conflict(tournament_id,team_id) do update set status='confirmed',slot_number=excluded.slot_number,reason=excluded.reason,roster=case when aevic_platform.tournament_registrations.status in ('pending','confirmed') then aevic_platform.tournament_registrations.roster else excluded.roster end,updated_at=now() returning id`;
   await audit(tx,actor(c),'slot.assign','registration',saved.id,{teamId:input.teamId,slotNumber:input.slotNumber,previousSlot:input.expectedSlotNumber,reason:input.reason});
-  await notify(tx,input.teamId,'Turnir slotu təyin edildi',t.name+' · Slot '+input.slotNumber,'/team/tournaments/'+id);return{id:saved.id};
+  await notifyTeams(tx,[input.teamId],'Turnir slotu təyin edildi',t.name+' · Slot '+input.slotNumber,'/team/tournaments/'+id);return{id:saved.id};
  });return c.body(null,204);
 });
 app.post('/admin/tournaments/:id/check-in-correction',async c=>{
@@ -47,7 +47,7 @@ app.post('/admin/tournaments/:id/check-in-correction',async c=>{
   if(input.checkedIn)await tx`insert into aevic_platform.check_ins(tournament_id,team_id) values(${id},${input.teamId}) on conflict do nothing`;
   else await tx`delete from aevic_platform.check_ins where tournament_id=${id} and team_id=${input.teamId}`;
   await audit(tx,actor(c),'check-in.correct','registration',entry.id,{teamId:input.teamId,checkedIn:input.checkedIn,reason:input.reason});
-  await notify(tx,input.teamId,'Check-in düzəlişi',input.reason,'/team/tournaments/'+id);return{id:entry.id};
+  await notifyTeams(tx,[input.teamId],'Check-in düzəlişi',input.reason,'/team/tournaments/'+id);return{id:entry.id};
  });return c.body(null,204);
 });
 app.post('/admin/tournaments/:id/cancellation',async c=>{admin(c,['tournament-manager']);const id=uuid(c),input=await body(c,z.object({reason:text(10,2000)}));await idempotent(platform(c).sql,actor(c),c.req.header('idempotency-key'),'tournament.cancel',{id,...input},async tx=>{
@@ -93,7 +93,7 @@ app.get('/admin/check-ins/missed',async c=>{
 app.post('/admin/messages',async c=>{admin(c,['tournament-manager','support-moderator']);const input=await body(c,z.object({title:text(2,200),body:text(1,6000),severity:z.enum(['info','success','warning','critical']),audience:z.enum(['all','team']),teamId:z.string().regex(/^[1-9]\d{0,18}$/).optional()}));if(input.audience==='team'&&!input.teamId)throw new ServiceError(422,'TEAM_REQUIRED');await transaction(platform(c).sql,async tx=>{
  const [m]=await tx`insert into aevic_platform.messages(team_id,author_id,title,body,severity) values(${input.audience==='team'?input.teamId!:null},${actor(c).adminId!},${input.title},${input.body},${input.severity}) returning id`;
  const recipients=await tx`select id::text from public.teams where (${input.audience==='all'} or id=${input.teamId??null}) and status<>'banned'`;
- for(const r of recipients)await notify(tx,r.id,input.title,input.body,'/team/messages','admin-message');await audit(tx,actor(c),'message.send','message',m.id);
+ for(const r of recipients)await notifyTeams(tx,[r.id],input.title,input.body,'/team/messages','admin-message');await audit(tx,actor(c),'message.send','message',m.id);
  });return c.body(null,204);});
 app.get('/admin/blacklist',async c=>{admin(c,['tournament-manager']);return c.json((await platform(c).teams(true)).filter(t=>t.approvalStatus==='banned').map(t=>({id:t.id,teamId:t.id,teamName:t.name,reason:t.rejectionReason??'',active:true,permanent:true})));});
 app.post('/admin/blacklist',async c=>{admin(c,['tournament-manager']);const input=await body(c,z.object({teamId:z.string().regex(/^[1-9]\d{0,18}$/),reason:text(10,1000),expiresAt:z.iso.datetime({offset:true}).optional()}));if(input.expiresAt&&Date.parse(input.expiresAt)<=Date.now())throw new ServiceError(422,'INVALID_EXPIRY');await transaction(platform(c).sql,async tx=>{const [team]=await tx`select status from public.teams where id=${input.teamId} for update`;if(!team)throw new ServiceError(404,'TEAM_NOT_FOUND');const [prior]=await tx`select previous_status from aevic_platform.sanctions where team_id=${input.teamId} and revoked_at is null order by created_at desc limit 1`;await tx`update aevic_platform.sanctions set revoked_at=now() where team_id=${input.teamId} and revoked_at is null`;await tx`update public.teams set status='banned',rejection_reason=${input.reason} where id=${input.teamId}`;await tx`insert into aevic_platform.sanctions(team_id,reason,expires_at,actor_id,previous_status) values(${input.teamId},${input.reason},${input.expiresAt??null},${actor(c).adminId!},${prior?.previous_status??team.status})`;await audit(tx,actor(c),'team.ban','team',input.teamId,{reason:input.reason});});return c.body(null,204);});

@@ -1,3 +1,5 @@
+import siteContentRoutes from './platform/site-content';
+import onboardingRoutes from './platform/onboarding';
 import passwordChangeRoutes from './platform/password-change';
 import googleRoutes from './auth/google-routes';
 import tokenRoutes from './auth/token-routes';
@@ -42,6 +44,7 @@ export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process
   app.route('/',adminManagementRoutes);
   app.route('/',adminAnalyticsRoutes);
   app.route('/',platformRoutes);
+  app.route('/',onboardingRoutes);
   app.route('/',adminRecoveryRoutes);
   app.route('/',mediaRoutes);
   app.route('/',rosterRoutes);
@@ -54,6 +57,7 @@ export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process
   app.route('/',mfaRoutes);
   app.route('/',communityRoutes);
   app.route('/',staffRoutes);
+  app.route('/',siteContentRoutes);
   app.route('/',profileRoutes);
   app.route('/',accountRoutes);
   app.route('/',verificationRoutes);

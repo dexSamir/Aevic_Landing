@@ -8,18 +8,24 @@ export const actorKey=(actor:Actor)=>actor.adminId?`admin:${actor.adminId}`:`tea
 export async function audit(sql:Tx,actor:Actor,action:string,entityType:string,entityId:string,metadata:Record<string,unknown>={}) {
  await sql`insert into aevic_platform.audit_events(actor_id,action,entity_type,entity_id,metadata) values(${actorKey(actor)},${action},${entityType},${entityId},${sql.json(JSON.parse(JSON.stringify({...metadata,actorRole:actor.adminId?actor.role??'unknown':actor.teamId?'team':'account'})))})`;
 }
-export async function notify(sql:Tx,teamId:string,title:string,body:string,actionHref:string,eventType='tournament'){
- return notifyTeams(sql,[teamId],title,body,actionHref,eventType);
+/** Explicit account notification; team broadcasts resolve real authority separately. */
+export async function notify(sql:Tx,accountId:string,title:string,body:string,actionHref:string,eventType='tournament'){
+ return deliverNotifications(sql,[accountId],false,title,body,actionHref,eventType);
 }
 export async function notifyTeams(sql:Tx,teamIds:string[],title:string,body:string,actionHref:string,eventType='tournament'){
- if(!teamIds.length)return;
+ return deliverNotifications(sql,teamIds,true,title,body,actionHref,eventType);
+}
+async function deliverNotifications(sql:Tx,ids:string[],teams:boolean,title:string,body:string,actionHref:string,eventType:string){
+ if(!ids.length)return;
  const eventKey=({'map-result':'results','tournament-result':'results','admin-message':'adminMessages',tournament:'announcements'} as Record<string,string>)[eventType]??eventType;
- // One atomic statement regardless of participant count; preferences remain authoritative.
+ // One statement resolves account recipients and applies their own preferences.
  await sql`insert into aevic_platform.notifications(recipient_id,title,body,action_href,event_type)
- select recipient.id::bigint,${title},${body},${actionHref},${eventType}
- from (select distinct unnest(${sql.array(teamIds)}::text[]) as id) recipient
- left join aevic_platform.notification_preferences p on p.user_id=recipient.id::bigint
- where (p.preferences->'channels'->'in-app') is distinct from 'false'::jsonb
+ select recipient.id,${title},${body},${actionHref},${eventType}
+ from aevic_platform.accounts recipient
+ left join aevic_platform.notification_preferences p on p.user_id=recipient.id
+ where ((${teams} and exists(select 1 from aevic_platform.team_authority a where a.account_id=recipient.id and a.team_id::text=any(${sql.array(ids)}::text[])))
+ or (not ${teams} and recipient.id::text=any(${sql.array(ids)}::text[])))
+ and (p.preferences->'channels'->'in-app') is distinct from 'false'::jsonb
  and (p.preferences->'events'->${eventKey}) is distinct from 'false'::jsonb`;
 }
 export async function transaction<T>(sql:Sql,work:(tx:Tx)=>Promise<T>):Promise<T>{return await sql.begin(work) as T;}
@@ -48,7 +54,7 @@ export async function joinTournament(sql:Sql,teamId:string,tournamentId:string,b
  const roster=[1,2,3,4,5].filter(slot=>team[`player${slot}_ign`]).map(slot=>({id:`${teamId}:player${slot}`,ign:team[`player${slot}_ign`],uid:players.find(p=>p.slot===slot)?.pubg_id??undefined,role:players.find(p=>p.slot===slot)?.role??(slot===5?'substitute':'starter')}));
  if(roster.length<4)throw new ServiceError(422,'ROSTER_INCOMPLETE');
  const [entry]=await tx`insert into aevic_platform.tournament_registrations(tournament_id,team_id,roster_lock_at,roster) values(${tournamentId},${teamId},${t.registration_deadline},${tx.json(roster)}) on conflict(tournament_id,team_id) do update set status='pending',slot_number=null,roster=excluded.roster,roster_lock_at=excluded.roster_lock_at,reason=null,updated_at=now() returning id`;
- await audit(tx,by,'registration.create','tournament',tournamentId);await notify(tx,teamId,'Qeydiyyat göndərildi','Komandanızın turnir müraciəti yoxlanılır.',`/team/tournaments/${tournamentId}`);
+ await audit(tx,by,'registration.create','tournament',tournamentId);await notifyTeams(tx,[teamId],'Qeydiyyat göndərildi','Komandanızın turnir müraciəti yoxlanılır.',`/team/tournaments/${tournamentId}`);
  return{ok:true,registrationId:entry.id,tournamentId,teamId,status:'pending',source:'backend',duplicate:false};
 });}
 export async function reviewEntry(sql:Sql,actor:Actor,tournamentId:string,teamId:string,status:'confirmed'|'rejected',reason?:string){return transaction(sql,async tx=>{
@@ -63,7 +69,7 @@ export async function reviewEntry(sql:Sql,actor:Actor,tournamentId:string,teamId
   slot=Array.from({length:t.max_slots},(_,i)=>i+1).find(i=>!occupied.some(r=>r.slot_number===i))??null;if(!slot)throw new ServiceError(409,'TOURNAMENT_FULL');
  }
  await tx`update aevic_platform.tournament_registrations set status=${status},slot_number=${slot},reason=${reason??null},updated_at=now() where id=${entry.id}`;
- await audit(tx,actor,'registration.review','registration',entry.id,{status});await notify(tx,teamId,status==='confirmed'?'İştirak təsdiqləndi':'Müraciət qəbul edilmədi',reason??t.name,`/team/tournaments/${tournamentId}`);
+ await audit(tx,actor,'registration.review','registration',entry.id,{status});await notifyTeams(tx,[teamId],status==='confirmed'?'İştirak təsdiqləndi':'Müraciət qəbul edilmədi',reason??t.name,`/team/tournaments/${tournamentId}`);
 });}
 export async function checkIn(sql:Sql,teamId:string,tournamentId:string,by:Actor={teamId}){return transaction(sql,async tx=>{
  await tx`select pg_advisory_xact_lock(hashtextextended(${'roster:'+teamId},0))`;

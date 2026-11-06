@@ -15,6 +15,10 @@ export interface RouteDefinition {
 }
 
 export const routeManifest = [
+  {id:'admin_site',path:'/admin/site',family:'ADMIN',title:'Saytın idarə edilməsi',description:'Səhifələr, media və dərc edilmiş məzmun.',section:'admin',navigation:'/admin/site',capability:'adminWorkspace',indexable:false},
+  {id:'team_setup',path:'/team/setup',family:'TEAM',title:'Komandanı tamamla',description:'Komanda kimliyi, kapitan və əsas heyət.',section:'team',navigation:'/team/setup',capability:'publicSession',indexable:false},
+  {id:'account_invitations',path:'/account/invitations',family:'ACCOUNT',title:'Komanda dəvətləri',description:'Hesabınıza göndərilmiş komanda və təşkilat dəvətləri.',section:'account',navigation:'/account/invitations',capability:'publicSession',indexable:false},
+  {id:'account_onboarding',path:'/account/onboarding',family:'ACCOUNT',title:'Hesab məqsədi',description:'İzləyici və ya komanda hesabı seçimi.',section:'account',navigation:'/account/onboarding',capability:'publicSession',indexable:false},
   {
     id: "legacy_activation",
     path: "/activate-legacy",

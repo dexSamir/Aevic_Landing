@@ -1,3 +1,4 @@
+import { useSiteContent, useSiteNavigation } from '../components/site/SiteContent';
 import { PublicMobileBottomNav } from './MobileBottomNav';
 import { SkipLink } from '../components/common/SkipLink';
 import {
@@ -29,10 +30,11 @@ import { useFooterVisibility } from './useFooterVisibility';
 import { usePlatformQuery } from '../services/queryCache';
 
 function PublicNavLinks({ onNavigate, drawer = false }: { onNavigate?: () => void; drawer?: boolean }) {
+  const navigation=useSiteNavigation(publicNavigation.primary);
   const { pathname } = useLocation();
   const activeRoute = activePublicRoute(pathname);
 
-  return <nav className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya">{publicNavigation.primary.map((link) => { const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}><span>{link.label}</span></NavLink>; })}</nav>;
+  return <nav className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya">{navigation.map((link) => { const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}><span>{link.label}</span></NavLink>; })}</nav>;
 }
 
 function PublicAuthActions({ onNavigate, drawer = false }: { onNavigate?: () => void; drawer?: boolean }) {
@@ -95,6 +97,8 @@ function PublicAuthActions({ onNavigate, drawer = false }: { onNavigate?: () => 
       <header><div className="public-identity-menu__logo">{team && !isAdmin ? <TeamLogo name={team.name} src={team.logoUrl} size="sm" /> : <CircleUserRound size={28} aria-hidden="true" />}</div><div className="public-identity-menu__copy"><span>{isAdmin ? 'Administrator' : team?.tag || 'AEVIC hesabı'}</span><strong>{identity}</strong><small>{session.user.email}</small></div></header>
       {isAdmin && <Link role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} to="/admin" onClick={() => close()}><LayoutDashboard size={16} aria-hidden="true" />Admin paneli</Link>}
       {hasTeamArea && <Link role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} to="/team" onClick={() => close()}><Users size={16} aria-hidden="true" />Komanda paneli</Link>}
+      {!isAdmin&&!hasTeamArea&&<Link role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} to="/team/setup" onClick={()=>close()}><Users size={16} aria-hidden="true"/>Komanda yarat</Link>}
+      {!isAdmin&&<Link role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} to="/account/invitations" onClick={()=>close()}><Users size={16} aria-hidden="true"/>Dəvətlər</Link>}
       <Link role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} to="/account/profile" onClick={() => close()}><CircleUserRound size={16} aria-hidden="true" />Hesab</Link>
       <Link role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} to={isAdmin ? '/admin/settings' : hasTeamArea ? '/team/settings' : '/account/security'} onClick={() => close()}><Settings size={16} aria-hidden="true" />Ayarlar</Link>
       <button role={drawer ? undefined : "menuitem"} tabIndex={drawer ? undefined : -1} type="button" disabled={loggingOut} onClick={() => void logout()}><LogOut size={16} /> {loggingOut ? 'Çıxış edilir…' : 'Çıxış'}</button>
@@ -104,6 +108,7 @@ function PublicAuthActions({ onNavigate, drawer = false }: { onNavigate?: () => 
 }
 
 export function PublicHeader() {
+  const content=useSiteContent('global');
   const { pathname } = useLocation();
   const [menuLocation, setMenuLocation] = useState<string>();
   const menuOpen = menuLocation === pathname;
@@ -127,7 +132,7 @@ export function PublicHeader() {
   useEffect(() => setMenuLocation(current => current === pathname ? current : undefined), [pathname]);
 
   const mode = footerVisible || !scrolled ? 'hero-top' : 'scrolled';
-  return <><span ref={topSentinel} className="public-header-sentinel" aria-hidden="true" /><header className={`site-header site-header--${mode} ${/^\/teams\/(?!compare(?:\/|$))[^/]+\/?$/.test(pathname) ? 'site-header--team-detail' : ''} ${pathname === '/' ? 'site-header--home' : ''}`} data-public-header-state={mode}><div className="container site-header__inner"><BrandMark variant="navigation" /><div className="site-header__desktop"><PublicNavLinks /></div><div className="site-header__tools"><div className="site-header__mobile-discovery"><Link className="icon-button" to="/regulations" aria-label="Qaydalar"><FileText size={21} /></Link><Link className="icon-button" to="/team/notifications" aria-label="Bildirişlər"><Bell size={21} /></Link></div><Link className="public-rules-link" aria-label="Yarış qaydaları" to={publicNavigation.rules.to} aria-current={pathname === '/regulations' ? 'page' : undefined}><FileText size={17} aria-hidden="true" /><span>{publicNavigation.rules.label}</span></Link><div className="site-header__auth"><PublicAuthActions /></div><IconButton className="site-header__menu" label="Menyunu aç" aria-expanded={menuOpen} aria-controls="public-mobile-menu" onClick={() => setMenuOpen(true)}><Menu size={21} /></IconButton></div></div></header><Drawer id="public-mobile-menu" open={menuOpen} title="AEVIC menyu" heading={<span className="drawer-brand"><BrandEmblem variant="navigation" /><span className="sr-only">AEVIC Esports</span></span>} onClose={() => setMenuOpen(false)}><div className="drawer-public-nav"><PublicNavLinks drawer onNavigate={() => setMenuOpen(false)} /><Link className="public-rules-link" to={publicNavigation.rules.to} onClick={() => setMenuOpen(false)}>{publicNavigation.rules.label}</Link><PublicAuthActions drawer onNavigate={() => setMenuOpen(false)} /></div><div className="drawer-install"><InstallAevic /></div></Drawer></>;
+  return <><span ref={topSentinel} className="public-header-sentinel" aria-hidden="true" /><header className={`site-header site-header--${mode} ${/^\/teams\/(?!compare(?:\/|$))[^/]+\/?$/.test(pathname) ? 'site-header--team-detail' : ''} ${pathname === '/' ? 'site-header--home' : ''}`} data-public-header-state={mode}><div className="container site-header__inner"><BrandMark variant="navigation" /><div className="site-header__desktop"><PublicNavLinks /></div><div className="site-header__tools"><div className="site-header__mobile-discovery"><Link className="icon-button" to="/regulations" aria-label="Qaydalar"><FileText size={21} /></Link><Link className="icon-button" to="/team/notifications" aria-label="Bildirişlər"><Bell size={21} /></Link></div><Link className="public-rules-link" aria-label="Yarış qaydaları" to={publicNavigation.rules.to} aria-current={pathname === '/regulations' ? 'page' : undefined}><FileText size={17} aria-hidden="true" /><span>{content.text('nav.rules',publicNavigation.rules.label)}</span></Link><div className="site-header__auth"><PublicAuthActions /></div><IconButton className="site-header__menu" label="Menyunu aç" aria-expanded={menuOpen} aria-controls="public-mobile-menu" onClick={() => setMenuOpen(true)}><Menu size={21} /></IconButton></div></div></header><Drawer id="public-mobile-menu" open={menuOpen} title="AEVIC menyu" heading={<span className="drawer-brand"><BrandEmblem variant="navigation" /><span className="sr-only">AEVIC Esports</span></span>} onClose={() => setMenuOpen(false)}><div className="drawer-public-nav"><PublicNavLinks drawer onNavigate={() => setMenuOpen(false)} /><Link className="public-rules-link" to={publicNavigation.rules.to} onClick={() => setMenuOpen(false)}>{content.text('nav.rules',publicNavigation.rules.label)}</Link><PublicAuthActions drawer onNavigate={() => setMenuOpen(false)} /></div><div className="drawer-install"><InstallAevic /></div></Drawer></>;
 }
 
 export function PublicLayout() {

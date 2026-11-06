@@ -79,6 +79,7 @@ export const fixtureServices: PlatformServices = {
     async admin() { await wait(40); return clone({ currentTeam, tournaments, teams, matchSchedule, slots, adminMessages, blacklist, organizations, teamAchievements }); },
   },
   auth: {
+    async registerAccount() { return backendRequired(); },
     async workspaces() { return [{id:currentTeam.id,name:currentTeam.name,role:"OWNER" as const}]; },
     async selectWorkspace() {},
     async getSession() {
@@ -100,6 +101,9 @@ export const fixtureServices: PlatformServices = {
     async resendVerification() { await wait(); },
   },
   account: {
+    async onboarding() {return {purpose:null,status:'complete' as const,revision:0,draft:{}};},
+    async saveOnboarding() {return backendRequired();},
+    async completeTeamSetup() {return backendRequired();},
     async profile() { await wait(50); return clone({ user: currentTeam.captain, emailVerified: true, dataExportStatus: 'backend-required' as const }); },
     async updateProfile(profile) { await wait(); currentTeam.captain = { ...currentTeam.captain, ...profile }; return clone({ user: currentTeam.captain, emailVerified: true, dataExportStatus: 'backend-required' as const }); },
     async changePassword() { await wait(); },
@@ -143,6 +147,8 @@ export const fixtureServices: PlatformServices = {
     },
   },
   tournaments: {
+    async bannerPreview() {return backendRequired();},
+    async uploadBanner() {return backendRequired();},
     async roomReadiness(id) { return matchSchedule.filter(m=>m.tournamentId===id).map(m=>({id:m.id,ready:m.id===releasedSyntheticRoom.roundId})); },
     update: backendRequired,
     create: async () => {throw new Error('Tournament creation requires API mode');},

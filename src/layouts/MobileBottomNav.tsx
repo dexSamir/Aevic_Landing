@@ -63,7 +63,7 @@ export function MobileBottomNav({ session, team, loading, refresh }: Props) {
         <strong>{identity}</strong>
         {loading ? <p role="status">Sessiya yoxlanılır…</p> : session === undefined ? <button onClick={refresh}>Sessiyanı yenidən yoxla</button> : session ? <>
           <Link to="/account/profile">Hesabım</Link>
-          {workspace ? <><Link to="/team">Komanda paneli</Link><Link to="/team/roster">Heyəti idarə et</Link></> : !isAdmin && <Link to="/register">Komanda yarat</Link>}
+          {workspace ? <><Link to="/team">Komanda paneli</Link><Link to="/team/roster">Heyəti idarə et</Link></> : !isAdmin && <Link to="/team/setup">Komanda yarat</Link>}
           <button disabled={busy} onClick={() => void logout()}><LogOut size={18} aria-hidden="true" />{busy ? 'Çıxış edilir…' : 'Çıxış'}</button>
         </> : <><Link to={publicNavigation.login.to}>{publicNavigation.login.label}</Link><Link to={publicNavigation.register.to}>{publicNavigation.register.label}</Link></>}
         {error && <p role="alert">{error}</p>}

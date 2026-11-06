@@ -1,3 +1,5 @@
+import { useLocation } from 'react-router-dom';
+import { useSiteContent } from '../components/site/SiteContent';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/regulations.css';
@@ -6,7 +8,9 @@ import { PageHeader } from '../components/common/primitives';
 export { RegulationsPage } from './RegulationsPage';
 
 function InformationPage({ title, description, sections }: { title: string; description: string; sections: [string, ReactNode][] }) {
-  return <section className="page-section information-page"><div className="container"><PageHeader title={title} description={description} /><div className="information-page__body">{sections.map(([heading, body]) => <section key={heading}><h2>{heading}</h2><p>{body}</p></section>)}</div></div></section>;
+  const content=useSiteContent(useLocation().pathname.slice(1));
+  const ids=sections.map((_,i)=>`section-${i}`);
+  return <section className="page-section information-page"><div className="container"><PageHeader title={title} description={description} /><div className="information-page__body">{content.order(ids).filter(id=>content.visible(`${id}.visible`)).map(id=>{const [heading,body]=sections[ids.indexOf(id)];return <section key={id}><h2>{content.text(`${id}.title`,heading)}</h2><p>{typeof content.document?.fields[`${id}.body`]==='string'?content.document.fields[`${id}.body`]:body}</p></section>;})}</div></div></section>;
 }
 
 export function PrivacyPage() {

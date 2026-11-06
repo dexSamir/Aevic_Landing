@@ -44,6 +44,15 @@ export interface User {
   phone?: string;
   role: UserRole;
   teamId?: ID;
+  onboarding?: { purpose: 'spectator' | 'team' | null; status: 'choice' | 'team' | 'complete' };
+}
+
+export interface AccountOnboarding {
+ purpose: 'spectator' | 'team' | null;
+ status: 'choice' | 'team' | 'complete';
+ revision: number;
+ draft: Partial<Omit<TeamRegistrationDraft,'email'>>;
+ teamId?: string;
 }
 
 export interface PasswordResetInspection {
@@ -760,6 +769,8 @@ export interface TeamAnnouncement {
 }
 
 export interface Tournament {
+  bannerMediaId?: string;
+  bannerUrl?: string;
   updatedAt?: ISODate;
   id: ID;
   disputeDurationMinutes?: number;
@@ -1176,7 +1187,7 @@ export interface NotificationPreferences {
 }
 
 export interface TournamentCreation {
- name:string;shortName:string;description:string;startsAt:ISODate;endsAt:ISODate;registrationOpensAt:ISODate;registrationDeadline:ISODate;checkInOpensAt:ISODate;checkInClosesAt:ISODate;maxSlots:number;rules:string[];rounds:Array<{map:'Erangel'|'Miramar'|'Rondo';startsAt:ISODate}>;
+ name:string;shortName:string;description:string;bannerMediaId?:string|null;startsAt:ISODate;endsAt:ISODate;registrationOpensAt:ISODate;registrationDeadline:ISODate;checkInOpensAt:ISODate;checkInClosesAt:ISODate;maxSlots:number;rules:string[];rounds:Array<{map:'Erangel'|'Miramar'|'Rondo';startsAt:ISODate}>;
 }
 
 export interface TournamentUpdate extends Omit<TournamentCreation, 'rounds'> {

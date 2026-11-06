@@ -4,8 +4,8 @@ import {Hono} from 'hono';
 import {z} from 'zod';
 import type {Env,ApiContext} from '../types';
 import {body,text,pagination} from '../validation/input';
-import {platform,captain,admin,actor} from './context';
-import {audit,notify,transaction} from './competition';
+import {platform,captain,admin,actor,account} from './context';
+import {audit,notify,transaction,notifyTeams} from './competition';
 import {ServiceError} from '../errors';
 import {lockRoster} from './roster';
 const app=new Hono<Env>();
@@ -53,8 +53,8 @@ app.post('/admin/support/tickets/:id/messages',c=>reply(c,true));
 app.get('/admin/support/tickets',async c=>{admin(c,['support-moderator']);return c.json(page(c,(await tickets(c)).filter(t=>!c.req.query('status')||t.status===c.req.query('status'))));});
 app.get('/admin/support/tickets/:id',async c=>{admin(c,['support-moderator']);return c.json(await ticket(c,id(c)));});
 app.patch('/admin/support/tickets/:id/status',async c=>{admin(c,['support-moderator']);const key=id(c),input=await body(c,z.object({status:statuses,reason:text(0,1000).optional()}));await transaction(platform(c).sql,async tx=>{const rows=await tx`update aevic_platform.support_tickets set status=${input.status},updated_at=now() where id=${key} returning user_id::text,subject`;if(!rows[0])throw new ServiceError(404,'TICKET_NOT_FOUND');await audit(tx,actor(c),'support.status','ticket',key,{status:input.status,reason:input.reason});await notify(tx,rows[0].user_id,'Dəstək sorğusu yeniləndi',rows[0].subject,`/account/support/tickets/${key}`,'system');});return c.json(await ticket(c,key));});
-app.get('/me/notification-preferences',async c=>{const [row]=await platform(c).sql`select preferences from aevic_platform.notification_preferences where user_id=${captain(c)}`;return c.json(row?.preferences??{channels:{'in-app':true,email:false,push:false},events:{registration:true,'check-in':true,room:true,results:true,roster:true,announcements:true,adminMessages:true}});});
-app.put('/me/notification-preferences',async c=>{const owner=captain(c),input=await body(c,z.object({channels:z.object({'in-app':z.boolean(),email:z.boolean(),push:z.boolean()}).strict(),events:z.record(z.string().max(80),z.boolean())}).strict());if(input.channels.email||input.channels.push)throw new ServiceError(422,'DELIVERY_CHANNEL_NOT_CONFIGURED');const sql=platform(c).sql;await sql`insert into aevic_platform.notification_preferences(user_id,preferences) values(${owner},${sql.json(input)}) on conflict(user_id) do update set preferences=excluded.preferences`;return c.json(input);});
+app.get('/me/notification-preferences',async c=>{const [row]=await platform(c).sql`select preferences from aevic_platform.notification_preferences where user_id=${account(c)}`;return c.json(row?.preferences??{channels:{'in-app':true,email:false,push:false},events:{registration:true,'check-in':true,room:true,results:true,roster:true,announcements:true,adminMessages:true}});});
+app.put('/me/notification-preferences',async c=>{const owner=account(c),input=await body(c,z.object({channels:z.object({'in-app':z.boolean(),email:z.boolean(),push:z.boolean()}).strict(),events:z.record(z.string().max(80),z.boolean())}).strict());if(input.channels.email||input.channels.push)throw new ServiceError(422,'DELIVERY_CHANNEL_NOT_CONFIGURED');const sql=platform(c).sql;await sql`insert into aevic_platform.notification_preferences(user_id,preferences) values(${owner},${sql.json(input)}) on conflict(user_id) do update set preferences=excluded.preferences`;return c.json(input);});
 app.get('/roster-requests',async c=>{actor(c);return c.json(await platform(c).rosterRequests());});
 app.get('/roster-requests/:id',async c=>{actor(c);const r=(await platform(c).rosterRequests()).find(r=>r.id===id(c));if(!r)throw new ServiceError(404,'NOT_FOUND');return c.json(r);});
 app.post('/roster-requests',async c=>{
@@ -78,7 +78,7 @@ app.patch('/admin/roster-requests/:id',async c=>{
    await tx`update public.teams set ${tx('player'+slot+'_ign')}=${r.incoming_ign} where id=${r.team_id}`;
   }
   await tx`update aevic_platform.roster_change_requests set status=${input.status},admin_note=${input.note??null},updated_at=now() where id=${key}`;
-  await audit(tx,actor(c),'roster.review','roster-request',key,{status:input.status});await notify(tx,r.team_id,'Heyət sorğusu yeniləndi',input.note??input.status,`/team/roster-requests/${key}`,'roster');
+  await audit(tx,actor(c),'roster.review','roster-request',key,{status:input.status});await notifyTeams(tx,[r.team_id],'Heyət sorğusu yeniləndi',input.note??input.status,`/team/roster-requests/${key}`,'roster');
  });return c.json((await platform(c).rosterRequests()).find(r=>r.id===key));
 });
 app.get('/disputes',async c=>{actor(c);return c.json(await platform(c).disputes());});
@@ -93,5 +93,5 @@ app.post('/disputes',async c=>{
   await tx`update aevic_platform.media set dispute_id=${d.id} where id=any(${input.evidenceIds}) and team_id=${owner}`;await audit(tx,actor(c),'dispute.create','dispute',d.id);return d.id;
  });return c.json((await platform(c).disputes()).find(d=>d.id===key),201);
 });
-app.patch('/admin/disputes/:id',async c=>{admin(c,['result-operator','support-moderator']);const key=id(c),input=await body(c,z.object({status:z.enum(['resolved','rejected']),note:text(1,4000)}));await transaction(platform(c).sql,async tx=>{const [r]=await tx`update aevic_platform.disputes set status=${input.status},admin_note=${input.note},resolved_at=now() where id=${key} and status in ('pending','under-review') returning team_id::text`;if(!r)throw new ServiceError(409,'DISPUTE_CLOSED');await audit(tx,actor(c),'dispute.review','dispute',key,{status:input.status});await notify(tx,r.team_id,'Etiraz yeniləndi',input.note,`/team/disputes/${key}`,'dispute');});return c.json((await platform(c).disputes()).find(d=>d.id===key));});
+app.patch('/admin/disputes/:id',async c=>{admin(c,['result-operator','support-moderator']);const key=id(c),input=await body(c,z.object({status:z.enum(['resolved','rejected']),note:text(1,4000)}));await transaction(platform(c).sql,async tx=>{const [r]=await tx`update aevic_platform.disputes set status=${input.status},admin_note=${input.note},resolved_at=now() where id=${key} and status in ('pending','under-review') returning team_id::text`;if(!r)throw new ServiceError(409,'DISPUTE_CLOSED');await audit(tx,actor(c),'dispute.review','dispute',key,{status:input.status});await notifyTeams(tx,[r.team_id],'Etiraz yeniləndi',input.note,`/team/disputes/${key}`,'dispute');});return c.json((await platform(c).disputes()).find(d=>d.id===key));});
 export default app;

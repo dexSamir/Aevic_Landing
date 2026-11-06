@@ -9,10 +9,10 @@ import {body,text,email,pagination} from '../validation/input';
 import {ServiceError} from '../errors';
 import {verifyPassword} from '../captain/crypto';
 import {createAttemptLimiter} from '../captain/limit';
-import {platform,actor,admin,captain,ownTeam,adminCookieName,tokenDigest} from './context';
+import {platform,actor,admin,captain,ownTeam,account,adminCookieName,tokenDigest} from './context';
 import {consumeFactor} from './mfa';
 import {normalize,PlatformRepository} from './repository';
-import {joinTournament,reviewEntry,checkIn,withdraw,room,audit,transaction,notify} from './competition';
+import {joinTournament,reviewEntry,checkIn,withdraw,room,audit,transaction,notifyTeams} from './competition';
 import {createTournament,editTournament,tournamentInput,editTournamentInput,resultInput,saveResults,publishMatch} from './tournaments';
 import {summary,roundResult,notification} from '../services/data';
 import {achievements,organizations} from '../services/identity';
@@ -84,18 +84,18 @@ app.get('/teams',async c=>{admin(c);return c.json(await platform(c).teams(true))
 app.patch('/admin/teams/:id/approval',async c=>{
  admin(c,['tournament-manager']);const input=await body(c,z.object({status:z.enum(['pending','approved','rejected','banned']),reason:text(0,1000).optional()})),id=teamId(c);
  if(['rejected','banned'].includes(input.status)&&!input.reason?.trim())throw new ServiceError(422,'REASON_REQUIRED');
- await transaction(platform(c).sql,async tx=>{const rows=await tx`update public.teams set status=${input.status},rejection_reason=${input.reason??null} where id=${id} returning id`;if(!rows.length)throw new ServiceError(404,'TEAM_NOT_FOUND');await audit(tx,actor(c),'team.approval','team',id,{status:input.status});await notify(tx,id,'Komanda statusu yeniləndi',input.reason??input.status,'/team');});
+ await transaction(platform(c).sql,async tx=>{const rows=await tx`update public.teams set status=${input.status},rejection_reason=${input.reason??null} where id=${id} returning id`;if(!rows.length)throw new ServiceError(404,'TEAM_NOT_FOUND');await audit(tx,actor(c),'team.approval','team',id,{status:input.status});await notifyTeams(tx,[id],'Komanda statusu yeniləndi',input.reason??input.status,'/team');});
  return c.json(await platform(c).team(id,true));
 });
 app.get('/me/notifications',async c=>{
- const owner=captain(c),{offset,limit}=pagination(c);
+ const owner=account(c),{offset,limit}=pagination(c);
  if(c.req.query('page')!=='true')return c.json(await platform(c).notifications(owner));
  const rows=await platform(c).sql`select * from aevic_platform.notifications where recipient_id=${owner} order by created_at desc,id desc offset ${offset} limit ${limit+1}`;
  const hasMore=rows.length>limit;
  return c.json({items:normalize(rows.slice(0,limit)).map(notification),hasMore,nextCursor:hasMore?String(offset+limit):undefined});
 });
-app.put('/me/notifications/:id/read',async c=>{const id=uuid(c),owner=captain(c);const rows=await platform(c).sql`update aevic_platform.notifications set read_at=coalesce(read_at,now()) where id=${id} and recipient_id=${owner} returning id`;if(!rows.length)throw new ServiceError(404,'NOT_FOUND');return c.body(null,204);});
-app.put('/me/notifications/read-all',async c=>{await platform(c).sql`update aevic_platform.notifications set read_at=now() where recipient_id=${captain(c)} and read_at is null`;return c.body(null,204);});
+app.put('/me/notifications/:id/read',async c=>{const id=uuid(c),owner=account(c);const rows=await platform(c).sql`update aevic_platform.notifications set read_at=coalesce(read_at,now()) where id=${id} and recipient_id=${owner} returning id`;if(!rows.length)throw new ServiceError(404,'NOT_FOUND');return c.body(null,204);});
+app.put('/me/notifications/read-all',async c=>{await platform(c).sql`update aevic_platform.notifications set read_at=now() where recipient_id=${account(c)} and read_at is null`;return c.body(null,204);});
 app.put('/me/messages/:id/read',async c=>{const id=uuid(c),team=captain(c),r=platform(c),account=r.actor.accountId??team;const rows=await r.sql`insert into aevic_platform.message_reads(message_id,account_id) select id,${account} from aevic_platform.messages where id=${id} and (team_id is null or team_id=${team}) on conflict(message_id,account_id) do update set read_at=aevic_platform.message_reads.read_at returning message_id`;if(!rows.length)throw new ServiceError(404,'NOT_FOUND');return c.body(null,204);});
 app.get('/me/messages',async c=>c.json(await platform(c).messages(captain(c))));
 app.get('/me/follows',async c=>{const r=platform(c),id=captain(c),[rows,teams]=await Promise.all([r.rows('follows'),r.teams()]);return c.json(rows.filter(row=>row.user_id===id).flatMap(row=>{const t=teams.find(t=>t.id===row.team_id);return t?[{entityType:'TEAM',entityId:t.id,following:true,source:'backend',team:summary(t)}]:[];}));});

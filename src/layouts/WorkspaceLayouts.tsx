@@ -1,3 +1,4 @@
+import { SiteGuidance } from '../components/site/SiteContent';
 import { MobileBottomNav } from './MobileBottomNav';
 import { useProtectedSession } from './ProtectedRoute';
 import {
@@ -72,6 +73,7 @@ const adminLinks = [
   { to: '/admin/blacklist', label: 'Qara siyahı', icon: ShieldAlert, group: 'Moderasiya' },
   { to: '/admin/audit', label: 'Audit jurnalı', icon: History, group: 'Sistem' },
   { to: '/admin/users', label: 'Admin istifadəçiləri', icon: UserRoundCog, group: 'Sistem' },
+  { to: '/admin/site', label: 'Saytın idarə edilməsi', icon: FileText, group: 'Sayt' },
   { to: '/admin/settings', label: 'Parametrlər', icon: Settings, group: 'Sistem' },
 ];
 
@@ -109,7 +111,7 @@ export function TeamLayout() {
     sidebar={<><TeamIdentityBlock team={team} /><WorkspacePicker currentId={team.id}/><SidebarNav revealActive links={teamLinks} unread={unread} />{tournamentContext}</>}
     header={<ProductTopbar metadata={productRouteMetadata(pathname, 'team')} team={team} menuOpen={menuOpen} onMenu={() => setMenuOpen(true)} />}
     overlays={<>{!menuOpen && <MobileBottomNav session={session} team={team} />}<Drawer id="team-navigation-drawer" open={menuOpen} title="Komanda paneli" onClose={() => setMenuOpen(false)}><TeamIdentityBlock team={team} compact onNavigate={() => setMenuOpen(false)} /><WorkspacePicker currentId={team.id}/><SidebarNav revealActive links={teamLinks} unread={unread} onNavigate={() => setMenuOpen(false)} />{nextMatch && activeTournament && <Link className="drawer-tournament-context" to={`/team/tournaments/${activeTournament.id}`} onClick={() => setMenuOpen(false)}>Növbəti matç · {nextMatch.map} · {new Date(nextMatch.startsAt).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baku' })}<ChevronRight size={16} aria-hidden="true" /></Link>}</Drawer></>}
-  ><RouteSeo />{team?.legacyHistoryIncomplete&&<aside className="history-scope-note" role="status"><p>Əvvəlki tarixçə tam uzlaşdırılmayıb. Statistikalar yalnız yeni sistemdə dərc edilmiş nəticələri əhatə edir.</p>{team.roster.some(player=>!player.uid)&&<Link to="/account/legacy-claim">Əvvəlki heyəti real oyunçu ID-ləri ilə tamamla</Link>}</aside>}{unavailable?.competition && !['/team','/team/profile','/team/roster','/team/settings','/team/settings/account','/team/settings/security','/team/history'].includes(pathname) ? <EmptyState heading="h1" title="Bu bölmə hələ əlçatan deyil" body="Bu bölmə üçün yarış və ya hesab xidməti hələ qoşulmayıb. Komanda profili, kapitan məlumatları və heyət idarəetməsi əlçatandır." /> : <RouteTransitionOutlet family="team" />}</TeamWorkspaceFrame>;
+  ><RouteSeo /><SiteGuidance />{team?.legacyHistoryIncomplete&&<aside className="history-scope-note" role="status"><p>Əvvəlki tarixçə tam uzlaşdırılmayıb. Statistikalar yalnız yeni sistemdə dərc edilmiş nəticələri əhatə edir.</p>{team.roster.some(player=>!player.uid)&&<Link to="/account/legacy-claim">Əvvəlki heyəti real oyunçu ID-ləri ilə tamamla</Link>}</aside>}{unavailable?.competition && !['/team','/team/profile','/team/roster','/team/settings','/team/settings/account','/team/settings/security','/team/history'].includes(pathname) ? <EmptyState heading="h1" title="Bu bölmə hələ əlçatan deyil" body="Bu bölmə üçün yarış və ya hesab xidməti hələ qoşulmayıb. Komanda profili, kapitan məlumatları və heyət idarəetməsi əlçatandır." /> : <RouteTransitionOutlet family="team" />}</TeamWorkspaceFrame>;
 }
 
 export function AdminLayout() {

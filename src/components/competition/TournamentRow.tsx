@@ -1,4 +1,6 @@
-import { ArrowRight, CalendarDays, Layers3, MapPin, Trophy, Users } from 'lucide-react';
+import { officialAssets } from '../../assets/official';
+import { publicImageSrcSet, restoreOriginalUpload } from '../../utils/mediaUrl';
+import { ArrowRight, CalendarDays, Layers3, MapPin, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Tournament } from '../../types/domain';
 import { tournamentStripArtwork } from '../../assets/tournaments';
@@ -16,7 +18,7 @@ export function TournamentRow({ tournament, now, discovery = false, selected = f
   const artwork = tournamentStripArtwork[tournament.id];
   return <article className={`tournament-row${discovery ? ' tournament-row--discovery planning-event' : ''}`} data-phase={phase} data-selected={selected}>
     {discovery && <button className="tournament-row__date" type="button" aria-label={`${date[2]} ${months[Number(date[1]) - 1]} ${date[0]} — ${tournament.name} təqvimdə seç`} aria-pressed={selected} onClick={onSelect}><strong>{date[2]}</strong><span>{months[Number(date[1]) - 1]}</span></button>}
-    <div className="tournament-row__thumbnail">{artwork ? <MediaBackdrop {...artwork} sizes="72px" /> : <Trophy aria-hidden="true" />}</div>
+    <div className="tournament-row__thumbnail">{tournament.bannerUrl?<img src={tournament.bannerUrl} srcSet={publicImageSrcSet(tournament.bannerUrl,[160,320])} sizes="72px" onError={e=>restoreOriginalUpload(e.currentTarget)} alt="" loading="lazy" width={160} height={90}/>:artwork ? <MediaBackdrop {...artwork} sizes="72px" /> : <MediaBackdrop src={officialAssets.authBackdrop} srcSet={officialAssets.authBackdropSrcSet} sources={officialAssets.authBackdropSources} sizes="72px"/>}</div>
     <div className="tournament-row__body"><div className="tournament-row__title"><h3><Link to={`/tournaments/${tournament.id}`}>{tournament.name}</Link></h3><span className="tournament-row__status">{labels[phase]}</span></div><div className="tournament-row__meta"><span><CalendarDays aria-hidden="true" />{formatEventDate(tournament.startsAt)} – {formatEventDate(tournament.endsAt)}</span><span><MapPin aria-hidden="true" />Online</span></div>{registered && <small className="tournament-row__registered">Sizin komandanız qeydiyyatdadır</small>}</div>
     <div className="tournament-row__facts"><div className="tournament-row__fact"><Users aria-hidden="true" /><span><b>{tournament.usedSlots} / {tournament.maxSlots}</b><small>Komanda</small></span></div>
     <div className="tournament-row__fact"><Layers3 aria-hidden="true" /><span><b>{tournament.days * tournament.roundsPerDay}</b><small>Raund</small></span></div></div>

@@ -37,6 +37,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
 
   const pendingUpdates = new Map<string,string>();
   return {
+    siteContent: {media:()=>request('/admin/site-content-media'),published:signal=>request('/public/site-content',{signal}),admin:()=>request('/admin/site-content'),update:(id,body)=>request(`/admin/site-content/${encodeURIComponent(id)}`,{method:'PUT',body})},
     legacyClaims: {
       activate: (email,password) => request('/auth/legacy-activation',{method:'POST',body:{email,password}}),
       list: () => request('/me/legacy-claims'),
@@ -54,6 +55,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       admin: (signal) => request('/admin/context', { signal }),
     },
     auth: {
+      registerAccount: body=>request('/auth/register',{method:'POST',body}),
       workspaces: () => request('/me/workspaces'),
       selectWorkspace: (teamId) => request('/me/workspace',{method:'POST',body:{teamId}}),
       getSession: (signal) => request('/me/session', { signal, nullStatuses: [401], timeoutMs: 30_000 }),
@@ -67,6 +69,9 @@ export function createApiServices(baseUrl: string): PlatformServices {
       resendVerification: (email) => request('/auth/email-verification/resend', { method: 'POST', body: { email } }),
     },
     account: {
+      onboarding:()=>request('/me/onboarding'),
+      saveOnboarding:body=>request('/me/onboarding',{method:'PUT',body}),
+      completeTeamSetup:(body,key)=>request('/me/onboarding/team',{method:'POST',body,headers:{'Idempotency-Key':key}}),
       profile: () => request('/me/account'),
       updateProfile: (body) => request('/me/account', { method: 'PATCH', body }),
       changePassword: (currentPassword, newPassword) => request('/me/account/password', { method: 'PUT', body: { currentPassword, newPassword } }),
@@ -89,6 +94,8 @@ export function createApiServices(baseUrl: string): PlatformServices {
       submit: (body) => request('/registrations', { method: 'POST', headers: { 'Idempotency-Key': body.idempotencyKey }, body }),
     },
     tournaments: {
+      bannerPreview:(id,signal)=>transport.request(`/media/tournament-banners/${encodeURIComponent(id)}`,{signal},[],30_000,'blob'),
+      uploadBanner: (file) => {const form=new FormData();form.set('file',file);return uploadRequest('/admin/tournament-banners',{method:'POST',body:form});},
       assignSlot:(id,body,key)=>request(`/admin/tournaments/${encodeURIComponent(id)}/slot-assignment`,{method:'POST',body,headers:{'Idempotency-Key':key}}),
       correctCheckIn:(id,body,key)=>request(`/admin/tournaments/${encodeURIComponent(id)}/check-in-correction`,{method:'POST',body,headers:{'Idempotency-Key':key}}),
       update: async (id,body) => {

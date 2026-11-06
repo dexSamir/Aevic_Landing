@@ -1,3 +1,4 @@
+import { useSiteContent } from '../components/site/SiteContent';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { regulationSections as sections, rulebookVersion } from '../content/regulations';
@@ -5,6 +6,7 @@ import { PageHeader } from '../components/common/primitives';
 import '../styles/regulations.css';
 
 export function RegulationsPage() {
+  const content=useSiteContent('regulations');
   const { hash, key } = useLocation();
   const navigate = useNavigate();
   const [active, setActive] = useState(sections[0].id);
@@ -47,10 +49,10 @@ export function RegulationsPage() {
   }, [active]);
   return <section className="page-section regulations-page"><div className="container regulations-layout">
     <PageHeader title="Yarış reqlamenti" description="AEVIC-in peşəkar yarış və platforma standartları." />
-    <aside><span>AEVIC YARIŞ BƏLƏDÇİSİ</span><strong>{rulebookVersion}</strong><p>Layihə · qüvvəyə minmə tarixi təsdiq gözləyir.</p><nav ref={nav} aria-label="Reqlament bölmələri">{sections.map(section => <Link key={section.id} to={`#${section.id}`} aria-current={active === section.id ? 'location' : undefined}>{section.letter}. {section.title}</Link>)}</nav></aside>
-    <div ref={mobile} className="regulations-mobile"><label htmlFor="rule-section">Bölməyə keç</label><select id="rule-section" value={active} onChange={event => navigate(`#${event.target.value}`)}>{sections.map(section => <option key={section.id} value={section.id}>{section.letter}. {section.title}</option>)}</select></div>
-    <article><p className="regulations-disclosure">Təsdiq üçün layihə. Yaş, mükafat, media icazələri, məlumat siyasəti və qüvvəyə minmə tarixi sahibin təsdiqini gözləyir. Bu sənəd milli qanunvericilik deyil.</p>
-      {sections.map(section => <section id={section.id} tabIndex={-1} key={section.id} aria-labelledby={`${section.id}-title`}><h2 id={`${section.id}-title`}>{section.letter}. {section.title}</h2>{section.subsections.map((sub, i) => <div className="regulations-clause" key={i}><h3>{section.letter}.{i + 1}. {sub.title}</h3><p>{sub.body}</p></div>)}</section>)}
+    <aside><span>AEVIC YARIŞ BƏLƏDÇİSİ</span><strong>{content.text('version',rulebookVersion)}</strong><p>Layihə · qüvvəyə minmə tarixi təsdiq gözləyir.</p><nav ref={nav} aria-label="Reqlament bölmələri">{sections.map(section => <Link key={section.id} to={`#${section.id}`} aria-current={active === section.id ? 'location' : undefined}>{section.letter}. {content.text(`${section.id}.title`,section.title)}</Link>)}</nav></aside>
+    <div ref={mobile} className="regulations-mobile"><label htmlFor="rule-section">Bölməyə keç</label><select id="rule-section" value={active} onChange={event => navigate(`#${event.target.value}`)}>{sections.map(section => <option key={section.id} value={section.id}>{section.letter}. {content.text(`${section.id}.title`,section.title)}</option>)}</select></div>
+    <article><p className="regulations-disclosure">{content.text('disclosure','Təsdiq üçün layihə. Yaş, mükafat, media icazələri, məlumat siyasəti və qüvvəyə minmə tarixi sahibin təsdiqini gözləyir. Bu sənəd milli qanunvericilik deyil.')}</p>
+      {sections.map(section => <section id={section.id} tabIndex={-1} key={section.id} aria-labelledby={`${section.id}-title`}><h2 id={`${section.id}-title`}>{section.letter}. {content.text(`${section.id}.title`,section.title)}</h2>{section.subsections.map((sub, i) => <div className="regulations-clause" key={i}><h3>{section.letter}.{i + 1}. {content.text(`${section.id}.${i}.title`,sub.title)}</h3><p>{content.text(`${section.id}.${i}.body`,sub.body)}</p></div>)}</section>)}
       <p className="regulations-version">Versiya 1.1: bölmələr və yarımbölmələr yenidən təşkil edilib. Əvvəlki 1.0 layihəsi: 27 oktyabr 2026. Təsdiqlənmiş dəyişikliklərin tətbiq tarixi ayrıca dərc ediləcək.</p>
       <p><Link to="/privacy">Məxfilik məlumatı</Link> · <Link to="/terms">İstifadə şərtləri</Link> · <Link to="/contact">Əlaqə</Link></p>
     </article>

@@ -3,7 +3,7 @@ import {z} from 'zod';
 import type {Env,ApiContext} from '../types';
 import {body,text,socialLinks,pagination} from '../validation/input';
 import {platform,ownTeam,admin,actor} from './context';
-import {idempotent,transaction,audit,notify} from './competition';
+import {idempotent,transaction,audit,notifyTeams} from './competition';
 import {ServiceError} from '../errors';
 import {normalize} from './repository';
 const app=new Hono<Env>();
@@ -32,7 +32,7 @@ app.patch('/admin/verifications/:id',async c=>{
   if(!(v.status==='PENDING'&&['APPROVED','REJECTED'].includes(input.status)||v.status==='APPROVED'&&input.status==='REVOKED'))throw new ServiceError(409,'INVALID_VERIFICATION_TRANSITION');
   await tx`update aevic_platform.verification_requests set status=${input.status},safe_reason=${input.reason},reviewed_at=now(),reviewed_by=${reviewer},updated_at=now() where id=${id}`;
   await audit(tx,actor(c),'verification.review','verification',id,{status:input.status,reason:input.reason});
-  await notify(tx,v.team_id,'Təsdiq müraciəti yeniləndi',input.reason,'/team/verification','system');
+  await notifyTeams(tx,[v.team_id],'Təsdiq müraciəti yeniləndi',input.reason,'/team/verification','system');
  });return c.json((await requests(c)).find(v=>v.id===id));
 });
 export default app;
