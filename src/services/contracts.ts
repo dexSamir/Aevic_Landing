@@ -124,6 +124,7 @@ export interface TournamentService {
   entries(id:string):Promise<Array<{id:string;teamId:string;status:string;slotNumber?:number}>>;
   reviewEntry(tournamentId:string,teamId:string,status:'confirmed'|'rejected'):Promise<void>;
   publishMatch(matchId:string):Promise<void>;
+  roomReadiness(tournamentId: string, signal?: AbortSignal): Promise<Array<{id: string; ready: boolean}>>;
   saveRoom(matchId:string,roomId:string,password:string):Promise<void>;
   list(): Promise<Tournament[]>;
   get(id: string): Promise<Tournament | undefined>;
@@ -301,6 +302,7 @@ export interface SupportService {
 }
 
 export interface OperationsService {
+  analytics(range: import('../types/adminAnalytics').AnalyticsRange, signal?: AbortSignal): Promise<import('../types/adminAnalytics').AdminAnalytics>;
   audit(cursor?: string): Promise<AdminAuditEvent[]>;
   adminUsers(): Promise<AdminUser[]>;
   inviteAdmin(input:{email:string;firstName:string;lastName:string;role:AdminUser['role']}): Promise<AdminUser>;

@@ -77,7 +77,7 @@ export function AdminVerificationDetailPage() {
         </Link>
         <PageHeader
           eyebrow="Verification review"
-          title="Verification tapılmadı"
+          title="Təsdiq sorğusu tapılmadı"
           description="Bu müraciət mövcud deyil və ya onu görmək üçün icazəniz yoxdur."
         />
       </>
@@ -87,16 +87,16 @@ export function AdminVerificationDetailPage() {
       <PageHeader
         eyebrow={item.id}
         title={item.entityName}
-        description={`${item.entityType} verification review`}
+        description="Kimlik sübutları, rəsmi əlaqələr və yoxlama qərarı."
       />
       {notice && (
         <Toast
-          title="Review statusu"
+          title="Yoxlama vəziyyəti"
           body={notice}
           onClose={() => setNotice("")}
         />
       )}
-      <div className="completion-grid">
+      <div className="admin-detail-tabbar" role="group" aria-label="Yoxlama bölməsi"><Link className="button button--ghost" to="/admin/verifications">← Yoxlama növbəsinə qayıt</Link></div><div className="completion-grid">
         <section>
           <SectionHeading title="Müraciət" />
           <dl className="detail-ledger">
@@ -109,11 +109,11 @@ export function AdminVerificationDetailPage() {
               <dd>{statusLabel(item.status)}</dd>
             </div>
             <div>
-              <dt>Evidence</dt>
-              <dd>{item.evidenceNames.length} private file</dd>
+              <dt>Sübut faylları</dt>
+              <dd>{item.evidenceNames.length} məxfi fayl</dd>
             </div>
             <div>
-              <dt>Notes</dt>
+              <dt>Əlavə qeyd</dt>
               <dd>{item.notes ?? "—"}</dd>
             </div>
           </dl>

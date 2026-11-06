@@ -1,9 +1,0 @@
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "### Error\nTimeoutError: locator.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByPlaceholder('Turnir axtar...')\n    - waiting for \"https://accounts.google.com/o/oauth2/v2/auth?client_id=616479204187-dpft9a8igjovcuu63cg591otsadccq9o.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Faevic-demo.netlify.app%2Fapi%2Fauth%2Fgoogle…\" navigation to finish...\n    - navigated to \"https://accounts.google.com/v3/signin/identifier?opparams=%253F&dsh=S623804486%3A1793874352498740&client_id=616479204187-dpft9a8igjovcuu63cg591otsadccq9o.apps.googleusercontent.com&code_challenge=fT5…\"\n"
-    }
-  ],
-  "isError": true
-}

@@ -51,7 +51,7 @@ it('cancels one session observer without cancelling another concurrent observer'
   const cancelled=expect(first).rejects.toMatchObject({kind:'abort'});
   controller.abort();await cancelled;
   while(!complete) await Promise.resolve();
-  complete(Response.json({user:{id:'fixture'},role:'team'}));
+  complete(Response.json({user:{id:'fixture'},role:'team'},{headers:{'X-Aevic-Session-Mode':'legacy'}}));
   await expect(second).resolves.toMatchObject({user:{id:'fixture'}});
   expect(fetcher.mock.calls.filter(([url])=>url.endsWith('/me/session'))).toHaveLength(1);
 });

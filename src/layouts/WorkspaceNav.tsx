@@ -6,7 +6,7 @@ import type { LucideIcon } from 'lucide-react';
 
 type SideNavLink = { to: string; label: string; icon: LucideIcon; group?: string };
 
-export function SidebarNav({ links, onNavigate, unread = 0, label = 'Məhsul naviqasiyası', revealActive = false }: { revealActive?: boolean; links: SideNavLink[]; onNavigate?: () => void; unread?: number; label?: string }) {
+export function SidebarNav({ links, onNavigate, unread = 0, label = 'Məhsul naviqasiyası', revealActive = false, expandedGroups }: { expandedGroups?: string[]; revealActive?: boolean; links: SideNavLink[]; onNavigate?: () => void; unread?: number; label?: string }) {
   const { pathname, hash } = useLocation();
   const active = links.filter(({ to }) => pathname + hash === to || (!to.includes('#') && (pathname === to || pathname.startsWith(to + '/')))).sort((a, b) => b.to.length - a.to.length)[0]?.to;
   const activeGroup = links.find((link) => link.to === active)?.group;
@@ -34,7 +34,7 @@ export function SidebarNav({ links, onNavigate, unread = 0, label = 'Məhsul nav
   return <nav ref={navRef} className="side-nav" aria-label={label}>
     {groups.map((section, sectionIndex) => {
       const key = section.name ?? `group-${sectionIndex}`;
-      const defaultOpen = label !== 'Admin naviqasiyası' || sectionIndex === 0 || section.name === activeGroup;
+      const defaultOpen = label !== 'Admin naviqasiyası' || sectionIndex === 0 || section.name === activeGroup || Boolean(section.name && expandedGroups?.includes(section.name));
       const isOpen = openOverride[key] ?? defaultOpen;
       return <div className="side-nav__section" key={key}>
         {section.name && <button type="button" className="side-nav__group" aria-expanded={isOpen} onClick={() => setOpenOverride((current) => ({ ...current, [key]: !isOpen }))}>

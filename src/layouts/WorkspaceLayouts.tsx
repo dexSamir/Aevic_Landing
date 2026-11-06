@@ -57,7 +57,7 @@ const teamLinks = [
 ];
 
 const adminLinks = [
-  { to: '/admin', label: 'Diqqət tələb edənlər', icon: LayoutDashboard, end: true, group: 'Əməliyyatlar' },
+  { to: '/admin', label: 'İdarə paneli', icon: LayoutDashboard, end: true, group: 'Əməliyyatlar' },
   { to: '/admin/roster-requests', label: 'Heyət növbəsi', icon: ListChecks, group: 'Əməliyyatlar' },
   { to: '/admin/disputes', label: 'Etiraz növbəsi', icon: FileText, group: 'Əməliyyatlar' },
   { to: '/admin/check-ins/missed', label: 'Buraxılmış check-in', icon: CalendarDays, group: 'Əməliyyatlar' },
@@ -116,8 +116,8 @@ export function AdminLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
   return <TeamWorkspaceFrame area="admin"
-    sidebar={<><Link className="workspace-brand" to="/admin"><BrandEmblem variant="compact"/><span>AEVIC<small>Admin iş sahəsi</small></span></Link><div className="admin-identity"><UserRoundCog size={20}/><div><strong>Yarış əməliyyatları</strong><span>İdarəetmə mərkəzi</span></div></div><SidebarNav revealActive links={adminLinks} label="Admin naviqasiyası"/></>}
+    sidebar={<><Link className="workspace-brand" to="/admin"><BrandEmblem variant="compact"/><span>AEVIC<small>Admin iş sahəsi</small></span></Link><div className="admin-identity"><UserRoundCog size={20}/><div><strong>Yarış əməliyyatları</strong><span>İdarəetmə mərkəzi</span></div></div><SidebarNav revealActive links={adminLinks} expandedGroups={['Yarış','Qurumlar']} label="Admin naviqasiyası"/></>}
     header={<ProductTopbar metadata={productRouteMetadata(pathname,'admin')} admin menuOpen={menuOpen} onMenu={()=>setMenuOpen(true)}/>}
-    overlays={<Drawer id="admin-navigation-drawer" open={menuOpen} title="Admin naviqasiyası" onClose={()=>setMenuOpen(false)}><SidebarNav revealActive links={adminLinks} label="Admin naviqasiyası" onNavigate={()=>setMenuOpen(false)}/></Drawer>}
+    overlays={<Drawer id="admin-navigation-drawer" open={menuOpen} title="Admin naviqasiyası" onClose={()=>setMenuOpen(false)}><SidebarNav revealActive links={adminLinks} expandedGroups={['Yarış','Qurumlar']} label="Admin naviqasiyası" onNavigate={()=>setMenuOpen(false)}/></Drawer>}
   ><RouteSeo/><RouteTransitionOutlet family="admin"/></TeamWorkspaceFrame>;
 }

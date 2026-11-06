@@ -102,6 +102,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       entries: id => request(`/admin/tournaments/${encodeURIComponent(id)}/entries`),
       reviewEntry: (tournamentId,teamId,status) => request(`/admin/tournaments/${encodeURIComponent(tournamentId)}/entries/${encodeURIComponent(teamId)}`,{method:'PATCH',body:{status}}),
       publishMatch: id => request(`/admin/matches/${encodeURIComponent(id)}/publication`,{method:'POST'}),
+      roomReadiness: (id,signal) => request(`/admin/tournaments/${encodeURIComponent(id)}/room-readiness`,{signal,cache:'no-store'}),
       saveRoom: (id,roomId,password) => request(`/admin/matches/${encodeURIComponent(id)}/room`,{method:'PUT',body:{roomId,password}}),
       list: () => request('/tournaments'),
       get: (id) => request(`/tournaments/${encodeURIComponent(id)}`, { nullStatuses: [404] }),
@@ -255,6 +256,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       adminPage: (cursor, status) => request(`/admin/support/tickets${query({ cursor, status })}`),
     },
     operations: {
+      analytics: (range, signal) => request(`/admin/analytics?range=${range}`, { signal }),
       inviteAdmin: (body) => request('/admin/users',{method:'POST',body}),
       updateAdmin: (id,body) => request(`/admin/users/${encodeURIComponent(id)}`,{method:'PATCH',body}),
       resendAdminSetup: (id) => request(`/admin/users/${encodeURIComponent(id)}/setup-email`,{method:'POST'}),

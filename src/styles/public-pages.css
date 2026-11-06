@@ -175,7 +175,8 @@
 }
 
 /* Tournament planning: reference-led feature, calendar and event timeline. */
-.tournaments-calendar-page { --planning-live: #a93de0; --planning-scheduled: #77449c; --planning-completed: #85858c; padding: 112px 0 24px; background: var(--color-bg-primary); }
+/* Reserve the directory viewport while the guest participation section resolves. */
+.tournaments-calendar-page { --planning-live: #a93de0; --planning-scheduled: #77449c; --planning-completed: #85858c; min-height: 100svh; padding: 112px 0 24px; background: var(--color-bg-primary); }
 .planning-title { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 24px 0 44px; }
 .planning-eyebrow { color: var(--gold-primary); font: 600 14px/1.4 var(--font-public-display); letter-spacing: .12em; }
 .planning-title h1 { margin: 12px 0; font: 700 clamp(3rem, 5.2vw, 5.25rem)/1.1 var(--font-public-display); }

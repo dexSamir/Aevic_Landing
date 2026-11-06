@@ -34,7 +34,10 @@ export function TeamPlatformProvider({ children }: { children: ReactNode }) {
 }
 
 export function AdminPlatformProvider({ children }: { children: ReactNode }) {
-  const query = usePlatformQuery({ key: 'snapshot:admin', query: (signal) => services.snapshots.admin(signal), staleTime: queryPolicy.account, refetchOnFocus:true });
+  const { pathname } = useLocation();
+  const dashboard = pathname.replace(/\/$/, '') === '/admin';
+  const query = usePlatformQuery({ key: 'snapshot:admin', enabled: !dashboard, query: (signal) => services.snapshots.admin(signal), staleTime: queryPolicy.account, refetchOnFocus:true });
+  if (dashboard) return <>{children}</>;
   return <QueryBoundary query={query}>{(value) => <AdminContext.Provider value={value}>{children}</AdminContext.Provider>}</QueryBoundary>;
 }
 

@@ -1,8 +1,11 @@
+import { scoreMatch } from '../../utils/scoring';
 import { ApiError } from '../../services/apiError';
 import { useEffect,useState,type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
 Button,
+ConfirmDialog,
+StatusBadge,
 Input,
 PageHeader,
 Select
@@ -15,11 +18,17 @@ import type { RoundResult } from "../../types/domain";
 
 export function ResultEntryForm() {
   const snapshot = useAdminPlatformData();
-  const [tour, setTour] = useState(""),
-    [round, setRound] = useState(""),
+  const [params]=useSearchParams();
+  const [tour, setTour] = useState(params.get('tournament')??""),
+    [round, setRound] = useState(params.get('round')??""),
     [team, setTeam] = useState(""),
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState("");
+  const [confirmPublish,setConfirmPublish]=useState(false);
+  const [score,setScore]=useState({placement:1,kills:0,penalties:0});
+  const formula=snapshot.tournaments.find(t=>t.id===tour)?.pointFormula;
+  const preview=formula?scoreMatch(formula,score.placement,score.kills,score.penalties):undefined;
+  const published=Boolean(snapshot.publishedRoundIds?.[tour]?.includes(round));
   const [saved, setSaved] = useState<RoundResult[]>([]);
   const [revision, setRevision] = useState(0);
   useEffect(() => {
@@ -114,10 +123,10 @@ export function ResultEntryForm() {
       <PageHeader
         eyebrow="Rəsmi nəticələr"
         title="Nəticə girişi"
-        description="Xallar serverdə turnirin düsturundan hesablanır. Komanda istifadəçiləri nəticələri dəyişə bilməz."
+        description="Turniri və raundu seçin, komanda nəticələrini daxil edin və rəsmi dərcə hazırlayın."
       />
       {notice && <p role="status">{notice}</p>}
-      <form className="operation-form" onSubmit={save}>
+      <form className="operation-form admin-result-form" onSubmit={save}><section className="admin-result-context">
         <Select
           label="Turnir"
           value={tour}
@@ -164,10 +173,11 @@ export function ResultEntryForm() {
               </option>
             ))}
         </Select>
-        <div className="form-grid">
+        </section><section className="admin-field-group"><h2>Komanda nəticəsi</h2><div className="form-grid">
           <Input
             label="Yerləşmə"
             name="placement"
+            value={score.placement} onChange={e=>setScore(v=>({...v,placement:Number(e.target.value)}))}
             type="number"
             min={1}
             max={100}
@@ -176,6 +186,7 @@ export function ResultEntryForm() {
           <Input
             label="Kill sayı"
             name="kills"
+            value={score.kills} onChange={e=>setScore(v=>({...v,kills:Number(e.target.value)}))}
             type="number"
             min={0}
             max={400}
@@ -184,40 +195,42 @@ export function ResultEntryForm() {
           <Input
             label="Cərimə xalı"
             name="penalties"
+            value={score.penalties} onChange={e=>setScore(v=>({...v,penalties:Number(e.target.value)}))}
             type="number"
             min={0}
             max={1000}
-            defaultValue={0}
             required
           />
         </div>
-        <Button
+        {preview&&<div className="admin-score-preview"><span>Yerləşmə <b>{preview.placementPoints}</b></span><span>Eliminasiya <b>{preview.finishPoints}</b></span><span>Cərimə <b>−{score.penalties}</b></span><strong>Cəmi {preview.totalPoints} xal</strong></div>}
+        {published&&<p className="admin-notice">Bu raund dərc edilib. Dəyişiklik üçün saxlanmış nəticədən düzəliş səhifəsini açın.</p>}
+        </section><div className="admin-result-actions"><Button
           type="submit"
           loading={busy}
-          disabled={!serviceCapabilities.resultPublishing}
+          disabled={!serviceCapabilities.resultPublishing||published||!round||!team}
         >
           Komanda nəticəsini saxla
         </Button>
         <Button
           type="button"
           variant="secondary"
-          disabled={busy || !round || !serviceCapabilities.resultPublishing}
-          onClick={() => void publish()}
+          disabled={busy || !round || published || !serviceCapabilities.resultPublishing}
+          onClick={() => setConfirmPublish(true)}
         >
           Bütün raund nəticələrini dərc et
         </Button>
-      </form>
+        </div></form><ConfirmDialog open={confirmPublish} title="Raund nəticələrini dərc et?" body={`${saved.length} saxlanmış nəticə var. Dərcdən sonra dəyişikliklər yalnız əsaslandırılmış düzəlişlə edilir.`} confirmLabel="Nəticələri dərc et" onClose={()=>{if(!busy)setConfirmPublish(false);}} onConfirm={async()=>{await publish();setConfirmPublish(false);}}/>
       {saved.length > 0 && (
         <section className="operation-form">
           <h2>Saxlanmış nəticələr</h2>
           {saved.map((r) => (
-            <div key={r.id}>
+            <div className="admin-result-row" key={r.id}>
               <strong>
                 {snapshot.teams.find((t) => t.id === r.teamId)?.name ??
                   r.teamId}
               </strong>{" "}
               · #{r.placement} · {r.finishes} kill · {r.totalPoints} xal ·{" "}
-              {r.published ? "Dərc edilib" : "Qaralama"}{" "}
+              <StatusBadge status={r.published?'completed':'draft'}>{r.published ? "Dərc edilib" : "Qaralama"}</StatusBadge>{" "}
               <Link to={`/admin/results/${r.id}/correct`}>Düzəliş et</Link>
             </div>
           ))}

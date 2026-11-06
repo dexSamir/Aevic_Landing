@@ -6,6 +6,7 @@ import { createHttpApp } from './http';
 import production from './routes/production';
 import {captainRoutes,type CaptainDependencies} from './routes/captain';
 import {platformMiddleware} from './platform/middleware';
+import adminAnalyticsRoutes from './platform/admin-analytics';
 import adminManagementRoutes from './platform/admin-management';
 import legacyClaimRoutes from './platform/legacy-claims';
 import activationRoutes from './platform/activation';
@@ -39,6 +40,7 @@ export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process
   app.route('/',legacyClaimRoutes);
   app.route('/',authorityRoutes);
   app.route('/',adminManagementRoutes);
+  app.route('/',adminAnalyticsRoutes);
   app.route('/',platformRoutes);
   app.route('/',adminRecoveryRoutes);
   app.route('/',mediaRoutes);

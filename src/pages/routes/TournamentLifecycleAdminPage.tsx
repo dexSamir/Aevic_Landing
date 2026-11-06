@@ -68,7 +68,7 @@ export function TournamentLifecycleAdminPage() {
         description={`Cari status: ${tournament.status}`}
       />
       {notice && <Toast title={notice} onClose={() => setNotice("")} />}
-      <div className="completion-grid">
+      <div className="completion-grid admin-lifecycle-actions">
         <form
           className="operation-form"
           onSubmit={(e) => {
@@ -101,6 +101,7 @@ export function TournamentLifecycleAdminPage() {
             tarixçəsi saxlanılır.
           </p>
           <Button
+            variant="secondary"
             disabled={!finished}
             loading={busy}
             onClick={() => setAction("archive")}

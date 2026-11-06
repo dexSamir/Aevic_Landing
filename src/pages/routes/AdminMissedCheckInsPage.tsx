@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+import { AdminCollectionBar, filterAdminItems } from '../../components/admin/AdminPrimitives';
 import {
 AlertTriangle
 } from "lucide-react";
@@ -17,6 +19,8 @@ export function AdminMissedCheckInsPage() {
     useState<
       Awaited<ReturnType<typeof services.tournaments.missedCheckIns>>["items"]
     >();
+  const [search,setSearch]=useState('');
+  const visible=filterAdminItems(items,search,i=>i.teamName+' '+i.tournamentName);
   useEffect(() => {
     services.tournaments
       .missedCheckIns()
@@ -39,15 +43,16 @@ export function AdminMissedCheckInsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Check-in exceptions"
-        title="Missed check-ins"
-        description="Komanda, nəticə, appeal imkanı və deadline durable state kimi saxlanır; button-un yox olması status hesab edilmir."
+        eyebrow="İştirak nəzarəti"
+        title="Buraxılmış check-in"
+        description="Check-in vaxtını buraxmış komandalar və iştirak qərarları."
       />
+      <AdminCollectionBar query={search} onQuery={setSearch} count={visible.length} total={items?.length??0}/>
       {!items ? (
         <LoadingSkeleton variant="table" rows={5} />
-      ) : items.length ? (
+      ) : visible.length ? (
         <div className="review-ledger">
-          {items.map((item) => (
+          {visible.map((item) => (
             <article key={item.id}>
               <AlertTriangle size={19} />
               <div>
@@ -56,8 +61,8 @@ export function AdminMissedCheckInsPage() {
                   {item.tournamentName} · {item.consequence}
                 </small>
               </div>
-              <span>{item.appealAllowed ? "APPEAL" : "FINAL"}</span>
-              <time>{formatDate(item.missedAt)}</time>
+              <span>{item.appealAllowed ? "Etiraz mümkündür" : "Yekun qərar"}</span>
+              <time>{formatDate(item.missedAt)}</time><Link to={`/admin/tournaments/${item.tournamentId}`}>Turniri aç</Link>
             </article>
           ))}
         </div>

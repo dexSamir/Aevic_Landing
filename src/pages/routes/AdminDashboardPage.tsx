@@ -1,38 +1,46 @@
-import {
-ArrowRight,
-BarChart3,
-CalendarClock,
-ListChecks,
-MessageSquare,
-UserCheck
-} from 'lucide-react';
+import { lazy, Suspense, useState } from 'react';
+import { Activity, ArrowRight, CalendarDays, CheckCheck, ClipboardCheck, Flag, Plus, RefreshCw, Trophy, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import {
-EmptyState,
-PageHeader,
-ProgressBar,
-SectionHeading
-} from '../../components/common/primitives';
-import { StatCardStrip } from '../../components/common/StatCardStrip';
-import { competitionNow } from '../../services';
-import { useAdminPlatformData } from '../../services/PlatformDataContext';
-import { selectAdminOperations } from '../../utils/adminOperations';
+import { Button, EmptyState, PageHeader, StatusBadge } from '../../components/common/primitives';
+import { AdminKpi, AdminPanel } from '../../components/admin/AdminPrimitives';
+import { services } from '../../services';
+import { queryPolicy, usePlatformQuery } from '../../services/queryCache';
 import { formatEventDate } from '../../utils/calendar';
-import { selectAdminOperationalTournament } from '../../utils/competitionSelectors';
+import { statusLabel } from '../../utils/statusLabels';
+import type { AnalyticsRange, AnalyticsTournament } from '../../types/adminAnalytics';
+const ActivityChart = lazy(() => import('../../components/admin/AdminAnalyticsCharts').then(m => ({ default: m.ActivityChart })));
+const LifecycleChart = lazy(() => import('../../components/admin/AdminAnalyticsCharts').then(m => ({ default: m.LifecycleChart })));
 
+function TournamentList({ items, empty }: { items: AnalyticsTournament[]; empty: string }) {
+  return <div className="admin-op-list">{items.map(t => <Link to={`/admin/tournaments/${t.id}`} key={t.id}><span className="admin-op-list__icon"><Trophy size={17} aria-hidden="true" /></span><div><strong>{t.name}</strong><small>{formatEventDate(t.startsAt, { withTime: true })} · {t.occupied}/{t.capacity} komanda · {t.published}/{t.rounds} raund dərc edilib</small></div><StatusBadge status={t.status === 'completed' ? 'completed' : t.status === 'ongoing' ? 'live' : t.status === 'cancelled' ? 'rejected' : t.status === 'draft' ? 'draft' : 'open'}>{statusLabel(t.status)}</StatusBadge><ArrowRight size={16} aria-hidden="true" /></Link>)}{!items.length && <p className="admin-inline-empty">{empty}</p>}</div>;
+}
+const actionLabels: Record<string, string> = { 'tournament.create':'Turnir yaradıldı', 'tournament.update':'Turnir yeniləndi', 'tournament.cancel':'Turnir ləğv edildi', 'tournament.archive':'Turnir arxivləndi', 'team.approval':'Komanda yoxlanıldı', 'registration.review':'Qeydiyyat yoxlanıldı', 'results.save':'Nəticələr saxlanıldı', 'results.publish':'Nəticələr dərc edildi', 'result.correct':'Nəticə düzəldildi', 'room.save':'Matç otağı yeniləndi' };
 export function AdminDashboardPage() {
-  const snapshot = useAdminPlatformData();
-  const { tournaments, adminMessages } = snapshot;
-  const activeTournament = selectAdminOperationalTournament(tournaments, competitionNow());
-  const metrics = activeTournament ? selectAdminOperations(snapshot, activeTournament) : undefined;
-  return <><PageHeader eyebrow="Yarış əməliyyatları" title="İdarə paneli" description="Növbəti qərar, yoxlama növbəsi və mənbədəki yarış vəziyyəti." actions={<Link className="button button--secondary" to="/admin/tournaments"><span>Turnirlər</span></Link>} />
-    {!activeTournament || !metrics ? <EmptyState title="Aktiv turnir yoxdur" body="Dərc edilmiş yarış olduqda vaxt pəncərələri və əməliyyat növbəsi görünəcək." /> : <>
-    <section className="admin-command"><div className="admin-command__lead"><span>Növbəti yarış əməliyyatı</span><h2>{activeTournament.name}</h2><p>Check-in: {formatEventDate(activeTournament.checkInOpensAt, { withTime: true })} AZT</p><div><ProgressBar value={metrics.capacity.occupied} max={metrics.capacity.total} label="Dolu slotlar" /><Link to={'/admin/tournaments/' + activeTournament.id}>Slot panelini aç <ArrowRight size={16} /></Link></div></div><StatCardStrip label="Yarış əməliyyatları" items={[
-      { key: 'approvals', eyebrow: 'Təsdiq gözləyir', value: metrics.approvalCounts.pending, meta: 'Komanda yoxlama növbəsi', icon: <UserCheck size={20} />, tone: 'gold', href: '/admin/teams' },
-      { key: 'slots', eyebrow: 'Boş slot', value: metrics.capacity.available, meta: 'Ayrılmış slotlardan', icon: <ListChecks size={20} />, tone: 'purple', href: '/admin/tournaments/' + activeTournament.id },
-      { key: 'check-ins', eyebrow: 'Buraxılmış check-in', value: metrics.missingCheckIns ?? '—', meta: metrics.missingCheckIns === undefined ? 'Mənbə əlçatan deyil' : 'Mənbədəki vəziyyət', icon: <CalendarClock size={20} />, tone: 'ink', href: '/admin/check-ins/missed' },
-      { key: 'results', eyebrow: 'Nəticə gedişatı', value: metrics.resultProgress ? metrics.resultProgress.published + '/' + metrics.resultProgress.expected : '—', meta: metrics.resultProgress ? 'Dərc edilmiş raundlar' : 'Nəşr mənbəyi əlçatan deyil', icon: <BarChart3 size={20} />, tone: 'soft', href: '/admin/results' },
-    ]} /></section>
-    <div className="admin-dashboard-grid"><section><SectionHeading title="Yoxlama növbəsi" /><div className="action-queue"><Link to="/admin/teams"><span><UserCheck size={19} /></span><div><strong>{metrics.approvalCounts.pending} komanda təsdiqi</strong><small>Heyət və kimlik yoxlaması</small></div></Link><Link to={'/admin/tournaments/' + activeTournament.id}><span><ListChecks size={19} /></span><div><strong>Slot bölgüsü</strong><small>{metrics.capacity.occupied} dolu · {metrics.capacity.available} boş · {metrics.capacity.reserved} rezerv</small></div></Link><Link to="/admin/results"><span><BarChart3 size={19} /></span><div><strong>Nəticə yoxlaması</strong><small>Raund mənbələri və dərc vəziyyəti</small></div></Link></div></section><section><SectionHeading title="Son mesajlar" action={<Link to="/admin/messages">Mesaj mərkəzi</Link>} />{adminMessages.map((message) => <div className="recent-message" key={message.id}><MessageSquare size={18} /><div><strong>{message.title}</strong><span>{formatEventDate(message.createdAt)}</span></div></div>)}</section></div></>}
-  </>;
+  const [range, setRange] = useState<AnalyticsRange>('30');
+  const query = usePlatformQuery({ key: `admin:analytics:${range}`, query: signal => services.operations.analytics(range, signal), staleTime: queryPolicy.account });
+  const data = query.data;
+  return <div className="admin-overview"><PageHeader eyebrow="AEVIC / Əməliyyat mərkəzi" title="İdarə paneli" description="Yarışların nəbzi. Komandalar, nəticələr və növbəti qərarlar bir yerdə." actions={<Link className="button button--primary" to="/admin/tournaments/new"><Plus size={17} aria-hidden="true" />Yeni turnir</Link>} />
+    <div className="admin-overview__toolbar"><div><span className="admin-source-dot" />{data ? <>Son yenilənmə · {new Date(data.generatedAt).toLocaleTimeString('az-AZ', { hour:'2-digit', minute:'2-digit', timeZone:'Asia/Baku' })} AZT</> : 'Analitika hazırlanır'}<Button variant="ghost" aria-label="Analitikanı yenilə" disabled={query.loading || query.refreshing || query.retryAfterSeconds > 0} onClick={query.refetch} icon={<RefreshCw size={15} />} /></div><div className="admin-segmented" role="group" aria-label="Analitika dövrü">{([['7','7 gün'],['30','30 gün'],['90','90 gün'],['all','Bütün dövr']] as const).map(([id,label]) => <button type="button" key={id} aria-pressed={range === id} onClick={() => setRange(id)}>{label}</button>)}</div></div>
+    {query.error && <div className="admin-notice" role="alert">{data ? 'Yenilənmə alınmadı. Son uğurlu məlumat göstərilir.' : 'Analitika yüklənmədi.'} <Button variant="secondary" disabled={query.retryAfterSeconds > 0} onClick={query.refetch}>Yenidən yoxla</Button></div>}
+    {!data && query.loading && <div className="admin-analytics-skeleton" role="status" aria-label="Analitika yüklənir"><div className="admin-section-caption"><h2>Platformaya baxış</h2><span>Bütün dövr · tarix filtrindən asılı deyil</span></div><div className="admin-kpi-grid">{Array.from({length:8},(_,i)=><div key={i}/>)}</div><div className="admin-section-caption"><h2>Fəaliyyət analitikası</h2></div><div className="admin-analytics-grid">{Array.from({length:4},(_,i)=><div key={i}/>)}</div></div>}
+    {data && <><div className="admin-section-caption"><h2>Platformaya baxış</h2><span>Bütün dövr · tarix filtrindən asılı deyil</span></div><div className="admin-kpi-grid">
+      <AdminKpi label="Cəmi turnir" value={data.totals.tournaments} detail="Bütün statuslar daxil" href="/admin/tournaments" icon={<Trophy size={16}/>} />
+      <AdminKpi label="Tamamlanmış turnir" value={data.totals.completed} detail="Rəsmi tamamlanma statusu" href="/admin/tournaments?status=completed" icon={<CheckCheck size={16}/>} />
+      <AdminKpi label="Aktiv və qarşıdakı" value={data.totals.active} detail="Dərc edilmiş, açıq və davam edən" href="/admin/tournaments?status=active" icon={<CalendarDays size={16}/>} />
+      <AdminKpi label="Qeydiyyatlı komandalar" value={data.totals.teams} detail="Hər komanda yalnız bir dəfə" href="/admin/teams" icon={<Users size={16}/>} />
+      <AdminKpi label="Turnir müraciətləri" value={data.totals.registrations} detail="Bütün iştirak müraciətləri" href="/admin/tournaments" icon={<Flag size={16}/>} />
+      <AdminKpi label="Oynanmış raundlar" value={data.totals.playedRounds} detail="Tamamlanmış raund statusu" href="/admin/results" icon={<Activity size={16}/>} />
+      <AdminKpi label="Təsdiq gözləyir" value={data.totals.pendingApprovals} detail={`${data.totals.pendingTeams} komanda · ${data.totals.pendingRegistrations} iştirak · ${data.totals.pendingVerifications} təsdiq · ${data.totals.pendingRosters} heyət`} href="#admin-approvals" icon={<ClipboardCheck size={16}/>} />
+      <AdminKpi label="Dərc edilmiş nəticə" value={data.totals.publishedResults} detail="Rəsmi komanda–raund nəticələri" href="/admin/results" icon={<CheckCheck size={16}/>} />
+    </div>
+    <div className="admin-section-caption"><h2>Fəaliyyət analitikası</h2><span>{range === 'all' ? 'Bütün dövr' : `Son ${range} gün`} · {data.granularity === 'day' ? 'günlük' : data.granularity === 'week' ? 'həftəlik' : 'aylıq'} · AZT</span></div>
+    <Suspense fallback={<div className="admin-analytics-grid admin-analytics-grid--loading" role="status" aria-label="Qrafiklər hazırlanır">{['Turnir fəaliyyəti','Turnirlərin vəziyyəti','Komandalar və iştirak','Rəsmi nəticə fəaliyyəti'].map(title=><AdminPanel key={title} title={title}><div className="admin-chart__empty">Qrafik hazırlanır…</div></AdminPanel>)}</div>}><div className="admin-analytics-grid"><AdminPanel title="Turnir fəaliyyəti" description={`${data.period.tournaments} yeni turnir · ${data.period.completions} qeydə alınmış tamamlanma`}><ActivityChart key={`t-${range}`} label="Turnir fəaliyyəti" points={data.series} metrics={[{key:'tournaments',label:'Yaradılmış'},{key:'completions',label:'Tamamlanmış'}]} /><p className="admin-chart-note">Tamamlanma tarixi audit qeydindən götürülür. Qeydi olmayan tarixi tamamlanmalar qrafikə daxil deyil.</p></AdminPanel><AdminPanel title="Turnirlərin vəziyyəti" description="Bütün dövr · statusu seçərək müqayisə edin"><LifecycleChart items={data.lifecycle}/></AdminPanel><AdminPanel title="Komandalar və iştirak" description={`${data.period.teams} yeni komanda · ${data.period.registrations} müraciət · ${data.period.uniqueTeams} unikal müraciətçi komanda`}><ActivityChart key={`r-${range}`} label="Komandalar və iştirak" points={data.series} metrics={[{key:'teams',label:'Yeni komandalar'},{key:'registrations',label:'Müraciətlər'}]}/></AdminPanel><AdminPanel title="Rəsmi nəticə fəaliyyəti" description={`${data.period.publishedRounds} raund · ${data.period.publishedResults} komanda nəticəsi`}><ActivityChart key={`p-${range}`} label="Rəsmi nəticələr" points={data.series} metrics={[{key:'publishedRounds',label:'Dərc edilmiş raundlar'},{key:'publishedResults',label:'Komanda nəticələri'}]}/></AdminPanel></div></Suspense>
+    <div className="admin-section-caption"><h2>Əməliyyat masası</h2><span>Cari vəziyyət · tarix filtrindən asılı deyil</span></div><div className="admin-operations-grid">
+      <AdminPanel title="Qarşıdakı turnirlər" action={<Link to="/admin/tournaments">Hamısı <ArrowRight size={14}/></Link>}><TournamentList items={data.upcoming} empty="Qarşıdakı dərc edilmiş turnir yoxdur."/></AdminPanel>
+      <AdminPanel title="Diqqət tələb edənlər" description="Başlamış turnirlərdə dərc edilməmiş raundlar"><TournamentList items={data.attention} empty="Başlamış turnirlərdə gözləyən raund yoxdur."/></AdminPanel>
+      <AdminPanel title="Yoxlama növbəsi" className="admin-approvals" action={<Link to="/admin/teams?status=pending">Komandalar <ArrowRight size={14}/></Link>}><div id="admin-approvals" className="admin-queue-links"><Link to="/admin/teams?status=pending">Komandalar <b>{data.totals.pendingTeams}</b></Link><Link to="/admin/verifications">Təsdiqlər <b>{data.totals.pendingVerifications}</b></Link><Link to="/admin/roster-requests">Heyət <b>{data.totals.pendingRosters}</b></Link></div><div className="admin-op-list">{data.approvals.map(a => <Link key={a.id} to={a.href}><div><strong>{a.name}</strong><small>{a.kind === 'team' ? 'Komanda təsdiqi' : 'Turnir qeydiyyatı'} · {formatEventDate(a.createdAt)}</small></div><ArrowRight size={16}/></Link>)}{!data.approvals.length && <p className="admin-inline-empty">Gözləyən komanda və turnir müraciəti yoxdur.</p>}</div></AdminPanel>
+      <AdminPanel title="Son tamamlananlar"><TournamentList items={data.completed} empty="Hələ tamamlanmış turnir yoxdur."/></AdminPanel>
+    </div><AdminPanel title="Son inzibati fəaliyyət" action={<Link to="/admin/audit">Audit jurnalı <ArrowRight size={14}/></Link>}><div className="admin-op-list admin-activity-list">{data.activity.map(a => <Link to={a.href} key={a.id}><span className="admin-activity-dot"/><div><strong>{actionLabels[a.action] ?? a.action.split('.').join(' · ')}</strong><small>{formatEventDate(a.createdAt, {withTime:true})} AZT</small></div><ArrowRight size={16}/></Link>)}{!data.activity.length && <p className="admin-inline-empty">Hələ inzibati fəaliyyət qeydə alınmayıb.</p>}</div></AdminPanel>
+    </>}{!data && !query.loading && !query.error && <EmptyState title="Analitika əlçatan deyil" body="Analitika xidməti qoşulduqda platforma göstəriciləri burada görünəcək."/>}
+  </div>;
 }

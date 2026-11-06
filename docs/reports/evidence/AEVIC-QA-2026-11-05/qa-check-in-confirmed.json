@@ -1,8 +1,0 @@
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "### Result\n{\"status\":200,\"data\":{\"teamId\":\"16\",\"tournamentId\":\"19130ea6-8fc0-4bc6-9773-12b1a49de0a5\",\"status\":\"checked-in\",\"opensAt\":\"2026-11-05T10:45:00.000Z\",\"closesAt\":\"2026-11-05T10:51:00.000Z\",\"checkedInAt\":\"2026-11-05T10:48:43.988Z\"},\"dialogs\":[],\"statusText\":[\"Otaq statusunu serverdə yoxlayın\",\"Sıralama yenilənir…\"]}\n### Ran Playwright code\n```js\nawait (async(page)=>{const rp=page.waitForResponse(r=>r.url().includes('/check-in')&&r.request().method()==='POST');await page.getByRole('dialog').getByRole('button',{name:'Bəli, hazırıq',exact:true}).click();const response=await rp;const d=await response.json();await page.waitForTimeout(1000);return {status:response.status(),data:d,dialogs:await page.getByRole('dialog').allTextContents(),statusText:await page.locator('[role=\"status\"],[role=\"alert\"]').allTextContents()};})(page);\n```"
-    }
-  ]
-}

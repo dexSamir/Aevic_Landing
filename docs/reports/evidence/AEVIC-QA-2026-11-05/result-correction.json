@@ -1,8 +1,0 @@
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "### Result\n{\"events\":[{\"path\":\"/api/admin/results/fce97099-d62a-4683-a69e-7b5155b4fa21/versions\",\"status\":200,\"body\":[]}],\"text\":\"← Nəticələrə qayıt\\nNƏTİCƏ TARİXÇƏSİ\\nNəticəni düzəlt\\n\\nHər düzəliş ayrıca versiya kimi saxlanılır. Rəsmi xallar serverdə hesablanır.\\n\\nNəticə tapılmadı\\n\\nDüzəliş üçün saxlanmış nəticə tələb olunur.\",\"fields\":0}\n### Ran Playwright code\n```js\nawait (async(page)=>{const a=page.context().browser().contexts()[2].pages()[0];const events=[];const listener=async r=>{if(r.url().includes('/versions'))events.push({path:new URL(r.url()).pathname,status:r.status(),body:await r.json()})};a.on('response',listener);await a.goto('https://aevic-demo.netlify.app/admin/results/fce97099-d62a-4683-a69e-7b5155b4fa21/correct');await a.waitForTimeout(10000);a.off('response',listener);await a.screenshot({path:'/Users/samirhebibov/Documents/Aevic_Landing/docs/reports/evidence/AEVIC-QA-2026-11-05/result-correction.png',fullPage:true});return {events,text:await a.locator('main').innerText(),fields:await a.locator('main input').count()};})(page);\n```\n### Open tabs\n- 0: [](about:blank)\n- 1: (current) [Turnir Mərkəzi | AEVIC Esports](https://aevic-demo.netlify.app/team/tournaments/19130ea6-8fc0-4bc6-9773-12b1a49de0a5) [isolatedContext: qa-public]\n- 2: [Nəticə düzəlişi | AEVIC Esports](https://aevic-demo.netlify.app/admin/results/fce97099-d62a-4683-a69e-7b5155b4fa21/correct) [isolatedContext: qa-public-audit]\n### Page\n- Page URL: https://aevic-demo.netlify.app/team/tournaments/19130ea6-8fc0-4bc6-9773-12b1a49de0a5\n- Page Title: Turnir Mərkəzi | AEVIC Esports\n- Isolated context: qa-public"
-    }
-  ]
-}

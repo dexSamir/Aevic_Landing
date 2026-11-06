@@ -59,6 +59,12 @@ app.get('/team/tournaments/:id/result-export',async c=>{
 app.get('/team/tournaments/:id/rounds/:roundId/room',async c=>c.json(await room(platform(c).sql,captain(c),uuid(c),uuid(c,'roundId'))));
 app.post('/admin/tournaments',async c=>{admin(c,['tournament-manager']);const result=await createTournament(platform(c).sql,actor(c),await body(c,tournamentInput),c.req.header('idempotency-key'));return c.json(await platform(c).tournament(result.id),201);});
 app.patch('/admin/tournaments/:id',async c=>{admin(c,['tournament-manager']);const id=uuid(c);await editTournament(platform(c).sql,actor(c),id,await body(c,editTournamentInput),c.req.header('idempotency-key'));return c.json(await platform(c).tournament(id));});
+app.get('/admin/tournaments/:id/room-readiness',async c=>{
+ admin(c,['tournament-manager','result-operator']);
+ const rows=await platform(c).sql`select m.id,(nullif(r.room_id,'') is not null and nullif(r.password,'') is not null) as ready from aevic.matches m left join aevic.match_rooms r on r.match_id=m.id where m.tournament_id=${uuid(c)} order by m.scheduled_at,m.id`;
+ c.header('Cache-Control','private, no-store');
+ return c.json(rows.map(r=>({id:r.id,ready:Boolean(r.ready)})));
+});
 app.get('/admin/tournaments/:id/entries',async c=>{admin(c,['tournament-manager','result-operator']);return c.json((await platform(c).rows('tournament_registrations')).filter(r=>r.tournament_id===uuid(c)).map(r=>({id:r.id,teamId:r.team_id,status:r.status,slotNumber:r.slot_number})));});
 app.patch('/admin/tournaments/:id/entries/:teamId',async c=>{admin(c,['tournament-manager']);const input=await body(c,z.object({status:z.enum(['confirmed','rejected']),reason:text(0,1000).optional()}));await reviewEntry(platform(c).sql,actor(c),uuid(c),teamId(c,'teamId'),input.status,input.reason);return c.body(null,204);});
 app.put('/admin/matches/:id/room',async c=>{admin(c,['tournament-manager']);const input=await body(c,z.object({roomId:text(1,100),password:text(1,200)}).strict()),id=uuid(c);await transaction(platform(c).sql,async tx=>{

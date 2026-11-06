@@ -19,11 +19,23 @@ export function createTokenTransport(root:string){
  async function request<T>(path:string,options:RequestInit={},nullStatuses:number[]=[],timeout?:number,format:'json'|'blob'='json'):Promise<T>{
   if(options.signal?.aborted)throw new ApiError({status:0,kind:'abort'});
   const method=options.method??'GET',protectedRequest=!publicPath(path,method);
-  if(protectedRequest&&(!negotiated||access&&expires<Date.now()+30_000))await refresh();
+  const sessionProbe=path==='/me/session'&&method==='GET'&&!negotiated,probeGeneration=generation;
+  let sessionMode:string|null=null;
+  if(protectedRequest&&!sessionProbe&&(!negotiated||access&&expires<Date.now()+30_000))await refresh();
   const anonymous=['GET','HEAD'].includes(method)&&(/^\/(public|tournaments|matches|leaderboards|records|archive|search|sitemap)(\/|\?|$)/.test(path)||/^\/teams\/[^/]+\/wrapped(?:\?|$)/.test(path));
-  const send=()=>{if(options.signal?.aborted)throw new ApiError({status:0,kind:'abort'});const headers=new Headers(options.headers);if(anonymous)headers.delete('Authorization');else if(access)headers.set('Authorization',`Bearer ${access}`);return requestJson<T>(root+path,{...options,headers,credentials:anonymous?'omit':'include'},[],timeout,format);};
-  let result:T;
-  try{result=await send();}catch(error){
+  const send=()=>{if(options.signal?.aborted)throw new ApiError({status:0,kind:'abort'});const headers=new Headers(options.headers);if(anonymous)headers.delete('Authorization');else if(access)headers.set('Authorization',`Bearer ${access}`);return requestJson<T>(root+path,{...options,headers,credentials:anonymous?'omit':'include'},[],timeout,format,response=>{sessionMode=response.headers.get('X-Aevic-Session-Mode');});};
+  let result!:T;
+  try{
+   if(sessionProbe){
+    let failure:unknown;
+    try{result=await send();}catch(error){failure=error;}
+    if(sessionMode==='legacy'&&probeGeneration===generation){negotiated=true;if(failure)throw failure;}
+    else {
+     if(failure&&(!(failure instanceof ApiError)||failure.status!==401))throw failure;
+     await refresh();result=await send();
+    }
+   }else result=await send();
+  }catch(error){
    if(error instanceof ApiError&&error.code==='ACCESS_EXPIRED'&&['GET','HEAD'].includes(method)&&protectedRequest){await refresh();try{result=await send();}catch(retry){if(retry instanceof ApiError&&nullStatuses.includes(retry.status))return undefined as T;throw retry;}}
    else {if(protectedRequest&&error instanceof ApiError&&error.code==='ACCESS_EXPIRED')expires=0;
     if(protectedRequest&&error instanceof ApiError&&['SESSION_REVOKED','MFA_REQUIRED','UNAUTHORIZED'].includes(error.code)&&(access || path !== '/me/session')){clear();negotiated=true;if(typeof window!=='undefined')window.dispatchEvent(new Event('aevic:session-change'));}

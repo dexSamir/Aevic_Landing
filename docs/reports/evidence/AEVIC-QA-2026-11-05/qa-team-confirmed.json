@@ -1,9 +1,0 @@
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "### Error\nTimeoutError: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for getByText('Turniri redaktə et', { exact: true })\n"
-    }
-  ],
-  "isError": true
-}

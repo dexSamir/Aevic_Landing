@@ -5,6 +5,7 @@ import { useRef,useState } from "react";
 import { Link,useParams } from "react-router-dom";
 import {
 Button,
+Modal,Textarea,
 EmptyState,
 PageHeader,
 SectionHeading,
@@ -24,6 +25,7 @@ export function AdminTeamDetailPage() {
   const team = teams.find((item) => item.id === teamId);
   const [notice, setNotice] = useState("");
   const [pending, setPending] = useState(false);
+  const [decision,setDecision]=useState<'approved'|'rejected'>(),[reason,setReason]=useState('');
   const pendingRef = useRef(false);
   if (!team)
     return (
@@ -41,11 +43,12 @@ export function AdminTeamDetailPage() {
       await services.teams.setApproval(
         team.id,
         status,
-        status === "rejected" ? "Heyət sübutları tamamlanmayıb." : undefined,
+        status === "rejected" ? reason.trim() : undefined,
       );
       invalidateQuery("snapshot:admin");
       invalidateQuery("snapshot:public");
       invalidateQuery("snapshot:team");
+      setDecision(undefined);setNotice("Komanda qərarı saxlanıldı.");
     } catch {
       setNotice(
         "Qərar təsdiqlənmədi. Yenidən göndərməzdən əvvəl komandanın vəziyyətini yoxlayın.",
@@ -68,7 +71,7 @@ export function AdminTeamDetailPage() {
           {notice}
         </p>
       )}
-      <div className="admin-entity-detail">
+      <div className="admin-command-facts"><div><span>Heyət</span><strong>{team.roster.length} oyunçu</strong></div><div><span>Status</span><strong style={{fontSize:'1rem'}}>{productTerm(team.approvalStatus)}</strong></div><div><span>Turnir iştirakı</span><strong>{new Set(slots.filter(s=>s.teamId===team.id).map(s=>s.tournamentId)).size}</strong></div><div><span>Kimlik</span><strong style={{fontSize:'1rem'}}>{productTerm(team.verificationLevel??'registered')}</strong></div></div><div className="admin-entity-detail">
         <section>
           <header>
             <TeamLogo name={team.name} src={team.logoUrl} size="lg" />
@@ -142,24 +145,22 @@ export function AdminTeamDetailPage() {
             <Button
               loading={pending}
               disabled={pending}
-              onClick={() => void decide("approved")}
+              onClick={() => {setDecision("approved");setReason('');}}
             >
               Təsdiqlə
             </Button>
             <Button
               disabled={pending}
               variant="danger"
-              onClick={() => void decide("rejected")}
+              onClick={() => {setDecision("rejected");setReason('');}}
             >
               Düzəlişə qaytar
             </Button>
           </div>
-          <small>
-            Canlı sistemdə server icazəsi və dəyişdirilməyən audit qeydi
-            məcburidir.
-          </small>
+
         </aside>
       </div>
+      <Modal open={!!decision} title={decision==='approved'?'Komandanı təsdiqlə':'Komandanı düzəlişə qaytar'} onClose={()=>{if(!pending)setDecision(undefined);}}><form className="operation-form" onSubmit={e=>{e.preventDefault();if(decision)void decide(decision);}}><p>{team.name}</p>{decision==='rejected'&&<Textarea label="Qərarın səbəbi" value={reason} onChange={e=>setReason(e.target.value)} minLength={10} maxLength={1000} required/>}{notice&&<p role="status">{notice}</p>}<Button type="submit" loading={pending} disabled={decision==='rejected'&&reason.trim().length<10}>Qərarı saxla</Button></form></Modal>
     </>
   );
 }

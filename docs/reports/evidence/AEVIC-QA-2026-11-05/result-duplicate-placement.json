@@ -1,8 +1,0 @@
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "### Result\n{\"status\":200,\"data\":{\"id\":\"94ae72cd-1c10-452e-9155-3470f29bdd20\",\"roundId\":\"0ab9666e-5501-47b2-b99e-ce2be068fafc\",\"tournamentId\":\"19130ea6-8fc0-4bc6-9773-12b1a49de0a5\",\"teamId\":\"870000000002\",\"placement\":1,\"finishes\":7,\"placementPoints\":10,\"finishPoints\":7,\"penalties\":0,\"totalPoints\":17,\"published\":false}}\n### Ran Playwright code\n```js\nawait (async(page)=>{const a=page.context().browser().contexts()[2].pages()[0];await a.locator('main select').nth(2).selectOption('870000000002');await a.locator('input[name=\"placement\"]').fill('1');await a.locator('input[name=\"kills\"]').fill('7');const rp=a.waitForResponse(r=>r.url().endsWith('/api/admin/results')&&r.request().method()==='POST');await a.getByRole('button',{name:'Komanda nəticəsini saxla',exact:true}).click();const r=await rp;return {status:r.status(),data:await r.json()};})(page);\n```"
-    }
-  ]
-}

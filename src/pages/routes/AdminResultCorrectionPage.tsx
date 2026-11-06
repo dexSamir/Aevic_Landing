@@ -92,7 +92,7 @@ export function AdminResultCorrectionPage() {
         <>
           <p role="status">Cari versiya: {current.version}</p>
           {versions.length === 0 && <p>Bu nəticəyə hələ düzəliş edilməyib.</p>}
-          <div className="history-ledger">
+          <div className="admin-correction-layout"><div className="history-ledger">
             {versions.map((v) => (
               <article key={v.id}>
                 <History size={18} />
@@ -144,7 +144,7 @@ export function AdminResultCorrectionPage() {
             <Button type="submit" loading={busy}>
               Yeni versiyanı saxla
             </Button>
-          </form>
+          </form></div>
         </>
       )}
     </>

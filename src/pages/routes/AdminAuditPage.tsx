@@ -1,3 +1,4 @@
+import { AdminListSummary } from '../../components/admin/AdminPrimitives';
 import {
 Search,
 ShieldCheck
@@ -26,7 +27,7 @@ export function AdminAuditPage() {
         (event) =>
           (action === "all" || event.action === action) &&
           (!query ||
-            `${event.actorName} ${event.entityType} ${event.entityId}`
+            `${event.action} ${event.actorName} ${event.entityType} ${event.entityId}`
               .toLowerCase()
               .includes(query.toLowerCase())),
       ) ?? [],
@@ -50,7 +51,7 @@ export function AdminAuditPage() {
       <PageHeader
         eyebrow="Dəyişdirilməyən sistem tarixçəsi"
         title="Audit jurnalı"
-        description="Qərar, rol və həssas məlumat girişləri dəyişdirilə bilməyən hadisə kimi saxlanmalıdır."
+        description="İnzibati qərarlar, dəyişikliklər və giriş tarixçəsi."
       />
       <div className="admin-toolbar">
         <div className="search-field">
@@ -67,12 +68,13 @@ export function AdminAuditPage() {
           value={action}
           onChange={(event) => setAction(event.target.value)}
         >
-          <option value="all">Bütün action-lar</option>
+          <option value="all">Bütün əməliyyatlar</option>
           {actions.map((value) => (
             <option key={value}>{value}</option>
           ))}
         </Select>
       </div>
+      {events&&<AdminListSummary count={visible.length} total={events.length}/>}
       {!events ? (
         <LoadingSkeleton variant="table" rows={6} />
       ) : visible.length ? (
@@ -90,11 +92,11 @@ export function AdminAuditPage() {
                 </small>
               </div>
               <time>{new Date(event.createdAt).toLocaleString("az-AZ")}</time>
-              <code>
+              <details className="admin-audit-metadata"><summary>Hadisə detalları</summary><code>
                 {Object.entries(event.metadata)
                   .map(([key, value]) => `${key}=${String(value)}`)
                   .join(" · ")}
-              </code>
+              </code></details>
             </article>
           ))}
         </div>

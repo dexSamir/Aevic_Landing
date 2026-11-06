@@ -50,6 +50,7 @@ export function synchronizeSessionCache(identity: string | null) {
 }
 
 export function invalidateQuery(prefix: string, scope?: Scope, exact = false) {
+  if (prefix === 'snapshot:' || prefix === 'snapshot:admin') invalidateQuery('admin:analytics:', 'private');
   for (const key of new Set([...cache.keys(), ...inFlight.keys()])) {
     const resource = key.slice(key.indexOf(':') + 1);
     if (scope && !key.startsWith(scope + ':') || (exact ? resource !== prefix : !resource.startsWith(prefix))) continue;

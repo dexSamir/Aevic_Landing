@@ -1,9 +1,0 @@
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "### Error\nTimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Miramar', exact: true }) to be visible\n"
-    }
-  ],
-  "isError": true
-}

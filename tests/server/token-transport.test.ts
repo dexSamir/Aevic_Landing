@@ -28,7 +28,7 @@ it('bounds simultaneous refresh conflicts and never loops on an expired refresh 
  const busy=vi.fn(async()=>Response.json({code:'REFRESH_BUSY'},{status:409}));vi.stubGlobal('fetch',busy);
  await expect(createTokenTransport('/api').request('/me/account')).rejects.toMatchObject({code:'REFRESH_BUSY'});expect(busy).toHaveBeenCalledTimes(3);
  const denied=vi.fn(async()=>Response.json({code:'UNAUTHORIZED'},{status:401}));vi.stubGlobal('fetch',denied);
- await expect(createTokenTransport('/api').request('/me/session',{},[401])).resolves.toBeUndefined();expect(denied).toHaveBeenCalledTimes(2);
+ await expect(createTokenTransport('/api').request('/me/session',{},[401])).resolves.toBeUndefined();expect(denied).toHaveBeenCalledTimes(3);
 });
 
 it('does not send an already cancelled mutation or leak credentials on public protocol errors',async()=>{
@@ -41,6 +41,7 @@ it('retains access credentials across a refresh outage and recovers without logg
  const authorization:string[]=[];
  vi.stubGlobal('fetch',vi.fn(async(url:string,options:RequestInit)=>{
   if(url.endsWith('/auth/refresh')){rotations++;return rotations===2?Response.json({code:'SERVICE_UNAVAILABLE'},{status:503}):Response.json(envelope());}
+  if(!new Headers(options.headers).has('authorization'))return Response.json(null,{headers:{'X-Aevic-Session-Mode':'tokens'}});
   reads++;authorization.push(new Headers(options.headers).get('authorization')??'');
   return reads<=2?Response.json({code:'ACCESS_EXPIRED'},{status:401}):Response.json({ok:true});
  }));
@@ -49,6 +50,19 @@ it('retains access credentials across a refresh outage and recovers without logg
  await expect(transport.request('/me/session')).resolves.toEqual({ok:true});
  expect(rotations).toBe(3);expect(authorization).toEqual(Array(3).fill('Bearer fixture-memory-token'));
  transport.dispose();
+});
+it('negotiates a verified legacy session in one read without refreshing',async()=>{
+ const session={role:'captain',user:{id:'fixture'}};
+ const fetcher=vi.fn(async()=>Response.json(session,{headers:{'X-Aevic-Session-Mode':'legacy'}}));vi.stubGlobal('fetch',fetcher);
+ const transport=createTokenTransport('/api');expect(await transport.request('/me/session')).toEqual(session);
+ expect(fetcher).toHaveBeenCalledTimes(1);expect(fetcher.mock.calls[0][0]).toBe('/api/me/session');transport.dispose();
+});
+it('restores token sessions before returning identity and supports older servers',async()=>{
+ for(const mode of ['tokens',undefined]){
+  const fetcher=vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/auth/refresh')?Response.json(envelope()):Response.json(new Headers(options.headers).has('authorization')?{role:'captain'}:null,{headers:mode?{'X-Aevic-Session-Mode':mode}:{}}));vi.stubGlobal('fetch',fetcher);
+  const transport=createTokenTransport('/api');expect(await transport.request('/me/session')).toEqual({role:'captain'});
+  expect(fetcher.mock.calls.map(([url])=>url)).toEqual(['/api/me/session','/api/auth/refresh','/api/me/session']);transport.dispose();
+ }
 });
 it('omits cookies and bearer tokens on anonymous public reads without affecting private authorization',async()=>{
  const fetcher=vi.fn(async(url:string,options:RequestInit)=>url.endsWith('/auth/refresh')?Response.json(envelope()):Response.json({authorization:new Headers(options.headers).get('authorization'),credentials:options.credentials}));

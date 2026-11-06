@@ -1,8 +1,0 @@
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "### Result\n{\"httpStatus\":200,\"cacheControl\":\"private,no-store\",\"roundId\":\"0ab9666e-5501-47b2-b99e-ce2be068fafc\",\"status\":\"released\",\"hasPassword\":true,\"hasRoomId\":true,\"masked\":true,\"revealCorrect\":true,\"clearedOnRoundSwitch\":true}\n### Ran Playwright code\n```js\nawait (async(page)=>{const rp=page.waitForResponse(r=>/\\/rounds\\/[^/]+\\/room/.test(r.url()));await page.getByRole('button',{name:'Otaq statusunu yoxla',exact:true}).click();const response=await rp;const data=await response.json();const out={httpStatus:response.status(),cacheControl:response.headers()['cache-control'],roundId:data.roundId,status:data.status,hasPassword:Boolean(data.password),hasRoomId:Boolean(data.roomId)};out.masked=await page.locator('#room').innerText().then(t=>t.includes('••••••••'));await page.getByRole('button',{name:'Göstər',exact:true}).click();out.revealCorrect=await page.locator('#room').innerText().then(t=>Boolean(data.password)&&t.includes(data.password));await page.getByRole('button',{name:'Gizlət',exact:true}).click();await page.screenshot({path:'/Users/samirhebibov/Documents/Aevic_Landing/docs/reports/evidence/AEVIC-QA-2026-11-05/qa-room-masked.png',fullPage:true});await page.getByRole('button',{name:'R2 · Miramar',exact:true}).click();out.clearedOnRoundSwitch=await page.locator('#room').innerText().then(t=>!t.includes(data.password)&&!t.includes(data.roomId));return out;})(page);\n```"
-    }
-  ]
-}

@@ -22,6 +22,7 @@ pnpm-debug.log*
 .test-build/
 test-results/
 playwright-report/
+docs/reports/evidence/
 public/sitemap.xml
 
 # Windsurf

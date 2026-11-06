@@ -11,9 +11,9 @@ import { invalidateQuery } from "../../services/queryCache";
 import "../../styles/lifecycle.css";
 
 export function TournamentOperations({
-  tournamentId,
+  tournamentId, section = 'all',
 }: {
-  tournamentId: string;
+  tournamentId: string; section?: 'all' | 'registrations' | 'rooms';
 }) {
   const { teams, matchSchedule } = useAdminPlatformData();
   const [entries, setEntries] =
@@ -23,8 +23,9 @@ export function TournamentOperations({
   const load = () =>
     services.tournaments.entries(tournamentId).then(setEntries);
   useEffect(() => {
+    if(section==='rooms')return;
     void load().catch(() => setNotice("Turnir qeydiyyatları yüklənmədi."));
-  }, [tournamentId]);
+  }, [tournamentId,section]);
   const review = async (teamId: string, status: "confirmed" | "rejected") => {
     if (busy) return;
     setBusy(true);
@@ -63,8 +64,8 @@ export function TournamentOperations({
   if (!serviceCapabilities.tournamentCreation) return null;
   return (
     <section className="operation-form">
-      <h2>Turnir qeydiyyatları</h2>
-      {notice && <p role="status">{notice}</p>}
+      {notice && <p className="admin-notice" role="status">{notice}</p>}
+      {section!=='rooms'&&<><h2>Turnir qeydiyyatları</h2>
       {entries?.length ? (
         entries.map((e) => (
           <div className="settings-savebar" key={e.id}>
@@ -92,9 +93,10 @@ export function TournamentOperations({
           </div>
         ))
       ) : (
-        <p>Qeydiyyat yoxdur.</p>
+        <p role="status">{entries ? "Qeydiyyat yoxdur." : "Qeydiyyatlar yüklənir…"}</p>
       )}
-      <form onSubmit={saveRoom}>
+      </>}
+      {section!=='registrations'&&<form onSubmit={saveRoom}>
         <h2>Otaq məlumatları</h2>
         <Select label="Raund" name="match" required>
           <option value="">Raund seçin</option>
@@ -126,7 +128,7 @@ export function TournamentOperations({
         <Button type="submit" loading={busy}>
           Otaq məlumatlarını saxla
         </Button>
-      </form>
+      </form>}
     </section>
   );
 }

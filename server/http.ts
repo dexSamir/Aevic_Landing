@@ -24,6 +24,8 @@ export function createHttpApp(config?:ServerConfig, env:NodeJS.ProcessEnv=proces
   c.set('requestId',crypto.randomUUID());c.header('X-Request-Id',c.get('requestId'));c.header('Cache-Control','private, no-store');c.header('X-Content-Type-Options','nosniff');c.header('Referrer-Policy','no-referrer');
   let settings:ServerConfig;try{settings=config??readConfig(env);}catch{throw new ServiceError(503,'SERVER_NOT_CONFIGURED');}
   c.set('config',settings);c.set('db',client(settings));
+  // Let the existing session read negotiate transport without a preceding no-op refresh.
+  if(c.req.method==='GET'&&c.req.path==='/api/me/session')c.header('X-Aevic-Session-Mode',(settings.sessionMode??'legacy')==='legacy'?'legacy':'tokens');
   if(!['GET','HEAD','OPTIONS'].includes(c.req.method)) {
    const origin=c.req.header('origin');
    // Same-origin BFF only; no permissive CORS or cookie-bearing cross-site writes.

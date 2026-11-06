@@ -15,6 +15,7 @@
     "src/app/routeManifest.ts",
     "src/services/capabilities.ts",
     "src/types/domain.ts",
+    "src/types/adminAnalytics.ts",
     "src/utils/wrapped.ts",
     "src/utils/scoring.ts",
     "src/utils/competitionAnalytics.ts",

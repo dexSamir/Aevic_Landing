@@ -489,7 +489,8 @@
 .button > svg { flex-shrink: 0; }
 .button > span { min-width: 0; }
 @media (max-width: 640px) {
-  .modal > header, .modal > footer, .modal__body { padding: var(--space-md); }
+  .modal > header, .modal > footer, .modal__body { padding: min(var(--space-md), 5vw); }
+  .modal > header { gap: min(var(--space-md), 3vw); }
   .modal > footer .button { flex: 1 1 8rem; }
   .notification-item { grid-template-columns: auto minmax(0, 1fr); }
   .notification-item__top { flex-wrap: wrap; gap: var(--space-xs); }

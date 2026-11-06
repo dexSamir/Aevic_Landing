@@ -21,6 +21,7 @@ export async function installApiFixtures(page:Page){
     else if(key==='GET /me/session'&&loggedOut)value=null;
     else if(key==='GET /me/session'){await s.auth.login(page.url().includes('/admin')?'admin@example.test':'team@example.test','test-fixture');value=await s.auth.getSession();}
     else if(key==='GET /me/context'){const scenario=new URL(page.url()).searchParams.get('scenario')??'';if(scenario==='check-in-open'||scenario==='room-ready')await page.clock.setFixedTime(new Date(scenario==='check-in-open'?'2026-08-04T20:20:00+04:00':'2026-08-04T20:55:00+04:00'));const snapshot=teamSnapshotScenario(scenario);value={...snapshot,currentTeam:fixtureTeam,checkIn:checkedIn&&snapshot.checkIn?{...snapshot.checkIn,status:'checked-in'}:snapshot.checkIn,dataSource:'public.teams'};}
+    else if(key==='GET /admin/analytics')value=await s.operations.analytics((q.get('range')??'30') as import('../../src/types/adminAnalytics').AnalyticsRange);
     else if(key==='GET /admin/context')value=await s.snapshots.admin();
     else if(key==='GET /me/team')value=fixtureTeam;
     else if(key==='GET /me/workspaces'){const team=await s.teams.current();value=[{id:team.id,name:team.name,role:'OWNER'}];}
@@ -63,6 +64,7 @@ export async function installApiFixtures(page:Page){
      const parts=path.split('/').filter(Boolean).map(decodeURIComponent);
      if(method==='GET'&&parts[0]==='team'&&parts[1]==='tournaments'&&parts[3]==='rounds'&&parts[5]==='room')value=fixtureRoom(new URL(page.url()).searchParams.get('scenario')??'');
      else if(method==='PUT'&&parts[0]==='teams'&&parts[2]==='roster'){const player=fixtureTeam.roster.find(p=>p.id===`${fixtureTeam.id}:player${parts[3]}`);if(player)player.ign=body.ign;value=fixtureTeam;}
+     else if(method==='GET'&&parts[0]==='admin'&&parts[1]==='tournaments'&&parts[3]==='room-readiness')value=await s.tournaments.roomReadiness(parts[2]);
      else if(method==='GET'&&parts[0]==='admin'&&parts[1]==='tournaments'&&parts[3]==='entries')value=await s.tournaments.entries(parts[2]);
      else if(method==='GET'&&parts[0]==='admin'&&parts[1]==='verifications'&&parts.length===3)value=(await s.verifications.get(parts[2]))??null;
      else if(method==='GET'&&parts[0]==='admin'&&parts[1]==='players'&&parts.length===3)value=await s.operations.player(parts[2]);
@@ -87,7 +89,7 @@ export async function installApiFixtures(page:Page){
     }
     if(!found){console.info('Missing browser fixture:',key);return route.fulfill({status:501,contentType:'application/json',body:JSON.stringify({code:'TEST_FIXTURE_NOT_DEFINED',path})});}
     if(value===undefined)return route.fulfill({status:204,body:''});
-    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(value)});
+    return route.fulfill({status:200,headers:path==='/me/session'?{'X-Aevic-Session-Mode':'legacy'}:undefined,contentType:'application/json',body:JSON.stringify(value)});
    }catch{return route.fulfill({status:503,contentType:'application/json',body:'{"code":"TEST_FIXTURE_ERROR"}'});}
   });
 }

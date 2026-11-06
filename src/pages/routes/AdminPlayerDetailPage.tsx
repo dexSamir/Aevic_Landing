@@ -54,7 +54,7 @@ export function AdminPlayerDetailPage() {
     return (
       <>
         <PageHeader
-          eyebrow="Admin player"
+          eyebrow="Oyunçu yoxlaması"
           title="Oyunçu tapılmadı"
           description="Oyunçu mövcud deyil və ya məlumatlarını görmək üçün icazəniz yoxdur."
         />
@@ -63,16 +63,16 @@ export function AdminPlayerDetailPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Admin player detail"
+        eyebrow="Oyunçu kimliyi"
         title={detail.ign}
-        description="Public identity, linked account, membership history, eligibility, sanctions və verification."
+        description="Hesab əlaqəsi, komanda üzvlüyü, iştirak uyğunluğu və sahiblik müraciətləri."
       />
       <div className="completion-grid">
         <section>
-          <SectionHeading title="Account və komanda" />
+          <SectionHeading title="Hesab və komanda" />
           <dl className="detail-ledger">
             <div>
-              <dt>Linked account</dt>
+              <dt>Bağlı hesab</dt>
               <dd>{detail.linkedAccount?.displayName ?? detail.linkedAccount?.emailHint ?? "Bağlanmayıb"}</dd>
             </div>
             <div>
@@ -80,20 +80,20 @@ export function AdminPlayerDetailPage() {
               <dd>{detail.currentTeam?.name ?? "Yoxdur"}</dd>
             </div>
             <div>
-              <dt>Verification</dt>
+              <dt>Təsdiq</dt>
               <dd>{statusLabel(detail.verification.status)}</dd>
             </div>
           </dl>
         </section>
         <section>
-          <SectionHeading title="Eligibility və sanctions" />
+          <SectionHeading title="İştirak uyğunluğu" />
           <p>
-            {detail.eligibilityConflicts.length} açıq conflict ·{" "}
-            {detail.sanctions.length} sanction
+            {detail.eligibilityConflicts.length} açıq uyğunsuzluq ·{" "}
+            {detail.sanctions.length} məhdudiyyət
           </p>
         </section>
       </div>
-      <section>
+      <section className="admin-player-claims">
         <SectionHeading title="Oyunçu iddiaları" />
         {reviewError && <p role="alert">{reviewError}</p>}
         {!detail.claims?.length && <p>Müraciət yoxdur.</p>}
@@ -104,12 +104,12 @@ export function AdminPlayerDetailPage() {
             <label htmlFor={`reason-${claim.id}`}>Yoxlamanın səbəbi (ən azı 10 simvol)</label>
             <textarea id={`reason-${claim.id}`} minLength={10} maxLength={2000} value={reviewReason[claim.id]??''} onChange={e=>setReviewReason({...reviewReason,[claim.id]:e.target.value})} />
             <Button disabled={!!reviewBusy||(reviewReason[claim.id]?.trim().length??0)<10} onClick={()=>void review(claim.id,'APPROVED')}>Təsdiqlə</Button>
-            <Button disabled={!!reviewBusy||(reviewReason[claim.id]?.trim().length??0)<10} onClick={()=>void review(claim.id,'REJECTED')}>Rədd et</Button>
+            <Button disabled={!!reviewBusy||(reviewReason[claim.id]?.trim().length??0)<10} variant="danger" onClick={()=>void review(claim.id,'REJECTED')}>Rədd et</Button>
           </>}
         </article>)}
       </section>
       <section>
-        <SectionHeading title="Membership history" />
+        <SectionHeading title="Komanda üzvlüyü tarixçəsi" />
         {detail.membershipHistory.length ? (
           <div className="history-ledger">
             {detail.membershipHistory.map((entry) => (

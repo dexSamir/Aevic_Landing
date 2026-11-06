@@ -1,8 +1,0 @@
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "### Result\n[{\"teamId\":\"870000000007\",\"slot\":7,\"status\":204},{\"teamId\":\"870000000008\",\"slot\":8,\"status\":204},{\"teamId\":\"870000000009\",\"slot\":9,\"status\":204},{\"teamId\":\"870000000010\",\"slot\":10,\"status\":204}]\n### Ran Playwright code\n```js\nawait (async(page)=>{const a=page.context().browser().contexts()[2].pages()[0];const out=[];for(let i=7;i<=10;i++){await a.getByRole('button',{name:'Komanda təyin et',exact:true}).click();const d=a.getByRole('dialog');const id=String(870000000000+i);await d.locator('select').selectOption(id);await d.locator('input[type=\"number\"]').fill(String(i));await d.locator('textarea').fill('[QA-2026-11] Authorized DEMO team assignment for isolated E2E competition');const rp=a.waitForResponse(r=>r.url().endsWith('/slot-assignment')&&r.request().method()==='POST');await d.getByRole('button',{name:'Dəyişikliyi saxla',exact:true}).click();const r=await rp;out.push({teamId:id,slot:i,status:r.status()});await d.waitFor({state:'hidden'});}return out;})(page);\n```"
-    }
-  ]
-}

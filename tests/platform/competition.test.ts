@@ -393,7 +393,7 @@ describe('original-team competition persistence',()=>{
   expect((await new PlatformRepository(client,sql).team('1')).verificationLevel).not.toBe('verified');
  });
  it('registers original accounts atomically and safely replays retries',async()=>{
-  await sql`update aevic_platform.settings set value=jsonb_set(value,'{registrationEnabled}','true') where key='platform'`;
+  await sql`insert into aevic_platform.settings(key,value) values('platform','{"registrationEnabled":true}'::jsonb) on conflict(key) do update set value=jsonb_set(aevic_platform.settings.value,'{registrationEnabled}','true')`;
   await sql`select setval(pg_get_serial_sequence('public.teams','id'),(select max(id) from public.teams))`;
   const input={idempotencyKey:'registration-retry-fixture',password:'RegistrationFixture42',draft:{teamName:'Fixture Registration',tag:'FIX',firstName:'Fixture',lastName:'Captain',phone:'0000000',email:'registration@example.invalid',players:[{ign:'One',uid:'510000001',role:'captain' as const},{ign:'Two',uid:'510000002',role:'starter' as const},{ign:'Three',uid:'510000003',role:'starter' as const},{ign:'Four',uid:'510000004',role:'starter' as const},{ign:'',uid:'',role:'substitute' as const}]}};
   const secret='isolated-test-registration-secret-0000000000';

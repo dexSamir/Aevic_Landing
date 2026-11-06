@@ -1,3 +1,4 @@
+import { AdminCollectionBar, filterAdminItems } from '../../components/admin/AdminPrimitives';
 import {
 ArrowRight,
 ClipboardList
@@ -21,9 +22,9 @@ export function AdminDisputesPage() {
   const {data:items,error}=usePlatformQuery({key:'admin:disputes',query:()=>services.disputes.list()});
   const loadError=Boolean(error&&!items);
   const [filter, setFilter] = useState("all");
+  const [search,setSearch]=useState(''),[order,setOrder]=useState('recent');
 
-  const visible =
-    items?.filter((item) => filter === "all" || item.status === filter) ?? [];
+  const visible=filterAdminItems(items?.filter(item=>filter==='all'||item.status===filter),search,item=>`${item.teamName} ${item.tournamentName} ${item.roundLabel} ${item.id}`,order,item=>item.submittedAt);
   if (loadError)
     return (
       <EmptyState
@@ -54,6 +55,7 @@ export function AdminDisputesPage() {
           { id: "rejected", label: "Rədd edilib" },
         ]}
       />
+      <AdminCollectionBar query={search} onQuery={setSearch} count={visible.length} total={items?.length??0} order={order} onOrder={setOrder}/>
       {!items ? (
         <LoadingSkeleton variant="table" rows={5} />
       ) : visible.length ? (
@@ -62,7 +64,7 @@ export function AdminDisputesPage() {
             <Link to={`/admin/disputes/${item.id}`} key={item.id}>
               <span>
                 <ClipboardList size={19} />
-                {item.id}
+                {item.id.length>16?item.id.slice(0,8)+'…':item.id}
               </span>
               <div>
                 <strong>

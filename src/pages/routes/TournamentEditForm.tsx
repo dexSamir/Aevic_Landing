@@ -99,7 +99,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
       {!scheduleReady && <p role="status">Raund cədvəli yüklənir. Redaktə üçün cədvəlin tam yüklənməsini gözləyin.</p>}
       {notice && <p role="status">{notice}</p>}
       <form key={tournament.updatedAt} onSubmit={submit}>
-        <div className="form-grid">
+        <section className="admin-field-group"><h3>Turnirin kimliyi</h3><div className="form-grid">
           <Input
             label="Turnir adı"
             name="name"
@@ -123,7 +123,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
           defaultValue={tournament.description}
           maxLength={3000}
         />
-        <Select
+        </section><section className="admin-field-group"><h3>Dərc və qeydiyyat</h3><Select
           name="status"
           label="Nəşr statusu"
           defaultValue={tournament.status}
@@ -135,7 +135,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
           Qeydiyyat olduqda turniri gizlətmək mümkün deyil. Qeydiyyat
           bağlandıqdan sonra cədvəl və tutum kilidlənir.
         </p>
-        <div className="form-grid">
+        </section><section className="admin-field-group"><h3>Tarix və check-in</h3><div className="form-grid">
           {(
             [
               ["startsAt", "Turnirin başlanğıcı"],
@@ -157,7 +157,7 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
             />
           ))}
         </div>
-        <Input
+        </section><section className="admin-field-group"><h3>Tutum və raundlar</h3><Input
           name="maxSlots"
           label="Maksimum komanda sayı"
           type="number"
@@ -189,13 +189,13 @@ export function TournamentEditForm({ tournamentId }: { tournamentId: string }) {
             />
           </div>
         ))}
-        <Textarea
+        </section><section className="admin-field-group"><h3>Yarış qaydaları</h3><Textarea
           label="Qaydalar — hər sətirdə bir qayda"
           name="rules"
           defaultValue={tournament.rules.join("\n")}
           maxLength={10000}
         />
-        <Button
+        </section><Button
           type="submit"
           loading={busy}
           disabled={!tournament.updatedAt || terminal || !scheduleReady}

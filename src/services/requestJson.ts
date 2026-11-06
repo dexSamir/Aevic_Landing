@@ -1,6 +1,6 @@
 import { ApiError, apiErrorFromResponse, networkApiError } from './apiError';
 
-export async function requestJson<T>(url: string, options: RequestInit = {}, nullStatuses: number[] = [], timeoutMs = 10_000, format:'json'|'blob'='json'): Promise<T> {
+export async function requestJson<T>(url: string, options: RequestInit = {}, nullStatuses: number[] = [], timeoutMs = 10_000, format:'json'|'blob'='json', onResponse?: (response: Response) => void): Promise<T> {
   const controller = new AbortController();
   let timedOut = false;
   const cancel = () => controller.abort();
@@ -9,6 +9,7 @@ export async function requestJson<T>(url: string, options: RequestInit = {}, nul
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeoutMs);
   try {
     const response = await fetch(url, { ...options, signal: controller.signal });
+    onResponse?.(response);
     if (nullStatuses.includes(response.status)) return undefined as T;
     if (!response.ok) throw await apiErrorFromResponse(response);
     if (response.status === 204) {

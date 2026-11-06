@@ -1,3 +1,4 @@
+import { adminAnalyticsFixture } from './admin-analytics';
 import { buildFixtureRecords } from './records';
 // Isolated component-test fixtures. Never import from application code.
 import { adminMessages, blacklist, careerSummary, currentTeam, leaderboard, leaderboardTeams, matchHistory, matchSchedule, notifications, organizations, playerPerformances, slots, teamAchievements, teamAnnouncements, teamComparisonRecords, teamLegacyStats, teams, teamTournamentParticipations, tournamentParticipantTeamIds, tournaments } from './platform-data';
@@ -142,6 +143,7 @@ export const fixtureServices: PlatformServices = {
     },
   },
   tournaments: {
+    async roomReadiness(id) { return matchSchedule.filter(m=>m.tournamentId===id).map(m=>({id:m.id,ready:m.id===releasedSyntheticRoom.roundId})); },
     update: backendRequired,
     create: async () => {throw new Error('Tournament creation requires API mode');},
     entries: async () => [],
@@ -476,6 +478,7 @@ export const fixtureServices: PlatformServices = {
     async adminPage() { await wait(40); return clone({ items: mockTickets, hasMore: false, total: mockTickets.length }); },
   },
   operations: {
+    async analytics(range) { return clone(adminAnalyticsFixture(range)); },
     async audit() { await wait(50); return clone(mockAuditEvents); },
     async adminUsers() { await wait(50); return clone(mockAdminUsers); },
     async player() { await wait(40); return undefined; },
