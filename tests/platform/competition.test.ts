@@ -231,6 +231,21 @@ describe('original-team competition persistence',()=>{
   expect((await one.request(`/organizations/${org.id}/ownership`,write({memberId:target.id,confirmation:org.name},'org-transfer-again'))).status).toBe(403);
  });
 
+ it('loads the exact composite Admin player identifier without requiring a PUBG ID',async()=>{
+  await sql`insert into public.teams(id,team_name,captain_name,captain_contact,email,password_hash,player1_ign,player2_ign,player3_ign,player4_ign,status) values(10,'Composite team','Captain','000','composite@example.invalid','test-only','Composite player','Two','Three','Four','approved')`;
+  const appFor=(identity:Actor)=>{const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,identity));await next();});app.route('/',playerRoutes);app.onError((e,c)=>c.json({code:e instanceof ServiceError?e.code:e.name},e instanceof ServiceError?e.status:500));return app;};
+  const staff=appFor(actor);
+  const response=await staff.request('/admin/players/10%3Aplayer1');
+  expect(response.status).toBe(200);
+  expect(await response.json()).toMatchObject({id:'10:player1',ign:'Composite player',currentTeam:{id:'10'},claims:[],membershipHistory:[],verification:{status:'NOT_APPLIED'}});
+  expect((await staff.request('/admin/players/10:player5')).status).toBe(404);
+  expect((await staff.request('/admin/players/999:player1')).status).toBe(404);
+  expect((await appFor({}).request('/admin/players/10:player1')).status).toBe(401);
+  expect((await appFor({teamId:'10'}).request('/admin/players/10:player1')).status).toBe(403);
+  expect((await appFor({...actor,role:'tournament-manager'}).request('/admin/players/10:player1')).status).toBe(403);
+  await sql`delete from public.teams where id=10`;
+ });
+
  it('keeps player claims private and serializes competing administrator approvals',async()=>{
   await sql`insert into aevic_platform.player_details(team_id,slot,pubg_id,role) values(1,1,'987654321','captain')`;
   const appFor=(identity:Actor)=>{const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,identity));await next();});app.route('/',playerRoutes);app.onError((e,c)=>c.json({code:e instanceof ServiceError?e.code:'ERROR'},e instanceof ServiceError?e.status:500));return app;};
@@ -247,6 +262,7 @@ describe('original-team competition persistence',()=>{
   expect((await one.request(`/admin/player-claims/${first.id}`,write('PATCH',{status:'APPROVED',reason:'Reviewed identity evidence'}))).status).toBe(403);
   const results=await Promise.all([first,second].map(claim=>staff.request(`/admin/player-claims/${claim.id}`,write('PATCH',{status:'APPROVED',reason:'Reviewed identity evidence'}))));expect(results.map(r=>r.status).sort()).toEqual([204,409]);
   const detail=await (await staff.request('/admin/players/pubg-987654321')).json();expect(detail.claims.filter((c:{status:string})=>c.status==='APPROVED')).toHaveLength(1);expect(detail.linkedAccount).toBeDefined();
+  const composite=await (await staff.request('/admin/players/1:player1')).json();expect(composite.id).toBe('1:player1');expect(composite.claims).toEqual(detail.claims);expect(composite.linkedAccount).toEqual(detail.linkedAccount);
  });
 
  it('consumes administrator setup once and revokes existing sessions',async()=>{
@@ -481,7 +497,27 @@ describe('original-team competition persistence',()=>{
   await expect(publishMatch(sql,actor,matchId)).rejects.toMatchObject({code:'INCOMPLETE_RESULTS'});
   expect(await new PlatformRepository(client,sql).history()).toEqual([]);
   await saveResults(sql,actor,matchId,[draft(entries[1].team_id,1)]);await expect(publishMatch(sql,actor,matchId)).rejects.toMatchObject({code:'DUPLICATE_PLACEMENT'});
-  await saveResults(sql,actor,matchId,[draft(entries[1].team_id,2)]);await publishMatch(sql,actor,matchId);
+  const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,actor));await next();});app.route('/',platformRoutes);
+  app.onError((error,c)=>error instanceof ServiceError?c.json({code:error.code},error.status as 409):c.json({code:'ERROR'},500));
+  const fields=(teamId:string,placement:number)=>({teamId,placement,finishes:4});
+  const expected=entries.map(r=>fields(r.team_id,1)),rows=entries.map((r,i)=>fields(r.team_id,i+1));
+  const batch=(next:typeof rows,base:typeof rows)=>app.request(`/admin/matches/${matchId}/result-drafts`,{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({tournamentId,rows:next,expected:base})});
+  expect((await batch(rows.slice(0,1),expected)).status).toBe(409);
+  expect((await batch(expected,expected)).status).toBe(422);
+  expect((await batch(rows,[])).status).toBe(409);
+  await sql`update aevic_platform.team_match_results set notes='Manual ruling',penalties=2 where match_id=${matchId} and team_id=${entries[0].team_id}`;
+  expect((await batch(rows,expected)).status).toBe(204);
+  expect((await batch(rows,expected)).status).toBe(204);
+  const [retained]=await sql`select notes,penalties,published from aevic_platform.team_match_results where match_id=${matchId} and team_id=${entries[0].team_id}`;
+  expect(retained).toMatchObject({notes:'Manual ruling',published:false});expect(Number(retained.penalties)).toBe(2);
+  expect(await new PlatformRepository(client,sql).history()).toEqual([]);
+  await sql`update aevic_platform.tournament_registrations set status='withdrawn' where tournament_id=${tournamentId} and team_id=${entries[1].team_id}`;
+  expect((await batch(rows.slice(0,1),rows)).status).toBe(204);
+  expect(await sql`select id from aevic_platform.team_match_results where match_id=${matchId}`).toHaveLength(1);
+  await sql`update aevic_platform.tournament_registrations set status='confirmed' where tournament_id=${tournamentId} and team_id=${entries[1].team_id}`;
+  await saveResults(sql,actor,matchId,[draft(entries[0].team_id,1),draft(entries[1].team_id,2)]);
+  await publishMatch(sql,actor,matchId);
+  expect((await batch(rows,rows)).status).toBe(409);
   const repository=new PlatformRepository(client,sql);
   expect((await repository.tournament(tournamentId)).pointFormula.presetId).toBe('pubgm-international-v1');
   const standings=await repository.standings(tournamentId);expect(standings.map(r=>r.totalPoints)).toEqual([14,10]);
@@ -518,7 +554,7 @@ describe('original-team competition persistence',()=>{
   await expect(editTournament(sql,actor,tournamentId,{...input(),status:'completed',rounds:[{id:matchId,map:'Erangel',startsAt:at(40)}],expectedUpdatedAt:at(-1000)})).rejects.toMatchObject({code:'STALE_VERSION'});
  });
  it('serves recorded season summaries for original teams while disclosing incomplete legacy history',async()=>{
-  const created=await createTournament(sql,actor,{...input(),rounds:[30,40,50,60].map(m=>({map:'Erangel' as const,startsAt:at(m)}))},'wrapped-original-team');
+  const created=await createTournament(sql,actor,{...input(),endsAt:at(240),rounds:[30,80,130,180].map(m=>({map:'Erangel' as const,startsAt:at(m)}))},'wrapped-original-team');
   await sql`update aevic.tournaments set status='ongoing' where id=${created.id}`;
   await sql`insert into aevic_platform.tournament_registrations(tournament_id,team_id,status,slot_number,roster_lock_at,roster) values(${created.id},1,'confirmed',1,now(),'[]')`;
   const rounds=await sql`select id from aevic.matches where tournament_id=${created.id} order by round`;

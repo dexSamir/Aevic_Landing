@@ -184,3 +184,24 @@
 .account-security-grid .password-strength ul { display:grid; gap:4px; margin-top:8px; }
 .account-security-grid .password-strength { font-size:13px; }
 @media(max-width:1100px) { .account-security-grid { grid-template-columns:minmax(0,1fr); } }
+
+.screenshot-result-draft { min-width: 0; }
+.screenshot-result-draft img { display: block; max-width: 100%; max-height: 32rem; object-fit: contain; }
+.screenshot-result-draft input[type=file] { max-width: 100%; }
+
+.round-review { display: grid; gap: 1rem; }
+.round-review summary { cursor: pointer; overflow-wrap: anywhere; }
+.round-review-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.round-review-table caption { text-align: left; font-weight: 600; padding-block: .5rem; }
+.round-review-table :is(th, td) { padding: .4rem; text-align: left; overflow-wrap: anywhere; vertical-align: top; }
+.round-review-table tr { border-bottom: 1px solid var(--admin-separator); }
+.round-review-table small { display: block; }
+.round-review-table :is(input,select) { width: 100%; min-width: 0; min-height: 44px; color: inherit; background: var(--color-bg-secondary); border: 1px solid var(--admin-separator); border-radius: .3rem; }
+@media (max-width: 680px) {
+  .round-review-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .round-review-table tbody, .round-review-table tr { display: grid; }
+  .round-review-table tr { grid-template-columns: 1fr 1fr; padding-block: .5rem; }
+  .round-review-table td:is(:first-child,:nth-child(2),:last-child) { grid-column: 1 / -1; }
+  .round-review-table td:nth-child(3)::before { content: 'Yerləşmə'; }
+  .round-review-table td:nth-child(4)::before { content: 'Kill'; }
+}

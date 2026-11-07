@@ -1,0 +1,2 @@
+import { defineConfig } from '@playwright/test';
+export default defineConfig({testDir:'./tests/e2e',testMatch:'onboarding-schedule.spec.ts',timeout:60_000,workers:1,reporter:'list',outputDir:'/tmp/aevic-onboarding-playwright',use:{baseURL:'http://127.0.0.1:4196',screenshot:'off',trace:'off',video:'off',timezoneId:'America/Los_Angeles'},webServer:{command:'npm run dev -- --host 127.0.0.1 --port 4196',url:'http://127.0.0.1:4196',reuseExistingServer:false,env:{AEVIC_DATABASE_URL:'',SUPABASE_URL:'',SUPABASE_PUBLISHABLE_KEY:'',SUPABASE_ANON_KEY:''}}});

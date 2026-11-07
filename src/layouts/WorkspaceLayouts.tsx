@@ -73,7 +73,6 @@ const adminLinks = [
   { to: '/admin/blacklist', label: 'Qara siyahı', icon: ShieldAlert, group: 'Moderasiya' },
   { to: '/admin/audit', label: 'Audit jurnalı', icon: History, group: 'Sistem' },
   { to: '/admin/users', label: 'Admin istifadəçiləri', icon: UserRoundCog, group: 'Sistem' },
-  { to: '/admin/site', label: 'Saytın idarə edilməsi', icon: FileText, group: 'Sayt' },
   { to: '/admin/settings', label: 'Parametrlər', icon: Settings, group: 'Sistem' },
 ];
 

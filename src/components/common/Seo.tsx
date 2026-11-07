@@ -24,7 +24,7 @@ export function Seo({ title, description = DEFAULT_DESCRIPTION, canonicalPath, i
     const fullTitle = title.includes('AEVIC') ? title : `${title} | ${SITE_NAME}`;
     const route = matchRoute(location.pathname);
     const origin = configuredPublicOrigin();
-    const indexable = Boolean(origin && import.meta.env.VITE_INDEXABLE_DEPLOYMENT && !location.search.includes('sitePreview=') && route && (route.indexable || publicEntity) && routeIsAvailable(route, serviceCapabilities));
+    const indexable = Boolean(origin && import.meta.env.VITE_INDEXABLE_DEPLOYMENT && route && (route.indexable || publicEntity) && routeIsAvailable(route, serviceCapabilities));
     const canonical = origin && indexable ? new URL(canonicalPath ?? location.pathname, origin).toString() : '';
     upsertMeta('meta[name="robots"]', { name: 'robots', content: indexable ? 'index,follow' : 'noindex,follow' });
     document.title = fullTitle;

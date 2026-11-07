@@ -109,32 +109,10 @@ Migration `20261106203610_onboarding_tournament_banners.sql` is required before 
 
 Email and Google use the existing account/session system. `/account/onboarding` selects spectator/team intent; `/team/setup` saves versioned text drafts and creates a real team/roster/OWNER transaction only after email verification and the existing roster checks. Optional team image files upload through the existing team media path after creation; image selections are not included in text drafts. `/account/invitations` reuses the existing addressed invitation workflow.
 
-Tournament scheduling uses Baku wall-clock inputs. Automatic check-in spans registration close to tournament start. Round intervals and end time can reuse an actual tournament schedule of the same round count; without a suitable source, these required values must be supplied in Advanced schedule. Existing schedules can retain all overrides. Tournament banners use authenticated, bounded, validated WebP uploads through the existing BFF media approach. Staged/draft images remain private; public images revalidate visibility before serving a body or 304 response. Removal detaches the reference. No direct browser Storage grants are added.
+Tournament scheduling uses Baku wall-clock inputs. Automatic check-in spans registration close to tournament start. The custom calendar and clock controls use the existing UTC payload serialization. New schedules default to 50-minute map starts: a 35-minute rounded PMWC 2026 game estimate, 10 minutes of room preparation and 5 minutes of reserve. Admins can increase estimates/intervals for custom room settings; client and gateway reject new or changed schedules below 45 minutes. Manual times become protected anchors for subsequent automatic rounds. Existing schedules stay unchanged until explicitly regenerated, and unchanged legacy schedules can still be saved. Tournament banners use authenticated, bounded, validated WebP uploads through the existing BFF media approach. Staged/draft images remain private; public images revalidate visibility before serving a body or 304 response. Removal detaches the reference. No direct browser Storage grants are added.
 
-### Site Management
+### Published site content compatibility
 
-`/admin/site` is the super-admin presentation workspace. It reuses private
-`aevic_platform.settings` rows under `site:<page-id>`; no additional migration is
-needed. Do not remove or alter the pending legacy-access and onboarding/banner
-migrations. Site image uploads require the existing banner migration.
+The former Site Management route, draft preview, media library and publishing endpoints have been removed. Existing `aevic_platform.settings` rows under `site:<page-id>` (including drafts and revision history) remain stored. `/public/site-content` exposes only published documents, validates their basic shape and links, and revalidates with ETags. Public pages retain their published text, ordering, visibility, navigation/footer copy, client SEO and Team Panel guidance, with existing component fallbacks. There is no editable or draft preview route.
 
-Typed Azerbaijani fields are registered in `src/content/siteManagement.ts`.
-Drafts and the last 20 revisions remain behind `/admin/site-content`; optimistic
-revision checks prevent lost updates. Save changes only the draft. Publish makes
-that draft visible, and unpublish restores the original component fallbacks.
-Every write also enters the existing audit trail. The public endpoint reads only
-published documents in one query and revalidates with ETags; publication
-invalidates the client content cache and signals other tabs. Authenticated draft
-previews use `?sitePreview=<page-id>` and are marked noindex.
-
-Homepage and informational section ordering, FAQ/rules text, public page
-introductions and client-rendered SEO, navigation/footer copy, and global Team
-Panel guidance use these documents. Tournament banners keep their existing
-upload/validation/storage path; unpublished images remain private unless also
-used by a published tournament. The media picker lists the latest 100 uploads.
-Platform announcements, registration availability, and support email remain in
-Admin Settings. Tournament lifecycle, scores, team ownership, accounts, and
-user-owned profiles retain their original permission-controlled editors.
-Build-time SEO shells continue using route defaults; CMS SEO is applied by the
-rendered application. No arbitrary HTML, style, script, or new-route builder is
-provided.
+Published images continue using the existing banner visibility and storage contracts. Draft-only images remain private. Platform announcements, registration availability and support email remain in Admin Settings, and historical audit events are preserved. No schema or stored-content deletion is required.

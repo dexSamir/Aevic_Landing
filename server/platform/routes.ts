@@ -13,7 +13,7 @@ import {platform,actor,admin,captain,ownTeam,account,adminCookieName,tokenDigest
 import {consumeFactor} from './mfa';
 import {normalize,PlatformRepository} from './repository';
 import {joinTournament,reviewEntry,checkIn,withdraw,room,audit,transaction,notifyTeams} from './competition';
-import {createTournament,editTournament,tournamentInput,editTournamentInput,resultInput,saveResults,publishMatch} from './tournaments';
+import {createTournament,editTournament,tournamentInput,editTournamentInput,resultInput,draftFields,saveResults,publishMatch} from './tournaments';
 import {summary,roundResult,notification} from '../services/data';
 import {achievements,organizations} from '../services/identity';
 const app=new Hono<Env>(),limit=createAttemptLimiter();
@@ -73,6 +73,12 @@ app.put('/admin/matches/:id/room',async c=>{admin(c,['tournament-manager']);cons
  });return c.body(null,204);});
 app.get('/admin/results',async c=>{admin(c,['result-operator']);const id=z.uuid().parse(c.req.query('roundId'));return c.json((await platform(c).rows('team_match_results')).filter(r=>r.match_id===id).map(roundResult));});
 app.post('/admin/results',async c=>{admin(c,['result-operator']);const input=await body(c,resultInput);await saveResults(platform(c).sql,actor(c),input.roundId,[input]);const [row]=await platform(c).sql`select *,team_id::text from aevic_platform.team_match_results where match_id=${input.roundId} and team_id=${input.teamId}`;return c.json(roundResult(row));});
+app.put('/admin/matches/:id/result-drafts',async c=>{
+ admin(c,['result-operator']);const roundId=uuid(c);
+ const input=await body(c,z.object({tournamentId:z.uuid(),rows:z.array(draftFields).min(1).max(100),expected:z.array(draftFields).max(100)}).strict());
+ await saveResults(platform(c).sql,actor(c),roundId,input.rows.map(row=>({...row,roundId,tournamentId:input.tournamentId})),input.expected);
+ return c.body(null,204);
+});
 app.post('/admin/matches/:id/publication',async c=>{admin(c,['result-operator']);await publishMatch(platform(c).sql,actor(c),uuid(c));return c.body(null,204);});
 app.get('/admin/context',async c=>{
  admin(c);const r=platform(c),[teams,tournaments,entries,messages,schedule,checks,matches,orgs]=await Promise.all([r.teams(true),r.tournaments(),r.rows('tournament_registrations'),r.messages(),r.schedule(),r.rows('check_ins'),r.rows('matches'),organizations(r)]);

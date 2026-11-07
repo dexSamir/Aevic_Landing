@@ -3,6 +3,7 @@ import {currentTeam} from '../fixtures/platform-data';
 
 test('three Baku dates, optional banner and wizard persistence work on mobile and desktop',async({page})=>{
  let payload:any;
+ await page.route('**/api/public/site-content',route=>route.fulfill({json:{}}));
  await page.route('**/api/admin/tournament-banners',route=>route.fulfill({json:{id:'11111111-1111-4111-8111-111111111111',url:'/api/media/tournament-banners/11111111-1111-4111-8111-111111111111'}}));
  await page.route('**/api/media/tournament-banners/*',route=>route.fulfill({status:200,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="500"><rect width="1600" height="500" fill="#343438"/></svg>'}));
  await page.route('**/api/admin/tournaments',async route=>{payload=route.request().postDataJSON();await route.fulfill({status:201,json:{id:'created-cup',...payload}});});
@@ -11,14 +12,30 @@ test('three Baku dates, optional banner and wizard persistence work on mobile an
  await page.locator('input[type=file]').setInputFiles({name:'banner.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jXioAAAAASUVORK5CYII=','base64')});
  await expect(page.getByRole('button',{name:'Banneri sil',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Davam et',exact:true}).click();await page.getByRole('button',{name:'Davam et',exact:true}).click();
- await expect(page.locator('.schedule-editor__essential input')).toHaveCount(3);
- await page.getByLabel('Turnirin başlanğıcı',{exact:true}).fill('2026-12-01T20:00');await page.getByLabel('Qeydiyyat açılır',{exact:true}).fill('2026-11-30T20:00');await page.getByLabel('Qeydiyyat bağlanır',{exact:true}).fill('2026-12-01T19:00');
- await expect(page.getByText('Asia/Baku · UTC+4')).toBeVisible();
- for(const [width,height] of [[1440,900],[768,1024],[390,844],[375,812]]){await page.setViewportSize({width,height});await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
- await page.screenshot({path:'/tmp/aevic-schedule-mobile.png',fullPage:true});
+ await expect(page.locator('.schedule-editor__essential .schedule-date-trigger')).toHaveCount(3);
+ await expect(page.locator('input[type=datetime-local],input[type=date],input[type=time]')).toHaveCount(0);
+ await page.clock.setFixedTime(new Date('2026-12-01T16:00:00Z'));
+ async function pick(label:string,day:string,hour:string,previous=false){await page.getByRole('button',{name:label,exact:true}).click();const dialog=page.getByRole('dialog',{name:label,exact:true});if(previous)await dialog.getByRole('button',{name:'Əvvəlki ay'}).click();await dialog.locator(`[data-day="${day}"]`).click();await dialog.getByLabel(`${label} · saat`).selectOption(hour);await dialog.getByLabel(`${label} · dəqiqə`).selectOption('00');await dialog.getByRole('button',{name:'Tarixi tətbiq et'}).click();await expect(dialog).not.toBeVisible();}
+ await pick('Turnirin başlanğıcı','2026-12-01','20');await pick('Qeydiyyat açılır','2026-11-30','20',true);await pick('Qeydiyyat bağlanır','2026-12-01','19');
+ await expect(page.locator('.schedule-editor__zone').getByText('Asia/Baku · UTC+4')).toBeVisible();
+ for(const [width,height] of [[1440,900],[390,844],[320,640]]){await page.setViewportSize({width,height});await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
+ for(const [width,height] of [[1440,900],[390,844],[320,640]]){
+  await page.setViewportSize({width,height});
+  const trigger=page.getByRole('button',{name:'Turnirin başlanğıcı',exact:true});await trigger.click();const dialog=page.getByRole('dialog',{name:'Turnirin başlanğıcı',exact:true});
+  await expect(dialog.locator('[data-day="2026-12-01"]')).toBeFocused();
+  await dialog.locator('[data-day="2026-12-01"]').press('ArrowRight');await expect(dialog.locator('[data-day="2026-12-02"]')).toBeFocused();
+  await dialog.locator('[data-day="2026-12-02"]').press('PageDown');await expect(dialog.locator('[data-day="2027-01-02"]')).toBeFocused();
+  const box=await dialog.boundingBox();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(width);expect(box!.y+box!.height).toBeLessThanOrEqual(height+1);
+  expect(await dialog.locator('.schedule-calendar').evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
+  await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await expect(trigger).toContainText('20:00');
+ }
+ await page.setViewportSize({width:1440,height:900});const trigger=page.getByRole('button',{name:'Turnirin başlanğıcı',exact:true});await trigger.click();await expect(page.locator('.modal-backdrop')).toHaveAttribute('data-state','open');await page.mouse.click(2,2);await expect(page.getByRole('dialog')).not.toBeVisible();await expect(trigger).toBeFocused();
  await page.getByRole('button',{name:'Geri',exact:true}).click();await page.getByRole('button',{name:'Davam et',exact:true}).click();
- await expect(page.getByLabel('Turnirin başlanğıcı',{exact:true})).toHaveValue('2026-12-01T20:00');
- await page.getByRole('button',{name:'Davam et',exact:true}).click();await page.getByRole('button',{name:'Davam et',exact:true}).click();await page.getByRole('button',{name:'Qaralama turnir yarat'}).click();
+ await expect(page.getByRole('button',{name:'Turnirin başlanğıcı',exact:true})).toContainText('20:00');
+ await expect(page.getByRole('button',{name:'2. raund başlayır',exact:true})).toContainText('20:50');
+ await page.getByRole('button',{name:'Davam et',exact:true}).click();
+ for(const [width,height] of [[1440,900],[390,844],[320,640]]){await page.setViewportSize({width,height});const scoring=page.getByRole('region',{name:'Yerləşmə xalları'});await expect(scoring.locator('dt')).toHaveCount(16);await expect(scoring.locator('dd')).toHaveCount(16);expect(await scoring.evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
+ await page.getByRole('button',{name:'Davam et',exact:true}).click();await page.getByRole('button',{name:'Qaralama turnir yarat'}).click();
  await expect.poll(()=>payload?.name).toBe('AEVIC Schedule Cup');expect(payload.startsAt).toBe('2026-12-01T16:00:00.000Z');expect(payload.checkInOpensAt).toBe(payload.registrationDeadline);expect(payload.checkInClosesAt).toBe(payload.startsAt);expect(payload.bannerMediaId).toBe('11111111-1111-4111-8111-111111111111');expect(payload.rounds).toHaveLength(4);
 });
 
@@ -73,4 +90,12 @@ test('the existing tournament editor saves presentation changes without losing l
  await expect.poll(()=>payload?.name).toBe('Updated AEVIC Cup');expect(payload.bannerMediaId).toBeNull();expect(payload.expectedUpdatedAt).toBe(original.updatedAt);
  expect(payload.startsAt).toBe(original.startsAt);
  expect(payload.rounds.map((r:any)=>r.id)).toEqual(snapshot.matchSchedule!.filter(m=>m.tournamentId===original.id).sort((a,b)=>a.round-b.round).map(m=>m.id));
+});
+
+test('retired Site Management has no Admin link or hidden editing route',async({page})=>{
+ await page.route('**/api/public/site-content',route=>route.fulfill({json:{}}));
+ await page.goto('/admin/tournaments');await expect(page.getByRole('heading',{name:'Turnirlər',exact:true})).toBeVisible();
+ await expect(page.locator('a[href="/admin/site"]')).toHaveCount(0);
+ await page.goto('/admin/site');await expect(page.getByRole('heading',{name:'Bu səhifə yarış cədvəlində yoxdur'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Qaralamanı saxla'})).toHaveCount(0);
 });

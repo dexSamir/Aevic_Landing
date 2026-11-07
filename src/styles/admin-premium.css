@@ -181,12 +181,13 @@
 .product-shell--admin .admin-round-time>span { display:flex; gap:8px; color:var(--team-text-secondary); font-size:.75rem; }
 .product-shell--admin .admin-round-time b { color:var(--color-brand-primary); font-weight:500; }
 .product-shell--admin .admin-static-tag { color:var(--color-brand-primary); font-size:.75rem; margin-left:auto; }
-.product-shell--admin .admin-scoring-table { max-width:100%; overflow-x:auto; }
-.product-shell--admin .admin-scoring-table table { width:100%; border-collapse:collapse; font-size:.75rem; text-align:center; white-space:nowrap; }
-.product-shell--admin .admin-scoring-table caption { text-align:left; font-size:.75rem; margin-bottom:12px; }
-.product-shell--admin .admin-scoring-table :is(th,td) { padding:12px; border:1px solid var(--admin-separator); }
-.product-shell--admin .admin-scoring-table th { font-weight:400; color:var(--team-text-muted); }
-.product-shell--admin .admin-scoring-table td { color:var(--color-brand-primary); }
+.product-shell--admin .admin-placement-scoring{min-width:0}
+.product-shell--admin .admin-placement-scoring h3{font-size:.875rem;font-weight:500;margin:0 0 12px}
+.product-shell--admin .admin-placement-scoring dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,5rem),1fr));gap:8px;margin:0;min-width:0}
+.product-shell--admin .admin-placement-scoring dl>div{display:grid;gap:6px;min-width:0;padding:12px 8px;text-align:center;border:1px solid var(--admin-separator);border-radius:8px}
+.product-shell--admin .admin-placement-scoring dt{font-size:.75rem;color:var(--team-text-muted)}
+.product-shell--admin .admin-placement-scoring dd{margin:0;color:var(--color-brand-primary);font-variant-numeric:tabular-nums}
+.product-shell--admin .admin-placement-scoring dd span{font-size:.75rem}
 .product-shell--admin .admin-scoring-facts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
 .product-shell--admin .admin-scoring-facts>div { display:grid; gap:7px; }
 .product-shell--admin .admin-scoring-facts span { color:var(--team-text-muted); font-size:.75rem; }

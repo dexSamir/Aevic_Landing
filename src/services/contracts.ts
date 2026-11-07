@@ -25,6 +25,7 @@ import type {
   PlayerEligibilityResult,
   RoomCredentials,
   RoundResult,
+  RoundDraftFields,
   Team,
   TeamMapPerformance,
   TeamSeasonSummary,
@@ -264,6 +265,7 @@ export interface ResultService {
   ownExport(tournamentId: string): Promise<{ teamId: string; result?: TeamTournamentResult; reason?: 'not-participant' | 'no-result' }>;
   snapshots(tournamentId: string, signal?: AbortSignal): Promise<LeaderboardSnapshot[]>;
   movement(tournamentId: string, signal?: AbortSignal): Promise<RankMovementData[]>;
+  saveRoundDraft(roundId: string, tournamentId: string, rows: RoundDraftFields[], expected: RoundDraftFields[]): Promise<void>;
   saveRound(result: RoundResult): Promise<RoundResult>;
   versions(resultId: string): Promise<ResultVersion[]>;
   correct(resultId: string, result: RoundResult, reason: string, expectedVersion: number, idempotencyKey: string): Promise<import('../types/domain').CurrentResult>;
@@ -337,7 +339,7 @@ export interface AdminService {
 }
 
 export interface PlatformServices {
-  siteContent: { media():Promise<{id:string;name:string;createdAt:string}[]>; published(signal?:AbortSignal):Promise<Record<string,import('../content/siteManagement').SiteDocument>>; admin():Promise<Record<string,import('../content/siteManagement').SiteRecord>>; update(id:string,body:{revision:number;document:import('../content/siteManagement').SiteDocument;action:'save'|'publish'|'unpublish'}):Promise<import('../content/siteManagement').SiteRecord> };
+  siteContent: { published(signal?:AbortSignal):Promise<Record<string,import('../content/publishedSiteContent').SiteDocument>> };
 
   legacyClaims: LegacyClaimService;
   snapshots: PlatformSnapshotService;

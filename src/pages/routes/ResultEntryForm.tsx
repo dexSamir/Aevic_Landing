@@ -1,3 +1,5 @@
+import { RoundScreenshotDraft } from '../../components/admin/RoundScreenshotDraft';
+import { ScreenshotResultDraft } from '../../components/admin/ScreenshotResultDraft';
 import { scoreMatch } from '../../utils/scoring';
 import { ApiError } from '../../services/apiError';
 import { useEffect,useState,type FormEvent } from "react";
@@ -24,21 +26,27 @@ export function ResultEntryForm() {
     [team, setTeam] = useState(""),
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState("");
+  const [roundReview, setRoundReview] = useState(false);
   const [confirmPublish,setConfirmPublish]=useState(false);
   const [score,setScore]=useState({placement:1,kills:0,penalties:0});
   const formula=snapshot.tournaments.find(t=>t.id===tour)?.pointFormula;
   const preview=formula?scoreMatch(formula,score.placement,score.kills,score.penalties):undefined;
   const published=Boolean(snapshot.publishedRoundIds?.[tour]?.includes(round));
   const [saved, setSaved] = useState<RoundResult[]>([]);
+  const [loadedRound, setLoadedRound] = useState("");
   const [revision, setRevision] = useState(0);
   useEffect(() => {
     let active = true;
     setSaved([]);
+    setLoadedRound("");
     if (round)
       void services.results
         .roundEntries(round)
         .then((rows) => {
-          if (active) setSaved(rows);
+          if (active) {
+            setSaved(rows);
+            setLoadedRound(round);
+          }
         })
         .catch(() => {
           if (active) setNotice("Saxlanmış nəticələr yüklənmədi.");
@@ -69,9 +77,18 @@ export function ResultEntryForm() {
       active = false;
     };
   }, [tour]);
+  const selectTeam = (teamId: string) => {
+    const existing = saved.find(row => row.teamId === teamId);
+    setTeam(teamId);
+    setScore({
+      placement: existing?.placement ?? 1,
+      kills: existing?.finishes ?? 0,
+      penalties: existing?.penalties ?? 0,
+    });
+  };
   const save = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (busy) return;
+    if (busy || published || !tour || !team || !round || loadedRound !== round) return;
     setBusy(true);
     setNotice("");
     const form = new FormData(e.currentTarget);
@@ -102,7 +119,7 @@ export function ResultEntryForm() {
     }
   };
   const publish = async () => {
-    if (busy || !round) return;
+    if (busy || !round || loadedRound !== round || !saved.length) return;
     setBusy(true);
     try {
       await services.tournaments.publishMatch(round);
@@ -126,14 +143,15 @@ export function ResultEntryForm() {
         description="Turniri və raundu seçin, komanda nəticələrini daxil edin və rəsmi dərcə hazırlayın."
       />
       {notice && <p role="status">{notice}</p>}
-      <form className="operation-form admin-result-form" onSubmit={save}><section className="admin-result-context">
+      <div className="operation-form admin-result-form"><section className="admin-result-context">
         <Select
-          label="Turnir"
+          form="result-entry" label="Turnir" disabled={busy || roundReview}
           value={tour}
           onChange={(e) => {
             setTour(e.target.value);
             setRound("");
             setTeam("");
+            setScore({ placement: 1, kills: 0, penalties: 0 });
           }}
           required
         >
@@ -145,9 +163,9 @@ export function ResultEntryForm() {
           ))}
         </Select>
         <Select
-          label="Raund"
+          form="result-entry" label="Raund" disabled={busy || roundReview}
           value={round}
-          onChange={(e) => setRound(e.target.value)}
+          onChange={(e) => { setRound(e.target.value); setTeam(""); setScore({ placement: 1, kills: 0, penalties: 0 }); }}
           required
         >
           <option value="">Raund seçin</option>
@@ -157,10 +175,11 @@ export function ResultEntryForm() {
             </option>
           ))}
         </Select>
-        <Select
-          label="Komanda"
+        {!roundReview && <Select
+          form="result-entry" label="Komanda"
+          disabled={busy || !round || loadedRound !== round}
           value={team}
-          onChange={(e) => setTeam(e.target.value)}
+          onChange={e => selectTeam(e.target.value)}
           required
         >
           <option value="">Komanda seçin</option>
@@ -172,8 +191,38 @@ export function ResultEntryForm() {
                   e.teamId}
               </option>
             ))}
-        </Select>
-        </section><section className="admin-field-group"><h2>Komanda nəticəsi</h2><div className="form-grid">
+        </Select>}
+        </section>
+        {roundReview ? <RoundScreenshotDraft key={round} saved={saved} busy={busy}
+          participants={entries.filter(e => e.status === 'confirmed').map(e => {
+            const t = snapshot.teams.find(item => item.id === e.teamId);
+            return { id: e.teamId, name: t?.name ?? e.teamId, tag: t?.tag };
+          })}
+          onCancel={() => setRoundReview(false)}
+          onSave={async (rows, expected) => {
+            if (busy || published) return;
+            setBusy(true);
+            try {
+              await services.results.saveRoundDraft(round, tour, rows, expected);
+              setRoundReview(false); setTeam(""); setRevision(v => v + 1);
+              setNotice('Yoxlanmış raund qaralaması saxlanıldı. Rəsmi dərc ayrıca təsdiq tələb edir.');
+            } catch (error) {
+              if (error instanceof ApiError && error.code === 'STALE_VERSION') {
+                setRevision(v => v + 1);
+                setNotice('Saxlanmış nəticələr dəyişib. Son dəyərləri görmək üçün qaralamanı bağlayıb yenidən açın.');
+              } else setNotice(error instanceof ApiError ? error.message : 'Qaralama saxlanılmadı. Yenidən cəhd edin.');
+            } finally { setBusy(false); }
+          }} /> : <>
+        {round && !published && serviceCapabilities.resultPublishing && <Button variant="secondary"
+          disabled={busy || loadedRound !== round || !entries.some(e => e.status === 'confirmed')}
+          onClick={() => { setNotice(''); setRoundReview(true); }}>Raund cədvəlini şəkillərdən hazırla</Button>}
+        {round && team && !published && serviceCapabilities.resultPublishing && <ScreenshotResultDraft
+          key={JSON.stringify([tour, round, team])}
+          teamName={snapshot.teams.find(item => item.id === team)?.name ?? team}
+          disabled={busy}
+          onVerify={fields => setScore(previous => ({ ...previous, ...fields }))}
+        />}
+        <form id="result-entry" onSubmit={save}><section className="admin-field-group"><h2>Komanda nəticəsi</h2><div className="form-grid">
           <Input
             label="Yerləşmə"
             name="placement"
@@ -207,20 +256,20 @@ export function ResultEntryForm() {
         </section><div className="admin-result-actions"><Button
           type="submit"
           loading={busy}
-          disabled={!serviceCapabilities.resultPublishing||published||!round||!team}
+          disabled={!serviceCapabilities.resultPublishing || published || !round || loadedRound !== round || !team}
         >
           Komanda nəticəsini saxla
         </Button>
         <Button
           type="button"
           variant="secondary"
-          disabled={busy || !round || published || !serviceCapabilities.resultPublishing}
+          disabled={busy || !round || loadedRound !== round || !saved.length || published || !serviceCapabilities.resultPublishing}
           onClick={() => setConfirmPublish(true)}
         >
           Bütün raund nəticələrini dərc et
         </Button>
-        </div></form><ConfirmDialog open={confirmPublish} title="Raund nəticələrini dərc et?" body={`${saved.length} saxlanmış nəticə var. Dərcdən sonra dəyişikliklər yalnız əsaslandırılmış düzəlişlə edilir.`} confirmLabel="Nəticələri dərc et" onClose={()=>{if(!busy)setConfirmPublish(false);}} onConfirm={async()=>{await publish();setConfirmPublish(false);}}/>
-      {saved.length > 0 && (
+        </div></form></>}</div><ConfirmDialog open={confirmPublish} title="Raund nəticələrini dərc et?" body={`${saved.length} saxlanmış nəticənin yoxlanıldığını təsdiq edirsiniz? Dərcdən sonra dəyişikliklər yalnız əsaslandırılmış düzəlişlə edilir.`} confirmLabel="Nəticələri dərc et" onClose={()=>{if(!busy)setConfirmPublish(false);}} onConfirm={async()=>{await publish();setConfirmPublish(false);}}/>
+      {!roundReview && saved.length > 0 && (
         <section className="operation-form">
           <h2>Saxlanmış nəticələr</h2>
           {saved.map((r) => (
@@ -231,7 +280,9 @@ export function ResultEntryForm() {
               </strong>{" "}
               · #{r.placement} · {r.finishes} kill · {r.totalPoints} xal ·{" "}
               <StatusBadge status={r.published?'completed':'draft'}>{r.published ? "Dərc edilib" : "Qaralama"}</StatusBadge>{" "}
-              <Link to={`/admin/results/${r.id}/correct`}>Düzəliş et</Link>
+              {r.published
+                ? <Link to={`/admin/results/${r.id}/correct`}>Düzəliş et</Link>
+                : <a href="#result-entry" onClick={() => selectTeam(r.teamId)}>Qaralamanı redaktə et</a>}
             </div>
           ))}
         </section>

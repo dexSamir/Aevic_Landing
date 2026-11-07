@@ -889,6 +889,8 @@ export interface RoundResult {
   published: boolean;
 }
 
+export type RoundDraftFields = Pick<RoundResult, 'teamId' | 'placement' | 'finishes'>;
+
 export interface MatchResultBreakdown {
   matchId: ID;
   round: number;

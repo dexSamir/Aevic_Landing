@@ -1,3 +1,4 @@
+import { ApiError } from '../../services/apiError';
 import { statusLabel } from '../../utils/statusLabels';
 import {
 History
@@ -15,7 +16,7 @@ SectionHeading
 import { services } from "../../services";
 import { formatDate } from './AdminCompletionPagesShared';
 export function AdminPlayerDetailPage() {
-  const [loadError, setLoadError] = useState(false);
+  const [loadError, setLoadError] = useState<ApiError | Error>();
   const { playerId = "" } = useParams();
   const [detail, setDetail] =
     useState<Awaited<ReturnType<typeof services.operations.player>>>();
@@ -30,18 +31,20 @@ export function AdminPlayerDetailPage() {
   }
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-    services.operations
-      .player(playerId)
-      .then(setDetail)
-      .catch(() => setLoadError(true))
-      .finally(() => setLoaded(true));
+    let active=true;
+    setLoaded(false);setLoadError(undefined);setDetail(undefined);
+    services.operations.player(playerId)
+      .then(value=>{if(active)setDetail(value);})
+      .catch(error=>{if(active)setLoadError(error instanceof Error?error:new Error('PLAYER_LOAD_FAILED'));})
+      .finally(()=>{if(active)setLoaded(true);});
+    return()=>{active=false;};
   }, [playerId]);
   if (loadError)
     return (
       <EmptyState
         heading="h1"
-        title="Məlumat yüklənmədi"
-        body="Xidmət hazırda cavab vermir. Dəyişiklik edilməyib."
+        title={loadError instanceof ApiError&&loadError.status===403?"Giriş icazəsi yoxdur":loadError instanceof ApiError&&loadError.status===401?"Sessiya etibarlı deyil":"Məlumat yüklənmədi"}
+        body={loadError instanceof ApiError&&loadError.status===403?"Bu oyunçunun məlumatlarını yalnız səlahiyyətli Admin görə bilər.":loadError instanceof ApiError&&loadError.status===401?"Admin hesabınıza yenidən daxil olun.":"Xidmət hazırda cavab vermir. Dəyişiklik edilməyib."}
         action={
           <Button onClick={() => window.location.reload()}>
             Yenidən yoxla
@@ -56,7 +59,7 @@ export function AdminPlayerDetailPage() {
         <PageHeader
           eyebrow="Oyunçu yoxlaması"
           title="Oyunçu tapılmadı"
-          description="Oyunçu mövcud deyil və ya məlumatlarını görmək üçün icazəniz yoxdur."
+          description="Bu identifikatorla oyunçu tapılmadı."
         />
       </>
     );

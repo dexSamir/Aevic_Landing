@@ -1,3 +1,4 @@
+import { ScreenshotResultDraft } from '../../components/admin/ScreenshotResultDraft';
 import {
 History
 } from "lucide-react";
@@ -21,6 +22,7 @@ CurrentResult, ResultVersion
 import { formatDate } from './AdminCompletionPagesShared';
 export function AdminResultCorrectionPage() {
   const { resultId = "" } = useParams();
+  const [edits, setEdits] = useState<{ placement?: string; finishes?: string }>({});
   const [versions, setVersions] = useState<ResultVersion[]>();
   const [current, setCurrent] = useState<CurrentResult>();
   const attempt = useRef<{payload: string; key: string} | undefined>(undefined);
@@ -30,6 +32,7 @@ export function AdminResultCorrectionPage() {
   useEffect(() => {
     let active = true;
     setCurrent(undefined);
+    setEdits({});
     setVersions(undefined);
     setLoadError(false);
     attempt.current = undefined;
@@ -58,6 +61,7 @@ export function AdminResultCorrectionPage() {
       if (attempt.current?.payload !== payload) attempt.current = {payload, key: crypto.randomUUID()};
       const next = await services.results.correct(resultId, edited, reason, version, attempt.current.key);
       setCurrent(next);
+      setEdits({});
       attempt.current = undefined;
       services.results.versions(resultId).then(setVersions).catch(() => setNotice("Düzəliş saxlanıldı. Tarixçəni görmək üçün səhifəni yeniləyin."));
       invalidateQuery("snapshot:");
@@ -92,6 +96,9 @@ export function AdminResultCorrectionPage() {
         <>
           <p role="status">Cari versiya: {current.version}</p>
           {versions.length === 0 && <p>Bu nəticəyə hələ düzəliş edilməyib.</p>}
+          <ScreenshotResultDraft key={current.id + ':' + current.version}
+            teamName={'Komanda ' + current.teamId} disabled={busy}
+            onVerify={({ placement, kills }) => setEdits({ placement: String(placement), finishes: String(kills) })} />
           <div className="admin-correction-layout"><div className="history-ledger">
             {versions.map((v) => (
               <article key={v.id}>
@@ -113,7 +120,8 @@ export function AdminResultCorrectionPage() {
               label="Yerləşmə"
               min={1}
               max={100}
-              defaultValue={current.placement}
+              value={edits.placement ?? current.placement}
+              onChange={e => setEdits({ ...edits, placement: e.target.value })}
               required
             />
             <Input
@@ -122,7 +130,8 @@ export function AdminResultCorrectionPage() {
               label="Kill"
               min={0}
               max={400}
-              defaultValue={current.finishes}
+              value={edits.finishes ?? current.finishes}
+              onChange={e => setEdits({ ...edits, finishes: e.target.value })}
               required
             />
             <Input

@@ -26,6 +26,10 @@ export default defineConfig(({ command, mode }) => {
       manifest: true,
       rollupOptions: {
         output: {
+          // The OCR worker requests this exact basename from its language directory.
+          assetFileNames: asset => asset.names.includes('eng.traineddata.gz')
+            ? 'assets/ocr-[hash]/eng.traineddata.gz'
+            : 'assets/[name]-[hash][extname]',
           manualChunks(id) {
             if (id.includes('node_modules/react-router') || id.includes('node_modules/@remix-run')) return 'router';
             if (id.includes('node_modules/html-to-image')) return 'image-export';

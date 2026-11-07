@@ -501,7 +501,6 @@ export const routes = applyRouteCapabilities([
         path: routePath("admin"),
         lazy: () => import("./AdminRoute"),
         children: [
-          {path:'site',lazy:async()=>({Component:(await import('../pages/routes/AdminSitePage')).AdminSitePage})},
           {
             index: true,
             lazy: async () => ({

@@ -447,6 +447,7 @@ export const fixtureServices: PlatformServices = {
     async leaderboard(tournamentId) { await wait(70); return clone(leaderboard.filter((result) => result.tournamentId === tournamentId)); },
     async snapshots() { await wait(40); return []; },
     async movement() { await wait(40); return []; },
+    async saveRoundDraft() { return backendRequired(); },
     async saveRound(result: RoundResult) { await wait(); return clone(result); },
     async versions() { await wait(40); return []; },
     async correct() { return backendRequired(); },

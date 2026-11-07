@@ -1,0 +1,2 @@
+import {defineConfig} from '@playwright/test';
+export default defineConfig({testDir:'./tests/e2e',testMatch:'site-content.spec.ts',timeout:60000,workers:1,reporter:'list',outputDir:'/tmp/aevic-cms-playwright',use:{baseURL:'http://127.0.0.1:4197',screenshot:'off',trace:'off',video:'off'},webServer:{command:'npm run dev -- --host 127.0.0.1 --port 4197',url:'http://127.0.0.1:4197',reuseExistingServer:false,env:{AEVIC_DATABASE_URL:'',SUPABASE_URL:'',SUPABASE_PUBLISHABLE_KEY:'',SUPABASE_ANON_KEY:''}}});

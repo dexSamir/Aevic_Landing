@@ -1,3 +1,4 @@
+import { roundsTooClose } from '../../src/utils/matchScheduling';
 import { internationalFormula, scoreMatch } from '../../src/utils/scoring';
 import {captureStandings} from './standings';
 import {z} from 'zod';
@@ -9,9 +10,10 @@ import {audit,idempotent,notifyTeams,transaction} from './competition';
 export const tournamentInput=z.object({name:text(2,120),shortName:text(2,50),description:text(0,3000),startsAt:z.iso.datetime({offset:true}),endsAt:z.iso.datetime({offset:true}),registrationOpensAt:z.iso.datetime({offset:true}),registrationDeadline:z.iso.datetime({offset:true}),checkInOpensAt:z.iso.datetime({offset:true}),checkInClosesAt:z.iso.datetime({offset:true}),bannerMediaId:z.uuid().nullable().optional(),maxSlots:z.number().int().min(1).max(100),rules:z.array(text(1,500)).max(50),rounds:z.array(z.object({id:z.uuid().optional(),map:z.enum(['Erangel','Miramar','Rondo']),startsAt:z.iso.datetime({offset:true})})).min(1).max(20)}).strict();
 export const editTournamentInput=tournamentInput.extend({expectedUpdatedAt:z.iso.datetime({offset:true}),status:z.enum(['draft','published','registration-open','ongoing','completed'])});
 type Input=z.infer<typeof tournamentInput>;
-function validate(input:Input){
+function validate(input:Input,enforceSpacing=true){
  const start=Date.parse(input.startsAt),end=Date.parse(input.endsAt),open=Date.parse(input.registrationOpensAt),close=Date.parse(input.registrationDeadline),checkOpen=Date.parse(input.checkInOpensAt),checkClose=Date.parse(input.checkInClosesAt);
  if(!(end>start&&close>open&&close<=checkOpen&&checkClose>checkOpen&&checkClose<=start))throw new ServiceError(422,'INVALID_TIMELINE');
+ if(enforceSpacing&&roundsTooClose(input.rounds).length)throw new ServiceError(422,'INVALID_ROUND_SCHEDULE');
  if(input.rounds.some(r=>Date.parse(r.startsAt)<start||Date.parse(r.startsAt)>=end)||new Set(input.rounds.map(r=>Date.parse(r.startsAt))).size!==input.rounds.length)throw new ServiceError(422,'INVALID_ROUND_SCHEDULE');
 }
 async function validateBanner(tx:TransactionSql,actor:Actor,id?:string|null,current?:string|null){
@@ -26,7 +28,7 @@ export async function createTournament(sql:Sql,actor:Actor,input:Input,key?:stri
  for(const [index,r] of input.rounds.entries())await tx`insert into aevic.matches(tournament_id,round,map,scheduled_at,room_release_at) values(${id},${index+1},${r.map},${r.startsAt},${r.startsAt}::timestamptz-interval '10 minutes')`;
  await audit(tx,actor,'tournament.create','tournament',id);return{id};
 });}
-export async function editTournament(sql:Sql,actor:Actor,id:string,input:z.infer<typeof editTournamentInput>,key?:string){validate(input);const work=async (tx:TransactionSql)=>{
+export async function editTournament(sql:Sql,actor:Actor,id:string,input:z.infer<typeof editTournamentInput>,key?:string){validate(input,false);const work=async (tx:TransactionSql)=>{
  const [t]=await tx`select * from aevic.tournaments where id=${id} for update`;if(!t)throw new ServiceError(404,'TOURNAMENT_NOT_FOUND');
  if(new Date(t.updated_at).getTime()!==Date.parse(input.expectedUpdatedAt))throw new ServiceError(409,'STALE_VERSION');
  await validateBanner(tx,actor,input.bannerMediaId,t.banner_media_id);
@@ -34,6 +36,9 @@ export async function editTournament(sql:Sql,actor:Actor,id:string,input:z.infer
  if(!transitions[t.status]?.includes(input.status))throw new ServiceError(409,'INVALID_LIFECYCLE_TRANSITION');
  const rounds=await tx`select * from aevic.matches where tournament_id=${id} order by round for update`;
  if(rounds.length!==input.rounds.length||input.rounds.some(r=>!rounds.some(m=>m.id===r.id)))throw new ServiceError(422,'ROUND_ID_MISMATCH');
+ // Older schedules remain editable for presentation/settings without forced regeneration.
+ const changed=Date.parse(input.startsAt)!==new Date(t.starts_at).getTime()||Date.parse(input.endsAt)!==new Date(t.ends_at).getTime()||input.rounds.some((r,i)=>r.id!==rounds[i]?.id||r.map!==rounds[i]?.map||Date.parse(r.startsAt)!==new Date(rounds[i]?.scheduled_at).getTime());
+ if(changed)validate(input);
  if(Date.now()>=new Date(t.registration_deadline).getTime()||['ongoing','completed','cancelled'].includes(t.status)){
   const keys={startsAt:'starts_at',endsAt:'ends_at',registrationOpensAt:'registration_opens_at',registrationDeadline:'registration_deadline',checkInOpensAt:'check_in_opens_at',checkInClosesAt:'check_in_closes_at'} as const;
   if(input.maxSlots!==t.max_slots||Object.entries(keys).some(([key,column])=>Date.parse(input[key as keyof typeof keys])!==new Date(t[column]).getTime())||input.rounds.some(r=>{const m=rounds.find(m=>m.id===r.id);return !m||m.map!==r.map||new Date(m.scheduled_at).getTime()!==Date.parse(r.startsAt);}))throw new ServiceError(409,'TOURNAMENT_SCHEDULE_LOCKED');
@@ -51,18 +56,41 @@ export async function editTournament(sql:Sql,actor:Actor,id:string,input:z.infer
 };return key ? idempotent(sql,actor,key,'tournament.update',{id,...input},work) : transaction(sql,work);}
 export const resultInput=z.object({id:z.string().optional(),tournamentId:z.uuid(),roundId:z.uuid(),teamId:z.string().regex(/^[1-9]\d{0,18}$/),placement:z.number().int().min(1).max(100),finishes:z.number().int().min(0).max(400),placementPoints:z.number().nonnegative(),finishPoints:z.number().nonnegative(),penalties:z.number().nonnegative().max(1000),totalPoints:z.number(),notes:text(0,3000).optional(),published:z.boolean()}).strict();
 type Result=z.infer<typeof resultInput>;
-export async function saveResults(sql:Sql,actor:Actor,roundId:string,entries:Result[]){return transaction(sql,async tx=>{
+export const draftFields = resultInput.pick({teamId:true,placement:true,finishes:true});
+type DraftFields = z.infer<typeof draftFields>;
+type SaveEntry = DraftFields & Pick<Result,'tournamentId'|'roundId'> & Partial<Result>;
+export async function saveResults(sql:Sql,actor:Actor,roundId:string,entries:SaveEntry[],expected?:DraftFields[]){return transaction(sql,async tx=>{
  const [identity]=await tx`select tournament_id from aevic.matches where id=${roundId}`;if(!identity)throw new ServiceError(404,'MATCH_NOT_FOUND');
  const [t]=await tx`select * from aevic.tournaments where id=${identity.tournament_id} for share`;
  const [m]=await tx`select * from aevic.matches where id=${roundId} for update`;
  if(m.published_at)throw new ServiceError(409,'USE_RESULT_CORRECTION');
  if(['cancelled','completed'].includes(t.status))throw new ServiceError(409,'TOURNAMENT_CLOSED');
  if(new Set(entries.map(e=>e.teamId)).size!==entries.length||new Set(entries.map(e=>e.placement)).size!==entries.length)throw new ServiceError(422,'DUPLICATE_RESULT');
+ const registrations=await tx`select team_id::text from aevic_platform.tournament_registrations where tournament_id=${m.tournament_id} and status='confirmed' for share`;
+ const eligible=new Set(registrations.map(r=>r.team_id));
+ if(entries.some(e=>!eligible.has(e.teamId)))throw new ServiceError(422,'TEAM_NOT_REGISTERED');
+ if(entries.some(e=>e.roundId!==roundId||e.tournamentId!==m.tournament_id))throw new ServiceError(422,'RESULT_MATCH_MISMATCH');
+ const previous=new Map<string,{placement:number;finishes:number;penalties:number;notes:string|null}>();
+ if(expected){
+  if(entries.length!==eligible.size)throw new ServiceError(409,'INCOMPLETE_RESULTS');
+  if(entries.some(e=>e.placement>eligible.size))throw new ServiceError(422,'INVALID_PLACEMENT');
+  const stored=await tx`select team_id::text,placement,finishes,penalties,notes from aevic_platform.team_match_results where match_id=${roundId} for update`;
+  for(const row of stored)previous.set(row.team_id,{placement:row.placement,finishes:row.finishes,penalties:Number(row.penalties),notes:row.notes});
+  const same=(rows:DraftFields[])=>rows.length===previous.size && new Set(rows.map(r=>r.teamId)).size===rows.length && rows.every(r=>{
+   const old=previous.get(r.teamId);return old?.placement===r.placement && old.finishes===r.finishes;
+  });
+  // Retrying an acknowledged or lost response must not add another audit event.
+  if(same(entries))return;
+  if(!same(expected))throw new ServiceError(409,'STALE_VERSION');
+  // A complete reviewed replacement can omit formerly registered teams. The
+  // baseline check covers these rows too, and the match is locked and unpublished.
+  const removed=[...previous.keys()].filter(id=>!eligible.has(id));
+  if(removed.length)await tx`delete from aevic_platform.team_match_results where match_id=${roundId} and not published and team_id in ${tx(removed)}`;
+ }
  for(const entry of entries){
-  if(entry.roundId!==roundId||entry.tournamentId!==m.tournament_id)throw new ServiceError(422,'RESULT_MATCH_MISMATCH');
-  const [eligible]=await tx`select id from aevic_platform.tournament_registrations where tournament_id=${m.tournament_id} and team_id=${entry.teamId} and status='confirmed' for share`;if(!eligible)throw new ServiceError(422,'TEAM_NOT_REGISTERED');
+  const old=previous.get(entry.teamId);
   const { placementPoints: placement, finishPoints: finish } = scoreMatch(t.point_formula, entry.placement, entry.finishes);
-  await tx`insert into aevic_platform.team_match_results(match_id,tournament_id,team_id,placement,finishes,placement_points,finish_points,penalties,notes) values(${roundId},${m.tournament_id},${entry.teamId},${entry.placement},${entry.finishes},${placement},${finish},${entry.penalties},${entry.notes??null}) on conflict(match_id,team_id) do update set placement=excluded.placement,finishes=excluded.finishes,placement_points=excluded.placement_points,finish_points=excluded.finish_points,penalties=excluded.penalties,notes=excluded.notes,updated_at=now()`;
+  await tx`insert into aevic_platform.team_match_results(match_id,tournament_id,team_id,placement,finishes,placement_points,finish_points,penalties,notes) values(${roundId},${m.tournament_id},${entry.teamId},${entry.placement},${entry.finishes},${placement},${finish},${old?.penalties??entry.penalties??0},${old?.notes??entry.notes??null}) on conflict(match_id,team_id) do update set placement=excluded.placement,finishes=excluded.finishes,placement_points=excluded.placement_points,finish_points=excluded.finish_points,penalties=excluded.penalties,notes=excluded.notes,updated_at=now()`;
  }
  await audit(tx,actor,'results.save','match',roundId);
 });}

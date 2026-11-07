@@ -5,6 +5,7 @@ import type {PublicPlayerProfile} from '../../src/types/domain';
 import {platform,actor,captain,admin} from './context';
 import {body,text,pagination} from '../validation/input';
 import {ServiceError} from '../errors';
+import {originalTeamId} from '../services/productionTeams';
 import {idempotent,transaction,audit,notify} from './competition';
 const app=new Hono<Env>();
 const pubgId=(value:string)=>z.string().regex(/^pubg-\d{5,20}$/).parse(value).slice(5);
@@ -35,12 +36,34 @@ app.post('/players/:id/claims',async c=>{
  });return c.json(result,201);
 });
 app.get('/admin/players/:id',async c=>{
- admin(c,['support-moderator']);const id=c.req.param('id'),p=await player(c,id),uid=pubgId(id),sql=platform(c).sql;
- const claims=await sql`select c.id,c.claimant_id::text,c.method,c.status,c.safe_reason,c.created_at,c.reviewed_at,t.captain_name from aevic_platform.player_claims c join aevic_platform.account_identity t on t.id=c.claimant_id where c.pubg_id=${uid} order by c.created_at desc`;
+ admin(c,['support-moderator']);
+ const id=c.req.param('id'),r=platform(c),sql=r.sql;
+ // Admin roster links identify a team slot, not necessarily a claimed PUBG account.
+ // Keep the complete route identifier and the bigint team component as strings.
+ const composite=/^([1-9]\d{0,18}):player([1-5])$/.exec(id);
+ let p:PublicPlayerProfile,uid:string|undefined;
+ if(composite){
+  const team=await r.team(originalTeamId(composite[1]),true);
+  const member=team.roster.find(p=>p.id===id);
+  if(!member)throw new ServiceError(404,'PLAYER_NOT_FOUND');
+  uid=member.uid;
+  p={id,slug:id,ign:member.ign,currentTeam:{id:team.id,slug:team.slug??team.id,name:team.name,logoUrl:team.logoUrl},achievements:[],tournamentHistory:[]};
+ }else{
+  if(!/^pubg-\d{5,20}$/.test(id))throw new ServiceError(404,'PLAYER_NOT_FOUND');
+  p=await player(c,id);uid=pubgId(id);
+ }
+ const claims=uid?await sql`select c.id,c.claimant_id::text,c.method,c.status,c.safe_reason,c.created_at,c.reviewed_at,t.captain_name from aevic_platform.player_claims c join aevic_platform.account_identity t on t.id=c.claimant_id where c.pubg_id=${uid} order by c.created_at desc`:[];
  const approved=claims.find(c=>c.status==='APPROVED');
  const registrations=await platform(c).rows('tournament_registrations');
- const tournamentHistory=p.tournamentHistory.map(t=>({...t,rosterSnapshotId:registrations.find(e=>e.tournament_id===t.tournamentId&&e.status==='confirmed'&&(e.roster as Array<{uid?:string}>).some(p=>p.uid===uid))!.id}));
- return c.json({...p,membershipHistory:await membership(c,id),eligibilityConflicts:[],sanctions:[],verification:{id:approved?.id??id,entityId:id,entityType:'PLAYER',entityName:p.ign,representativeName:approved?.captain_name??'',officialSocials:{},evidenceNames:[],status:approved?'APPROVED':'NOT_APPLIED'},linkedAccount:approved?{userId:approved.claimant_id,displayName:approved.captain_name,status:'ACTIVE'}:undefined,claims:claims.map(r=>({id:r.id,claimantName:r.captain_name,status:r.status,method:r.method,createdAt:r.created_at,reason:r.safe_reason??undefined})),tournamentHistory});
+ const tournaments=await r.tournaments(),teams=await r.teams(true);
+ const history=registrations.filter(e=>e.status==='confirmed').flatMap(e=>{
+  const snapshot=(e.roster as Array<{id?:string;uid?:string;role?:string}>).find(member=>member.id===id||Boolean(uid&&member.uid===uid));
+  const team=teams.find(t=>t.id===e.team_id),t=tournaments.find(t=>t.id===e.tournament_id);
+  return snapshot?[{entry:e,snapshot,team,t}]:[];
+ });
+ const tournamentHistory=history.flatMap(({entry,t})=>t?[{tournamentId:t.id,tournamentName:t.name,rosterSnapshotId:entry.id}]:[]);
+ const membershipHistory=history.filter(h=>h.team).map(({entry,snapshot,team})=>({id:entry.id,userId:id,entityId:team!.id,entityName:team!.name,role:snapshot.role==='captain'?'CAPTAIN':snapshot.role==='substitute'?'SUBSTITUTE':'PLAYER',joinedAt:entry.created_at,snapshotLabel:'Turnir qeydiyyatında qeydə alınmış heyət; ilkin qoşulma tarixi deyil.'}));
+ return c.json({...p,membershipHistory,eligibilityConflicts:[],sanctions:[],verification:{id:approved?.id??id,entityId:id,entityType:'PLAYER',entityName:p.ign,representativeName:approved?.captain_name??'',officialSocials:{},evidenceNames:[],status:approved?'APPROVED':'NOT_APPLIED'},linkedAccount:approved?{userId:approved.claimant_id,displayName:approved.captain_name,status:'ACTIVE'}:undefined,claims:claims.map(r=>({id:r.id,claimantName:r.captain_name,status:r.status,method:r.method,createdAt:r.created_at,reason:r.safe_reason??undefined})),tournamentHistory});
 });
 app.patch('/admin/player-claims/:id',async c=>{
  const reviewer=admin(c,['support-moderator']),id=z.uuid().parse(c.req.param('id')),input=await body(c,z.object({status:z.enum(['APPROVED','REJECTED']),reason:text(10,2000)}).strict());

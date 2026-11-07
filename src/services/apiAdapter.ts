@@ -37,7 +37,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
 
   const pendingUpdates = new Map<string,string>();
   return {
-    siteContent: {media:()=>request('/admin/site-content-media'),published:signal=>request('/public/site-content',{signal}),admin:()=>request('/admin/site-content'),update:(id,body)=>request(`/admin/site-content/${encodeURIComponent(id)}`,{method:'PUT',body})},
+    siteContent: {published:signal=>request('/public/site-content',{signal})},
     legacyClaims: {
       activate: (email,password) => request('/auth/legacy-activation',{method:'POST',body:{email,password}}),
       list: () => request('/me/legacy-claims'),
@@ -224,6 +224,7 @@ export function createApiServices(baseUrl: string): PlatformServices {
       leaderboard: (tournamentId, signal) => request(`/leaderboards/${encodeURIComponent(tournamentId)}`, { signal }),
       snapshots: (tournamentId, signal) => request(`/leaderboards/${encodeURIComponent(tournamentId)}/snapshots`, { signal }),
       movement: (tournamentId, signal) => request(`/leaderboards/${encodeURIComponent(tournamentId)}/movement`, { signal }),
+      saveRoundDraft: (roundId, tournamentId, rows, expected) => request(`/admin/matches/${encodeURIComponent(roundId)}/result-drafts`, { method: 'PUT', body: { tournamentId, rows, expected } }),
       saveRound: (body) => request('/admin/results', { method: 'POST', body }),
       versions: (resultId) => request(`/admin/results/${encodeURIComponent(resultId)}/versions`),
       correct: (resultId, result, reason, expectedVersion, idempotencyKey) => request(`/admin/results/${encodeURIComponent(resultId)}/corrections`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: { result, reason, expectedVersion } }),

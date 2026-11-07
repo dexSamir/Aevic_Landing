@@ -23,64 +23,33 @@ beforeAll(async()=>{
  const response=await request('/auth/admin/login',{email:'onboarding-admin@example.invalid',password:'ValidPassword1'});expect(response.status).toBe(200);admin=cookies(response);
 });
 afterAll(async()=>{await sql.end();command('dropdb',['--force',database]);command('psql',['-d','postgres','-c',`drop role if exists ${gateway}`]);});
-const write=(id:string,revision:number,fields:Record<string,unknown>,action='save',order:string[]=[])=>request(`/admin/site-content/${id}`,{revision,document:{fields,order},action},admin,'PUT');
-it('starts with empty published content and private admin drafts, without changing platform settings',async()=>{
- expect(await (await request('/public/site-content')).json()).toEqual({});
- const response=await request('/admin/site-content',undefined,admin);expect(response.status).toBe(200);expect(response.headers.get('cache-control')).toContain('no-store');expect((await response.json()).home.revision).toBe(0);
- expect((await request('/admin/site-content')).status).toBe(401);
- expect((await request('/admin/site-content/home',{revision:0,document:{fields:{},order:[]},action:'save'},'','PUT')).status).toBe(401);
+it('preserves published content and stored drafts/history while retiring all editor endpoints',async()=>{
+ const record={revision:7,draft:{fields:{'hero.title':'Private draft'},order:[]},published:{fields:{'hero.title':'Published stage','calendar.visible':false},order:['teams','calendar','maps','join']},history:[{by:'private-admin',document:{fields:{secret:'private revision'}}}]};
+ await sql`insert into aevic_platform.settings(key,value) values('site:home',${sql.json(record)})`;
+ const response=await request('/public/site-content');
+ expect(response.status).toBe(200);expect(response.headers.get('cache-control')).toContain('must-revalidate');
+ expect(await response.json()).toEqual({home:record.published});
+ expect((await app.request('/api/public/site-content',{headers:{'if-none-match':response.headers.get('etag')!}})).status).toBe(304);
+ for(const path of ['/admin/site-content','/admin/site-content-media'])expect((await request(path,undefined,admin)).status).toBe(404);
+ expect((await request('/admin/site-content/home',{revision:7,document:{fields:{},order:[]},action:'publish'},admin,'PUT')).status).toBe(404);
+ expect((await sql`select value from aevic_platform.settings where key='site:home'`)[0].value).toEqual(record);
+ // Required platform settings and the audit journal remain available.
+ expect((await request('/admin/settings',undefined,admin)).status).toBe(200);
+ expect((await request('/admin/audit',undefined,admin)).status).toBe(200);
 });
-it('saves a draft privately, publishes atomically, revalidates caches, rejects stale updates',async()=>{
- const first=await request('/public/site-content'),oldTag=first.headers.get('etag');
- expect((await write('home',0,{'hero.title':'Private draft'})).status).toBe(200);
- expect(await (await request('/public/site-content')).json()).toEqual({});
- expect((await write('home',0,{'hero.title':'Lost update'})).status).toBe(409);
- expect((await write('home',1,{'hero.title':'Published stage','calendar.visible':false},'publish',['teams','calendar','maps','join'])).status).toBe(200);
- const read=await request('/public/site-content');expect(read.headers.get('etag')).not.toBe(oldTag);expect(read.headers.get('cache-control')).toContain('must-revalidate');
- expect(await read.json()).toEqual({home:{fields:{'hero.title':'Published stage','calendar.visible':false},order:['teams','calendar','maps','join']}});
- const unchanged=await app.request('/api/public/site-content',{headers:{'if-none-match':read.headers.get('etag')!}});expect(unchanged.status).toBe(304);
- expect((await write('home',2,{'hero.title':'Next private draft'})).status).toBe(200);
- const published=JSON.stringify(await (await request('/public/site-content')).json());expect(published).not.toContain('Next private');expect(published).not.toContain('history');expect(published).not.toContain('by');
- expect((await sql`select value from aevic_platform.settings where key='site:home'`)[0].value.history).toHaveLength(3);
- expect(await sql`select id from aevic_platform.audit_events where action like 'site-content.%'`).toHaveLength(3);
+it('continues serving already published media without exposing draft-only images',async()=>{
+ const bytes=await sharp({create:{width:32,height:16,channels:3,background:'#a89460'}}).png().toBuffer();
+ async function upload(){const form=new FormData();form.set('file',new File([new Uint8Array(bytes)],'banner.png',{type:'image/png'}));const response=await app.request('/api/admin/tournament-banners',{method:'POST',headers:{cookie:admin,origin},body:form});expect(response.status).toBe(201);return response.json();}
+ const published=await upload(),draft=await upload();
+ const record={revision:8,draft:{fields:{'hero.media':draft.id},order:[]},published:{fields:{'hero.media':published.id},order:[]},history:[]};
+ await sql`update aevic_platform.settings set value=${sql.json(record)} where key='site:home'`;
+ const response=await request(published.url.slice(4));expect(response.status).toBe(200);expect(response.headers.get('content-type')).toBe('image/webp');
+ expect((await request(draft.url.slice(4))).status).toBe(404);
+ expect((await (await request('/public/site-content')).json()).home).toEqual(record.published);
 });
-it('rejects unknown fields, unsafe links, arbitrary HTML configuration, wrong types and invalid orders',async()=>{
- for(const fields of [{'password':'x'},{'hero.title':true},{'hero.href':'javascript:alert(1)'},{'hero.href':'//outside.invalid'},{'hero.href':'/\\outside.invalid'},{'hero.media':'https://outside.invalid/a.png'}])expect((await write('home',3,fields)).status).toBe(422);
- expect((await write('global',0,{'nav.home.href':'/admin/users'})).status).toBe(422);
- expect((await write('global',0,{'social.instagram':'https://example.invalid'})).status).toBe(422);
- expect((await write('unknown',0,{})).status).toBe(404);
- expect((await write('home',3,{},'save',['teams','teams'])).status).toBe(422);
- expect((await write('home',3,{},'save',['unsupported'])).status).toBe(422);
- // Plain text is escaped by React; there is no HTML rendering capability.
- expect((await write('terms',0,{'section-0.body':'<script>alert(1)</script>'})).status).toBe(200);
-});
-it('denies a tournament manager access to CMS without changing their authoritative tournament access',async()=>{
- await sql`insert into aevic_platform.admin_accounts(email,password_hash,role) values('cms-manager@example.invalid',${await hashPassword('ValidPassword1')},'tournament-manager')`;
- const manager=cookies(await request('/auth/admin/login',{email:'cms-manager@example.invalid',password:'ValidPassword1'}));
- expect((await request('/admin/site-content',undefined,manager)).status).toBe(403);
- expect((await request('/admin/site-content/home',{revision:3,document:{fields:{},order:[]},action:'publish'},manager,'PUT')).status).toBe(403);
- expect((await request('/admin/context',undefined,manager)).status).toBe(200);
-});
-it('reuses banner upload with private drafts and visibility checked again after unpublishing',async()=>{
- const bytes=await sharp({create:{width:32,height:16,channels:3,background:'#a89460'}}).png().toBuffer(),form=new FormData();form.set('file',new File([new Uint8Array(bytes)],'cms.png',{type:'image/png'}));
- const upload=await app.request('/api/admin/tournament-banners',{method:'POST',headers:{cookie:admin,origin},body:form});expect(upload.status).toBe(201);const {id,url}=await upload.json();
- expect((await request(`/media/tournament-banners/${id}`)).status).toBe(404);
- expect((await write('home',3,{'hero.media':id},'save')).status).toBe(200);
- expect((await request(`/media/tournament-banners/${id}`)).status).toBe(404);
- expect((await write('home',4,{'hero.media':id},'publish')).status).toBe(200);
- const library=await (await request('/admin/site-content-media',undefined,admin)).json();expect(library).toEqual([expect.objectContaining({id,name:'cms.png'})]);expect(JSON.stringify(library)).not.toContain('bytes');expect((await request('/admin/site-content-media')).status).toBe(401);
- const media=await app.request(url);expect(media.status).toBe(200);expect(media.headers.get('content-type')).toBe('image/webp');
- expect((await write('home',5,{'hero.media':id},'unpublish')).status).toBe(200);
- const hidden=await app.request(url,{headers:{'if-none-match':media.headers.get('etag')!}});expect(hidden.status).toBe(404);
- expect((await request(`/media/tournament-banners/${id}`,undefined,admin)).status).toBe(200);
- expect(await (await request('/public/site-content')).json()).toEqual({});
- expect((await write('home',6,{'hero.media':'11111111-1111-4111-8111-111111111111'})).status).toBe(422);
-});
-it('retains a bounded revision history and permits restoration only through a new validated save',async()=>{
- for(let i=1;i<=21;i++)expect((await write('terms',i,{'section-0.body':`Revision ${i}`})).status).toBe(200);
- const data=await (await request('/admin/site-content',undefined,admin)).json();expect(data.terms.history).toHaveLength(20);expect(data.terms.revision).toBe(22);
- expect(await sql`select id from public.teams`).toHaveLength(0);expect(await sql`select id from aevic.tournaments`).toHaveLength(0);
-});
-it('keeps browser roles away from CMS settings storage',async()=>{
+it('filters malformed public documents and unsafe links and preserves browser storage permissions',async()=>{
+ await sql`insert into aevic_platform.settings(key,value) values('site:terms',${sql.json({published:{fields:{'section-0.body':'<script>alert(1)</script>',href:'javascript:alert(1)','hero.media':'bad-id'},order:['section-0']}})})`;
+ await sql`insert into aevic_platform.settings(key,value) values('site:unknown',${sql.json({published:{fields:{title:'Unknown'},order:[]}})}),('site:support',${sql.json({published:{fields:[]}})})`;
+ const pages=await (await request('/public/site-content')).json();expect(pages.terms).toEqual({fields:{'section-0.body':'<script>alert(1)</script>'},order:['section-0']});expect(pages.unknown).toBeUndefined();expect(pages.support).toBeUndefined();
  for(const role of ['anon','authenticated']){let denied=false;try{await sql.begin(async tx=>{await tx.unsafe(`set local role ${role}`);await tx`select * from aevic_platform.settings where key like 'site:%'`;});}catch{denied=true;}expect(denied).toBe(true);}
 });
