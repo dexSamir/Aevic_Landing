@@ -1,3 +1,5 @@
+import { AdminTournamentSelect } from '../../components/admin/AdminTournamentSelect';
+import '../../styles/admin-results.css';
 import { useRef, useState } from 'react';
 import { Check, ChevronDown, Eye, History, Megaphone, Send, Users } from 'lucide-react';
 import { AdminSearch } from '../../components/admin/AdminPrimitives';
@@ -22,14 +24,26 @@ const priorities = { info: 'Adi', warning: 'Vacib', critical: 'Təcili' } as con
 type Draft = Parameters<typeof services.admin.sendMessage>[0];
 
 export function AdminMessagesPage() {
-  const { adminMessages } = useAdminPlatformData();
+  const { adminMessages, tournaments } = useAdminPlatformData();
   const directory = usePlatformQuery({
     key: 'admin:message-recipients',
     query: services.admin.messageRecipients,
     refetchOnFocus: true,
   });
   const profile = usePlatformQuery({ key: 'admin:alias', query: services.admin.alias });
-  const [audience, setAudience] = useState<'all' | 'team'>('all');
+  const [audience, setAudience] = useState<'all' | 'team' | 'tournament'>('all');
+  const [tournamentId, setTournamentId] = useState('');
+  const counts = usePlatformQuery({
+    key: 'admin:message-tournament-counts',
+    query: services.admin.tournamentRecipientCounts,
+    enabled: audience === 'tournament',
+  });
+  const participants = usePlatformQuery({
+    key: 'admin:message-participants:' + tournamentId,
+    query: () => services.admin.tournamentRecipients(tournamentId),
+    enabled: audience === 'tournament' && Boolean(tournamentId),
+    staleTime: 0,
+  });
   const [teamId, setTeamId] = useState(''),
     [search, setSearch] = useState(''),
     [historySearch, setHistorySearch] = useState('');
@@ -56,15 +70,28 @@ export function AdminMessagesPage() {
       (team.name + ' ' + (team.tag ?? '')).toLocaleLowerCase('az').includes(search.toLocaleLowerCase('az')),
     )
     .slice(0, 12);
-  const count = audience === 'all' ? teams.length : Number(Boolean(selected));
+  const count =
+    audience === 'tournament'
+      ? (participants.data?.teams.length ?? 0)
+      : audience === 'all'
+        ? teams.length
+        : Number(Boolean(selected));
   const audienceLabel =
-    audience === 'all'
-      ? `Bütün komandalar · ${count}`
-      : selected
-        ? `${selected.name} · #${selected.id}`
-        : 'Komanda seçin';
+    audience === 'tournament'
+      ? `${participants.data?.tournamentName ?? 'Turnir seçin'} · ${count} komanda`
+      : audience === 'all'
+        ? `Bütün komandalar · ${count}`
+        : selected
+          ? `${selected.name} · #${selected.id}`
+          : 'Komanda seçin';
   const canReview =
-    count > 0 && !directory.error && Boolean(profile.data) && title.trim().length >= 2 && Boolean(body.trim());
+    count > 0 &&
+    !(audience === 'tournament'
+      ? participants.error || participants.loading || participants.refreshing
+      : directory.error) &&
+    Boolean(profile.data) &&
+    title.trim().length >= 2 &&
+    Boolean(body.trim());
   function preview() {
     if (!canReview) return;
     setError('');
@@ -77,6 +104,8 @@ export function AdminMessagesPage() {
       teamId: audience === 'team' ? teamId : undefined,
       actionHref: actionHref || undefined,
       expectedCount: count,
+      tournamentId: audience === 'tournament' ? tournamentId : undefined,
+      recipientVersion: audience === 'tournament' ? participants.data?.recipientVersion : undefined,
     };
     const signature = JSON.stringify(input);
     if (attempt.current?.signature !== signature) attempt.current = { signature, key: crypto.randomUUID() };
@@ -101,12 +130,15 @@ export function AdminMessagesPage() {
       setTitle('');
       setBody('');
       setTeamId('');
+      setTournamentId('');
       setSearch('');
       setActionHref('');
     } catch (e) {
       if ((e as { code?: string }).code === 'RECIPIENTS_CHANGED') {
         setReview(undefined);
         directory.refetch();
+        participants.refetch();
+        counts.refetch();
         setError('Alıcı siyahısı dəyişib. Yenilənmiş auditoriyanı yoxlayın.');
       } else setError(e instanceof Error ? e.message : 'Elan göndərilmədi.');
     } finally {
@@ -147,7 +179,7 @@ export function AdminMessagesPage() {
           <fieldset>
             <legend>Auditoriya</legend>
             <div className="comm-options">
-              {(['all', 'team'] as const).map((value) => (
+              {(['all', 'team', 'tournament'] as const).map((value) => (
                 <button
                   type="button"
                   key={value}
@@ -155,11 +187,64 @@ export function AdminMessagesPage() {
                   onClick={() => setAudience(value)}
                 >
                   {value === 'all' ? <Users size={16} /> : <Send size={16} />}{' '}
-                  {value === 'all' ? 'Bütün komandalar' : 'Konkret komanda'}
+                  {value === 'all'
+                    ? 'Bütün komandalar'
+                    : value === 'team'
+                      ? 'Konkret komanda'
+                      : 'Turnir komandaları'}
                 </button>
               ))}
             </div>
-            {directory.error ? (
+            {audience === 'tournament' ? (
+              <div className="comm-tournament-recipients">
+                <AdminTournamentSelect
+                  tournaments={tournaments.filter((t) => !counts.data || t.id in counts.data)}
+                  value={tournamentId}
+                  onChange={setTournamentId}
+                  disabled={false}
+                  recipientCounts={counts.data}
+                />
+                {tournamentId &&
+                  (participants.loading ? (
+                    <p role="status">İştirakçılar yüklənir…</p>
+                  ) : participants.error ? (
+                    <p role="alert">
+                      İştirakçılar yüklənmədi.{' '}
+                      <Button variant="ghost" onClick={participants.refetch}>
+                        Yenilə
+                      </Button>
+                    </p>
+                  ) : (
+                    participants.data && (
+                      <>
+                        <p className="comm-muted">{count} alıcı komanda · Təsdiqlənmiş iştirakçılar</p>
+                        {!count ? (
+                          <p>Bu turnirdə elan göndəriləcək uyğun iştirakçı yoxdur.</p>
+                        ) : (
+                          <details>
+                            <summary>Alıcı siyahısına bax ({count})</summary>
+                            <div className="comm-matches">
+                              {participants.data.teams.map((team) => (
+                                <div className="comm-recipient" key={team.id}>
+                                  <TeamLogo name={team.name} src={team.logoUrl ?? undefined} size="sm" />
+                                  <span>
+                                    {team.name} · {team.tag ?? '#' + team.id}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </details>
+                        )}
+                        <div className="comm-recipient-preview" aria-label="Alıcı komandalar">
+                          {participants.data.teams.slice(0, 5).map((team) => (
+                            <TeamLogo key={team.id} name={team.name} src={team.logoUrl ?? undefined} size="sm" />
+                          ))}
+                        </div>
+                      </>
+                    )
+                  ))}
+              </div>
+            ) : directory.error ? (
               <p role="alert">
                 Alıcılar yüklənmədi.{' '}
                 <button type="button" onClick={directory.refetch}>
@@ -238,7 +323,7 @@ export function AdminMessagesPage() {
           <label className="field">
             <span>Daxili keçid</span>
             <select value={actionHref} onChange={(e) => setActionHref(e.target.value)}>
-              <option value="">Keçidsiz</option>
+              <option value="">{audience==='tournament'?'Turnirin səhifəsi':'Keçidsiz'}</option>
               <option value="/tournaments">Turnirlər</option>
               <option value="/regulations">Qaydalar</option>
               <option value="/team">Komanda paneli</option>
@@ -297,6 +382,10 @@ export function AdminMessagesPage() {
                 id: 'preview',
                 senderAlias: review.sender,
                 createdAt: review.createdAt,
+                tournamentName: review.input.tournamentId ? review.label : undefined,
+                actionHref:
+                  review.input.actionHref ??
+                  (review.input.tournamentId ? '/tournaments/' + review.input.tournamentId : undefined),
                 eventType: 'admin-message',
                 read: false,
               }}
@@ -311,9 +400,11 @@ export function AdminMessagesPage() {
 }
 function HistoryItem({ message }: { message: AdminMessage }) {
   const scope =
-    message.audience === 'team'
-      ? (message.recipientName ?? (message.teamId ? '#' + message.teamId : 'Komanda'))
-      : 'Bütün komandalar';
+    message.audience === 'tournament'
+      ? (message.tournamentName ?? 'Turnir komandaları')
+      : message.audience === 'team'
+        ? (message.recipientName ?? (message.teamId ? '#' + message.teamId : 'Komanda'))
+        : 'Bütün komandalar';
   return (
     <details className="comm-history-item">
       <summary>

@@ -944,6 +944,8 @@ export interface PlayerPerformance {
 }
 
 export interface Notification {
+  tournamentId?: string;
+  tournamentName?: string;
   senderAlias?: string;
   id: ID;
   eventId?: ID;
@@ -964,7 +966,7 @@ export interface AdminMessage extends Notification {
   recipientName?: string;
   recipientCount?: number;
   deliveryCount?: number;
-  audience: 'all' | 'selected' | 'team';
+  audience: 'all' | 'selected' | 'team' | 'tournament';
   scheduledAt?: ISODate;
 }
 

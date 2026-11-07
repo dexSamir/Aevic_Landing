@@ -341,8 +341,10 @@ export interface AdminService {
   branding(): Promise<Branding>;
   updateBranding(input:Branding): Promise<Branding>;
   uploadBrandImage(file:File): Promise<{id:string;url:string}>;
+  tournamentRecipientCounts(): Promise<Record<string,number>>;
+  tournamentRecipients(id:string): Promise<{teams:Awaited<ReturnType<AdminService['messageRecipients']>>;recipientVersion:string;tournamentName:string}>;
   messageRecipients(): Promise<{id:string;name:string;tag:string|null;logoUrl:string|null}[]>;
-  sendMessage(message: Pick<AdminMessage, 'title' | 'body' | 'severity' | 'audience'|'actionHref'> & {teamId?:string;expectedCount:number},key:string): Promise<{id:string;recipientCount:number}>;
+  sendMessage(message: Pick<AdminMessage, 'title' | 'body' | 'severity' | 'audience'|'actionHref'> & {teamId?:string;tournamentId?:string;recipientVersion?:string;expectedCount:number},key:string): Promise<{id:string;recipientCount:number}>;
 }
 
 export interface PlatformServices {

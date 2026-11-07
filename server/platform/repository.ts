@@ -65,7 +65,7 @@ export class PlatformRepository extends Repository {
  }
  async notificationRows(offset=0,limit=10000) {
   const {teamId,accountId}=this.actor;
-  return normalize(await this.sql`select n.*,n.recipient_id::text,m.sender_alias,
+  return normalize(await this.sql`select n.*,n.recipient_id::text,m.sender_alias,m.tournament_id,m.tournament_name,
    case when n.message_id is not null then mr.read_at else n.read_at end as read_at
    from aevic_platform.notifications n left join aevic_platform.messages m on m.id=n.message_id
    left join aevic_platform.message_reads mr on mr.message_id=n.message_id and mr.account_id=n.recipient_id

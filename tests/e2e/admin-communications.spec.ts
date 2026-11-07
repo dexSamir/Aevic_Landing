@@ -123,3 +123,38 @@ test('reviews a specific recipient before sending and publishes the public navig
   await expect(notification).not.toHaveClass(/notification-item--unread/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test('previews tournament recipients and uses a compact date picker at desktop and mobile widths',async({page})=>{
+ const snapshot=await fixtureServices.snapshots.admin(),t=snapshot.tournaments[0];
+ await page.route('**/api/public/site-content',route=>route.fulfill({json:{}}));
+ await page.route('**/api/admin/profile/alias',route=>route.fulfill({json:{alias:'Referee',displayName:'Referee',canBrand:true}}));
+ await page.route('**/api/admin/messages/tournaments',route=>route.fulfill({json:{[t.id]:1}}));
+ await page.route('**/api/admin/messages/recipients?tournamentId=*',route=>route.fulfill({json:{teams:[{id:'22',name:'Phoenix',tag:'PHX',logoUrl:null}],recipientVersion:'a'.repeat(64),tournamentName:t.name}}));
+ let sends=0;
+ await page.route('**/api/admin/messages',route=>{
+  const input=route.request().postDataJSON();expect(input).toMatchObject({audience:'tournament',tournamentId:t.id,expectedCount:1,recipientVersion:'a'.repeat(64)});
+  sends++;return route.fulfill({json:{id:'tournament-message',recipientCount:1}});
+ });
+ await page.goto('/admin/messages');
+ await page.getByRole('button',{name:'Turnir komandaları',exact:true}).click();
+ await page.getByRole('button',{name:'Turnir seçin',exact:true}).click();
+ await page.getByRole('combobox',{name:'Turnir axtar'}).fill(t.name);
+ await expect(page.getByRole('listbox',{name:'Turnirlər'}).getByRole('option').first()).toContainText('1 komanda');
+ await page.getByRole('combobox',{name:'Turnir axtar'}).press('Enter');
+ await page.getByText('Alıcı siyahısına bax (1)').click();await expect(page.getByText('Phoenix · PHX')).toBeVisible();
+ await page.getByLabel('Elan başlığı').fill('Tournament ready');await page.getByLabel('Elan mətni').fill('Prepare your roster.');
+ await page.getByRole('button',{name:'Önbaxış'}).click();
+ const dialog=page.getByRole('dialog');await expect(dialog).toContainText(t.name);await expect(dialog.getByRole('link',{name:'Keçidə bax'})).toHaveAttribute('href','/tournaments/'+t.id);
+ expect(sends).toBe(0);await dialog.getByRole('button',{name:'Elanı göndər'}).click();await expect(page.getByText(/Elan 1 komandanın/)).toBeVisible();expect(sends).toBe(1);
+ await page.goto('/admin/tournaments/new');
+ await page.getByLabel('Turnir adı',{exact:true}).fill('Compact picker');await page.getByLabel('Qısa ad',{exact:true}).fill('CP');
+ await page.getByRole('button',{name:'Davam et',exact:true}).click();await page.getByRole('button',{name:'Davam et',exact:true}).click();
+ const trigger=page.getByRole('button',{name:'Turnirin başlanğıcı',exact:true});await trigger.click();
+ const picker=page.getByRole('dialog',{name:'Turnirin başlanğıcı',exact:true});
+ await expect(picker.getByRole('grid')).toBeVisible();await expect(picker.locator('footer')).toHaveCount(0);
+ const bounds=await picker.boundingBox();expect(bounds!.width).toBeLessThanOrEqual(278);expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+ await page.screenshot({path:'/tmp/aevic-shadcn-picker-'+page.viewportSize()!.width+'.png'});
+ await page.keyboard.press('Escape');await expect(picker).not.toBeVisible();await expect(trigger).toBeFocused();
+ await page.getByLabel('Turnirin başlanğıcı · vaxt').fill('21:17');await expect(page.getByLabel('Turnirin başlanğıcı · vaxt')).toHaveValue('21:17');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});

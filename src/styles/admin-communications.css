@@ -282,3 +282,6 @@
     width: 100%;
   }
 }
+.comm-tournament-recipients {display:grid;gap:12px;min-width:0}
+.comm-tournament-recipients summary {cursor:pointer;min-height:32px}
+.comm-recipient-preview {display:flex;gap:6px}

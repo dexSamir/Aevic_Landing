@@ -137,3 +137,34 @@ it('snapshots sender and team audience, delivers once and isolates individual re
  expect(await sql`select author_id from aevic_platform.messages where id=${message.id}`).toMatchObject([{author_id:moderator.id}]);
  expect(await sql`select actor_id from aevic_platform.audit_events where action='message.send' and entity_id=${message.id}`).toMatchObject([{actor_id:'admin:'+moderator.id}]);
 });
+
+it('targets confirmed tournament teams, detects equal-count audience changes and delivers once',async()=>{
+ const [t]=await sql`insert into aevic.tournaments(slug,name,short_name,starts_at,ends_at,registration_opens_at,registration_deadline,check_in_opens_at,check_in_closes_at,max_slots)
+ values('message-cup','Message Cup','MC','2026-12-01T16:00Z','2026-12-01T19:00Z','2026-11-01T16:00Z','2026-12-01T14:00Z','2026-12-01T14:00Z','2026-12-01T15:00Z',20) returning id`;
+ await sql`update public.teams set status='approved' where id=12`;
+ for(const [id,status] of [[11,'confirmed'],[12,'pending'],[13,'confirmed'],[14,'withdrawn'],[15,'confirmed']] as const){
+  await sql`insert into aevic_platform.tournament_registrations(tournament_id,team_id,status,roster_lock_at,roster) values(${t.id},${id},${status},'2026-12-01T14:00Z','[]'::jsonb)`;
+ }
+ await sql`insert into aevic_platform.team_authority(team_id,account_id,role) values(11,11,'OWNER')`;
+ const get=()=>request('/admin/messages/recipients?tournamentId='+t.id,undefined,admin).then(r=>r.json());
+ const preview=await get();expect(preview.teams.map((r:{id:string})=>r.id)).toEqual(['11']);
+ expect(await (await request('/admin/messages/tournaments',undefined,admin)).json()).toMatchObject({[t.id]:1});
+ const input={title:'Tournament briefing',body:'Read the rules',audience:'tournament',tournamentId:t.id,severity:'info',expectedCount:1,recipientVersion:preview.recipientVersion};
+ await sql`update aevic_platform.tournament_registrations set status=case when team_id=11 then 'withdrawn' else 'confirmed' end where tournament_id=${t.id} and team_id in (11,12)`;
+ expect((await request('/admin/messages',input,admin,'POST','stale-tournament')).status).toBe(409);
+ const current=await get();expect(current.teams.map((r:{id:string})=>r.id)).toEqual(['12']);
+ input.recipientVersion=current.recipientVersion;
+ const responses=await Promise.all([request('/admin/messages',input,admin,'POST','tournament-delivery'),request('/admin/messages',input,admin,'POST','tournament-delivery')]);
+ expect(responses.map(r=>r.status)).toEqual([200,200]);
+ const message=await responses[0].json();
+ expect(await sql`select count(*)::int as count from aevic_platform.notifications where message_id=${message.id}`).toEqual([{count:1}]);
+ const login=await request('/auth/login',{email:'12@example.invalid',password:'ValidPassword1'}),cookie=cookies(login);
+ const notices=await (await request('/me/notifications',undefined,cookie)).json();
+ const notice=notices.find((n:{title:string})=>n.title===input.title);
+ expect(notice).toMatchObject({tournamentId:t.id,tournamentName:'Message Cup',actionHref:'/tournaments/'+t.id,read:false});
+ expect((await request('/me/notifications/'+notice.id+'/read',{},cookie,'PUT')).status).toBe(204);
+ expect(await (await request('/me/messages',undefined,cookie)).json()).toContainEqual(expect.objectContaining({id:message.id,audience:'tournament',read:true,tournamentName:'Message Cup'}));
+ expect((await request('/me/notifications/'+notice.id+'/read',undefined,cookie,'DELETE')).status).toBe(204);
+ await sql`update aevic_platform.tournament_registrations set status='pending' where tournament_id=${t.id}`;
+ expect((await get()).teams).toHaveLength(0);
+});

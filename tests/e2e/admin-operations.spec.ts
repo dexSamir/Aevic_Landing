@@ -56,12 +56,12 @@ test('calendar reuses actual dates, creates no record on clicks, and prefills ex
  await page.getByLabel('Turnir adı',{exact:true}).fill('Calendar Cup');await page.getByLabel('Qısa ad',{exact:true}).fill('CC');
  await page.getByRole('button',{name:'Davam et',exact:true}).click();await page.getByRole('button',{name:'Davam et',exact:true}).click();
  await expect(page.locator('input[name=startsAt]')).toHaveValue(`${key}T20:00`);
- await expect(page.getByRole('button',{name:'2. raund başlayır',exact:true})).toContainText('20:50');
+ await expect(page.getByLabel('2. raund başlayır · vaxt')).toHaveValue('20:50');
  for(const width of [320,390,768,1440]){
   await page.setViewportSize({width,height:900});const trigger=page.getByRole('button',{name:'Turnirin başlanğıcı',exact:true});await trigger.click();const dialog=page.getByRole('dialog',{name:'Turnirin başlanğıcı',exact:true});
   await expect(dialog.locator(`[data-day="${key}"] button`)).toBeFocused();
   const bounds=await dialog.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(width);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(901);
-  await dialog.getByLabel('Turnirin başlanğıcı · dəqiqə').fill('17');await dialog.getByRole('button',{name:'Tarixi tətbiq et'}).click();await expect(trigger).toContainText('20:17');
+  await page.keyboard.press('Escape');await page.getByLabel('Turnirin başlanğıcı · vaxt').fill('20:17');await expect(page.getByLabel('Turnirin başlanğıcı · vaxt')).toHaveValue('20:17');
   await trigger.click();await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
   if(width===390)await page.screenshot({path:'/tmp/aevic-picker-mobile.png',fullPage:true});
  }
@@ -70,7 +70,7 @@ test('calendar reuses actual dates, creates no record on clicks, and prefills ex
  const previous=new Date(`${key}T12:00:00Z`);previous.setUTCDate(previous.getUTCDate()-1);
  for(const [label,date,hour] of [['Qeydiyyat açılır',previous.toISOString().slice(0,10),'20'],['Qeydiyyat bağlanır',key!,'19']]){
   await page.getByRole('button',{name:label,exact:true}).click();const picker=page.getByRole('dialog',{name:label,exact:true});
-  await picker.locator(`[data-day="${date}"] button`).click();await picker.getByLabel(`${label} · saat`).selectOption(hour);await picker.getByLabel(`${label} · dəqiqə`).fill('00');await picker.getByRole('button',{name:'Tarixi tətbiq et'}).click();
+  await picker.locator(`[data-day="${date}"] button`).click();await page.getByLabel(`${label} · vaxt`).fill(hour+':00');
  }
  let created:any;
  await page.route('**/api/admin/context',r=>r.fulfill({json:snapshot}));

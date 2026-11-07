@@ -292,6 +292,8 @@ export function createApiServices(baseUrl: string): PlatformServices {
       branding: () => request('/admin/settings/branding'),
       updateBranding: body => request('/admin/settings/branding',{method:'PUT',body}),
       uploadBrandImage: file => {const form=new FormData();form.set('file',file);return uploadRequest('/admin/settings/branding/images',{method:'POST',body:form});},
+      tournamentRecipientCounts:()=>request('/admin/messages/tournaments'),
+      tournamentRecipients:id=>request('/admin/messages/recipients?tournamentId='+encodeURIComponent(id)),
       messageRecipients: () => request('/admin/messages/recipients'),
       sendMessage: (body,key) => request('/admin/messages', { method: 'POST', body,headers:{'Idempotency-Key':key} }),
     },
