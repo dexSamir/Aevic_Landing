@@ -34,7 +34,7 @@ function PublicNavLinks({ onNavigate, drawer = false }: { onNavigate?: () => voi
   const { pathname } = useLocation();
   const activeRoute = activePublicRoute(pathname);
 
-  return <nav className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya">{navigation.map((link) => { const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}><span>{link.label}</span></NavLink>; })}</nav>;
+  return <nav className={`public-nav-capsule ${drawer ? 'public-nav-capsule--drawer' : ''}`} aria-label="Əsas naviqasiya">{navigation.map((link) => { if(!link.to.startsWith('/'))return <a key={link.to} href={link.to} target="_blank" rel="noopener noreferrer" onClick={onNavigate}>{link.label}</a>; const current = activeRoute === link.to; const exactFamily = link.to === '/' ? pathname === '/' : pathname === link.to || pathname.startsWith(`${link.to}/`); return <NavLink key={link.to} to={link.to} end={link.end} className={current ? 'active' : undefined} aria-current={current ? exactFamily ? 'page' : 'location' : undefined} onClick={onNavigate}><span>{link.label}</span></NavLink>; })}</nav>;
 }
 
 function PublicAuthActions({ onNavigate, drawer = false }: { onNavigate?: () => void; drawer?: boolean }) {

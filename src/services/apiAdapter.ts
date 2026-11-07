@@ -232,10 +232,10 @@ export function createApiServices(baseUrl: string): PlatformServices {
     notifications: {
       inbox: () => request('/me/notifications'),
       messages: () => request('/me/messages'),
-      markMessageRead: (id) => request(`/me/messages/${encodeURIComponent(id)}/read`, { method: 'PUT' }),
+      markMessageRead: (id,read=true) => request(`/me/messages/${encodeURIComponent(id)}/read`, { method: read?'PUT':'DELETE' }),
       preferences: () => request('/me/notification-preferences'),
       updatePreferences: (body) => request('/me/notification-preferences', { method: 'PUT', body }),
-      markRead: (id) => request(`/me/notifications/${encodeURIComponent(id)}/read`, { method: 'PUT' }),
+      markRead: (id,read=true) => request(`/me/notifications/${encodeURIComponent(id)}/read`, { method: read?'PUT':'DELETE' }),
       markAllRead: () => request('/me/notifications/read-all', { method: 'PUT' }),
       page: (cursor) => request(`/me/notifications${query({ cursor, page: 'true' })}`),
     },
@@ -287,7 +287,13 @@ export function createApiServices(baseUrl: string): PlatformServices {
       updateSettings: (body) => request('/admin/settings',{method:'PUT',body}),
       blacklist: () => request('/admin/blacklist'),
       ban: (teamId, reason, expiresAt) => request('/admin/blacklist', { method: 'POST', body: { teamId, reason, expiresAt } }),
-      sendMessage: (body) => request('/admin/messages', { method: 'POST', body }),
+      alias: () => request('/admin/profile/alias'),
+      updateAlias: alias => request('/admin/profile/alias', {method:'PUT',body:{alias}}),
+      branding: () => request('/admin/settings/branding'),
+      updateBranding: body => request('/admin/settings/branding',{method:'PUT',body}),
+      uploadBrandImage: file => {const form=new FormData();form.set('file',file);return uploadRequest('/admin/settings/branding/images',{method:'POST',body:form});},
+      messageRecipients: () => request('/admin/messages/recipients'),
+      sendMessage: (body,key) => request('/admin/messages', { method: 'POST', body,headers:{'Idempotency-Key':key} }),
     },
   };
 }

@@ -1,3 +1,5 @@
+import brandingRoutes from './platform/branding';
+import messagingRoutes from './platform/messaging';
 import siteContentRoutes from './platform/site-content';
 import onboardingRoutes from './platform/onboarding';
 import passwordChangeRoutes from './platform/password-change';
@@ -56,6 +58,8 @@ export function createApp(config?:ServerConfig, env: NodeJS.ProcessEnv = process
   app.route('/',adminAccountRoutes);
   app.route('/',mfaRoutes);
   app.route('/',communityRoutes);
+  app.route('/',brandingRoutes);
+  app.route('/',messagingRoutes);
   app.route('/',staffRoutes);
   app.route('/',siteContentRoutes);
   app.route('/',profileRoutes);

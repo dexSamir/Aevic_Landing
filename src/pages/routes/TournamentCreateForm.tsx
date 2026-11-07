@@ -4,7 +4,7 @@ import { bakuInstant } from '../../utils/tournamentWizard';
 import { formatEventDate } from '../../utils/calendar';
 import { ApiError } from '../../services/apiError';
 import { useRef, useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CalendarDays, Check, CheckCheck, ClipboardList, Flag, Map, Plus, Settings2, ShieldCheck, Trash2, Trophy, Users } from 'lucide-react';
 import { Button, Input, PageHeader, Textarea } from '../../components/common/primitives';
 import { AdminPanel } from '../../components/admin/AdminPrimitives';
@@ -18,11 +18,14 @@ const steps = [{title:'Əsas məlumat',short:'Məlumat',icon:Trophy},{title:'Yar
 const dateGroups: ReadonlyArray<{title: string; fields: ReadonlyArray<readonly [keyof WizardFields, string]>}> = [{title:'Qeydiyyat pəncərəsi',fields:[['registrationOpensAt','Qeydiyyat açılır'],['registrationDeadline','Qeydiyyat bağlanır']]},{title:'Check-in pəncərəsi',fields:[['checkInOpensAt','Check-in açılır'],['checkInClosesAt','Check-in bağlanır']]},{title:'Yarış vaxtı',fields:[['startsAt','Turnirin başlanğıcı'],['endsAt','Turnirin bitməsi']]}] as const;
 export function TournamentCreateForm() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const selectedDate=params.get('date')??'';
+  const validDate=/^\d{4}-\d{2}-\d{2}$/.test(selectedDate)&&Number.isFinite(Date.parse(`${selectedDate}T12:00:00Z`))&&new Date(`${selectedDate}T12:00:00Z`).toISOString().slice(0,10)===selectedDate;
   const [bannerMediaId,setBannerMediaId]=useState<string|null>(null),[uploading,setUploading]=useState(false);
   const [step,setStep]=useState(0),[furthest,setFurthest]=useState(0),[busy,setBusy]=useState(false),[error,setError]=useState(''),[validated,setValidated]=useState(false);
   const submitting=useRef(false), heading=useRef<HTMLHeadingElement>(null), errorRef=useRef<HTMLDivElement>(null);
   const [key]=useState(()=>crypto.randomUUID());
-  const [fields,setFields]=useState<WizardFields>({name:'',shortName:'',description:'',maxSlots:'20',startsAt:'',endsAt:'',registrationOpensAt:'',registrationDeadline:'',checkInOpensAt:'',checkInClosesAt:'',rules:''});
+  const [fields,setFields]=useState<WizardFields>({name:'',shortName:'',description:'',maxSlots:'20',startsAt:validDate?`${selectedDate}T20:00`:'',endsAt:'',registrationOpensAt:'',registrationDeadline:'',checkInOpensAt:'',checkInClosesAt:'',rules:''});
   const [rounds,setRounds]=useState<WizardRound[]>([{map:'Erangel',startsAt:''},{map:'Miramar',startsAt:''},{map:'Rondo',startsAt:''},{map:'Erangel',startsAt:''}]);
   const [schedulePlan,setSchedulePlan]=useState(newSchedulePlan);
   const issues=validateTournamentWizard(fields,rounds,schedulePlan.options);

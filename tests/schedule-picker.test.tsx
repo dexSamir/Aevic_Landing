@@ -11,7 +11,7 @@ it('uses a labeled calendar dialog, disables unavailable days and times, commits
  expect(view.container.querySelector('input[type="datetime-local"],input[type="date"],input[type="time"]')).toBeNull();
  fireEvent.click(screen.getByLabelText('Başlanğıc',{exact:true}));
  const dialog=screen.getByRole('dialog',{name:'Başlanğıc'});expect(within(dialog).getByRole('grid')).toBeInTheDocument();
- expect(within(dialog).getByRole('button',{name:'Əvvəlki ay'})).toBeDisabled();
+ expect(within(dialog).getByRole('button',{name:'Əvvəlki ay'})).toHaveAttribute('aria-disabled','true');
  expect(within(dialog).getByRole('button',{name:/21 dekabr 2026/})).toBeDisabled();
  expect(within(dialog).getAllByRole('option').find(o=>o.textContent==='18')).toBeDisabled();
  fireEvent.change(within(dialog).getByLabelText('Başlanğıc · saat'),{target:{value:'21'}});
@@ -21,8 +21,8 @@ it('uses a labeled calendar dialog, disables unavailable days and times, commits
 it('supports arrow/week/month keys and Escape without saving',async()=>{
  const change=vi.fn();render(<ScheduleDateTimePicker id="date" label="Başlanğıc" value="2026-12-01T20:00" onChange={change}/>);
  fireEvent.click(screen.getByLabelText('Başlanğıc',{exact:true}));let day=screen.getByRole('button',{name:/^1 dekabr 2026/});
- fireEvent.keyDown(day,{key:'ArrowRight'});expect(screen.getByRole('gridcell',{selected:true})).toHaveTextContent('2');
- day=screen.getByRole('button',{name:/^2 dekabr 2026/});fireEvent.keyDown(day,{key:'PageDown'});expect(screen.getByRole('gridcell',{selected:true})).toHaveTextContent('2');expect(screen.getByRole('button',{name:/^2 yanvar 2027/})).toBeInTheDocument();
+ day.focus();fireEvent.keyDown(day,{key:'ArrowRight'});await waitFor(()=>expect(screen.getByRole('button',{name:/^2 dekabr 2026/})).toHaveFocus());expect(screen.getByRole('gridcell',{selected:true})).toHaveTextContent('1');
+ day=screen.getByRole('button',{name:/^2 dekabr 2026/});fireEvent.keyDown(day,{key:'PageDown'});await waitFor(()=>expect(screen.getByRole('button',{name:/^2 yanvar 2027/})).toHaveFocus());
  fireEvent.keyDown(document,{key:'Escape'});expect(change).not.toHaveBeenCalled();await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 });
 it('protects manually overridden times and asks before regenerating them',async()=>{
@@ -39,4 +39,17 @@ it('does not reflow existing tournament times when interval configuration change
  const data=suggestSchedule(fields,rounds),change=vi.fn();render(<TournamentSchedule fields={data.fields} rounds={data.rounds} existing onChange={change}/>);
  fireEvent.change(screen.getByLabelText('Başlanğıclar arası interval (dəq.)'),{target:{value:'70'}});expect(change).not.toHaveBeenCalled();
  fireEvent.click(screen.getByRole('checkbox'));expect(change).not.toHaveBeenCalled();expect(screen.getByRole('dialog',{name:'Cədvəl yenidən yaradılsın?'})).toBeInTheDocument();
+});
+
+it('preserves precise minutes, offers 5-minute steps and normalizes explicit UTC values to Baku',()=>{
+ const change=vi.fn();render(<ScheduleDateTimePicker id="precise" label="Dəqiq vaxt" value="2026-12-01T16:07:00Z" onChange={change}/>);
+ fireEvent.click(screen.getByLabelText('Dəqiq vaxt',{exact:true}));
+ const minute=screen.getByLabelText('Dəqiq vaxt · dəqiqə');expect(minute).toHaveValue('07');
+ fireEvent.keyDown(minute,{key:'ArrowUp'});expect(minute).toHaveValue('12');
+ fireEvent.change(minute,{target:{value:'17'}});fireEvent.click(screen.getByRole('button',{name:'Tarixi tətbiq et'}));
+ expect(change).toHaveBeenCalledWith('2026-12-01T20:17');
+});
+it('keeps conflicting bounds unavailable without committing a value',()=>{
+ const change=vi.fn();render(<ScheduleDateTimePicker id="bounds" label="Aralıq" value="2026-12-01T20:00" min="2026-12-02T20:00" max="2026-12-01T20:00" onChange={change}/>);
+ fireEvent.click(screen.getByLabelText('Aralıq',{exact:true}));expect(screen.getByRole('button',{name:'Tarixi tətbiq et'})).toBeDisabled();expect(change).not.toHaveBeenCalled();
 });

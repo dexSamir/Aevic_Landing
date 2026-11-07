@@ -33,7 +33,10 @@ export function adminManagementRoutes(deliver:typeof issueAdminSetup=issueAdminS
    await currentSuper(tx,reviewer);const [target]=await tx`select role,active from aevic_platform.admin_accounts where id=${id} for update`;if(!target)throw new ServiceError(404,'ADMIN_NOT_FOUND');
    if(id===reviewer&&(input.role!==target.role||!input.active))throw new ServiceError(409,'SELF_PERMISSION_CHANGE');
    if(target.active&&target.role==='super-admin'&&(!input.active||input.role!=='super-admin')&&!(await tx`select id from aevic_platform.admin_accounts where id<>${id} and active and password_hash is not null and role='super-admin'`).length)throw new ServiceError(409,'LAST_SUPER_ADMIN');
-   await tx`update aevic_platform.admin_accounts set role=${input.role},active=${input.active},reset_digest=case when ${input.active} then reset_digest else null end,reset_expires_at=case when ${input.active} then reset_expires_at else null end where id=${id}`;
+   await tx`update aevic_platform.admin_accounts set role=${input.role},active=${input.active},
+    display_alias=case when not active and ${input.active} and exists(select 1 from aevic_platform.admin_accounts other
+     where other.id<>${id} and other.active and lower(other.display_alias)=lower(aevic_platform.admin_accounts.display_alias)) then null else display_alias end,
+    reset_digest=case when ${input.active} then reset_digest else null end,reset_expires_at=case when ${input.active} then reset_expires_at else null end where id=${id}`;
    if(!input.active||input.role!==target.role)await tx`update aevic_platform.sessions set revoked_at=now() where admin_id=${id} and revoked_at is null`;
    await audit(tx,actor(c),'admin.permissions','admin',id,{role:input.role,active:input.active});
   });return c.json((await users(platform(c).sql)).find(u=>u.id===id));

@@ -20,6 +20,7 @@ test('reads a team screenshot locally, saves an edited draft and publishes only 
   });
   await page.route('**/api/admin/matches/*/publication', route => route.fulfill({ status: 204 }));
   await page.goto('/admin/results?tournament=daily-cup-24&round=dc24-r1');
+  await page.getByRole('button',{name:'Əllə daxil et'}).click();
   await page.getByRole('combobox', { name: 'Komanda', exact: true }).selectOption('team-01');
   // Generate the OCR input in memory so the test exercises the real worker and model.
   const image = await page.evaluate(() => {
@@ -42,8 +43,8 @@ test('reads a team screenshot locally, saves an edited draft and publishes only 
   expect(writes).toEqual([]);
   await page.getByRole('button', { name: 'Komanda nəticəsini saxla' }).click();
   await expect.poll(() => saved).toMatchObject({ teamId: 'team-01', placement: 3, finishes: 11, published: false });
-  await expect(page.getByText('Qaralama', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Bütün raund nəticələrini dərc et' }).click();
+  await expect(page.getByText('Qaralama', { exact: true }).first()).toBeVisible();
+  await page.getByRole('button', { name: 'Raundu dərc et' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   expect(writes).toEqual(['/api/admin/results']);
   await page.getByRole('button', { name: 'Nəticələri dərc et', exact: true }).click();
@@ -62,7 +63,7 @@ test('combines overlapping round screenshots, verifies the editable table, and s
   page.on('request', r => { if (/\/api\/admin\//.test(r.url()) && r.method() !== 'GET') writes.push(r.method() + ' ' + new URL(r.url()).pathname); });
   await page.route('**/api/admin/matches/dc24-r1/result-drafts', route => { payload = route.request().postDataJSON(); return route.fulfill({ status:204 }); });
   await page.goto('/admin/results?tournament=daily-cup-24&round=dc24-r1');
-  await page.getByRole('button', { name:'Raund cədvəlini şəkillərdən hazırla' }).click();
+  await page.getByRole('button', { name:'Şəkilləri əlavə et' }).click();
   const image = async (indices: number[]) => Buffer.from(await page.evaluate(({ teams, indices }) => {
     const canvas = document.createElement('canvas'); canvas.width=920; canvas.height=230;
     const c=canvas.getContext('2d')!; c.fillStyle='white'; c.fillRect(0,0,920,230); c.fillStyle='black'; c.font='28px Arial';
@@ -110,7 +111,7 @@ test('reviews both original PMGC Group Red M7 broadcast pages against their visi
   await page.route('**/api/admin/results?*', r=>r.fulfill({json:[]}));
   await page.route('**/api/admin/tournaments/daily-cup-24/entries', r=>r.fulfill({json:teams.map(t=>({teamId:t.id,status:'confirmed'}))}));
   await page.goto('/admin/results?tournament=daily-cup-24&round=dc24-r1');
-  await page.getByRole('button',{name:'Raund cədvəlini şəkillərdən hazırla'}).click();
+  await page.getByRole('button',{name:'Şəkilləri əlavə et'}).click();
   await page.getByLabel(/Raund şəkilləri/).setInputFiles([first!,second!]);
   const table=page.getByRole('table',{name:'Yoxlanılacaq komanda nəticələri'});
   await expect(table.locator('tbody tr')).toHaveCount(16,{timeout:60000});

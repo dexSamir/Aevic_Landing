@@ -314,8 +314,9 @@ export function NotificationItem({ item }: { item: Notification }) {
   const Icon = item.severity === 'critical' ? AlertTriangle : item.severity === 'success' ? CheckCircle2 : Info;
   const internal = sanitizeInternalPath(item.actionHref);
   const external = sanitizeOutboundUrl(item.actionHref);
-  const action = item.actionLabel ? internal ? <Link to={internal}>{item.actionLabel}</Link> : external ? <a href={external} target="_blank" rel="noopener noreferrer">{item.actionLabel}</a> : null : null;
-  return <article className={`notification-item ${item.read ? '' : 'notification-item--unread'}`}><span className="notification-item__icon"><Icon size={18} /></span><div><div className="notification-item__top"><h3>{item.title}</h3><time>{new Date(item.createdAt).toLocaleDateString('az-AZ', { day: '2-digit', month: 'short' })}</time></div><p>{item.body}</p>{action}</div></article>;
+  const actionLabel=item.actionLabel??(item.eventType==='admin-message'&&internal?'Keçidə bax':undefined);
+  const action = actionLabel ? internal ? <Link to={internal}>{actionLabel}</Link> : external ? <a href={external} target="_blank" rel="noopener noreferrer">{actionLabel}</a> : null : null;
+  return <article data-announcement={item.eventType==='admin-message'?item.severity:undefined} className={`notification-item ${item.read ? '' : 'notification-item--unread'}`}><span className="notification-item__icon"><Icon size={18} /></span><div>{item.eventType==='admin-message'&&<small className="notification-sender">{item.senderAlias??'AEVIC Admin'} · {item.severity==='critical'?'Təcili':item.severity==='warning'?'Vacib':'Elan'}</small>}<div className="notification-item__top"><h3>{item.title}</h3><time>{new Date(item.createdAt).toLocaleString('az-AZ', { day: '2-digit', month: 'short',hour:'2-digit',minute:'2-digit' })}</time></div><p>{item.body}</p>{action}</div></article>;
 }
 
 function useExitPresence(open: boolean) {
@@ -383,7 +384,7 @@ export function Modal({ open, title, children, onClose, footer, className = '', 
   return createPortal(<div ref={overlayRef} className="modal-backdrop" data-state={visible ? 'open' : 'closed'} aria-hidden={!open} inert={!open} role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) closeRef.current(); }}><div className={`modal ${teamModal ? 'team-modal-scroll' : ''} ${className}`} role="dialog" aria-modal={open ? true : undefined} aria-labelledby={titleId} tabIndex={-1} ref={panelRef}><header className={customHeading ? 'modal__custom-header' : undefined}><h2 id={titleId} className={customHeading ? 'sr-only' : undefined}>{title}</h2><IconButton label="Pəncərəni bağla" onClick={onClose}><X size={20} /></IconButton></header><div className="modal__body">{children}</div>{footer && <footer>{footer}</footer>}</div></div>, document.body);
 }
 
-export function ConfirmDialog({ open, title, body, confirmLabel, tone = 'danger', onConfirm, onClose }: { open: boolean; title: string; body: string; confirmLabel: string; tone?: 'danger' | 'primary'; onConfirm: () => void | Promise<void>; onClose: () => void }) {
+export function ConfirmDialog({ open, title, body, confirmLabel, tone = 'danger', onConfirm, onClose, errorMessage }: { open: boolean; title: string; body: string; confirmLabel: string; tone?: 'danger' | 'primary'; errorMessage?: string; onConfirm: () => void | Promise<void>; onClose: () => void }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
   const busy = useRef(false);
@@ -396,7 +397,7 @@ export function ConfirmDialog({ open, title, body, confirmLabel, tone = 'danger'
     catch { setError('Əməliyyat təsdiqlənmədi. Vəziyyəti yoxlayıb yenidən cəhd edin.'); }
     finally { busy.current = false; setPending(false); }
   };
-  return <Modal open={open} title={title} onClose={close} footer={<><Button disabled={pending} variant="ghost" onClick={close}>Ləğv et</Button><Button disabled={pending} loading={pending} variant={tone} onClick={() => void confirm()}>{confirmLabel}</Button></>}><p>{body}</p>{error && <p role="alert">{error}</p>}</Modal>;
+  return <Modal open={open} title={title} onClose={close} footer={<><Button disabled={pending} variant="ghost" onClick={close}>Ləğv et</Button><Button disabled={pending} loading={pending} variant={tone} onClick={() => void confirm()}>{confirmLabel}</Button></>}><p>{body}</p>{(error||errorMessage) && <p role="alert">{error||errorMessage}</p>}</Modal>;
 }
 
 export function Drawer({ id, open, title, heading, children, onClose }: { id?: string; open: boolean; title: string; heading?: ReactNode; children: ReactNode; onClose: () => void }) {

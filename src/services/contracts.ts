@@ -1,3 +1,4 @@
+import type { Branding } from '../content/branding';
 import type { LegacyClaimService } from '../types/legacyClaims';
 import type {
   AdminMessage,
@@ -274,10 +275,10 @@ export interface ResultService {
 export interface NotificationService {
   inbox(): Promise<Notification[]>;
   messages(): Promise<AdminMessage[]>;
-  markMessageRead(id: string): Promise<void>;
+  markMessageRead(id: string, read?:boolean): Promise<void>;
   preferences(): Promise<NotificationPreferences>;
   updatePreferences(value: NotificationPreferences): Promise<NotificationPreferences>;
-  markRead(id: string): Promise<void>;
+  markRead(id: string, read?:boolean): Promise<void>;
   markAllRead(): Promise<void>;
   page(cursor?: string): Promise<CursorPage<Notification>>;
 }
@@ -330,12 +331,18 @@ export interface VerificationService {
 }
 
 export interface AdminService {
-  publicSettings(): Promise<{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}>;
+  publicSettings(): Promise<{branding?:Branding;supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}>;
   settings(): Promise<{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}>;
   updateSettings(input:{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}): Promise<{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}>;
   blacklist(): Promise<BlacklistEntry[]>;
   ban(teamId: string, reason: string, expiresAt?: string): Promise<void>;
-  sendMessage(message: Pick<AdminMessage, 'title' | 'body' | 'severity' | 'audience'>): Promise<void>;
+  alias(): Promise<{alias:string|null;displayName:string;canBrand:boolean}>;
+  updateAlias(alias:string|null): ReturnType<AdminService['alias']>;
+  branding(): Promise<Branding>;
+  updateBranding(input:Branding): Promise<Branding>;
+  uploadBrandImage(file:File): Promise<{id:string;url:string}>;
+  messageRecipients(): Promise<{id:string;name:string;tag:string|null;logoUrl:string|null}[]>;
+  sendMessage(message: Pick<AdminMessage, 'title' | 'body' | 'severity' | 'audience'|'actionHref'> & {teamId?:string;expectedCount:number},key:string): Promise<{id:string;recipientCount:number}>;
 }
 
 export interface PlatformServices {

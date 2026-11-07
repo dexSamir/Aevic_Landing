@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { competitionNow, serviceCapabilities } from '../../services';
 import { selectPrimaryCompetition } from '../../utils/competitionSelectors';
 import type { Tournament, TournamentCalendarEvent, TournamentCalendarStatus } from '../../types/domain';
-import { AEVIC_EVENT_TIMEZONE, calendarDateFromKey, calendarDateKey, eventDateKey, formatEventTime } from '../../utils/calendar';
+import { AEVIC_EVENT_TIMEZONE, calendarDateFromKey, calendarDateKey, calendarMonthDays, eventDateKey, formatEventTime } from '../../utils/calendar';
 import { resolveTournamentTemporalPhase } from '../../utils/tournamentTime';
 import { EmptyState } from '../common/primitives';
 const TournamentJoinAction = lazy(() => import('./TournamentJoinAction').then(module => ({ default: module.TournamentJoinAction })));
@@ -34,11 +34,6 @@ function readableDate(date: Date, withYear = false) {
   return `${date.getUTCDate()} ${monthLabels[date.getUTCMonth()]}${withYear ? ` ${date.getUTCFullYear()}` : ''}`;
 }
 
-function monthDays(year: number, month: number) {
-  const first = new Date(Date.UTC(year, month, 1, 12));
-  const leading = (first.getUTCDay() + 6) % 7;
-  return Array.from({ length: 42 }, (_, index) => new Date(Date.UTC(year, month, index - leading + 1, 12)));
-}
 
 function StatusIcon({ status }: { status: TournamentCalendarStatus }) {
   if (status === 'live') return <Radio size={14} aria-hidden="true" />;
@@ -88,7 +83,7 @@ export function TournamentCalendar({ tournaments, compact = false, overview = fa
   }, new Map<string, TournamentCalendarEvent[]>()), [events]);
   const selectedEvents = tournaments.filter((item) => eventDateKey(item.startsAt) === calendarDateKey(selectedDate));
   const selectedTournament = selectedEvents.find((item) => item.id === selectedTournamentId) ?? selectedEvents[0];
-  const days = monthDays(viewMonth.year, viewMonth.month);
+  const days = calendarMonthDays(viewMonth.year, viewMonth.month);
   const todayKey = eventDateKey(now);
 
   const selectDay = (date: Date) => {

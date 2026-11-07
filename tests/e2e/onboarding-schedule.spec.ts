@@ -15,21 +15,22 @@ test('three Baku dates, optional banner and wizard persistence work on mobile an
  await expect(page.locator('.schedule-editor__essential .schedule-date-trigger')).toHaveCount(3);
  await expect(page.locator('input[type=datetime-local],input[type=date],input[type=time]')).toHaveCount(0);
  await page.clock.setFixedTime(new Date('2026-12-01T16:00:00Z'));
- async function pick(label:string,day:string,hour:string,previous=false){await page.getByRole('button',{name:label,exact:true}).click();const dialog=page.getByRole('dialog',{name:label,exact:true});if(previous)await dialog.getByRole('button',{name:'Əvvəlki ay'}).click();await dialog.locator(`[data-day="${day}"]`).click();await dialog.getByLabel(`${label} · saat`).selectOption(hour);await dialog.getByLabel(`${label} · dəqiqə`).selectOption('00');await dialog.getByRole('button',{name:'Tarixi tətbiq et'}).click();await expect(dialog).not.toBeVisible();}
+ async function pick(label:string,day:string,hour:string,previous=false){await page.getByRole('button',{name:label,exact:true}).click();const dialog=page.getByRole('dialog',{name:label,exact:true});if(previous)await dialog.getByRole('button',{name:'Əvvəlki ay'}).click();await dialog.locator(`[data-day="${day}"] button`).click();await dialog.getByLabel(`${label} · saat`).selectOption(hour);await dialog.getByLabel(`${label} · dəqiqə`).fill('00');await dialog.getByRole('button',{name:'Tarixi tətbiq et'}).click();await expect(dialog).not.toBeVisible();}
  await pick('Turnirin başlanğıcı','2026-12-01','20');await pick('Qeydiyyat açılır','2026-11-30','20',true);await pick('Qeydiyyat bağlanır','2026-12-01','19');
  await expect(page.locator('.schedule-editor__zone').getByText('Asia/Baku · UTC+4')).toBeVisible();
  for(const [width,height] of [[1440,900],[390,844],[320,640]]){await page.setViewportSize({width,height});await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
  for(const [width,height] of [[1440,900],[390,844],[320,640]]){
   await page.setViewportSize({width,height});
   const trigger=page.getByRole('button',{name:'Turnirin başlanğıcı',exact:true});await trigger.click();const dialog=page.getByRole('dialog',{name:'Turnirin başlanğıcı',exact:true});
-  await expect(dialog.locator('[data-day="2026-12-01"]')).toBeFocused();
-  await dialog.locator('[data-day="2026-12-01"]').press('ArrowRight');await expect(dialog.locator('[data-day="2026-12-02"]')).toBeFocused();
-  await dialog.locator('[data-day="2026-12-02"]').press('PageDown');await expect(dialog.locator('[data-day="2027-01-02"]')).toBeFocused();
+  await expect(dialog.locator('[data-day="2026-12-01"] button')).toBeFocused();
+  await dialog.locator('[data-day="2026-12-01"] button').press('ArrowRight');await expect(dialog.locator('[data-day="2026-12-02"] button')).toBeFocused();
+  await dialog.locator('[data-day="2026-12-02"] button').press('PageDown');await expect(dialog.locator('[data-day="2027-01-02"] button')).toBeFocused();
   const box=await dialog.boundingBox();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(width);expect(box!.y+box!.height).toBeLessThanOrEqual(height+1);
-  expect(await dialog.locator('.schedule-calendar').evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
+  await page.screenshot({path:`/tmp/aevic-picker-open-${width}.png`,animations:'disabled'});
+  expect(await dialog.locator('.rdp-root').evaluate(el=>({overflow:el.scrollWidth>el.clientWidth,root:el.clientWidth,table:el.querySelector('table')?.clientWidth,month:el.querySelector('.rdp-months')?.clientWidth}))).toMatchObject({overflow:false});
   await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();await expect(trigger).toContainText('20:00');
  }
- await page.setViewportSize({width:1440,height:900});const trigger=page.getByRole('button',{name:'Turnirin başlanğıcı',exact:true});await trigger.click();await expect(page.locator('.modal-backdrop')).toHaveAttribute('data-state','open');await page.mouse.click(2,2);await expect(page.getByRole('dialog')).not.toBeVisible();await expect(trigger).toBeFocused();
+ await page.setViewportSize({width:1440,height:900});const trigger=page.getByRole('button',{name:'Turnirin başlanğıcı',exact:true});await trigger.click();await expect(page.locator('.schedule-picker-popover')).toBeVisible();await page.mouse.click(2,2);await expect(page.getByRole('dialog')).not.toBeVisible();
  await page.getByRole('button',{name:'Geri',exact:true}).click();await page.getByRole('button',{name:'Davam et',exact:true}).click();
  await expect(page.getByRole('button',{name:'Turnirin başlanğıcı',exact:true})).toContainText('20:00');
  await expect(page.getByRole('button',{name:'2. raund başlayır',exact:true})).toContainText('20:50');
@@ -90,6 +91,7 @@ test('the existing tournament editor saves presentation changes without losing l
  await expect.poll(()=>payload?.name).toBe('Updated AEVIC Cup');expect(payload.bannerMediaId).toBeNull();expect(payload.expectedUpdatedAt).toBe(original.updatedAt);
  expect(payload.startsAt).toBe(original.startsAt);
  expect(payload.rounds.map((r:any)=>r.id)).toEqual(snapshot.matchSchedule!.filter(m=>m.tournamentId===original.id).sort((a,b)=>a.round-b.round).map(m=>m.id));
+ await page.goto('/admin/tournaments?view=calendar');await expect(page.locator('.admin-agenda-event').filter({hasText:'Updated AEVIC Cup'}).first()).toBeVisible();
 });
 
 test('retired Site Management has no Admin link or hidden editing route',async({page})=>{

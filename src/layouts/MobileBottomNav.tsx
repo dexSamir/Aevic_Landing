@@ -1,7 +1,8 @@
 import { type CSSProperties, useEffect, useId, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { House, Trophy, Users, Swords, CircleUserRound, LogOut } from 'lucide-react';
+import { House, Trophy, Users, Swords, CircleUserRound, LogOut, Link2 } from 'lucide-react';
 import { TeamLogo } from '../components/common/primitives';
+import { useSiteNavigation } from '../components/site/SiteContent';
 import { publicNavigation } from '../app/publicNavigation';
 import { activePublicRoute } from '../utils/routes';
 import { services } from '../services';
@@ -10,16 +11,17 @@ import type { Team } from '../types/domain';
 import './mobile-bottom-nav.css';
 
 type Session = Awaited<ReturnType<typeof services.auth.getSession>>;
-type Props = { session: Session | undefined; team?: Team; loading?: boolean; refresh?: () => void };
+type Props = { session: Session | undefined; team?: Team; loading?: boolean; refresh?: () => void; navigation?: typeof publicNavigation.primary };
 const icons = [House, Trophy, Users, Swords];
 const inFamily = (path: string, root: string) => path === root || path.startsWith(`${root}/`);
 
 export function PublicMobileBottomNav() {
-  return <MobileBottomNav {...usePublicSession()} />;
+  const navigation=useSiteNavigation(publicNavigation.primary);
+  return <MobileBottomNav {...usePublicSession()} navigation={navigation} />;
 }
 
 /** Identity comes from the layout's existing session and active workspace. */
-export function MobileBottomNav({ session, team, loading, refresh }: Props) {
+export function MobileBottomNav({ session, team, loading, refresh, navigation=publicNavigation.primary }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -31,7 +33,7 @@ export function MobileBottomNav({ session, team, loading, refresh }: Props) {
   const menuId = useId();
   const accountActive = ['/account', '/team', '/login', '/register', '/forgot-password', '/reset-password'].some(path => inFamily(location.pathname, path));
   const active = accountActive ? '' : activePublicRoute(location.pathname);
-  const activeIndex = accountActive || open ? 4 : publicNavigation.primary.findIndex(item => item.to === active);
+  const activeIndex = accountActive || open ? navigation.length : navigation.findIndex(item => item.to === active);
   const isAdmin = session?.role === 'admin';
   const workspace = !isAdmin && team;
   const identity = workspace ? team.name : session?.user.firstName || 'Hesab';
@@ -68,9 +70,12 @@ export function MobileBottomNav({ session, team, loading, refresh }: Props) {
         </> : <><Link to={publicNavigation.login.to}>{publicNavigation.login.label}</Link><Link to={publicNavigation.register.to}>{publicNavigation.register.label}</Link></>}
         {error && <p role="alert">{error}</p>}
       </nav>}
-      <nav className="mobile-nav__items" aria-label="Mobil əsas naviqasiya" style={{ '--mobile-active-index': activeIndex } as CSSProperties} >
+      <nav className="mobile-nav__items" aria-label="Mobil əsas naviqasiya" style={{ '--mobile-active-index': activeIndex,'--mobile-items':navigation.length+1 } as CSSProperties} >
         <span className="mobile-nav__indicator" aria-hidden="true" hidden={activeIndex < 0} />
-        {publicNavigation.primary.map((item, index) => { const Icon = icons[index]; return <Link key={item.to} to={item.to} state={{ bottomNavigation: true }} onClick={event => {
+        {navigation.map(item => {
+          const Icon=icons[publicNavigation.primary.findIndex(link=>link.to===item.to)]??Link2;
+          if(!item.to.startsWith('/'))return <a key={item.to} href={item.to} target="_blank" rel="noopener noreferrer"><Icon size={22} aria-hidden="true"/><span>{item.label}</span></a>;
+          return <Link key={item.to} to={item.to} state={{ bottomNavigation: true }} onClick={event => {
           if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
           if (location.pathname === item.to && !location.search && !location.hash) {
             event.preventDefault();

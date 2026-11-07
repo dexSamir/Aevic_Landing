@@ -46,7 +46,12 @@ export class PlatformRepository extends Repository {
   if(table==='matches')return normalize(await this.sql`select m.* from aevic.matches m join aevic.tournaments t on t.id=m.tournament_id where ${Boolean(this.actor.adminId)} or (t.status<>'draft' and t.archived_at is null) order by m.scheduled_at,m.id limit 10000`);
   if(table==='tournament_registrations')return normalize(await this.sql`select id,tournament_id,team_id::text,status,slot_number,roster_lock_at,roster,created_at,updated_at from aevic_platform.tournament_registrations where ${Boolean(this.actor.adminId)} or team_id=${this.actor.teamId??null} or status='confirmed' order by created_at,id limit 10000`);
   if(table==='team_match_results')return normalize(await this.sql`select r.*,r.team_id::text from aevic_platform.team_match_results r join aevic.matches m on m.id=r.match_id join aevic.tournaments t on t.id=r.tournament_id where ${Boolean(this.actor.adminId)} or (r.published and m.published_at is not null and t.status<>'draft') order by r.created_at,r.id limit 10000`);
-  if(table==='messages')return normalize(await this.sql`select m.*,m.team_id::text,mr.read_at from aevic_platform.messages m left join aevic_platform.message_reads mr on mr.message_id=m.id and mr.account_id=${this.actor.accountId??this.actor.teamId??null} where ${Boolean(this.actor.adminId)} or team_id=${this.actor.teamId??null} or (team_id is null and ${Boolean(this.actor.teamId)}) order by m.created_at desc,m.id limit 1000`);
+  if(table==='notifications')return this.notificationRows();
+  if(table==='messages')return normalize(await this.sql`select m.*,m.team_id::text,mr.read_at from aevic_platform.messages m
+   left join aevic_platform.message_reads mr on mr.message_id=m.id and mr.account_id=${this.actor.accountId??this.actor.teamId??null}
+   where ${Boolean(this.actor.adminId)} or (m.recipient_count is null and (m.team_id is null or m.team_id=${this.actor.teamId??null}) and ${Boolean(this.actor.teamId)})
+   or exists(select 1 from aevic_platform.message_teams r where r.message_id=m.id and r.team_id=${this.actor.teamId??null})
+   order by m.created_at desc,m.id limit 1000`);
   if(table==='support_replies')return normalize(await this.sql`select r.* from aevic_platform.support_replies r join aevic_platform.support_tickets t on t.id=r.ticket_id where ${Boolean(this.actor.adminId)} or t.user_id=${this.actor.accountId??this.actor.teamId??null} order by r.created_at,r.id limit 10000`);
   if(table==='audit_events'){if(!this.actor.adminId)throw new ServiceError(403,'FORBIDDEN');return normalize(await this.sql`select * from aevic_platform.audit_events order by created_at desc,id desc limit 10000`);}
   const accountOwned=['notifications','notification_preferences','support_tickets','follows'].includes(table);
@@ -57,6 +62,18 @@ export class PlatformRepository extends Repository {
   if(table==='team_details')return normalize(await this.sql`select team_id::text,description,tag,banner_url,banner_alt,country,founded_at,social_links,archived_at,legacy_history_incomplete from aevic_platform.team_details`);
   if(table==='organization_teams'||table==='featured_achievements')return normalize(await this.sql`select *,team_id::text from ${this.sql(schema+'.'+table)} limit 10000`);
   return normalize(await this.sql`select * from ${this.sql(schema+'.'+table)} limit 10000`);
+ }
+ async notificationRows(offset=0,limit=10000) {
+  const {teamId,accountId}=this.actor;
+  return normalize(await this.sql`select n.*,n.recipient_id::text,m.sender_alias,
+   case when n.message_id is not null then mr.read_at else n.read_at end as read_at
+   from aevic_platform.notifications n left join aevic_platform.messages m on m.id=n.message_id
+   left join aevic_platform.message_reads mr on mr.message_id=n.message_id and mr.account_id=n.recipient_id
+   where n.recipient_id=${accountId??teamId??null}
+   and (n.event_type<>'admin-message' or ((n.message_team_id is null or n.message_team_id=${teamId??null}) and exists(
+    select 1 from aevic_platform.team_authority a left join aevic_platform.team_details d on d.team_id=a.team_id
+    where a.account_id=n.recipient_id and a.team_id=${teamId??null} and d.archived_at is null)))
+   order by n.created_at desc,n.id desc offset ${offset} limit ${limit}`);
  }
  async teams(privateData=false):Promise<Team[]> {
   if(privateData&&!this.actor.teamId&&!this.actor.adminId)throw new ServiceError(401,'UNAUTHORIZED');

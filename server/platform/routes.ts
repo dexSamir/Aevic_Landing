@@ -96,13 +96,45 @@ app.patch('/admin/teams/:id/approval',async c=>{
 app.get('/me/notifications',async c=>{
  const owner=account(c),{offset,limit}=pagination(c);
  if(c.req.query('page')!=='true')return c.json(await platform(c).notifications(owner));
- const rows=await platform(c).sql`select * from aevic_platform.notifications where recipient_id=${owner} order by created_at desc,id desc offset ${offset} limit ${limit+1}`;
+ const rows=await platform(c).notificationRows(offset,limit+1);
  const hasMore=rows.length>limit;
  return c.json({items:normalize(rows.slice(0,limit)).map(notification),hasMore,nextCursor:hasMore?String(offset+limit):undefined});
 });
-app.put('/me/notifications/:id/read',async c=>{const id=uuid(c),owner=account(c);const rows=await platform(c).sql`update aevic_platform.notifications set read_at=coalesce(read_at,now()) where id=${id} and recipient_id=${owner} returning id`;if(!rows.length)throw new ServiceError(404,'NOT_FOUND');return c.body(null,204);});
-app.put('/me/notifications/read-all',async c=>{await platform(c).sql`update aevic_platform.notifications set read_at=now() where recipient_id=${account(c)} and read_at is null`;return c.body(null,204);});
-app.put('/me/messages/:id/read',async c=>{const id=uuid(c),team=captain(c),r=platform(c),account=r.actor.accountId??team;const rows=await r.sql`insert into aevic_platform.message_reads(message_id,account_id) select id,${account} from aevic_platform.messages where id=${id} and (team_id is null or team_id=${team}) on conflict(message_id,account_id) do update set read_at=aevic_platform.message_reads.read_at returning message_id`;if(!rows.length)throw new ServiceError(404,'NOT_FOUND');return c.body(null,204);});
+async function readNotifications(c:ApiContext,id?:string,read=true) {
+ const owner=account(c),team=actor(c).teamId;
+ await transaction(platform(c).sql,async tx=>{
+  const receipt=read?tx`insert into aevic_platform.message_reads(message_id,account_id)
+   select distinct message_id,${owner}::bigint from updated where message_id is not null on conflict do nothing`
+   :tx`delete from aevic_platform.message_reads where account_id=${owner} and message_id in (select message_id from updated)`;
+  const rows=await tx`with updated as (
+   update aevic_platform.notifications set read_at=case when ${read} then coalesce(read_at,now()) end
+   where recipient_id=${owner} and (${id??null}::uuid is null or id=${id??null})
+   and (event_type<>'admin-message' or (${Boolean(team)} and (message_team_id is null or message_team_id=${team??null})))
+   returning message_id)
+   , receipts as (${receipt})
+   select count(*)::int as count from updated`;
+  if(id && !rows[0].count)throw new ServiceError(404,'NOT_FOUND');
+ });
+ return c.body(null,204);
+}
+app.put('/me/notifications/:id/read',c=>readNotifications(c,uuid(c)));
+app.delete('/me/notifications/:id/read',c=>readNotifications(c,uuid(c),false));
+app.put('/me/notifications/read-all',c=>readNotifications(c));
+async function readMessage(c:ApiContext,read:boolean){
+ const id=uuid(c),team=captain(c),owner=account(c),sql=platform(c).sql;
+ const receipt=read?sql`insert into aevic_platform.message_reads(message_id,account_id)
+  select id,${owner}::bigint from visible on conflict do nothing`
+  :sql`delete from aevic_platform.message_reads where account_id=${owner} and message_id in (select id from visible)`;
+ const rows=await sql`with visible as (
+  select id from aevic_platform.messages m where id=${id} and
+  ((recipient_count is null and (team_id is null or team_id=${team})) or exists
+   (select 1 from aevic_platform.message_teams r where r.message_id=m.id and r.team_id=${team})))
+  , receipts as (${receipt}) select id from visible`;
+ if(!rows.length)throw new ServiceError(404,'NOT_FOUND');
+ return c.body(null,204);
+}
+app.put('/me/messages/:id/read',c=>readMessage(c,true));
+app.delete('/me/messages/:id/read',c=>readMessage(c,false));
 app.get('/me/messages',async c=>c.json(await platform(c).messages(captain(c))));
 app.get('/me/follows',async c=>{const r=platform(c),id=captain(c),[rows,teams]=await Promise.all([r.rows('follows'),r.teams()]);return c.json(rows.filter(row=>row.user_id===id).flatMap(row=>{const t=teams.find(t=>t.id===row.team_id);return t?[{entityType:'TEAM',entityId:t.id,following:true,source:'backend',team:summary(t)}]:[];}));});
 app.get('/me/follows/status',async c=>{const owner=captain(c),id=z.string().regex(/^[1-9]\d{0,18}$/).parse(c.req.query('entityId'));z.literal('TEAM').parse(c.req.query('entityType'));const rows=await platform(c).sql`select team_id from aevic_platform.follows where user_id=${owner} and team_id=${id}`;return c.json({entityType:'TEAM',entityId:id,following:rows.length>0});});

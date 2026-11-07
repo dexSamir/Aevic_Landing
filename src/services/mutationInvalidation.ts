@@ -21,6 +21,8 @@ export function mutationResources(path: string): string[] {
 export function invalidateMutation(path: string) {
   // Workspace changes alter every private resource's authority. Never retain the old
   // workspace as stale-while-revalidate content, or accept its in-flight responses.
+  if(path==='/admin/settings/branding'){invalidateQuery('platform:settings');invalidateQuery('admin:branding');return;}
+  if(path==='/admin/profile/alias'){invalidateQuery('admin:alias');return;}
   if(path==='/admin/settings'){invalidateQuery('platform:settings');invalidateQuery('admin:settings');return;}
   if (path === '/me/workspace') { clearQueryCache('private'); return; }
   if (/^\/auth\/(login|admin\/login|logout|password-reset\/confirm)$/.test(path)) clearQueryCache('private');

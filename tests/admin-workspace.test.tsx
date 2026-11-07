@@ -32,11 +32,11 @@ it('focuses invalid fields, retains inputs and maps across steps, reviews and pr
  await user.click(screen.getByRole('button',{name:'Davam et'}));
  async function pick(label:string,value:string){
   await user.click(screen.getByRole('button',{name:label,exact:true}));const dialog=screen.getByRole('dialog',{name:label,exact:true});
-  for(let i=0;i<24&&!dialog.querySelector(`[data-day="${value.slice(0,10)}"]`);i++){
+  for(let i=0;i<24&&!dialog.querySelector(`[data-day="${value.slice(0,10)}"] button`);i++){
    const current=dialog.querySelector('[data-day]')!.getAttribute('data-day')!;
    fireEvent.click([...dialog.querySelectorAll('button')].find(b=>b.getAttribute('aria-label')===(current.slice(0,7)>value.slice(0,7)?'Əvvəlki ay':'Növbəti ay'))!);
   }
-  fireEvent.click(dialog.querySelector(`[data-day="${value.slice(0,10)}"]`)!);
+  fireEvent.click(dialog.querySelector(`[data-day="${value.slice(0,10)}"] button`)!);
   fireEvent.change(screen.getByLabelText(`${label} · saat`),{target:{value:value.slice(11,13)}});fireEvent.change(screen.getByLabelText(`${label} · dəqiqə`),{target:{value:value.slice(14,16)}});
   fireEvent.click([...dialog.querySelectorAll('button')].find(b=>b.textContent==='Tarixi tətbiq et')!);
  }

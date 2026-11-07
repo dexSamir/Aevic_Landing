@@ -72,8 +72,13 @@ export function platformMiddleware(testSql?:Sql){
    }catch(error){if(error instanceof ServiceError&&['SESSION_REVOKED','MFA_REQUIRED'].includes(error.code)&&!c.req.path.startsWith('/api/auth/'))throw error;
     if(!(error instanceof ServiceError&&error.status===401))throw error;}
   }
-  if(identity.accountId&&!['GET','HEAD','OPTIONS'].includes(c.req.method)&&(workspaceRequest(c.req.path)||/^\/api\/(team-invitations|organizations|organization-invitations|players|me\/legacy-claims)(\/|$)/.test(c.req.path)))await requireVerifiedEmail(sql,identity.accountId);
-  if(identity.accountId&&workspaceRequest(c.req.path)){await selectWorkspace(sql,identity,getCookie(c,'aevic-workspace'));if(!['GET','HEAD','OPTIONS'].includes(c.req.method)&&!/^\/api\/teams\/[^/]+\/(authority|invitations|ownership|leave|archive)(\/|$)/.test(c.req.path))requireWorkspaceWrite(identity);}
+  const personalReadReceipt=/^\/api\/me\/(?:messages\/[^/]+\/read|notifications\/(?:[^/]+\/read|read-all))$/.test(c.req.path);
+  const writing=!['GET','HEAD','OPTIONS'].includes(c.req.method);
+  if(identity.accountId&&writing&&!personalReadReceipt&&(workspaceRequest(c.req.path)||/^\/api\/(team-invitations|organizations|organization-invitations|players|me\/legacy-claims)(\/|$)/.test(c.req.path)))await requireVerifiedEmail(sql,identity.accountId);
+  if(identity.accountId&&workspaceRequest(c.req.path)){
+   await selectWorkspace(sql,identity,getCookie(c,'aevic-workspace'));
+   if(writing&&!personalReadReceipt&&!/^\/api\/teams\/[^/]+\/(authority|invitations|ownership|leave|archive)(\/|$)/.test(c.req.path))requireWorkspaceWrite(identity);
+  }
   c.set('platform',new PlatformRepository(c.get('db'),sql,identity));
   await next();
   if (!['GET','HEAD','OPTIONS'].includes(c.req.method) && c.res.status < 400 && (/\/(teams|roster|roster-requests|tournaments|matches|results|verification|verifications|registrations|organizations|players|legacy-claims|legacy-roster|media|blacklist)(\/|$)/.test(c.req.path)||c.req.path==='/api/me/onboarding/team')) {

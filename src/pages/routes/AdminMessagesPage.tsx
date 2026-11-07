@@ -1,37 +1,335 @@
-import { EmptyState } from '../../components/common/primitives';
-import { AdminSearch, filterAdminItems } from '../../components/admin/AdminPrimitives';
+import { useRef, useState } from 'react';
+import { Check, ChevronDown, Eye, History, Megaphone, Send, Users } from 'lucide-react';
+import { AdminSearch } from '../../components/admin/AdminPrimitives';
 import {
-Send
-} from 'lucide-react';
-import { type FormEvent,useState } from 'react';
-import {
-Button,
-Input,
-PageHeader,
-SectionHeading,
-Textarea
+  Button,
+  EmptyState,
+  Input,
+  Modal,
+  NotificationItem,
+  PageHeader,
+  TeamLogo,
+  Textarea,
 } from '../../components/common/primitives';
 import { services } from '../../services';
 import { useAdminPlatformData } from '../../services/PlatformDataContext';
+import { usePlatformQuery } from '../../services/queryCache';
+import type { AdminMessage } from '../../types/domain';
 import { formatEventDate } from '../../utils/calendar';
+import '../../styles/admin-communications.css';
+
+const priorities = { info: 'Adi', warning: 'Vacib', critical: 'Təcili' } as const;
+type Draft = Parameters<typeof services.admin.sendMessage>[0];
 
 export function AdminMessagesPage() {
   const { adminMessages } = useAdminPlatformData();
-  const [search,setSearch]=useState('');
-  const [messages, setMessages] = useState(adminMessages);
-  const [title, setTitle] = useState(''); const [body, setBody] = useState('');
-  const [pending, setPending] = useState(false); const [notice, setNotice] = useState('');
-  const submit = async (event: FormEvent) => {
-    event.preventDefault(); if (pending || !title.trim() || !body.trim()) return;
-    setPending(true); setNotice('');
+  const directory = usePlatformQuery({
+    key: 'admin:message-recipients',
+    query: services.admin.messageRecipients,
+    refetchOnFocus: true,
+  });
+  const profile = usePlatformQuery({ key: 'admin:alias', query: services.admin.alias });
+  const [audience, setAudience] = useState<'all' | 'team'>('all');
+  const [teamId, setTeamId] = useState(''),
+    [search, setSearch] = useState(''),
+    [historySearch, setHistorySearch] = useState('');
+  const [title, setTitle] = useState(''),
+    [body, setBody] = useState(''),
+    [severity, setSeverity] = useState<keyof typeof priorities>('info');
+  const [actionHref, setActionHref] = useState('');
+  const [review, setReview] = useState<{
+    input: Draft;
+    label: string;
+    key: string;
+    createdAt: string;
+    sender: string;
+  }>();
+  const attempt = useRef<{ signature: string; key: string }>(undefined);
+  const lock = useRef(false),
+    [sending, setSending] = useState(false),
+    [feedback, setFeedback] = useState(''),
+    [error, setError] = useState('');
+  const teams = directory.data ?? [],
+    selected = teams.find((team) => team.id === teamId);
+  const matches = teams
+    .filter((team) =>
+      (team.name + ' ' + (team.tag ?? '')).toLocaleLowerCase('az').includes(search.toLocaleLowerCase('az')),
+    )
+    .slice(0, 12);
+  const count = audience === 'all' ? teams.length : Number(Boolean(selected));
+  const audienceLabel =
+    audience === 'all'
+      ? `Bütün komandalar · ${count}`
+      : selected
+        ? `${selected.name} · #${selected.id}`
+        : 'Komanda seçin';
+  const canReview =
+    count > 0 && !directory.error && Boolean(profile.data) && title.trim().length >= 2 && Boolean(body.trim());
+  function preview() {
+    if (!canReview) return;
+    setError('');
+    setFeedback('');
+    const input = {
+      audience,
+      title: title.trim(),
+      body: body.trim(),
+      severity,
+      teamId: audience === 'team' ? teamId : undefined,
+      actionHref: actionHref || undefined,
+      expectedCount: count,
+    };
+    const signature = JSON.stringify(input);
+    if (attempt.current?.signature !== signature) attempt.current = { signature, key: crypto.randomUUID() };
+    setReview({
+      input,
+      label: audienceLabel,
+      key: attempt.current.key,
+      createdAt: new Date().toISOString(),
+      sender: profile.data!.displayName,
+    });
+  }
+  async function send() {
+    if (!review || lock.current) return;
+    lock.current = true;
+    setSending(true);
+    setError('');
     try {
-      await services.admin.sendMessage({ title: title.trim(), body: body.trim(), severity: 'info', audience: 'all' });
-      const snapshot = await services.snapshots.admin();
-      setMessages(snapshot.adminMessages); setTitle(''); setBody('');
-      setNotice('Elan komanda mesajlarına əlavə edildi.');
-    } catch { setNotice('Elan göndərilmədi. Yenidən yoxlayın.'); }
-    finally { setPending(false); }
-  };
-  const visible=filterAdminItems(messages,search,m=>m.title+' '+m.body,'recent',m=>m.createdAt);
-  return <><PageHeader eyebrow="Komanda elanları" title="Mesaj mərkəzi" description="Bütün komandalar üçün tətbiqdaxili elan." />{notice && <p role="status">{notice}</p>}<div className="message-admin-layout"><form onSubmit={submit}><SectionHeading title="Yeni elan" /><div className="admin-message-audience"><span>Auditoriya</span><strong>Bütün komandalar</strong><small>Tətbiqdaxili elan</small></div><Input label="Elan başlığı" value={title} onChange={(event) => setTitle(event.target.value)} maxLength={160} required /><Textarea label="Elan mətni" value={body} onChange={(event) => setBody(event.target.value)} rows={6} maxLength={4000} required /><details className="admin-advanced"><summary>Göndərilmədən əvvəl önbaxış</summary><h3>{title||'Elan başlığı'}</h3><p style={{whiteSpace:'pre-wrap'}}>{body||'Elan mətni'}</p></details><Button type="submit" loading={pending} disabled={!title.trim() || !body.trim()} icon={<Send size={17} />}>Elanı göndər</Button></form><section><SectionHeading title="Göndərilmiş elanlar" /><AdminSearch value={search} onChange={setSearch} label="Elan axtar"/>{!visible.length&&<EmptyState title="Elan tapılmadı" body="Göndərilmiş elanlar burada görünəcək."/>}{visible.map((message) => <article className="sent-message" key={message.id}><time>{formatEventDate(message.createdAt, { withTime: true })}</time><h3>{message.title}</h3><p>{message.body}</p></article>)}</section></div></>;
+      const sent = await services.admin.sendMessage(review.input, review.key);
+      attempt.current = undefined;
+      setFeedback(`Elan ${sent.recipientCount} komandanın mesaj qutusuna göndərildi.`);
+      setReview(undefined);
+      setTitle('');
+      setBody('');
+      setTeamId('');
+      setSearch('');
+      setActionHref('');
+    } catch (e) {
+      if ((e as { code?: string }).code === 'RECIPIENTS_CHANGED') {
+        setReview(undefined);
+        directory.refetch();
+        setError('Alıcı siyahısı dəyişib. Yenilənmiş auditoriyanı yoxlayın.');
+      } else setError(e instanceof Error ? e.message : 'Elan göndərilmədi.');
+    } finally {
+      lock.current = false;
+      setSending(false);
+    }
+  }
+  const history = adminMessages.filter((m) =>
+    (m.title + ' ' + (m.senderAlias ?? '') + ' ' + (m.recipientName ?? ''))
+      .toLocaleLowerCase('az')
+      .includes(historySearch.toLocaleLowerCase('az')),
+  );
+  return (
+    <div className="communications">
+      <PageHeader
+        eyebrow="Komanda əlaqələri"
+        title="Mesaj mərkəzi"
+        description="Rəsmi elanları hazırlayın və komandalara çatdırın."
+      />
+      {feedback && (
+        <p role="status" className="comm-feedback">
+          {feedback}
+        </p>
+      )}
+      {error && !review && <p role="alert">{error}</p>}
+      <div className="comm-workspace">
+        <form
+          className="comm-panel comm-compose"
+          onSubmit={(e) => {
+            e.preventDefault();
+            preview();
+          }}
+        >
+          <header className="comm-heading">
+            <Megaphone />
+            <h2>Yeni elan</h2>
+          </header>
+          <fieldset>
+            <legend>Auditoriya</legend>
+            <div className="comm-options">
+              {(['all', 'team'] as const).map((value) => (
+                <button
+                  type="button"
+                  key={value}
+                  aria-pressed={audience === value}
+                  onClick={() => setAudience(value)}
+                >
+                  {value === 'all' ? <Users size={16} /> : <Send size={16} />}{' '}
+                  {value === 'all' ? 'Bütün komandalar' : 'Konkret komanda'}
+                </button>
+              ))}
+            </div>
+            {directory.error ? (
+              <p role="alert">
+                Alıcılar yüklənmədi.{' '}
+                <button type="button" onClick={directory.refetch}>
+                  Yenilə
+                </button>
+              </p>
+            ) : directory.loading ? (
+              <p role="status">Alıcılar yüklənir…</p>
+            ) : audience === 'all' ? (
+              <p className="comm-muted">
+                <strong>{count} komanda</strong> · Üzvü olan, təsdiqlənmiş və ya təsdiq gözləyən aktiv komandalar.
+              </p>
+            ) : selected ? (
+              <div className="comm-recipient">
+                <TeamLogo name={selected.name} src={selected.logoUrl ?? undefined} />
+                <div>
+                  <strong>{selected.name}</strong>
+                  <small>
+                    {selected.tag} · #{selected.id}
+                  </small>
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => setTeamId('')}>
+                  Dəyiş
+                </Button>
+              </div>
+            ) : (
+              <>
+                <AdminSearch
+                  label="Alıcı komanda axtar"
+                  placeholder="Komanda adı və ya teq"
+                  value={search}
+                  onChange={setSearch}
+                />
+                <div className="comm-matches">
+                  {matches.map((team) => (
+                    <button type="button" key={team.id} onClick={() => setTeamId(team.id)}>
+                      <TeamLogo name={team.name} src={team.logoUrl ?? undefined} size="sm" />
+                      <span>
+                        {team.name}
+                        <small>
+                          {team.tag} · #{team.id}
+                        </small>
+                      </span>
+                    </button>
+                  ))}
+                  {!matches.length && <p>Komanda tapılmadı.</p>}
+                </div>
+              </>
+            )}
+          </fieldset>
+          <Input
+            label="Elan başlığı"
+            value={title}
+            maxLength={160}
+            required
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <Textarea
+            label="Elan mətni"
+            rows={5}
+            value={body}
+            maxLength={4000}
+            required
+            onChange={(e) => setBody(e.target.value)}
+          />
+          <fieldset>
+            <legend>Prioritet</legend>
+            <div className="comm-options">
+              {(Object.keys(priorities) as Array<keyof typeof priorities>).map((key) => (
+                <button type="button" key={key} aria-pressed={key === severity} onClick={() => setSeverity(key)}>
+                  {key === severity && <Check size={14} />} {priorities[key]}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <label className="field">
+            <span>Daxili keçid</span>
+            <select value={actionHref} onChange={(e) => setActionHref(e.target.value)}>
+              <option value="">Keçidsiz</option>
+              <option value="/tournaments">Turnirlər</option>
+              <option value="/regulations">Qaydalar</option>
+              <option value="/team">Komanda paneli</option>
+            </select>
+          </label>
+          <footer className="comm-actions">
+            <span>{audienceLabel}</span>
+            <Button type="submit" disabled={!canReview} icon={<Eye size={17} />}>
+              Önbaxış
+            </Button>
+          </footer>
+        </form>
+        <section className="comm-panel comm-history">
+          <header className="comm-heading">
+            <History />
+            <h2>Göndərilmiş elanlar</h2>
+          </header>
+          <AdminSearch
+            label="Elan axtar"
+            placeholder="Başlıq, komanda və ya admin"
+            value={historySearch}
+            onChange={setHistorySearch}
+          />
+          {history.length ? (
+            history.map((message) => <HistoryItem key={message.id} message={message} />)
+          ) : (
+            <EmptyState title="Elan tapılmadı" body="Göndərilmiş elanlar burada görünəcək." />
+          )}
+        </section>
+      </div>
+      <Modal
+        open={Boolean(review)}
+        title="Elanı təsdiqlə"
+        onClose={() => {
+          if (!sending) setReview(undefined);
+        }}
+        footer={
+          <>
+            <Button variant="ghost" disabled={sending} onClick={() => setReview(undefined)}>
+              Redaktə et
+            </Button>
+            <Button loading={sending} onClick={send} icon={<Send size={16} />}>
+              Elanı göndər
+            </Button>
+          </>
+        }
+      >
+        {review && (
+          <>
+            <p className="comm-review-scope">
+              <Users size={17} /> {review.label}
+            </p>
+            <NotificationItem
+              item={{
+                ...review.input,
+                id: 'preview',
+                senderAlias: review.sender,
+                createdAt: review.createdAt,
+                eventType: 'admin-message',
+                read: false,
+              }}
+            />
+            {review.input.actionHref && <small>{review.input.actionHref}</small>}
+            {error && <p role="alert">{error}</p>}
+          </>
+        )}
+      </Modal>
+    </div>
+  );
+}
+function HistoryItem({ message }: { message: AdminMessage }) {
+  const scope =
+    message.audience === 'team'
+      ? (message.recipientName ?? (message.teamId ? '#' + message.teamId : 'Komanda'))
+      : 'Bütün komandalar';
+  return (
+    <details className="comm-history-item">
+      <summary>
+        <span>
+          <small>{formatEventDate(message.createdAt, { withTime: true })}</small>
+          <strong>{message.title}</strong>
+          <small>
+            {message.senderAlias ?? 'AEVIC Admin'} · {scope}
+            {message.recipientCount != null ? ` · ${message.recipientCount} komanda` : ''}
+          </small>
+        </span>
+        <ChevronDown size={16} />
+      </summary>
+      <p>{message.body}</p>
+      {message.actionHref && <small>{message.actionHref}</small>}
+      {message.deliveryCount != null && <small>{message.deliveryCount} tətbiqdaxili bildiriş yaradılıb</small>}
+    </details>
+  );
 }

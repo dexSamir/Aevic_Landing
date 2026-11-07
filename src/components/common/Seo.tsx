@@ -1,4 +1,5 @@
-import { useSiteHeader } from '../site/SiteContent';
+import { brandAssetUrl } from '../../content/branding';
+import { useBranding, useSiteHeader } from '../site/SiteContent';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -19,9 +20,12 @@ function upsertMeta(selector: string, attributes: Record<string, string>) {
 export function Seo({ title, description = DEFAULT_DESCRIPTION, canonicalPath, image, publicEntity = false }: { title: string; description?: string; canonicalPath?: string; image?: string; publicEntity?: boolean }) {
   const location = useLocation();
   const content=useSiteHeader();
+  const brand=useBranding(),name=brand?.name??SITE_NAME;
+  if(brand?.seoDescription && (!publicEntity && location.pathname==='/' || description===DEFAULT_DESCRIPTION))description=brand.seoDescription;
+  const fallback=brandAssetUrl(brand?.assets.fallback);
   if(!publicEntity){if(typeof content?.seoTitle==='string'&&content.seoTitle)title=content.seoTitle;if(typeof content?.seoDescription==='string'&&content.seoDescription)description=content.seoDescription;}
   useEffect(() => {
-    const fullTitle = title.includes('AEVIC') ? title : `${title} | ${SITE_NAME}`;
+    const fullTitle = title.includes('AEVIC') ? (name===SITE_NAME?title:title.replace(/AEVIC(?: Esports)?/,()=>name)) : `${title} | ${name}`;
     const route = matchRoute(location.pathname);
     const origin = configuredPublicOrigin();
     const indexable = Boolean(origin && import.meta.env.VITE_INDEXABLE_DEPLOYMENT && route && (route.indexable || publicEntity) && routeIsAvailable(route, serviceCapabilities));
@@ -34,7 +38,7 @@ export function Seo({ title, description = DEFAULT_DESCRIPTION, canonicalPath, i
     upsertMeta('meta[property="og:type"]', { property: 'og:type', content: 'website' });
     upsertMeta('meta[property="og:url"]', { property: 'og:url', content: canonical });
     {
-      const absoluteImage = new URL(publicImageUrl(image) ?? '/brand/aevic-phoenix.jpg', origin ?? window.location.origin).toString();
+      const absoluteImage = new URL(publicImageUrl(image) ?? fallback ?? '/brand/aevic-phoenix.jpg', origin ?? window.location.origin).toString();
       upsertMeta('meta[property="og:image"]', { property: 'og:image', content: absoluteImage });
       upsertMeta('meta[name="twitter:image"]', { name: 'twitter:image', content: absoluteImage });
     }
@@ -45,12 +49,13 @@ export function Seo({ title, description = DEFAULT_DESCRIPTION, canonicalPath, i
     if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
     if (canonical) link.href = canonical;
     else link.remove();
-  }, [canonicalPath, description, image, location.pathname, location.search, title, publicEntity]);
+  }, [canonicalPath, name, fallback, description, image, location.pathname, location.search, title, publicEntity]);
   return null;
 }
 
 export function RouteSeo() {
   const { pathname } = useLocation();
   const route = matchRoute(pathname);
-  return <Seo title={route?.title ?? 'Səhifə tapılmadı — AEVIC'} description={route?.description ?? 'Bu ünvan AEVIC marşrutları arasında yoxdur.'} />;
+  const brand=useBranding();
+  return <Seo title={route?.title ?? 'Səhifə tapılmadı — AEVIC'} description={brand?.seoDescription || (route?.description ?? 'Bu ünvan AEVIC marşrutları arasında yoxdur.')} />;
 }

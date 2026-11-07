@@ -875,6 +875,7 @@ export interface RoomCredentials {
 }
 
 export interface RoundResult {
+  version?: number;
   id: ID;
   tournamentId: ID;
   roundId: ID;
@@ -943,6 +944,7 @@ export interface PlayerPerformance {
 }
 
 export interface Notification {
+  senderAlias?: string;
   id: ID;
   eventId?: ID;
   title: string;
@@ -958,6 +960,10 @@ export interface Notification {
 }
 
 export interface AdminMessage extends Notification {
+  teamId?: string;
+  recipientName?: string;
+  recipientCount?: number;
+  deliveryCount?: number;
   audience: 'all' | 'selected' | 'team';
   scheduledAt?: ISODate;
 }

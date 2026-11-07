@@ -3,15 +3,15 @@ import {validateBrandAssetRequest} from '../../src/services/brandAssetValidation
 import {body} from '../validation/input';
 import {Hono} from 'hono';
 import {z} from 'zod';
-import type {Env} from '../types';
+import type {ApiContext,Env} from '../types';
 import {platform,ownTeam,actor,admin} from './context';
 import {transaction,audit} from './competition';
 import {validateImage} from '../captain/media';
 import {ServiceError} from '../errors';
 import {createAttemptLimiter} from '../captain/limit';
 const app=new Hono<Env>(),limit=createAttemptLimiter();
-app.post('/admin/tournament-banners',async c=>{
- const owner=admin(c,['tournament-manager']);limit('tournament-banner',owner,20);
+async function uploadAdminImage(c:ApiContext,branding:boolean){
+ const owner=admin(c,branding?['super-admin']:['tournament-manager']);limit(branding?'brand-image':'tournament-banner',owner,20);
  const form=await c.req.formData(),file=form.get('file');
  if(!(file instanceof File)||!file.size)throw new ServiceError(422,'INVALID_IMAGE');
  if(file.size>4_000_000)throw new ServiceError(413,'FILE_TOO_LARGE');
@@ -22,13 +22,22 @@ app.post('/admin/tournament-banners',async c=>{
  const id=crypto.randomUUID();
  await transaction(platform(c).sql,async tx=>{
   await tx`insert into aevic_platform.tournament_banners(id,uploaded_by,file_name,bytes) values(${id},${owner},${file.name.slice(0,200)},${bytes})`;
-  await audit(tx,actor(c),'tournament.banner-upload','media',id);
+  await audit(tx,actor(c),branding?'branding.image-upload':'tournament.banner-upload','media',id);
  });
  return c.json({id,url:`/api/media/tournament-banners/${id}`},201);
-});
+}
+app.post('/admin/tournament-banners',c=>uploadAdminImage(c,false));
+app.post('/admin/settings/branding/images',c=>uploadAdminImage(c,true));
 app.get('/media/tournament-banners/:id',async c=>{
  const id=z.uuid().parse(c.req.param('id')),r=platform(c);
- const [row]=await r.sql`select b.bytes,(exists(select 1 from aevic.tournaments t where t.banner_media_id=b.id and t.status<>'draft' and t.archived_at is null) or exists(select 1 from aevic_platform.settings s where s.key like 'site:%' and s.value->'published'->'fields' @> jsonb_build_object('hero.media',b.id::text)) or exists(select 1 from aevic_platform.settings s where s.key like 'site:%' and s.value->'published'->'fields' @> jsonb_build_object('join.media',b.id::text))) as published from aevic_platform.tournament_banners b where b.id=${id} and (${Boolean(r.actor.adminId)} or (exists(select 1 from aevic.tournaments t where t.banner_media_id=b.id and t.status<>'draft' and t.archived_at is null) or exists(select 1 from aevic_platform.settings s where s.key like 'site:%' and s.value->'published'->'fields' @> jsonb_build_object('hero.media',b.id::text)) or exists(select 1 from aevic_platform.settings s where s.key like 'site:%' and s.value->'published'->'fields' @> jsonb_build_object('join.media',b.id::text))))`;
+ const [row]=await r.sql`select * from (
+  select b.bytes, (exists(select 1 from aevic.tournaments t where t.banner_media_id=b.id and t.status<>'draft' and t.archived_at is null)
+   or exists(select 1 from aevic_platform.settings s where s.key like 'site:%' and
+    (s.value->'published'->'fields'->>'hero.media'=b.id::text or s.value->'published'->'fields'->>'join.media'=b.id::text))
+   or exists(select 1 from aevic_platform.settings s cross join lateral jsonb_each_text(s.value->'assets') asset
+    where s.key='branding' and asset.value=b.id::text)) as published
+  from aevic_platform.tournament_banners b where b.id=${id}
+ ) media where published or ${Boolean(r.actor.adminId)}`;
  if(!row)throw new ServiceError(404,'MEDIA_NOT_FOUND');
  // Revalidate visibility on every use, including after detaching/archiving.
  const etag=`"tournament-banner-${id}"`;

@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { useSiteContent } from '../components/site/SiteContent';
+import { useSiteContent, useSupportEmail } from '../components/site/SiteContent';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/regulations.css';
@@ -37,9 +37,10 @@ export function TermsPage() {
 }
 
 export function ContactPage() {
+  const email=useSupportEmail();
   return <InformationPage title="Əlaqə" description="Hazırkı ictimai buraxılışın əlaqə və dəstək imkanları." sections={[
     ["Yarış əməliyyatları", "Hesabınızdakı dəstək bölməsindən sorğu göndərə və cavabları izləyə bilərsiniz."],
     ["Komanda dəstəyi", "Komanda təsdiqi və heyət sorğuları komanda iş sahəsindən izlənilir."],
-    ["Rəsmi əlaqə", "Təsdiqlənmiş sosial kanallar konfiqurasiya edildikdə səhifənin aşağı hissəsində görünür. Heç bir keçid göstərilmirsə, əlaqə kanalı bu buraxılışda hələ dərc edilməyib."]
+    ["Rəsmi əlaqə", <a href={'mailto:'+email}>{email}</a>]
   ]} />;
 }

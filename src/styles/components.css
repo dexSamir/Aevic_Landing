@@ -533,3 +533,9 @@
  scrollbar-width:none;
 }
 .team-modal-scroll::-webkit-scrollbar,.team-modal-scroll .modal__body::-webkit-scrollbar,.team-modal-scroll .command-table-wrap::-webkit-scrollbar,.team-logo-editor::-webkit-scrollbar { display:none; }
+
+.notification-item[data-announcement] > div { min-width: 0; }
+.notification-item[data-announcement] :is(p,h3) { white-space: pre-wrap; overflow-wrap: anywhere; }
+.notification-item .notification-sender { display: block; margin-bottom: 5px; color: var(--text-secondary); }
+.notification-item[data-announcement="critical"] .notification-item__icon { color: #e99a91; }
+.notification-item[data-announcement="warning"] .notification-item__icon { color: #dfc083; }

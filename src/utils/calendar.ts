@@ -72,3 +72,9 @@ export function buildGoogleCalendarUrl(event: CalendarEventData) {
   const params = new URLSearchParams({ action: 'TEMPLATE', text: event.title, dates: `${utcStamp(event.startsAt)}/${utcStamp(end)}`, details: `${event.description}\n\n${event.publicUrl}`, location: event.location ?? '', ctz: event.timezone });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
+
+/** Monday-first month grid, shared by public and administrative calendars. */
+export function calendarMonthDays(year: number, month: number) {
+  const leading = (new Date(Date.UTC(year, month, 1, 12)).getUTCDay() + 6) % 7;
+  return Array.from({ length: 42 }, (_, index) => new Date(Date.UTC(year, month, index - leading + 1, 12)));
+}

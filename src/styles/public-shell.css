@@ -190,3 +190,5 @@
 @media (prefers-reduced-motion: reduce) {
   .site-header .public-nav-capsule, .site-header__tools, .site-header :is(a, button), .site-header :is(a, button)::after { transition: none; }
 }
+
+.site-header__desktop .public-nav-capsule {min-width:0;overflow-x:auto;scrollbar-width:thin}

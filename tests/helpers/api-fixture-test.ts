@@ -58,6 +58,8 @@ export async function installApiFixtures(page:Page){
     else if(key==='GET /admin/support/tickets')value=await s.support.adminPage();
     else if(key==='GET /admin/results')value=await s.results.roundEntries(q.get('roundId')!);
     else if(key==='GET /admin/audit')value=await s.operations.audit();
+    else if(key==='GET /admin/profile/alias')value={alias:null,displayName:'AEVIC Admin',canBrand:true};
+    else if(key==='GET /admin/messages/recipients')value=[{id:fixtureTeam.id,name:fixtureTeam.name,tag:fixtureTeam.tag,logoUrl:fixtureTeam.logoUrl}];
     else if(key==='GET /admin/settings')value={supportEmail:'support@example.invalid',registrationEnabled:true,maintenanceMessage:'Test platform announcement'};
     else if(key==='GET /admin/users')value=await s.operations.adminUsers();
     else {
