@@ -94,7 +94,8 @@ function WorkspacePicker({currentId}:{currentId:string}) {
 
 function TeamIdentityBlock({ team, compact = false, onNavigate }: { team: Team; compact?: boolean; onNavigate?: () => void }) {
   const profilePath = `/teams/${encodeURIComponent(team.slug ?? team.id)}`;
-  return <div className={compact ? 'team-identity team-identity--drawer drawer-identity' : 'team-identity'}><TeamLogo name={team.name} src={team.logoUrl} /><div className="team-identity__body"><strong tabIndex={0} data-tooltip={team.name}>{team.name}</strong>{!compact && <StatusBadge status={team.approvalStatus} />}<Link to={profilePath} onClick={onNavigate}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link></div></div>;
+  if (!compact) return <div className="team-identity"><TeamLogo name={team.name} src={team.logoUrl} /><div className="team-identity__body"><strong tabIndex={0} data-tooltip={team.name}>{team.name}</strong><StatusBadge status={team.approvalStatus} /></div><Link className="team-identity__profile" to={profilePath} onClick={onNavigate}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link></div>;
+  return <div className="team-identity team-identity--drawer drawer-identity"><TeamLogo name={team.name} src={team.logoUrl} /><div className="team-identity__body"><strong tabIndex={0} data-tooltip={team.name}>{team.name}</strong><Link to={profilePath} onClick={onNavigate}>İctimai profili aç <ExternalLink size={14} aria-hidden="true" /></Link></div></div>;
 }
 
 export function TeamLayout() {

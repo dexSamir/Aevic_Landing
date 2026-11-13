@@ -1,3 +1,4 @@
+import { useFullBleedRail } from '../../components/common/useFullBleedRail';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowUpRight, CheckCheck, ClipboardCheck, FileImage, History, Pencil, RefreshCw, Save, ShieldCheck, Trophy } from 'lucide-react';
@@ -18,6 +19,7 @@ import '../../styles/admin-results.css';
 type RoundState={count:number;published:boolean;corrected:boolean};
 
 export function ResultEntryForm() {
+  const railRef = useFullBleedRail<HTMLElement>();
   const snapshot=useAdminPlatformData();
   const [params,setParams]=useSearchParams();
   const tour=params.get('tournament')??'',round=params.get('round')??'';
@@ -30,7 +32,7 @@ export function ResultEntryForm() {
   const choose=(tournamentId:string,roundId='')=>{if(locked)return;setParams({tournament:tournamentId,...(roundId?{round:roundId}:{})},{replace:true});};
   return <div className="results-workspace"><PageHeader eyebrow="Yarış əməliyyatları" title="Nəticələr" description="Raundu seçin, nəticələri yoxlayın və rəsmi dərcə hazırlayın." actions={<Link className="button button--ghost" to="/admin/tournaments?view=calendar">Təqvim <ArrowUpRight size={16}/></Link>}/>
     <section className="results-context" aria-label="Turnir və raund seçimi"><AdminTournamentSelect tournaments={snapshot.tournaments} value={tour} disabled={locked} onChange={id=>choose(id)}/>{tournament&&<div className="results-context-meta"><StatusBadge status={tournamentStatusTone(tournament.status)}>{adminTournamentStatuses[tournament.status]??tournament.status}</StatusBadge><Link to={`/admin/tournaments/${tour}`}>Turniri idarə et <ArrowUpRight size={15}/></Link></div>}</section>
-    {tournament&&<><nav className="results-rounds" aria-label="Raundlar">{rounds.map(m=>{const state=roundStates[m.id];const published=state?.published||snapshot.publishedRoundIds?.[tour]?.includes(m.id)||!!m.publishedAt;return <button key={m.id} aria-pressed={m.id===round} disabled={locked} onClick={()=>choose(tour,m.id)}><span><b>{String(m.round).padStart(2,'0')}</b><strong>{m.map}</strong></span><time dateTime={m.startsAt}>{formatEventDate(m.startsAt,{withTime:true,includeYear:false})}</time><small data-published={published}>{published?<><CheckCheck size={13}/>{state?.corrected?'Düzəliş edilib':'Dərc edilib'}</>:state?.count?<>Qaralama · {state.count} komanda</>:<> {m.status==='live'?'Canlı · nəticə gözlənilir':'Dərc edilməyib'}</>}</small></button>;})}</nav>{!rounds.length&&<EmptyState title="Raund yoxdur" body="Turnirin cədvəlini idarəetmə səhifəsində tamamlayın."/>}</>}
+    {tournament&&<><nav ref={railRef} className="results-rounds" aria-label="Raundlar">{rounds.map(m=>{const state=roundStates[m.id];const published=state?.published||snapshot.publishedRoundIds?.[tour]?.includes(m.id)||!!m.publishedAt;return <button key={m.id} aria-pressed={m.id===round} disabled={locked} onClick={()=>choose(tour,m.id)}><span><b>{String(m.round).padStart(2,'0')}</b><strong>{m.map}</strong></span><time dateTime={m.startsAt}>{formatEventDate(m.startsAt,{withTime:true,includeYear:false})}</time><small data-published={published}>{published?<><CheckCheck size={13}/>{state?.corrected?'Düzəliş edilib':'Dərc edilib'}</>:state?.count?<>Qaralama · {state.count} komanda</>:<> {m.status==='live'?'Canlı · nəticə gözlənilir':'Dərc edilməyib'}</>}</small></button>;})}</nav>{!rounds.length&&<EmptyState title="Raund yoxdur" body="Turnirin cədvəlini idarəetmə səhifəsində tamamlayın."/>}</>}
     {tournament&&selected?<ResultRoundWorkspace key={`${tour}:${round}`} tournament={tournament} match={selected} snapshot={snapshot} onLockChange={setLocked} onStateChange={updateRoundState}/>:<EmptyState icon={<Trophy size={28}/>} title={tournament?'Raund seçin':'Turnir seçin'} body={tournament?'Nəticə əməliyyatlarına başlamaq üçün yuxarıdakı raundlardan birini seçin.':'Axtarışdan turniri tapın və nəticə iş sahəsini açın.'}/>}
   </div>;
 }

@@ -80,3 +80,54 @@
 }
 
 .match-center .match-lower { grid-template-columns:minmax(0,1fr); margin-top:28px; }
+
+/* Compact, consistently aligned facts and controls. */
+.match-center__header { grid-template-columns:minmax(0,1fr) minmax(350px,390px); align-items:center; gap:32px; margin-bottom:32px; }
+.match-center .match-metrics { gap:12px; }
+.match-center .match-metrics > div { min-height:136px; padding:18px 16px; gap:6px; border-radius:12px; }
+.match-center .match-metrics strong { font-size:34px; margin-bottom:4px; }
+.match-center .match-metrics > div:nth-child(2) strong { color:var(--color-text-primary); }
+.match-center .match-metrics i { width:8px; height:8px; flex-basis:8px; margin:4px 0 10px; }
+.match-center .match-metrics b,.match-center .match-metrics span { font-size:12px; line-height:1.5; }
+.match-center .match-filters { grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto; align-items:end; gap:24px; padding:20px; }
+.match-filters__field { display:grid; gap:8px; min-width:0; }
+.match-center .match-filters label { margin:0; font-size:12px; color:var(--color-text-muted); }
+.match-center .match-filters :is(input,select) { height:46px; padding:10px 12px; font-size:14px; line-height:1.4; border-radius:8px; }
+.match-center .match-filters__search input { padding-right:44px; }
+.match-center .match-filters__search > svg { top:50%; right:14px; transform:translateY(-50%); }
+.match-center .match-filters > button { grid-column:auto; justify-self:end; justify-content:center; min-height:46px; padding:10px 12px; border-radius:8px; font-size:13px; }
+.match-center .match-filters > button:hover { background:var(--color-bg-elevated); }
+.match-center .match-section-heading { gap:24px; margin-bottom:24px; }
+.match-center .match-section-heading > strong { color:var(--color-text-muted); font-weight:500; }
+.match-center .match-ledger { display:grid; gap:8px; }
+.match-center .match-ledger__row { grid-template-columns:88px minmax(0,1.1fr) minmax(0,1fr) auto; gap:24px; padding:16px; min-height:100px; border-radius:12px; background:var(--surface-1); }
+.match-center .match-ledger__row > time { padding:4px 0 4px 12px; border-left-width:2px; line-height:1.5; }
+.match-center .match-ledger__row time small { margin-top:6px; }
+.match-center .match-ledger__row > div { font-size:13px; line-height:1.5; }
+.match-center .match-ledger__row > div > span { display:block; color:var(--color-text-primary); }
+.match-center .match-ledger__row p { margin-top:6px; }
+.match-center .match-ledger__winner { display:flex; align-items:center; gap:12px; font-size:14px; line-height:1.5; min-width:0; }
+.match-ledger__winner > .team-logo { flex-shrink:0; }
+.match-ledger__winner > span { min-width:0; }
+.match-center .match-ledger__winner small { margin-top:6px; }
+.match-center .match-ledger__row > a { justify-self:end; gap:10px; font-size:12px; padding:8px 0 8px 8px; white-space:nowrap; }
+@media(max-width:1200px) { .match-center__header { grid-template-columns:minmax(0,1fr); gap:24px; } .match-center .match-metrics { max-width:440px; } }
+@media(max-width:768px) {
+ .match-center .match-filters { grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; padding:16px; }
+ .match-center .match-filters > button { grid-column:1/-1; }
+ .match-center .match-filters :is(input,select) { font-size:16px; }
+ .match-center .match-ledger__row { grid-template-columns:76px minmax(0,1fr); gap:16px; padding:16px; }
+ .match-center .match-ledger__row > strong { grid-column:2; }
+ .match-center .match-ledger__row:has(>strong) > a { grid-column:2; grid-row:auto; margin:0; padding:4px 0; }
+ .match-center .match-ledger__row > a { grid-column:2; }
+ .match-center .match-section-heading { gap:16px; }
+}
+@media(max-width:540px) {
+ .match-center .match-filters { grid-template-columns:minmax(0,1fr); }
+ .match-center .match-metrics { gap:8px; }
+ .match-center .match-metrics > div { min-height:124px; padding:14px 10px; }
+ .match-center .match-metrics strong { font-size:28px; }
+ .match-center .match-ledger__row { grid-template-columns:64px minmax(0,1fr); gap:12px; padding:16px 12px; }
+ .match-center .match-ledger__row > time { padding-left:8px; }
+ .match-center .match-ledger__winner { gap:8px; font-size:13px; }
+}

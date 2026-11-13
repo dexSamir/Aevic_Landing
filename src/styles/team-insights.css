@@ -70,9 +70,9 @@
 .insight-chart > header { flex-wrap:nowrap; align-items:flex-start; }
 .insight-chart > header > div { min-width:0; }
 .insight-chart > header p { margin-top:6px; }
-.chart-download { display:grid; place-items:center; flex:0 0 44px; width:44px; height:44px; padding:0; border:0; border-radius:8px; background:transparent; color:var(--color-text-muted); cursor:pointer; }
+.insight-chart .chart-download { display:inline-flex; align-items:center; justify-content:center; gap:8px; flex:0 0 auto; width:auto; min-height:44px; padding:10px 12px; border:1px solid var(--color-border); border-radius:8px; background:var(--team-surface-raised,var(--color-bg-elevated)); color:var(--color-text-primary); font-size:12px; white-space:nowrap; cursor:pointer; }
 .insight-chart .chart-download svg { width:17px; height:17px; margin:0; }
-.chart-download:hover { color:var(--color-brand-primary); background:var(--team-surface-raised,var(--color-bg-elevated)); }
+.insight-chart .chart-download:hover:not(:disabled) { color:var(--color-text-primary); background:color-mix(in srgb,var(--color-bg-elevated),white 8%); }
 .chart-download:disabled { opacity:.45; cursor:default; }
 .chart-axes { display:flex; flex-wrap:wrap; gap:8px 16px; justify-content:space-between; margin-top:16px; font-size:12px; color:var(--color-text-muted); }
 .chart-legend::before { content:''; display:inline-block; width:16px; height:2px; margin-right:6px; vertical-align:middle; background:var(--color-brand-primary); }
@@ -108,6 +108,17 @@
 /* A details element is a grid item: constrain its min-content table width. */
 .insight-table { min-width:0; max-width:100%; }
 .insight-table > [role=region] { max-width:100%; overscroll-behavior-inline:contain; }
+.insight-table--maps { margin-top:28px; padding-top:16px; border-top:1px solid var(--color-border); }
+.insight-table--maps > summary { display:flex; align-items:center; gap:10px; list-style:none; font-weight:600; color:var(--color-text-primary); }
+.insight-table--maps > summary::-webkit-details-marker { display:none; }
+.insight-table--maps > summary > svg { width:18px; height:18px; margin:0; transform:rotate(-90deg); transition:transform 160ms ease; }
+.insight-table--maps[open] > summary > svg { transform:rotate(0); }
+.insight-table--maps > [role=region] { margin-top:16px; }
+.insight-table--maps caption { padding:0 16px 16px; text-align:left; color:var(--color-text-muted); line-height:1.5; }
+.insight-table--maps :is(th,td) { padding:16px; }
+.insight-table--maps td { font-variant-numeric:tabular-nums; }
+@media(max-width:540px) { .insight-chart > header { flex-wrap:wrap; gap:12px; } }
+@media(prefers-reduced-motion:reduce) { .insight-table--maps > summary > svg { transition:none; } }
 
 .intelligence-card { flex-basis:clamp(230px,22vw,290px); padding:20px; gap:12px; }
 .intelligence-card > span:first-child { font-size:12px; line-height:1.5; letter-spacing:.025em; }

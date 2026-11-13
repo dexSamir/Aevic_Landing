@@ -26,6 +26,7 @@
 
 /* The consequential action owns the first and strongest visual region. */
 .overview-next-action { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 24px; padding: 22px 26px; border-block: 0; border-left: 2px solid var(--ov-gold); background: var(--ov-surface); }
+.overview-next-action + .team-intelligence { margin-top: 24px; }
 .overview-next-action .overview-eyebrow { color: var(--ov-gold); }
 .overview-next-action .overview-eyebrow > span { color: var(--ov-muted); font-weight: 500; }
 .overview-next-action h2 { margin-block: 14px 10px; max-width: 28ch; font: 700 clamp(1.5rem, 2.6vw, 2.2rem)/1.15 var(--font-public-display); letter-spacing: -.035em; overflow-wrap: anywhere; }

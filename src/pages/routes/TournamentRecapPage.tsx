@@ -1,3 +1,4 @@
+import { useFullBleedRail } from '../../components/common/useFullBleedRail';
 import '../../styles/records-archive.css';
 import {
 ArrowRight,
@@ -21,6 +22,7 @@ import "../../styles/public-pages.css";
 import type { TournamentRecapData } from "../../types/domain";
 import { ShareRecap } from './PublicArchivePagesShared';
 export function TournamentRecapPage() {
+  const railRef = useFullBleedRail<HTMLElement>();
   const { tournamentId = "" } = useParams();
   const [recap, setRecap] = useState<TournamentRecapData>();
   const [loading, setLoading] = useState(true);
@@ -136,6 +138,7 @@ export function TournamentRecapPage() {
       </header>
       <div className="container recap-body">
         <section
+          ref={railRef}
           className="recap-highlights"
           aria-label="Turnir yekun göstəriciləri"
         >

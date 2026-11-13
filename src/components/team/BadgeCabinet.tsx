@@ -1,3 +1,4 @@
+import { useFullBleedRail } from '../common/useFullBleedRail';
 import { ArrowDown, ArrowUp, Check, GripVertical, LockKeyhole, Save, X } from 'lucide-react';
 import { type PointerEvent, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -7,10 +8,11 @@ import { Button, Modal, Tabs, Toast } from '../common/primitives';
 import { AchievementMedal } from './Achievements';
 
 export function FeaturedBadgeCabinet({ achievements, onViewAll }: { achievements: TeamAchievement[]; onViewAll?: () => void }) {
+  const railRef = useFullBleedRail<HTMLDivElement>();
   const featured = achievements.filter((item) => item.state === 'unlocked').sort((a, b) => a.displayOrder - b.displayOrder).slice(0, 3);
-  return <section className="featured-cabinet" aria-label="Seçilmiş üç komanda nişanı">
+  return <section data-carousel-boundary className="featured-cabinet" aria-label="Seçilmiş üç komanda nişanı">
     <header><div><span>Badge Cabinet</span><h2>Seçilmiş insigniyalar</h2></div>{onViewAll && <Button variant="ghost" onClick={onViewAll}>Bütün nişanlara bax</Button>}</header>
-    <div className="featured-cabinet__rail">{featured.map((achievement, index) => <AchievementMedal key={achievement.id} achievement={achievement} featured rank={index + 1} />)}</div>
+    <div ref={railRef} className="featured-cabinet__rail">{featured.map((achievement, index) => <AchievementMedal key={achievement.id} achievement={achievement} featured rank={index + 1} />)}</div>
   </section>;
 }
 

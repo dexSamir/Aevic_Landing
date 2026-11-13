@@ -1,3 +1,4 @@
+import { useFullBleedRail } from '../common/useFullBleedRail';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Clock3, KeyRound, Trophy, Users, Bell } from 'lucide-react';
@@ -21,6 +22,7 @@ export function TeamIntelligence() {
   const [reduced, setReduced] = useState(false);
   const [edges, setEdges] = useState({ start: true, end: true });
   const rail = useRef<HTMLDivElement>(null);
+  const fullBleedRef = useFullBleedRail(rail);
   const gesture = useRef({ x: 0, y: 0, dragged: false });
   const roomContext = !data.unavailable?.room && !data.unavailable?.competition ? all.find(context => context.tournament.id && context.lifecycle === 'current' && context.participation.status === 'confirmed' && context.room) : undefined;
   const room = roomContext?.room;
@@ -99,7 +101,7 @@ export function TeamIntelligence() {
   const overflow = !(edges.start && edges.end);
   return <section className="team-intelligence" aria-label="Komandanın vacib məlumatları">
     <header><span>VACİB MƏLUMATLAR</span>{overflow && <div><button type="button" aria-label="Əvvəlki kartlar" disabled={edges.start} onClick={() => scroll(-1)}><ArrowLeft size={16} /></button><button type="button" aria-label="Növbəti kartlar" disabled={edges.end} onClick={() => scroll(1)}><ArrowRight size={16} /></button></div>}</header>
-    <div ref={rail} onPointerDown={event => { gesture.current = { x: event.clientX, y: event.clientY, dragged: false }; }} onPointerMove={event => { if (event.buttons && Math.hypot(event.clientX - gesture.current.x, event.clientY - gesture.current.y) > 8) gesture.current.dragged = true; }} onClickCapture={event => { if (event.detail > 0 && gesture.current.dragged) { event.preventDefault(); gesture.current.dragged = false; } }} className="intelligence-rail" tabIndex={0} role="group" aria-label="Kartları ox düymələri ilə üfüqi sürüşdürün" onKeyDown={event => {
+    <div ref={fullBleedRef} onPointerDown={event => { gesture.current = { x: event.clientX, y: event.clientY, dragged: false }; }} onPointerMove={event => { if (event.buttons && Math.hypot(event.clientX - gesture.current.x, event.clientY - gesture.current.y) > 8) gesture.current.dragged = true; }} onClickCapture={event => { if (event.detail > 0 && gesture.current.dragged) { event.preventDefault(); gesture.current.dragged = false; } }} className="intelligence-rail" tabIndex={0} role="group" aria-label="Kartları ox düymələri ilə üfüqi sürüşdürün" onKeyDown={event => {
       if (event.target !== event.currentTarget) return;
       if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); scroll(event.key === 'ArrowLeft' ? -1 : 1); }
       if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); rail.current?.scrollTo({ left: event.key === 'Home' ? 0 : rail.current.scrollWidth, behavior: reduced ? 'instant' : 'smooth' }); }

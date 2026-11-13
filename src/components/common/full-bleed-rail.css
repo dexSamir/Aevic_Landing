@@ -1,0 +1,12 @@
+/* Geometry is shared across route bundles. Only explicitly opted-in card rails
+   escape their centered alignment container; their native overflow stays local. */
+[data-full-bleed-rail] {
+  width: calc(100% + var(--rail-start, 0px) + var(--rail-end, 0px)) !important;
+  max-width: none !important;
+  margin-left: calc(-1 * var(--rail-start, 0px)) !important;
+  margin-right: calc(-1 * var(--rail-end, 0px)) !important;
+  padding-left: var(--rail-start, 0px) !important;
+  padding-right: var(--rail-end, 0px) !important;
+  scroll-padding-inline: var(--rail-start, 0px) var(--rail-end, 0px);
+  overscroll-behavior-inline: contain;
+}

@@ -1,3 +1,4 @@
+import { useFullBleedRail } from '../../components/common/useFullBleedRail';
 import { publicImageSrcSet, restoreOriginalUpload } from '../../utils/mediaUrl';
 import { RosterTeamCard } from '../../components/common/RosterTeamCard';
 import { Seo } from '../../components/common/Seo';
@@ -38,6 +39,7 @@ import { resolveTournamentTemporalPhase } from '../../utils/tournamentTime';
 import { useTournamentClock } from '../../utils/useTournamentClock';
 import { formatDate } from './PublicPagesShared';
 export function TournamentDetailPage() {
+  const railRef = useFullBleedRail<HTMLOListElement>();
   const { tournaments, leaderboardTeams, teams } = usePublicPlatformData();
   const { tournamentId } = useParams();
   const tournament = tournamentById(tournaments, tournamentId);
@@ -77,7 +79,7 @@ export function TournamentDetailPage() {
         <div><dt><MapIcon aria-hidden="true" />Turnir formatı</dt><dd>{tournament.roundsPerDay} raund × {tournament.days} gün<small>{matchesQuery.loading ? 'Cədvəl yüklənir…' : matchesQuery.error ? 'Matç sayı əlçatan deyil' : `Ümumi ${rounds.length} matç`}</small></dd></div>
         <div><dt><Trophy aria-hidden="true" />Mükafat fondu</dt><dd>{tournament.prizePool.toLocaleString('az-AZ')} {tournament.prizeCurrency}<small>Ümumi mükafat fondu</small></dd></div>
       </dl></section>
-      <section id="matches" className="tournament-detail-schedule competition-round-program"><SectionHeading title="Xəritə və matç cədvəli" action={<Link className="tournament-detail-link" to="/matches">Matç Mərkəzində aç<ArrowRight size={17} /></Link>} />{matchesQuery.loading ? <LoadingSkeleton variant="map-cards" rows={4} /> : matchesQuery.error && !matchesQuery.data ? <EmptyState title="Raund proqramı yüklənmədi" body="Matç mərkəzindən yenidən yoxlayın." /> : <ol aria-label="Matç cədvəli" tabIndex={0}>{rounds.map((match,index) => {
+      <section id="matches" className="tournament-detail-schedule competition-round-program"><SectionHeading title="Xəritə və matç cədvəli" action={<Link className="tournament-detail-link" to="/matches">Matç Mərkəzində aç<ArrowRight size={17} /></Link>} />{matchesQuery.loading ? <LoadingSkeleton variant="map-cards" rows={4} /> : matchesQuery.error && !matchesQuery.data ? <EmptyState title="Raund proqramı yüklənmədi" body="Matç mərkəzindən yenidən yoxlayın." /> : <ol ref={railRef} aria-label="Matç cədvəli" tabIndex={0}>{rounds.map((match,index) => {
         const assetIndex = officialRotation.indexOf(match.map as typeof officialRotation[number]);
         const status = match.status === 'completed' ? 'TAMAMLANIB' : match.status === 'live' ? 'CANLI' : 'PLANLANIB';
         return <li key={match.id}><Link to={`/tournaments/${tournament.id}?match=${encodeURIComponent(match.id)}#results`}><span className="sr-only">{`Matç ${index + 1}, ${match.map} nəticələrinə keç. `}</span>{assetIndex >= 0 && <img src={officialAssets.maps[assetIndex]} srcSet={officialAssets.mapSrcSets[assetIndex]} sizes="(max-width: 600px) 80vw, (max-width: 1100px) 45vw, 23vw" width="1600" height="900" loading="lazy" alt="" />}<span className="tournament-map-status">{status}</span><span className="tournament-map-number" aria-hidden="true">{String(index+1).padStart(2,'0')}</span><div className="tournament-map-copy"><h3>{match.map}</h3><time dateTime={match.date}><CalendarDays size={17} />{formatEventDate(match.date, { withTime: true })}</time><p><Swords size={17} />Matç {index + 1}{match.day !== undefined && ` · ${match.day}. gün`}{match.round !== undefined && ` · ${match.round}. raund`}</p></div></Link></li>;

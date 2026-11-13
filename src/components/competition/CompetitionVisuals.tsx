@@ -1,3 +1,4 @@
+import { useFullBleedRail } from '../common/useFullBleedRail';
 import { useImageApproach } from '../../assets/useImageApproach';
 import { ArrowRight, CalendarDays, CheckCircle2, Clock3, Crown, Swords, Users } from 'lucide-react';
 import type { CSSProperties } from 'react';
@@ -59,9 +60,10 @@ export function MapRotation({
   showRoundLabels?: boolean;
   maps?: readonly string[];
 }) {
+  const railRef = useFullBleedRail<HTMLOListElement>();
   if (variant === 'program') return <section className="map-program" aria-label={ariaLabel}>
     {heading && <header><Swords size={19} /><h2>{heading}</h2><span>4 raund</span></header>}
-    <ol tabIndex={0} aria-label={ariaLabel}>
+    <ol ref={railRef} tabIndex={0} aria-label={ariaLabel}>
       {maps.map((map, index) => {
         const status = statuses[index];
         return <li key={`${map}-${index}`} data-reveal data-reveal-variant="fade-up" style={{ '--map-index': index, transitionDelay: `${index * 50}ms` } as CSSProperties}>

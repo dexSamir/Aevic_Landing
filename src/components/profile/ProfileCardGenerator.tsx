@@ -92,7 +92,6 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
     <aside className="team-share-controls">
       <div className="team-share-heading"><h2>Komanda kartını <em>hazırla</em></h2><p>Komandanın rəsmi paylaşım kartını öz tərzində yarat və yüklə.</p></div>
       <fieldset className="team-share-formats"><legend>Format</legend><div data-format={format}>
-        <span className="team-share-selection" aria-hidden="true"/>
         {(['square', 'portrait', 'story'] as const).map(id => <label key={id} className={format === id ? 'is-active' : ''}>
           <input type="radio" name={`${groupId}-format`} value={id} checked={format === id} onChange={() => setFormat(id)} disabled={exporting}/>
           <span className={`team-share-format-icon team-share-format-icon--${id}`} aria-hidden="true" />
@@ -110,7 +109,7 @@ export function ProfileCardGenerator({ data }: { data: TeamProfileCardData }) {
         {warning && <p role="status">{warning}</p>}
         {error && <p role="alert">{error} <button type="button" onClick={() => setAttempt(value => value + 1)}>Yenidən yoxla</button></p>}
         {!assets && !error && <p role="status">Kart hazırlanır…</p>}
-        <Button variant="secondary" icon={<Share2 size={18}/>} disabled={!ready || exporting} onClick={() => setShareOpen(true)}>Paylaş</Button><Button loading={exporting} disabled={!ready} icon={<Download size={18} aria-hidden="true"/>} onClick={() => void download()}>PNG yüklə</Button>
+        <Button variant="secondary" icon={<Share2 size={18}/>} disabled={!ready || exporting} onClick={() => setShareOpen(true)}>Paylaş</Button><Button variant="secondary" loading={exporting} disabled={!ready} icon={<Download size={18} aria-hidden="true"/>} onClick={() => void download()}>PNG yüklə</Button>
         <small>{teamIdentityCardSizes[format].width} × {teamIdentityCardSizes[format].height} · PNG<span className="team-share-export-note"> · İctimai profil üçün optimallaşdırılıb.</span></small>
       </div>
     </aside>

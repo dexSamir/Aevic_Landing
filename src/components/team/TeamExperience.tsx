@@ -1,3 +1,4 @@
+import { useFullBleedRail } from '../common/useFullBleedRail';
 import '../../styles/team-profile-components.css';
 import { ArrowRight, CalendarClock, Check, ChevronRight, KeyRound, Megaphone, Swords, TrendingUp, Trophy, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -6,8 +7,9 @@ import type { CareerSummaryData, MatchHistoryEntry, MatchScheduleItem, TeamAnnou
 import { IconButton, Select, StatusBadge, TeamLogo } from '../common/primitives';
 
 export function CareerSummary({ data, comparisonHref = '/team/comparison' }: { data: CareerSummaryData; comparisonHref?: string }) {
+  const railRef = useFullBleedRail<HTMLDivElement>();
   const prestigeMetrics = new Set(['wwcd', 'championships', 'podiums']);
-  return <section className="career-summary" aria-labelledby="career-summary-title"><header><div><span>{data.scopeLabel}</span><h2 id="career-summary-title">Karyera xülasəsi</h2></div><Link to={comparisonHref}>Komandaları müqayisə et<ChevronRight size={17} /></Link></header><div className="career-summary__rail" tabIndex={0} aria-label="Karyera göstəriciləri; üfüqi sürüşdürün">{data.metrics.map((metric, index) => <article className={prestigeMetrics.has(metric.key) ? 'is-prestige' : undefined} key={metric.key}><span>{String(index + 1).padStart(2, '0')}</span><strong>{metric.value}</strong><h3>{metric.label}</h3><p>{metric.description}</p></article>)}</div></section>;
+  return <section className="career-summary" aria-labelledby="career-summary-title"><header><div><span>{data.scopeLabel}</span><h2 id="career-summary-title">Karyera xülasəsi</h2></div><Link to={comparisonHref}>Komandaları müqayisə et<ChevronRight size={17} /></Link></header><div ref={railRef} className="career-summary__rail" tabIndex={0} aria-label="Karyera göstəriciləri; üfüqi sürüşdürün">{data.metrics.map((metric, index) => <article className={prestigeMetrics.has(metric.key) ? 'is-prestige' : undefined} key={metric.key}><span>{String(index + 1).padStart(2, '0')}</span><strong>{metric.value}</strong><h3>{metric.label}</h3><p>{metric.description}</p></article>)}</div></section>;
 }
 
 export function PerformanceSummary({ result, recentMatches }: { result: TeamTournamentResult; recentMatches: MatchHistoryEntry[] }) {

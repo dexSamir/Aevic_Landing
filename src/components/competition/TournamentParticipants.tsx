@@ -1,3 +1,4 @@
+import { useFullBleedRail } from '../common/useFullBleedRail';
 import { ArrowRight, Users } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -9,6 +10,7 @@ function RosterLine({ participant }: { participant: TournamentParticipant }) {
 }
 
 export function TournamentParticipantField({ participants }: { participants: TournamentParticipant[] }) {
+  const railRef = useFullBleedRail<HTMLDivElement>();
   const [activeId, setActiveId] = useState(participants[0]?.team.id ?? '');
   const detailId = useId();
 
@@ -26,7 +28,7 @@ export function TournamentParticipantField({ participants }: { participants: Tou
       action={<Link to="/teams">Komanda kataloqu</Link>}
     />
     {participants.length ? <>
-      <div className="participant-field-grid" role="list" aria-label={`${participants.length} təsdiqlənmiş iştirakçı komanda`}>
+      <div ref={railRef} className="participant-field-grid" role="list" aria-label={`${participants.length} təsdiqlənmiş iştirakçı komanda`}>
         {participants.map((participant, index) => {
           const selected = participant.team.id === active?.team.id;
           return <div role="listitem" key={participant.team.id}><TeamLogoTile id={participant.team.id} name={participant.team.name} tag={participant.team.tag} logoUrl={participant.team.logoUrl} roster={participant.roster.map((member) => member.ign)} profileHref={`/teams/${participant.team.slug}`} selected={selected} onSelect={setActiveId} ordinal={index + 1} className="participant-field-item" selectLabel={`${participant.team.name} heyətini göstər`} controlsId={detailId} /></div>;
