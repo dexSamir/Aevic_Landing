@@ -42,3 +42,14 @@ it('shares the transport and sender identity with verification and closes connec
  await expect(sendTransactional(config,'captain@example.test',{subject:'test',text:'test'})).rejects.toMatchObject({code:'EMAIL_NOT_CONFIGURED'});
  expect(nodemailer.createTransport).toHaveBeenCalledTimes(2);
 });
+
+it.each([
+ [{responseCode:451},'retry'],
+ [{responseCode:550},'failed'],
+ [{command:'DATA',code:'ETIMEDOUT'},'uncertain'],
+])('preserves only the safe delivery disposition for the outbox',async(error,disposition)=>{
+ const {sendTransactional}=await import('../../server/emailDelivery');
+ sendMail.mockRejectedValueOnce({...error,message:'private-recipient@example.invalid'});
+ const delivery=sendTransactional({...config,smtp},'fixture@example.invalid',{subject:'Fixture',text:'Fixture'});
+ await expect(delivery).rejects.toMatchObject({code:'EMAIL_DELIVERY_FAILED',message:'EMAIL_DELIVERY_FAILED',disposition});
+});

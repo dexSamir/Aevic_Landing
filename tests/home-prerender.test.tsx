@@ -20,7 +20,10 @@ describe('Home first-paint rendering contract', () => {
     try {
       const html = renderHome();
       expect(html).toContain('home-live-hero__copy');
-      expect(html).toContain('Rəqabətin <em>yeni səhnəsi.</em>');
+      // React inserts hydration comments between adjacent text nodes.
+      const heading = new DOMParser().parseFromString(html, 'text/html').querySelector('h1');
+      expect(heading?.textContent).toBe('Rəqabətin yeni səhnəsi.');
+      expect(heading?.querySelector('em')?.textContent).toBe('yeni səhnəsi.');
       expect(html).toContain('home-live-hero__media');
       expect(html).toContain('image/avif');
       expect(html).toContain('loading-skeleton--rail');

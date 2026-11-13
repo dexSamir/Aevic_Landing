@@ -35,7 +35,7 @@ describe('workspace acknowledged persistence and authority', () => {
     mount(<TeamSettingsPage />);
     fireEvent.click(await screen.findByRole('switch', { name: 'Check-in' }));
     fireEvent.click(screen.getByRole('button', { name: 'Seçimləri saxla' }));
-    await waitFor(() => expect(save).toHaveBeenCalledWith({ ...preferences, events: { checkIn: false, roomRelease: true } }));
+    await waitFor(() => expect(save).toHaveBeenCalledWith({ ...preferences, events: { 'check-in': false, room: true, registration: true, roster: true, results: true, announcements: true, adminMessages: true } }));
     expect(await screen.findByRole('status')).toHaveTextContent('saxlanıldı');
   });
   it('updates shared notification state only after acknowledgement without refetching', async () => {

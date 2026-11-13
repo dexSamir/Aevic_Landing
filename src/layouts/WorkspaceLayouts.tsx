@@ -1,3 +1,4 @@
+import { NotificationOverlayContext } from './NotificationOverlayContext';
 import { SiteGuidance } from '../components/site/SiteContent';
 import { MobileBottomNav } from './MobileBottomNav';
 import { useProtectedSession } from './ProtectedRoute';
@@ -97,6 +98,7 @@ function TeamIdentityBlock({ team, compact = false, onNavigate }: { team: Team; 
 }
 
 export function TeamLayout() {
+  const [sheetOpen, setSheetOpen] = useState(false);
   const session = useProtectedSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
@@ -106,11 +108,11 @@ export function TeamLayout() {
   const nextMatch = activeContext?.nextMatch;
   const activeTournament = activeContext?.tournament;
   const tournamentContext = nextMatch && activeTournament ? <Link className="sidebar-note sidebar-note--interactive" to={`/team/tournaments/${activeTournament.id}`} aria-label={`${nextMatch.map}, Raund ${nextMatch.round} turnir əməliyyatlarını aç`}><CalendarDays size={17} aria-hidden="true" /><span>Növbəti matç<strong>{nextMatch.map} · {new Date(nextMatch.startsAt).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baku' })}</strong></span><ChevronRight size={16} aria-hidden="true" /></Link> : <div className="sidebar-note sidebar-note--status"><CalendarDays size={17} aria-hidden="true" /><span>Növbəti matç<strong>Hələ planlanmayıb</strong></span></div>;
-  return <TeamWorkspaceFrame
+  return <NotificationOverlayContext.Provider value={setSheetOpen}><TeamWorkspaceFrame
     sidebar={<><TeamIdentityBlock team={team} /><WorkspacePicker currentId={team.id}/><SidebarNav revealActive links={teamLinks} unread={unread} />{tournamentContext}</>}
     header={<ProductTopbar metadata={productRouteMetadata(pathname, 'team')} team={team} menuOpen={menuOpen} onMenu={() => setMenuOpen(true)} />}
-    overlays={<>{!menuOpen && <MobileBottomNav session={session} team={team} />}<Drawer id="team-navigation-drawer" open={menuOpen} title="Komanda paneli" onClose={() => setMenuOpen(false)}><TeamIdentityBlock team={team} compact onNavigate={() => setMenuOpen(false)} /><WorkspacePicker currentId={team.id}/><SidebarNav revealActive links={teamLinks} unread={unread} onNavigate={() => setMenuOpen(false)} />{nextMatch && activeTournament && <Link className="drawer-tournament-context" to={`/team/tournaments/${activeTournament.id}`} onClick={() => setMenuOpen(false)}>Növbəti matç · {nextMatch.map} · {new Date(nextMatch.startsAt).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baku' })}<ChevronRight size={16} aria-hidden="true" /></Link>}</Drawer></>}
-  ><RouteSeo /><SiteGuidance />{team?.legacyHistoryIncomplete&&<aside className="history-scope-note" role="status"><p>Əvvəlki tarixçə tam uzlaşdırılmayıb. Statistikalar yalnız yeni sistemdə dərc edilmiş nəticələri əhatə edir.</p>{team.roster.some(player=>!player.uid)&&<Link to="/account/legacy-claim">Əvvəlki heyəti real oyunçu ID-ləri ilə tamamla</Link>}</aside>}{unavailable?.competition && !['/team','/team/profile','/team/roster','/team/settings','/team/settings/account','/team/settings/security','/team/history'].includes(pathname) ? <EmptyState heading="h1" title="Bu bölmə hələ əlçatan deyil" body="Bu bölmə üçün yarış və ya hesab xidməti hələ qoşulmayıb. Komanda profili, kapitan məlumatları və heyət idarəetməsi əlçatandır." /> : <RouteTransitionOutlet family="team" />}</TeamWorkspaceFrame>;
+    overlays={<>{!menuOpen && <MobileBottomNav concealed={sheetOpen} session={session} team={team} />}<Drawer id="team-navigation-drawer" open={menuOpen} title="Komanda paneli" onClose={() => setMenuOpen(false)}><TeamIdentityBlock team={team} compact onNavigate={() => setMenuOpen(false)} /><WorkspacePicker currentId={team.id}/><SidebarNav revealActive links={teamLinks} unread={unread} onNavigate={() => setMenuOpen(false)} />{nextMatch && activeTournament && <Link className="drawer-tournament-context" to={`/team/tournaments/${activeTournament.id}`} onClick={() => setMenuOpen(false)}>Növbəti matç · {nextMatch.map} · {new Date(nextMatch.startsAt).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Baku' })}<ChevronRight size={16} aria-hidden="true" /></Link>}</Drawer></>}
+  ><RouteSeo /><SiteGuidance />{team?.legacyHistoryIncomplete&&<aside className="history-scope-note" role="status"><p>Əvvəlki tarixçə tam uzlaşdırılmayıb. Statistikalar yalnız yeni sistemdə dərc edilmiş nəticələri əhatə edir.</p>{team.roster.some(player=>!player.uid)&&<Link to="/account/legacy-claim">Əvvəlki heyəti real oyunçu ID-ləri ilə tamamla</Link>}</aside>}{unavailable?.competition && !['/team','/team/profile','/team/roster','/team/settings','/team/settings/account','/team/settings/security','/team/history'].includes(pathname) ? <EmptyState heading="h1" title="Bu bölmə hələ əlçatan deyil" body="Bu bölmə üçün yarış və ya hesab xidməti hələ qoşulmayıb. Komanda profili, kapitan məlumatları və heyət idarəetməsi əlçatandır." /> : <RouteTransitionOutlet family="team" />}</TeamWorkspaceFrame></NotificationOverlayContext.Provider>;
 }
 
 export function AdminLayout() {

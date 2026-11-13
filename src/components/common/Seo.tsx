@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { matchRoute, routeIsAvailable } from '../../app/routeManifest';
 import { serviceCapabilities } from '../../services';
 import { configuredPublicOrigin } from '../../utils/publicUrl';
+import { publicStructuredData, serializeStructuredData } from '../../utils/publicStructuredData';
 import { publicImageUrl } from '../../utils/mediaUrl';
 
 const SITE_NAME = 'AEVIC Esports';
@@ -45,6 +46,17 @@ export function Seo({ title, description = DEFAULT_DESCRIPTION, canonicalPath, i
     upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary_large_image' });
     upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title', content: fullTitle });
     upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description });
+    // Replace the prerendered graph on public navigation; never retain it on a private route.
+    let schema = document.getElementById('aevic-public-schema');
+    if (canonical && route?.family === 'PUBLIC') {
+      if (!schema) {
+        schema = document.createElement('script');
+        schema.id = 'aevic-public-schema';
+        schema.setAttribute('type', 'application/ld+json');
+        document.head.appendChild(schema);
+      }
+      schema.textContent = serializeStructuredData(publicStructuredData(canonical, fullTitle, description, name));
+    } else schema?.remove();
     let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
     if (canonical) link.href = canonical;
@@ -56,6 +68,5 @@ export function Seo({ title, description = DEFAULT_DESCRIPTION, canonicalPath, i
 export function RouteSeo() {
   const { pathname } = useLocation();
   const route = matchRoute(pathname);
-  const brand=useBranding();
-  return <Seo title={route?.title ?? 'Səhifə tapılmadı — AEVIC'} description={brand?.seoDescription || (route?.description ?? 'Bu ünvan AEVIC marşrutları arasında yoxdur.')} />;
+  return <Seo title={route?.title ?? 'Səhifə tapılmadı — AEVIC'} description={route?.description ?? 'Bu ünvan AEVIC marşrutları arasında yoxdur.'} />;
 }

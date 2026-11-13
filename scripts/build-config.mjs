@@ -36,3 +36,9 @@ export function buildConfiguration(mode = 'production', development = false) {
   return { canonicalOrigin, mediaOrigin, indexableDeployment };
 }
 export { contentSecurityPolicy } from './security-policy.mjs';
+
+export async function loadSeoSchema() {
+  const source = readFileSync(resolve('src/utils/publicStructuredData.ts'), 'utf8');
+  const output = transpileModule(source, { compilerOptions: { module: ModuleKind.ES2022, target: ScriptTarget.ES2021 } }).outputText;
+  return import('data:text/javascript;base64,' + Buffer.from(output).toString('base64'));
+}

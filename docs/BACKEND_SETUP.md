@@ -116,3 +116,41 @@ Tournament scheduling uses Baku wall-clock inputs. Automatic check-in spans regi
 The former Site Management route, draft preview, media library and publishing endpoints have been removed. Existing `aevic_platform.settings` rows under `site:<page-id>` (including drafts and revision history) remain stored. `/public/site-content` exposes only published documents, validates their basic shape and links, and revalidates with ETags. Public pages retain their published text, ordering, visibility, navigation/footer copy, client SEO and Team Panel guidance, with existing component fallbacks. There is no editable or draft preview route.
 
 Published images continue using the existing banner visibility and storage contracts. Draft-only images remain private. Platform announcements, registration availability and support email remain in Admin Settings, and historical audit events are preserved. No schema or stored-content deletion is required.
+
+### Controlled automatic communications activation
+
+The four communications migrations ship with the database gate OFF. Both scheduled
+workers also require `AEVIC_AUTOMATIC_COMMUNICATIONS_ENABLED=true` in the production
+Netlify **Functions** environment. Preview contexts always exit. Manual Admin
+messages do not use these gates. Essential account verification/reset SMTP remains separate.
+
+Before any authorized deployment, reconcile migration history (apply each pending
+version once, in timestamp order), rehearse with the actual gateway role, and inspect
+current queue counts, tournament deadlines, and migration lock contention. Each pending
+communications migration has a 5-second lock timeout and 30-second statement timeout;
+large existing sessions/notifications indexes may need an approved online-index rollout
+instead if rehearsal exceeds those bounds. Migration failure rolls back that file.
+
+A database owner must explicitly grant `aevic_communications_backend` membership to
+the reviewed server database login (never `anon`, `authenticated`, or browser roles).
+No grant is inferred from notification permissions. Confirm the login also has its
+existing account/team/notification access; the capability role only supplies automation access.
+The application login cannot activate the database gate through this capability role.
+
+Safe activation order, only after separate production authorization:
+
+1. Keep the database gate OFF; review configuration and use isolated test recipients.
+2. Set `AEVIC_AUTOMATIC_COMMUNICATIONS_ENABLED=true` for production Functions and publish
+   the reviewed code. Workers still do nothing while the database gate is OFF.
+3. As database owner, run `select aevic_platform.set_communications_enabled(true);`
+   as the final activation action. It marks old pending/retry emails skipped, replaces
+   timer jobs from current schedules, and starts a fresh activation timestamp. There is
+   no historical account welcome replay. Reminders whose effective reminder time is
+   before activation or over ten minutes late are excluded. Activation is idempotent.
+4. Inspect delivery outcomes after the next five-minute schedule tick.
+
+To pause, first run `select aevic_platform.set_communications_enabled(false);`, then
+set the Functions flag to `false`. The database pause stops trigger/event enqueueing;
+the environment flag stops workers before configuration/database access. In-flight SMTP
+handoffs cannot be recalled. Re-enabling through the same sequence discards paused
+backlog rather than replaying it. Do not use missing SMTP credentials as a pause switch.

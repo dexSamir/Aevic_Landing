@@ -2,6 +2,7 @@ import type {Sql,TransactionSql} from 'postgres';
 import {createHash} from 'node:crypto';
 import {ServiceError} from '../errors';
 import type {Actor} from './repository';
+import {emitTeamEvent} from './automatic-communications';
 
 type Tx=TransactionSql;
 export const actorKey=(actor:Actor)=>actor.adminId?`admin:${actor.adminId}`:`team:${actor.accountId??actor.teamId}`;
@@ -19,13 +20,13 @@ async function deliverNotifications(sql:Tx,ids:string[],teams:boolean,title:stri
  if(!ids.length)return;
  const eventKey=({'map-result':'results','tournament-result':'results','admin-message':'adminMessages',tournament:'announcements'} as Record<string,string>)[eventType]??eventType;
  // One statement resolves account recipients and applies their own preferences.
- await sql`insert into aevic_platform.notifications(recipient_id,title,body,action_href,event_type)
- select recipient.id,${title},${body},${actionHref},${eventType}
- from aevic_platform.accounts recipient
- left join aevic_platform.notification_preferences p on p.user_id=recipient.id
- where ((${teams} and exists(select 1 from aevic_platform.team_authority a where a.account_id=recipient.id and a.team_id::text=any(${sql.array(ids)}::text[])))
- or (not ${teams} and recipient.id::text=any(${sql.array(ids)}::text[])))
- and (p.preferences->'channels'->'in-app') is distinct from 'false'::jsonb
+ await sql`insert into aevic_platform.notifications(recipient_id,system_team_id,title,body,action_href,event_type)
+ select recipient.account_id,recipient.team_id,${title},${body},${actionHref},${eventType}
+ from (
+  select account_id,team_id from aevic_platform.team_authority where ${teams} and team_id=any(${sql.array(ids)}::bigint[])
+  union all select id,null::bigint from aevic_platform.accounts where not ${teams} and id=any(${sql.array(ids)}::bigint[])
+ ) recipient left join aevic_platform.notification_preferences p on p.user_id=recipient.account_id
+ where (p.preferences->'channels'->'in-app') is distinct from 'false'::jsonb
  and (p.preferences->'events'->${eventKey}) is distinct from 'false'::jsonb`;
 }
 export async function transaction<T>(sql:Sql,work:(tx:Tx)=>Promise<T>):Promise<T>{return await sql.begin(work) as T;}
@@ -53,8 +54,8 @@ export async function joinTournament(sql:Sql,teamId:string,tournamentId:string,b
  const players=await tx`select slot,pubg_id,role from aevic_platform.player_details where team_id=${teamId}`;
  const roster=[1,2,3,4,5].filter(slot=>team[`player${slot}_ign`]).map(slot=>({id:`${teamId}:player${slot}`,ign:team[`player${slot}_ign`],uid:players.find(p=>p.slot===slot)?.pubg_id??undefined,role:players.find(p=>p.slot===slot)?.role??(slot===5?'substitute':'starter')}));
  if(roster.length<4)throw new ServiceError(422,'ROSTER_INCOMPLETE');
- const [entry]=await tx`insert into aevic_platform.tournament_registrations(tournament_id,team_id,roster_lock_at,roster) values(${tournamentId},${teamId},${t.registration_deadline},${tx.json(roster)}) on conflict(tournament_id,team_id) do update set status='pending',slot_number=null,roster=excluded.roster,roster_lock_at=excluded.roster_lock_at,reason=null,updated_at=now() returning id`;
- await audit(tx,by,'registration.create','tournament',tournamentId);await notifyTeams(tx,[teamId],'Qeydiyyat göndərildi','Komandanızın turnir müraciəti yoxlanılır.',`/team/tournaments/${tournamentId}`);
+ const [entry]=await tx`insert into aevic_platform.tournament_registrations(tournament_id,team_id,roster_lock_at,roster) values(${tournamentId},${teamId},${t.registration_deadline},${tx.json(roster)}) on conflict(tournament_id,team_id) do update set status='pending',slot_number=null,roster=excluded.roster,roster_lock_at=excluded.roster_lock_at,reason=null,updated_at=now() returning id,updated_at::text as revision`;
+ await audit(tx,by,'registration.create','tournament',tournamentId);await emitTeamEvent(tx,'registration-received',entry.id+':'+entry.revision,[teamId],{id:tournamentId,name:t.name});
  return{ok:true,registrationId:entry.id,tournamentId,teamId,status:'pending',source:'backend',duplicate:false};
 });}
 export async function reviewEntry(sql:Sql,actor:Actor,tournamentId:string,teamId:string,status:'confirmed'|'rejected',reason?:string){return transaction(sql,async tx=>{
@@ -63,13 +64,14 @@ export async function reviewEntry(sql:Sql,actor:Actor,tournamentId:string,teamId
  if(['completed','cancelled'].includes(t.status))throw new ServiceError(409,'TOURNAMENT_CLOSED');
  const [entry]=await tx`select * from aevic_platform.tournament_registrations where tournament_id=${tournamentId} and team_id=${teamId} for update`;
  if(!entry)throw new ServiceError(404,'ENTRY_NOT_FOUND');if(!['pending','waitlisted','confirmed'].includes(entry.status))throw new ServiceError(409,'ENTRY_CLOSED');
+ if(entry.status===status)return;
  let slot:number|null=null;
  if(status==='confirmed'){
   const occupied=await tx`select slot_number from aevic_platform.tournament_registrations where tournament_id=${tournamentId} and status='confirmed' and team_id<>${teamId}`;
   slot=Array.from({length:t.max_slots},(_,i)=>i+1).find(i=>!occupied.some(r=>r.slot_number===i))??null;if(!slot)throw new ServiceError(409,'TOURNAMENT_FULL');
  }
  await tx`update aevic_platform.tournament_registrations set status=${status},slot_number=${slot},reason=${reason??null},updated_at=now() where id=${entry.id}`;
- await audit(tx,actor,'registration.review','registration',entry.id,{status});await notifyTeams(tx,[teamId],status==='confirmed'?'İştirak təsdiqləndi':'Müraciət qəbul edilmədi',reason??t.name,`/team/tournaments/${tournamentId}`);
+ await audit(tx,actor,'registration.review','registration',entry.id,{status});await emitTeamEvent(tx,status==='confirmed'?'registration-approved':'registration-rejected',entry.id+':'+entry.updated_at.toISOString(),[teamId],{id:tournamentId,name:t.name},{description:reason??''});
 });}
 export async function checkIn(sql:Sql,teamId:string,tournamentId:string,by:Actor={teamId}){return transaction(sql,async tx=>{
  await tx`select pg_advisory_xact_lock(hashtextextended(${'roster:'+teamId},0))`;
@@ -87,6 +89,7 @@ export async function withdraw(sql:Sql,teamId:string,tournamentId:string,reason:
  if(!t||['ongoing','completed','cancelled'].includes(t.status)||t.server_now>=t.starts_at)throw new ServiceError(409,'WITHDRAWAL_CLOSED');
  const rows=await tx`update aevic_platform.tournament_registrations set status='withdrawn',slot_number=null,reason=${reason},updated_at=now() where tournament_id=${tournamentId} and team_id=${teamId} and status in ('pending','confirmed','waitlisted') returning id`;
  if(!rows.length)throw new ServiceError(409,'ENTRY_CLOSED');await audit(tx,by,'registration.withdraw','tournament',tournamentId);
+ await emitTeamEvent(tx,'registration-withdrawn',rows[0].id+':'+t.server_now.toISOString(),[teamId],{id:tournamentId,name:t.name});
 });}
 export async function room(sql:Sql,teamId:string,tournamentId:string,matchId:string){
  const [r]=await sql`select m.id,m.room_release_at,m.scheduled_at,m.status,clock_timestamp() as server_now,t.status as tournament_status,r.room_id,r.password from aevic.matches m join aevic.tournaments t on t.id=m.tournament_id join aevic_platform.tournament_registrations e on e.tournament_id=t.id and e.team_id=${teamId} and e.status='confirmed' join public.teams team on team.id=e.team_id and team.status='approved' join aevic_platform.check_ins c on c.tournament_id=t.id and c.team_id=e.team_id left join aevic.match_rooms r on r.match_id=m.id where m.id=${matchId} and t.id=${tournamentId}`;

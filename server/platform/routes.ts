@@ -11,7 +11,7 @@ import {verifyPassword} from '../captain/crypto';
 import {createAttemptLimiter} from '../captain/limit';
 import {platform,actor,admin,captain,ownTeam,account,adminCookieName,tokenDigest} from './context';
 import {consumeFactor} from './mfa';
-import {normalize,PlatformRepository} from './repository';
+import {normalize,PlatformRepository,notificationVisibility} from './repository';
 import {joinTournament,reviewEntry,checkIn,withdraw,room,audit,transaction,notifyTeams} from './competition';
 import {createTournament,editTournament,tournamentInput,editTournamentInput,resultInput,draftFields,saveResults,publishMatch} from './tournaments';
 import {summary,roundResult,notification} from '../services/data';
@@ -107,9 +107,8 @@ async function readNotifications(c:ApiContext,id?:string,read=true) {
    select distinct message_id,${owner}::bigint from updated where message_id is not null on conflict do nothing`
    :tx`delete from aevic_platform.message_reads where account_id=${owner} and message_id in (select message_id from updated)`;
   const rows=await tx`with updated as (
-   update aevic_platform.notifications set read_at=case when ${read} then coalesce(read_at,now()) end
-   where recipient_id=${owner} and (${id??null}::uuid is null or id=${id??null})
-   and (event_type<>'admin-message' or (${Boolean(team)} and (message_team_id is null or message_team_id=${team??null})))
+   update aevic_platform.notifications n set read_at=case when ${read} then coalesce(read_at,now()) end
+   where ${notificationVisibility(tx,owner,team??null)} and (${id??null}::uuid is null or n.id=${id??null})
    returning message_id)
    , receipts as (${receipt})
    select count(*)::int as count from updated`;
@@ -120,6 +119,15 @@ async function readNotifications(c:ApiContext,id?:string,read=true) {
 app.put('/me/notifications/:id/read',c=>readNotifications(c,uuid(c)));
 app.delete('/me/notifications/:id/read',c=>readNotifications(c,uuid(c),false));
 app.put('/me/notifications/read-all',c=>readNotifications(c));
+async function setNotificationImportant(c:ApiContext,important:boolean) {
+ const sql=platform(c).sql;
+ const rows=await sql`update aevic_platform.notifications n set important=${important}
+   where n.id=${uuid(c)} and ${notificationVisibility(sql,account(c),actor(c).teamId??null)} returning n.id`;
+ if(!rows.length)throw new ServiceError(404,'NOT_FOUND');
+ return c.body(null,204);
+}
+app.put('/me/notifications/:id/important',c=>setNotificationImportant(c,true));
+app.delete('/me/notifications/:id/important',c=>setNotificationImportant(c,false));
 async function readMessage(c:ApiContext,read:boolean){
  const id=uuid(c),team=captain(c),owner=account(c),sql=platform(c).sql;
  const receipt=read?sql`insert into aevic_platform.message_reads(message_id,account_id)

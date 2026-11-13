@@ -1,3 +1,4 @@
+import {AutomaticCommunications} from '../../components/admin/AutomaticCommunications';
 import { AdminTournamentSelect } from '../../components/admin/AdminTournamentSelect';
 import '../../styles/admin-results.css';
 import { useRef, useState } from 'react';
@@ -354,6 +355,7 @@ export function AdminMessagesPage() {
           )}
         </section>
       </div>
+      <AutomaticCommunications />
       <Modal
         open={Boolean(review)}
         title="Elanı təsdiqlə"

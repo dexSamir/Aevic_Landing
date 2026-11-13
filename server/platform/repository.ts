@@ -1,4 +1,4 @@
-import type {Sql} from 'postgres';
+import type {Sql,TransactionSql} from 'postgres';
 import type {DbClient} from '../db';
 import {Repository,rankResults,roundResult} from '../services/data';
 import {mapProductionTeam} from '../services/productionTeams';
@@ -7,6 +7,12 @@ import type {CaptainRow} from '../captain/store';
 import {ServiceError} from '../errors';
 import type {Team} from '../../src/types/domain';
 
+export function notificationVisibility(sql:Sql|TransactionSql,accountId:string|null,teamId:string|null){
+ return sql`n.recipient_id=${accountId} and ((n.event_type<>'admin-message' and n.system_team_id is null) or (
+  (coalesce(n.system_team_id,n.message_team_id) is null or coalesce(n.system_team_id,n.message_team_id)=${teamId})
+  and exists(select 1 from aevic_platform.team_authority a left join aevic_platform.team_details d on d.team_id=a.team_id
+   where a.account_id=n.recipient_id and a.team_id=${teamId} and d.archived_at is null)))`;
+}
 export type Actor={accountId?:string;teamRole?:string;teamId?:string;adminId?:string;role?:string};
 type Row=Record<string,unknown>;
 export const normalize=(rows:Row[]):Row[]=>rows.map(row=>Object.fromEntries(Object.entries(row).map(([k,v])=>[k,v instanceof Date?v.toISOString():typeof v==='bigint'?String(v):v])));
@@ -65,14 +71,12 @@ export class PlatformRepository extends Repository {
  }
  async notificationRows(offset=0,limit=10000) {
   const {teamId,accountId}=this.actor;
-  return normalize(await this.sql`select n.*,n.recipient_id::text,m.sender_alias,m.tournament_id,m.tournament_name,
+  return normalize(await this.sql`select n.*,n.recipient_id::text,case when n.system_key is not null then 'AEVIC Admin' else m.sender_alias end as sender_alias,
+   coalesce(n.system_tournament_id,m.tournament_id) as tournament_id,coalesce(n.system_tournament_name,m.tournament_name) as tournament_name,
    case when n.message_id is not null then mr.read_at else n.read_at end as read_at
    from aevic_platform.notifications n left join aevic_platform.messages m on m.id=n.message_id
    left join aevic_platform.message_reads mr on mr.message_id=n.message_id and mr.account_id=n.recipient_id
-   where n.recipient_id=${accountId??teamId??null}
-   and (n.event_type<>'admin-message' or ((n.message_team_id is null or n.message_team_id=${teamId??null}) and exists(
-    select 1 from aevic_platform.team_authority a left join aevic_platform.team_details d on d.team_id=a.team_id
-    where a.account_id=n.recipient_id and a.team_id=${teamId??null} and d.archived_at is null)))
+   where ${notificationVisibility(this.sql,accountId??teamId??null,teamId??null)}
    order by n.created_at desc,n.id desc offset ${offset} limit ${limit}`);
  }
  async teams(privateData=false):Promise<Team[]> {

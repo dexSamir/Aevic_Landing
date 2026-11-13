@@ -19,6 +19,8 @@ beforeAll(async()=>{
  command('createdb',[database]);command('psql',['-d',database,'-v','ON_ERROR_STOP=1','-f','supabase/tests/bootstrap.sql','-f','tests/fixtures/original-platform.sql',...readdirSync('supabase/migrations').filter(x=>x.endsWith('.sql')).sort().flatMap(x=>['-f',`supabase/migrations/${x}`])]);
  await sql.unsafe(`create role ${gateway} login nosuperuser bypassrls`);
  for(const schema of ['public','aevic','aevic_private','aevic_platform','storage']){await sql.unsafe(`grant usage on schema ${schema} to ${gateway}`);await sql.unsafe(`grant all on all tables in schema ${schema} to ${gateway}`);await sql.unsafe(`grant usage,select on all sequences in schema ${schema} to ${gateway}`);}
+ await sql.unsafe(`grant aevic_communications_backend to ${gateway}`);
+ await sql`select aevic_platform.set_communications_enabled(true)`;
  await sql`insert into aevic_platform.admin_accounts(email,password_hash,role) values('onboarding-admin@example.invalid',${await hashPassword('ValidPassword1')},'super-admin')`;
  const response=await request('/auth/admin/login',{email:'onboarding-admin@example.invalid',password:'ValidPassword1'});expect(response.status).toBe(200);admin=cookies(response);
 });
@@ -117,7 +119,13 @@ it('snapshots sender and team audience, delivers once and isolates individual re
  expect((await request('/me/messages',undefined,fan)).status).toBe(403);
  expect(await list('/me/notifications',fan)).toHaveLength(0);
  const privateNotice=(await list('/me/notifications',teamA)).find((n:{title:string})=>n.title===input.title);
- expect(privateNotice).toMatchObject({senderAlias:'Marshal',severity:'critical',read:false});
+ expect(privateNotice).toMatchObject({senderAlias:'Marshal',severity:'critical',read:false,important:false});
+ const star='/me/notifications/'+privateNotice.id+'/important';
+ expect((await request(star,{},teamB,'PUT')).status).toBe(404);
+ expect((await request(star,{},teamA,'PUT')).status).toBe(204);
+ expect((await request(star,{},teamA,'PUT')).status).toBe(204);
+ expect(await list('/me/notifications',teamA)).toContainEqual(expect.objectContaining({id:privateNotice.id,important:true,read:false}));
+ expect((await request(star,undefined,teamA,'DELETE')).status).toBe(204);
  expect((await request('/me/notifications/'+privateNotice.id+'/read',{},teamB,'PUT')).status).toBe(404);
  expect((await request('/me/messages/'+message.id+'/read',{},teamB,'PUT')).status).toBe(404);
  expect((await request('/me/notifications/'+privateNotice.id+'/read',{},teamA,'PUT')).status).toBe(204);
@@ -167,4 +175,26 @@ it('targets confirmed tournament teams, detects equal-count audience changes and
  expect((await request('/me/notifications/'+notice.id+'/read',undefined,cookie,'DELETE')).status).toBe(204);
  await sql`update aevic_platform.tournament_registrations set status='pending' where tournament_id=${t.id}`;
  expect((await get()).teams).toHaveLength(0);
+});
+
+it('restricts automatic communication controls, validates tokens and preserves revisions',async()=>{
+ const path='/admin/messages/automation';
+ expect((await request(path)).status).toBeGreaterThanOrEqual(400);
+ const response=await request(path,undefined,admin);
+ expect(response.status).toBe(200);
+ const settings=await response.json();
+ expect(settings.rules).toHaveLength(12);
+ await sql`insert into aevic_platform.audit_events(actor_id,action,entity_type,entity_id,metadata)
+   values('system:communications','communication.reminder.failed','tournament','isolated',
+     '{"kind":"deadline","attempts":4,"status":"failed","retryAt":null}')`;
+ const updated=await (await request(path,undefined,admin)).json();
+ expect(updated.outcomes).toContainEqual(expect.objectContaining({kind:'deadline',channel:'in-app',status:'failed',attempts:4,retryAt:null}));
+ const rule=settings.rules.find((r:{kind:string})=>r.kind==='deadline');
+ const draft={enabled:rule.enabled,email:false,inApp:rule.inApp,leadMinutes:90,body:rule.body,revision:rule.revision};
+ expect((await request(path+'/deadline',{...draft,body:'{privateAddress}'},admin,'PUT')).status).toBe(422);
+ expect((await request(path+'/deadline',{...draft,email:true},admin,'PUT')).status).toBe(422);
+ expect((await request(path+'/deadline',draft,admin,'PUT')).status).toBe(204);
+ expect((await request(path+'/deadline',draft,admin,'PUT')).status).toBe(409);
+ const [rendered]=await sql`select aevic_platform.communication_text('{tournamentName} · {deadline}',${sql.json({tournamentName:'Cup {deadline}',deadline:'20:00'})}) as body`;
+ expect(rendered.body).toBe('Cup {deadline} · 20:00');
 });

@@ -31,6 +31,7 @@ import {createClient} from '@supabase/supabase-js';
 import {joinTournament,reviewEntry,checkIn,room,withdraw} from '../../server/platform/competition';
 import {createTournament,editTournament,saveResults,publishMatch} from '../../server/platform/tournaments';
 import {randomBytes} from 'node:crypto';
+import {processTournamentTimers} from '../../server/platform/automatic-communications';
 import {inspectAdminReset,consumeAdminReset} from '../../server/platform/admin-recovery';
 import {tokenDigest} from '../../server/platform/context';
 import {hashPassword,verifyPassword,makeSession} from '../../server/captain/crypto';
@@ -50,6 +51,10 @@ beforeAll(async()=>{
  command('psql',['-d',database,'-v','ON_ERROR_STOP=1','-f','supabase/tests/bootstrap.sql','-f','tests/fixtures/original-platform.sql',...readdirSync('supabase/migrations').filter(x=>x.endsWith('.sql')).sort().flatMap(x=>['-f',`supabase/migrations/${x}`])]);
  await sql.unsafe(`create role ${gateway} login nosuperuser bypassrls`);
  for(const schema of ['public','aevic','aevic_private','aevic_platform','storage']){await sql.unsafe(`grant usage on schema ${schema} to ${gateway}`);await sql.unsafe(`grant all on all tables in schema ${schema} to ${gateway}`);await sql.unsafe(`grant usage,select on all sequences in schema ${schema} to ${gateway}`);}
+ await sql.unsafe(`grant aevic_communications_backend to ${gateway}`);
+ await sql`select aevic_platform.set_communications_enabled(true)`;
+ await sql`update aevic_platform.communication_rollout set enabled_at=now()-interval '1 day'`;
+ await sql`update aevic_platform.communication_rules set lead_minutes=30 where kind='deadline'`;
  await sql`insert into aevic_platform.admin_accounts(id,email,role) values(${actor.adminId},'admin@example.invalid','super-admin')`;
  for(const id of [1,2,3])await sql`insert into public.teams(id,team_name,captain_name,captain_contact,email,password_hash,player1_ign,player2_ign,player3_ign,player4_ign,status) values(${id},${'Team '+id},'Captain','000000',${id+'@example.invalid'},'test-only','First','Second','Third','Fourth','approved')`;
  await sql`insert into aevic_platform.accounts(id,original_team_id,verification_required) select id,id,false from public.teams`;
@@ -737,4 +742,184 @@ it('commits shared authentication limits across app instances and simultaneous f
  const build=()=>{const app=new Hono<Env>();app.use('*',async(c,next)=>{c.set('config',{supabaseUrl:'https://fixture.test',publishableKey:'fixture',siteUrl:'http://localhost',secureCookies:false,sessionMode:'tokens',sessionSecret:'shared-rate-fixture-at-least-32-characters'});await next();});app.post('/attempt',async c=>{await persistentLimit(c,sql,'isolated-counter','private-fixture@example.invalid',1);return c.json({ok:true});});app.onError((e,c)=>c.json({},e instanceof ServiceError?e.status:500));return app;};
  const responses=await Promise.all([build().request('/attempt',{method:'POST'}),build().request('/attempt',{method:'POST'})]);expect(responses.map(r=>r.status).sort()).toEqual([200,429]);expect((await build().request('/attempt',{method:'POST'})).status).toBe(429);
  expect(JSON.stringify(await sql`select key from aevic_platform.authentication_limits`)).not.toContain('private-fixture@example.invalid');
+});
+
+async function communicationTeams(ids: number[]) {
+ for (const id of ids) {
+  await sql`insert into public.teams(id,team_name,email,password_hash,status,captain_name,captain_contact,
+    player1_ign,player2_ign,player3_ign,player4_ign)
+    values(${id},${'Fixture '+id},${id+'@example.invalid'},'test-only','approved','Captain','000','One','Two','Three','Four')`;
+  await sql`insert into aevic_platform.accounts(id,original_team_id,email_verified_at) values(${id},${id},now())`;
+  await sql`insert into aevic_platform.team_authority(team_id,account_id,role) values(${id},${id},'OWNER')`;
+ }
+}
+const eventRecipients = async (id: string, kind: string) =>
+ (await sql`select recipient_id::text from aevic_platform.notifications where system_tournament_id=${id}
+   and event_type=${kind} and recipient_id>=98000 and recipient_id<98100 order by recipient_id`).map(r=>r.recipient_id);
+
+it('reschedules deadlines and one-hour reminders and rechecks current team eligibility on each scan',async()=>{
+ await communicationTeams([98001,98002,98003,98004,98005,98006,98007]);
+ const timeline = (start: number, deadline: number) => ({
+  ...input(), maxSlots:12, startsAt:at(start), endsAt:at(start+90), registrationDeadline:at(deadline),
+  checkInOpensAt:at(deadline+1),checkInClosesAt:at(start-5),rounds:[{map:'Erangel' as const,startsAt:at(start+5)}]
+ });
+ const initial = timeline(55,15);
+ const {id}=await createTournament(sql,actor,initial,'scheduled-communication-fixture');
+ await sql`update aevic.tournaments set status='registration-open' where id=${id}`;
+ const [round] = await sql`select id from aevic.matches where tournament_id=${id}`;
+ const reschedule = async (start: number,deadline: number) => {
+  const timing=timeline(start,deadline);
+  const [current]=await sql`select updated_at from aevic.tournaments where id=${id}`;
+  await editTournament(sql,actor,id,{...timing,rounds:[{...timing.rounds[0],id:round.id}],status:'registration-open',
+    expectedUpdatedAt:current.updated_at.toISOString()});
+  return timing;
+ };
+ await joinTournament(sql,'98001',id);
+ await joinTournament(sql,'98001',id);
+ expect(await eventRecipients(id,'registration-received')).toEqual(['98001']);
+ expect(await eventRecipients(id,'registration-approved')).toEqual([]);
+ for(const team of ['98001','98002','98003','98005','98006','98007']) {
+  await joinTournament(sql,team,id);
+  if(team!=='98003' && team!=='98007')await reviewEntry(sql,actor,id,team,'confirmed');
+ }
+ await reviewEntry(sql,actor,id,'98001','confirmed'); // Replay existing approval
+ await reviewEntry(sql,actor,id,'98007','rejected','Rejected fixture');
+ await withdraw(sql,'98006',id,'Withdrew fixture');
+ await sql`update public.teams set status='banned' where id=98005`;
+ expect(await eventRecipients(id,'registration-approved')).toEqual(['98001','98002','98005','98006']);
+ expect(await eventRecipients(id,'registration-rejected')).toEqual(['98007']);
+ expect(await eventRecipients(id,'registration-withdrawn')).toEqual(['98006']);
+ await reschedule(250,185);
+ await processTournamentTimers(sql,true);
+ expect(await eventRecipients(id,'tournament-starting')).toEqual([]);
+ expect(await eventRecipients(id,'deadline')).toEqual([]);
+ const revised=await reschedule(57,25);
+ await sql`update aevic_platform.communication_rules set enabled=false where kind='tournament-starting'`;
+ try {await processTournamentTimers(sql,true);}
+ finally {await sql`update aevic_platform.communication_rules set enabled=true where kind='tournament-starting'`;}
+ expect(await eventRecipients(id,'tournament-starting')).toEqual([]);
+ // Rejected/withdrawn teams may reapply through joinTournament; only the
+ // never-registered team is asserted here so opt-out policy remains configurable.
+ expect(await eventRecipients(id,'deadline')).toContain('98004');
+ const [notice]=await sql`select body,action_href from aevic_platform.notifications where system_tournament_id=${id}
+   and event_type='deadline' and recipient_id=98004`;
+ const localTime=new Intl.DateTimeFormat('az-AZ',{timeZone:'Asia/Baku',dateStyle:'medium',timeStyle:'short'});
+ expect(notice.body).toContain(localTime.format(new Date(revised.registrationDeadline)));
+ expect(notice.action_href).toBe('/team/tournaments/'+id);
+ await sql`update aevic.tournaments set registration_deadline=now()-interval '5 minutes',check_in_opens_at=now()-interval '4 minutes' where id=${id}`;
+ await checkIn(sql,'98001',id);
+ await Promise.all([processTournamentTimers(sql,true),processTournamentTimers(sql,true)]);
+ expect(await eventRecipients(id,'check-in')).toEqual(['98002']);
+ expect(await eventRecipients(id,'tournament-starting')).toEqual(['98001','98002']);
+ const [start]=await sql`select body from aevic_platform.notifications where system_tournament_id=${id} and event_type='tournament-starting' limit 1`;
+ expect(start.body).toContain(localTime.format(new Date(revised.startsAt)));
+ await sql`update aevic_platform.communication_timers set next_scan_at=now() where tournament_id=${id}`;
+ await processTournamentTimers(sql,true);
+ expect(await eventRecipients(id,'check-in')).toEqual(['98002']);
+ expect(await eventRecipients(id,'tournament-starting')).toEqual(['98001','98002']);
+ await sql`update aevic.tournaments set status='cancelled' where id=${id}`;
+ expect(await sql`select kind from aevic_platform.communication_timers where tournament_id=${id}`).toHaveLength(0);
+});
+
+it('announces published rounds and the finalized winner, including a changed official winner once',async()=>{
+ await communicationTeams([98021,98022,98023]);
+ const timing={...input(),registrationDeadline:at(10),checkInOpensAt:at(11)};
+ const {id}=await createTournament(sql,actor,timing,'official-communications-fixture');
+ const [round]=await sql`select id from aevic.matches where tournament_id=${id}`;
+ await sql`update aevic.tournaments set status='registration-open' where id=${id}`;
+ for(const team of ['98021','98022']){
+  await joinTournament(sql,team,id);
+  await reviewEntry(sql,actor,id,team,'confirmed');
+ }
+ await sql`update aevic.tournaments set status='ongoing' where id=${id}`;
+ const [t]=await sql`select updated_at from aevic.tournaments where id=${id}`;
+ const complete={...timing,status:'completed' as const,expectedUpdatedAt:t.updated_at.toISOString(),rounds:[{...timing.rounds[0],id:round.id}]};
+ const rows=['98021','98022'].map((teamId,index)=>({tournamentId:id,roundId:round.id,teamId,placement:index+1,finishes:4}));
+ await saveResults(sql,actor,round.id,rows);
+ await expect(editTournament(sql,actor,id,complete)).rejects.toMatchObject({code:'UNPUBLISHED_ROUNDS'});
+ expect(await eventRecipients(id,'map-result')).toEqual([]);
+ expect(await eventRecipients(id,'champion')).toEqual([]);
+ await publishMatch(sql,actor,round.id);
+ await publishMatch(sql,actor,round.id);
+ expect(await eventRecipients(id,'map-result')).toEqual(['98021','98022']);
+ expect(await eventRecipients(id,'champion')).toEqual([]);
+ await editTournament(sql,actor,id,complete,'finalize-communication-once');
+ await editTournament(sql,actor,id,complete,'finalize-communication-once');
+ expect(await eventRecipients(id,'champion')).toEqual(['98021']);
+ const app=new Hono<Env>();
+ app.use('*',async(c,next)=>{c.set('platform',new PlatformRepository(client,sql,actor));await next();});
+ app.route('/',staffRoutes);
+ const [first]=await sql`select id from aevic_platform.team_match_results where team_id=98021 and match_id=${round.id}`;
+ const endpoint='/admin/results/'+first.id;
+ const correct=async (penalties:number,key:string) => {
+  const {version,...result}=await (await app.request(endpoint)).json();
+  const options={method:'POST',headers:{'content-type':'application/json','idempotency-key':key},
+    body:JSON.stringify({expectedVersion:version,reason:'Official penalty adjustment',result:{...result,penalties}})};
+  expect((await app.request(endpoint+'/corrections',options)).status).toBe(200);
+  expect((await app.request(endpoint+'/corrections',options)).status).toBe(200);
+ };
+ await correct(1,'unchanged-official-winner');
+ expect(await eventRecipients(id,'champion')).toEqual(['98021']);
+ await correct(10,'updated-official-winner');
+ expect(await eventRecipients(id,'champion')).toEqual(['98021','98022']);
+ expect(await sql`select account_id::text from aevic_platform.communication_email where tournament_id=${id} and kind='champion' order by account_id`)
+  .toEqual([{account_id:'98021'},{account_id:'98022'}]);
+});
+
+it('isolates reminder failures, records bounded retries and recovers without duplicate delivery',async()=>{
+ await communicationTeams([98031]);
+ await sql`update aevic_platform.communication_rules set lead_minutes=15 where kind='deadline'`;
+ const timing={...input(),startsAt:at(55),endsAt:at(120),registrationDeadline:at(10),checkInOpensAt:at(11),checkInClosesAt:at(50),rounds:[{map:'Erangel' as const,startsAt:at(60)}]};
+ const {id}=await createTournament(sql,actor,timing,'reminder-retry-fixture');
+ await sql`update aevic.tournaments set status='registration-open' where id=${id}`;
+ // Fail only this tournament's delivery, after it has entered the real worker.
+ await sql.unsafe(`create function aevic_platform.reject_test_reminder() returns trigger language plpgsql as $$ begin
+   if new.system_tournament_id='${id}' then raise exception 'isolated reminder failure'; end if; return new; end $$;
+   create trigger reject_test_reminder before insert on aevic_platform.notifications for each row execute function aevic_platform.reject_test_reminder()`);
+ try {
+  await expect(processTournamentTimers(sql,true)).resolves.toBeGreaterThan(0);
+  const timer=async()=> (await sql`select failure_attempts,next_scan_at>now() as deferred from aevic_platform.communication_timers where tournament_id=${id} and kind='deadline'`)[0];
+  expect(await timer()).toEqual({failure_attempts:1,deferred:true});
+  expect(await eventRecipients(id,'deadline')).toEqual([]);
+  await sql`alter table aevic_platform.notifications disable trigger reject_test_reminder`;
+  await sql`update aevic_platform.communication_timers set next_scan_at=now() where tournament_id=${id}`;
+  await processTournamentTimers(sql,true);
+  expect(await timer()).toEqual({failure_attempts:0,deferred:true});
+  expect(await eventRecipients(id,'deadline')).toContain('98031');
+  await sql`alter table aevic_platform.notifications enable trigger reject_test_reminder`;
+  for(let attempt=1;attempt<=4;attempt++) {
+   await sql`update aevic_platform.communication_timers set next_scan_at=now() where tournament_id=${id}`;
+   await processTournamentTimers(sql,true);
+   expect((await timer()).failure_attempts).toBe(attempt);
+  }
+  await sql`update aevic_platform.communication_timers set next_scan_at=now() where tournament_id=${id}`;
+  await processTournamentTimers(sql,true);
+  expect((await timer()).failure_attempts).toBe(4);
+  const failures=await sql`select metadata from aevic_platform.audit_events where actor_id='system:communications'
+    and entity_id=${id} and metadata->>'kind'='deadline' order by created_at,id`;
+  expect(failures).toHaveLength(5);
+  expect(failures.at(-1)!.metadata).toMatchObject({attempts:4,status:'failed'});
+ } finally {
+  await sql`drop trigger reject_test_reminder on aevic_platform.notifications`;
+  await sql`drop function aevic_platform.reject_test_reminder()`;
+ }
+});
+
+it('rejects reminder windows from before activation and expired catch-up windows',async()=>{
+ await communicationTeams([98041]);
+ await sql`update aevic_platform.communication_rollout set enabled_at=clock_timestamp()`;
+ const timing={...input(),startsAt:at(55),endsAt:at(120),registrationDeadline:at(10),checkInOpensAt:at(11),checkInClosesAt:at(50),rounds:[{map:'Erangel' as const,startsAt:at(60)}]};
+ const {id}=await createTournament(sql,actor,timing,'activation-window-fixture');
+ await sql`update aevic.tournaments set status='registration-open' where id=${id}`;
+ await joinTournament(sql,'98041',id);
+ await reviewEntry(sql,actor,id,'98041','confirmed');
+ await processTournamentTimers(sql,true);
+ expect(await eventRecipients(id,'tournament-starting')).toEqual([]);
+ await sql`update aevic_platform.communication_rollout set enabled_at=now()-interval '1 day'`;
+ await sql`update aevic.tournaments set starts_at=now()+interval '45 minutes',check_in_closes_at=now()+interval '40 minutes' where id=${id}`;
+ await processTournamentTimers(sql,true);
+ expect(await eventRecipients(id,'tournament-starting')).toEqual([]);
+ await sql`update aevic.tournaments set starts_at=now()+interval '59 minutes' where id=${id}`;
+ await processTournamentTimers(sql,true);
+ expect(await eventRecipients(id,'tournament-starting')).toEqual(['98041']);
 });

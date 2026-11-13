@@ -1,3 +1,8 @@
+import { normalizeNotificationPreferences, notificationEventLabels } from '../../utils/notificationPreferences';
+import { NotificationInbox } from './NotificationCenterPage';
+import { useProtectedSession } from '../../layouts/ProtectedRoute';
+import { usePlatformQuery, updateCachedQuery } from '../../services/queryCache';
+import type { CursorPage, Notification } from '../../types/domain';
 import { useEffect,useState } from "react";
 import "../../app/workspaceStyles";
 import {
@@ -5,7 +10,6 @@ Button,
 Checkbox,
 EmptyState,
 LoadingSkeleton,
-PageHeader,
 SectionHeading,
 Toast
 } from "../../components/common/primitives";
@@ -15,13 +19,25 @@ NotificationPreferences
 } from "../../types/domain";
 
 export function AccountNotificationsPage() {
+  const session = useProtectedSession();
+  const key = 'account:notifications:' + session?.user.id + ':' + (session?.user.teamId ?? '');
+  const page = usePlatformQuery({ key, query: () => services.notifications.page() });
+  return <>
+    {page.data ? <NotificationInbox key={key} initialItems={page.data.items} initialCursor={page.data.nextCursor}
+      onUpdate={patch => updateCachedQuery<CursorPage<Notification>>(key, value => ({ ...value, items: value.items.map(patch) }))} />
+      : page.error ? <p role="alert">Bildirişlər yüklənmədi. <Button variant="ghost" onClick={page.refetch}>Yenidən cəhd et</Button></p> : <LoadingSkeleton variant="form" rows={3}/>}
+    <NotificationSettings />
+  </>;
+}
+
+function NotificationSettings() {
   const [preferences, setPreferences] = useState<NotificationPreferences>();
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
     services.notifications
       .preferences()
-      .then(setPreferences)
+      .then(value => setPreferences(normalizeNotificationPreferences(value)))
       .catch(() => setError("Bildiriş seçimləri yüklənmədi."));
   }, []);
   if (error && !preferences)
@@ -47,11 +63,6 @@ export function AccountNotificationsPage() {
   };
   return (
     <>
-      <PageHeader
-        eyebrow="Bildiriş seçimləri"
-        title="Bildiriş seçimləri"
-        description="Sistem hadisələri admin mesajlarından ayrıdır. E-poçt və push bildirişləri üçün çatdırılma xidməti tələb olunur."
-      />
       {saved && (
         <Toast
           title="Bildiriş seçimləri saxlanıldı"
@@ -60,7 +71,7 @@ export function AccountNotificationsPage() {
       )}
       {error && <p role="alert">{error}</p>}
       <section className="notification-settings">
-        <SectionHeading title="Kanallar" />
+        <SectionHeading title="Bildiriş seçimləri" />
         <Checkbox
           label="Tətbiqdaxili bildirişlər"
           checked={preferences.channels["in-app"]}
@@ -75,8 +86,7 @@ export function AccountNotificationsPage() {
           }
         />
         <Checkbox
-          label="E-poçt bildirişləri (xidmət tələb olunur)"
-          disabled
+          label="Çempionluq məktubları"
           checked={preferences.channels.email}
           onChange={() =>
             setPreferences({
@@ -103,13 +113,7 @@ export function AccountNotificationsPage() {
           }
         />
         <SectionHeading title="Hadisələr" />
-        {[
-          ["checkIn", "Check-in açıldıqda"],
-          ["roomRelease", "Otaq məlumatı yayımlandıqda"],
-          ["results", "Nəticə dərc edildikdə"],
-          ["roster", "Heyət sorğusu dəyişdikdə"],
-          ["achievements", "Nişan qazanıldıqda"],
-        ].map(([key, label]) => (
+        {Object.entries(notificationEventLabels).map(([key, label]) => (
           <Checkbox
             key={key}
             label={label}

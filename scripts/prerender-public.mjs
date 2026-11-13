@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
-import { buildConfiguration, contentSecurityPolicy, loadRouteManifest } from './build-config.mjs';
+import { buildConfiguration, contentSecurityPolicy, loadRouteManifest, loadSeoSchema } from './build-config.mjs';
 import { prerenderHome } from './prerender-home.mjs';
 
 const dist = resolve('dist');
@@ -22,6 +22,7 @@ const routes = routeManifest.filter((route) => route.path !== '*');
 const escapeHtml = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const image = canonicalOrigin ? new URL('/brand/aevic-phoenix.jpg', canonicalOrigin).href : '/brand/aevic-phoenix.jpg';
 const homeMarkup = await prerenderHome();
+const { publicStructuredData, serializeStructuredData } = await loadSeoSchema();
 for (const route of [...routes, routeManifest.find((item) => item.path === '*')]) {
   const title = route.title.includes('AEVIC') ? route.title : route.title + ' | AEVIC Esports';
   const canonical = canonicalOrigin && route.indexable && !route.path.includes(':') ? new URL(route.path, canonicalOrigin).href : '';
@@ -35,7 +36,7 @@ for (const route of [...routes, routeManifest.find((item) => item.path === '*')]
     .replace('<div id="root"></div>', '<div id="root"><main class="prerender-shell"><p>AEVIC ESPORTS</p><h1>' + escapeHtml(title) + '</h1><p>' + escapeHtml(description) + '</p><nav aria-label="AEVIC səhifələri"><a href="/tournaments">Turnirlər</a> <a href="/teams">Komandalar</a> <a href="/regulations">Yarış bələdçisi</a></nav></main></div>');
   const metadata = '<meta name="robots" content="' + (indexableDeployment && (route.indexable || crawlableEntityRouteIds.has(route.id)) ? 'index,follow' : 'noindex,follow') + '"><meta name="twitter:title" content="' + escapeHtml(title) + '"><meta name="twitter:description" content="' + escapeHtml(description) + '"><meta name="twitter:image" content="' + escapeHtml(image) + '">' + (canonical ? '<link rel="canonical" href="' + escapeHtml(canonical) + '"><meta property="og:url" content="' + escapeHtml(canonical) + '">' : '');
   if (route.path === '/') html = html.replace(/<div id="root">[\s\S]*?<\/main><\/div>/, '<div id="root" data-prerender="home">' + homeMarkup + '</div>');
-  const structured = indexableDeployment && route.indexable ? '<script type="application/ld+json">' + JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebSite', name: 'AEVIC Esports', url: canonicalOrigin, inLanguage: 'az' }).replaceAll('<', '\\u003c') + '</script>' : '';
+  const structured = indexableDeployment && canonical ? '<script id="aevic-public-schema" type="application/ld+json">' + serializeStructuredData(publicStructuredData(canonical, title, description)) + '</script>' : '';
   html = html.replace('</head>', metadata + structured + '</head>');
   const output = route.path === '*' ? resolve(dist, '404.html') : route.path === '/' ? resolve(dist, 'index.html') : route.path.includes(':') ? resolve(dist, '_route-shells', route.id + '.html') : resolve(dist, route.path.slice(1), 'index.html');
   mkdirSync(dirname(output), { recursive: true }); writeFileSync(output, html);

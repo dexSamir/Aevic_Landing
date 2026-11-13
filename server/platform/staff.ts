@@ -1,3 +1,4 @@
+import {congratulateWinner,emitTeamEvent} from './automatic-communications';
 import { scoreMatch } from '../../src/utils/scoring';
 import {captureStandings} from './standings';
 import {Hono} from 'hono';
@@ -32,7 +33,8 @@ app.post('/admin/tournaments/:id/slot-assignment',async c=>{
   if(roster.length<4)throw new ServiceError(422,'ROSTER_INCOMPLETE');
   const [saved]=await tx`insert into aevic_platform.tournament_registrations(tournament_id,team_id,status,slot_number,roster_lock_at,roster,reason) values(${id},${input.teamId},'confirmed',${input.slotNumber},${t.registration_deadline},${tx.json(roster)},${input.reason}) on conflict(tournament_id,team_id) do update set status='confirmed',slot_number=excluded.slot_number,reason=excluded.reason,roster=case when aevic_platform.tournament_registrations.status in ('pending','confirmed') then aevic_platform.tournament_registrations.roster else excluded.roster end,updated_at=now() returning id`;
   await audit(tx,actor(c),'slot.assign','registration',saved.id,{teamId:input.teamId,slotNumber:input.slotNumber,previousSlot:input.expectedSlotNumber,reason:input.reason});
-  await notifyTeams(tx,[input.teamId],'Turnir slotu təyin edildi',t.name+' · Slot '+input.slotNumber,'/team/tournaments/'+id);return{id:saved.id};
+  if(entry?.status!=='confirmed')await emitTeamEvent(tx,'registration-approved',saved.id+':'+t.server_now.toISOString(),[input.teamId],{id,name:t.name});
+  else await notifyTeams(tx,[input.teamId],'Turnir slotu təyin edildi',t.name+' · Slot '+input.slotNumber,'/team/tournaments/'+id);return{id:saved.id};
  });return c.body(null,204);
 });
 app.post('/admin/tournaments/:id/check-in-correction',async c=>{
@@ -82,6 +84,7 @@ app.post('/admin/results/:id/corrections',async c=>{
   const entries=await tx`select team_id::text from aevic_platform.tournament_registrations where tournament_id=${t.id} and status='confirmed'`;
   await notifyTeams(tx,entries.map(e=>e.team_id),'Nəticə düzəldildi',input.reason,`/team/tournaments/${t.id}`,'map-result');
   await captureStandings(tx,t.id,m.id,'correction');
+  if(t.status==='completed')await congratulateWinner(tx,{id:t.id,name:t.name});
   await audit(tx,actor(c),'result.correct','result',id,{reason:input.reason,version:r.version+1});return {...roundResult(updated),version:r.version+1};
  });return c.json(result);
 });

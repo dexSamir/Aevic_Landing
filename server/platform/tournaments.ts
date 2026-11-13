@@ -1,5 +1,6 @@
 import { roundsTooClose } from '../../src/utils/matchScheduling';
 import { internationalFormula, scoreMatch } from '../../src/utils/scoring';
+import {congratulateWinner,emitTeamEvent} from './automatic-communications';
 import {captureStandings} from './standings';
 import {z} from 'zod';
 import type {Sql,TransactionSql} from 'postgres';
@@ -52,6 +53,7 @@ export async function editTournament(sql:Sql,actor:Actor,id:string,input:z.infer
  await audit(tx,actor,'tournament.update','tournament',id,{status:input.status});
  const entries=await tx`select team_id::text from aevic_platform.tournament_registrations where tournament_id=${id} and status in ('pending','confirmed')`;
  await notifyTeams(tx,entries.map(e=>e.team_id),'Turnir yeniləndi',input.name,`/team/tournaments/${id}`);
+ if(input.status==='completed')await congratulateWinner(tx,{id,name:input.name});
  return {id};
 };return key ? idempotent(sql,actor,key,'tournament.update',{id,...input},work) : transaction(sql,work);}
 export const resultInput=z.object({id:z.string().optional(),tournamentId:z.uuid(),roundId:z.uuid(),teamId:z.string().regex(/^[1-9]\d{0,18}$/),placement:z.number().int().min(1).max(100),finishes:z.number().int().min(0).max(400),placementPoints:z.number().nonnegative(),finishPoints:z.number().nonnegative(),penalties:z.number().nonnegative().max(1000),totalPoints:z.number(),notes:text(0,3000).optional(),published:z.boolean()}).strict();
@@ -105,7 +107,7 @@ export async function publishMatch(sql:Sql,actor:Actor,matchId:string){return tr
  if(new Set(results.map(r=>r.placement)).size!==results.length)throw new ServiceError(409,'DUPLICATE_PLACEMENT');
  await tx`update aevic_platform.team_match_results set published=true,updated_at=now() where match_id=${matchId}`;
  await tx`update aevic.matches set published_at=now(),status='completed',dispute_deadline_at=now()+${t.dispute_duration_minutes}*interval '1 minute',updated_at=now() where id=${matchId}`;
- await notifyTeams(tx,entries.map(e=>e.team_id),'Nəticələr dərc edildi',`${t.name} · ${m.round}. raund`,`/team/tournaments/${m.tournament_id}`,'map-result');
- await captureStandings(tx,m.tournament_id,matchId,'publication');
+ const publication=await captureStandings(tx,m.tournament_id,matchId,'publication');
+ await emitTeamEvent(tx,'map-result',publication,entries.map(e=>e.team_id),{id:t.id,name:t.name},{roundName:m.round+'. raund'});
  await audit(tx,actor,'results.publish','match',matchId);
 });}

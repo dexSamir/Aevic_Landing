@@ -11,7 +11,7 @@ export type RoomReleaseStatus = 'locked' | 'released' | 'expired';
 export type NotificationChannel = 'in-app' | 'email' | 'push';
 export type NotificationSeverity = 'info' | 'success' | 'warning' | 'critical';
 export type CompetitionEventPriority = 'critical' | 'important' | 'informational';
-export type CompetitionEventType = 'admin-message' | 'registration' | 'schedule' | 'check-in' | 'room' | 'match' | 'map-result' | 'tournament-result' | 'placement' | 'dispute' | 'roster' | 'tournament' | 'system';
+export type CompetitionEventType = 'welcome' | 'team-welcome' | 'welcome-back' | 'registration-received' | 'registration-approved' | 'registration-rejected' | 'registration-withdrawn' | 'tournament-starting' | 'deadline' | 'champion' | 'admin-message' | 'registration' | 'schedule' | 'check-in' | 'room' | 'match' | 'map-result' | 'tournament-result' | 'placement' | 'dispute' | 'roster' | 'tournament' | 'system';
 export type CompetitionEventEntityType = 'tournament' | 'match' | 'round' | 'message' | 'result' | 'dispute' | 'team';
 export type TournamentStage = 'qualifier' | 'group' | 'semifinal' | 'final';
 export type SharecardPeriod = '7d' | '30d' | '3m' | '6m' | 'all' | 'tournament';
@@ -944,6 +944,7 @@ export interface PlayerPerformance {
 }
 
 export interface Notification {
+  important?: boolean;
   tournamentId?: string;
   tournamentName?: string;
   senderAlias?: string;

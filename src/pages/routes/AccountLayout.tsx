@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { NotificationOverlayContext } from '../../layouts/NotificationOverlayContext';
 import { useProtectedSession } from '../../layouts/ProtectedRoute';
 import { services } from '../../services';
 import { usePlatformQuery } from '../../services/queryCache';
@@ -10,10 +12,11 @@ import { RouteTransitionOutlet } from "../../components/common/Motion";
 import { RouteSeo } from "../../components/common/Seo";
 import { accountLinks } from './AccountPagesShared';
 export function AccountLayout() {
+  const [sheetOpen, setSheetOpen] = useState(false);
   const session = useProtectedSession();
   const team = usePlatformQuery({ key: `account:team:${session?.user.id}`, query: () => services.teams.current(), enabled: Boolean(session && ['captain', 'team'].includes(session.role)), retry: 0 });
   return (
-    <div className="account-shell">
+    <NotificationOverlayContext.Provider value={setSheetOpen}><div className="account-shell">
       <RouteSeo />
       <SkipLink target="account-content" />
       <aside>
@@ -38,7 +41,7 @@ export function AccountLayout() {
       <main id="account-content">
         <RouteTransitionOutlet family="account" />
       </main>
-      <MobileBottomNav session={session} team={team.data} />
-    </div>
+      <MobileBottomNav concealed={sheetOpen} session={session} team={team.data} />
+    </div></NotificationOverlayContext.Provider>
   );
 }

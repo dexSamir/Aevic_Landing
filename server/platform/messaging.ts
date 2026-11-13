@@ -52,6 +52,49 @@ async function profile(sql: Sql | TransactionSql, owner: string) {
     canBrand: row.role === 'super-admin',
   };
 }
+app.get('/admin/messages/automation',async c=>{
+  admin(c,sendRoles);
+  const sql=platform(c).sql;
+  const rules=await sql`select kind,title,body,enabled,in_app as "inApp",email,lead_minutes as "leadMinutes",revision
+    from aevic_platform.communication_rules order by kind`;
+  const outcomes=await sql`select * from (
+    (select event_type as kind,'in-app' as channel,'sent' as status,1 as attempts,created_at as at,id as reference,null::timestamptz as "retryAt" from aevic_platform.notifications
+      where system_key is not null order by created_at desc limit 25)
+    union all
+    (select kind,'email',status,attempts,updated_at,id,next_attempt_at from aevic_platform.communication_email where status='pending' order by updated_at desc limit 25)
+    union all
+    (select e.kind,'email',a.status,a.attempt,a.recorded_at,e.id,case when a.status='retry' and e.status='retry' and a.attempt=e.attempts then e.next_attempt_at end from aevic_platform.communication_email_attempts a
+      join aevic_platform.communication_email e on e.id=a.email_id order by a.recorded_at desc limit 25)
+    union all
+    (select metadata->>'kind','in-app',metadata->>'status',(metadata->>'attempts')::integer,created_at,id,
+      (metadata->>'retryAt')::timestamptz from aevic_platform.audit_events
+      where actor_id='system:communications' and action='communication.reminder.failed' order by created_at desc limit 25)
+    ) recent order by at desc limit 40`;
+  return c.json({rules,outcomes,canEdit:actor(c).role==='super-admin'});
+});
+app.put('/admin/messages/automation/:kind',async c=>{
+  admin(c,['super-admin']);
+  const kind=c.req.param('kind');
+  const input=await body(c,z.object({revision:z.number().int().positive(),enabled:z.boolean(),inApp:z.boolean(),
+    email:z.boolean(),leadMinutes:z.number().int().positive().nullable(),body:text(1,1500)}).strict());
+  return transaction(platform(c).sql,async tx=>{
+    const [rule]=await tx`select * from aevic_platform.communication_rules where kind=${kind} for update`;
+    if(!rule)throw new ServiceError(404,'NOT_FOUND');
+    if(input.revision!==rule.revision)throw new ServiceError(409,'STALE_VERSION');
+    const tokens=(template:string)=>[...template.matchAll(/\{([a-zA-Z]+)\}/g)].map(match=>match[1]);
+    const required=tokens(rule.body);
+    if(/[{}]/.test(input.body.replace(/\{[a-zA-Z]+\}/g,''))||tokens(input.body).some(token=>!required.includes(token))||
+      required.some(token=>!tokens(input.body).includes(token)))throw new ServiceError(422,'INVALID_TEMPLATE');
+    if(input.email&&!['welcome','champion'].includes(kind))throw new ServiceError(422,'INVALID_CHANNEL');
+    const range=kind==='welcome-back'?[1440,525600]:[5,1440];
+    if((rule.lead_minutes===null)!==(input.leadMinutes===null)||input.leadMinutes!==null&&
+      (input.leadMinutes<range[0]||input.leadMinutes>range[1]))throw new ServiceError(422,'INVALID_TIMING');
+    await tx`update aevic_platform.communication_rules set enabled=${input.enabled},in_app=${input.inApp},email=${input.email},
+      lead_minutes=${input.leadMinutes},body=${input.body},revision=revision+1 where kind=${kind}`;
+    await audit(tx,actor(c),'communication.rule.update','communication',kind,{revision:input.revision+1});
+    return c.body(null,204);
+  });
+});
 app.get('/admin/profile/alias', async (c) => c.json(await profile(platform(c).sql, admin(c))));
 app.put('/admin/profile/alias', async (c) => {
   const owner = admin(c),

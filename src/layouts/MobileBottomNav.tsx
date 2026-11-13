@@ -11,7 +11,7 @@ import type { Team } from '../types/domain';
 import './mobile-bottom-nav.css';
 
 type Session = Awaited<ReturnType<typeof services.auth.getSession>>;
-type Props = { session: Session | undefined; team?: Team; loading?: boolean; refresh?: () => void; navigation?: typeof publicNavigation.primary };
+type Props = { concealed?: boolean; session: Session | undefined; team?: Team; loading?: boolean; refresh?: () => void; navigation?: typeof publicNavigation.primary };
 const icons = [House, Trophy, Users, Swords];
 const inFamily = (path: string, root: string) => path === root || path.startsWith(`${root}/`);
 
@@ -21,7 +21,7 @@ export function PublicMobileBottomNav() {
 }
 
 /** Identity comes from the layout's existing session and active workspace. */
-export function MobileBottomNav({ session, team, loading, refresh, navigation=publicNavigation.primary }: Props) {
+export function MobileBottomNav({ concealed = false, session, team, loading, refresh, navigation=publicNavigation.primary }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -59,7 +59,7 @@ export function MobileBottomNav({ session, team, loading, refresh, navigation=pu
     finally { setBusy(false); }
   };
 
-  return <div className="mobile-nav-slot">
+  return <div className="mobile-nav-slot" data-concealed={concealed || undefined} inert={concealed} aria-hidden={concealed || undefined}>
     <div className="mobile-nav" ref={root} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
       {open && <nav id={menuId} ref={panel} className="mobile-profile-panel" aria-label="Hesab əməliyyatları" onClick={event => { if ((event.target as HTMLElement).closest('a')) setOpen(false); }}>
         <strong>{identity}</strong>

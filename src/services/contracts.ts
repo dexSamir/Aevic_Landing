@@ -279,6 +279,7 @@ export interface NotificationService {
   preferences(): Promise<NotificationPreferences>;
   updatePreferences(value: NotificationPreferences): Promise<NotificationPreferences>;
   markRead(id: string, read?:boolean): Promise<void>;
+  setImportant(id: string, important: boolean): Promise<void>;
   markAllRead(): Promise<void>;
   page(cursor?: string): Promise<CursorPage<Notification>>;
 }
@@ -330,7 +331,12 @@ export interface VerificationService {
   review(id: string, status: Extract<VerificationStatus, 'APPROVED' | 'REJECTED' | 'REVOKED'>, reason: string, expectedStatus: VerificationStatus): Promise<VerificationRequest>;
 }
 
+export interface CommunicationRule {
+  kind:string; title:string; body:string; enabled:boolean; inApp:boolean; email:boolean; leadMinutes:number|null; revision:number;
+}
 export interface AdminService {
+  automation():Promise<{rules:CommunicationRule[];outcomes:{kind:string;channel:string;status:string;attempts:number;at:string;reference:string;retryAt:string|null}[];canEdit:boolean}>;
+  updateAutomation(kind:string,rule:Omit<CommunicationRule,'kind'|'title'>):Promise<void>;
   publicSettings(): Promise<{branding?:Branding;supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}>;
   settings(): Promise<{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}>;
   updateSettings(input:{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}): Promise<{supportEmail:string;registrationEnabled:boolean;maintenanceMessage:string}>;

@@ -72,7 +72,7 @@ export function platformMiddleware(testSql?:Sql){
    }catch(error){if(error instanceof ServiceError&&['SESSION_REVOKED','MFA_REQUIRED'].includes(error.code)&&!c.req.path.startsWith('/api/auth/'))throw error;
     if(!(error instanceof ServiceError&&error.status===401))throw error;}
   }
-  const personalReadReceipt=/^\/api\/me\/(?:messages\/[^/]+\/read|notifications\/(?:[^/]+\/read|read-all))$/.test(c.req.path);
+  const personalReadReceipt=/^\/api\/me\/(?:messages\/[^/]+\/read|notifications\/(?:[^/]+\/(?:read|important)|read-all))$/.test(c.req.path);
   const writing=!['GET','HEAD','OPTIONS'].includes(c.req.method);
   if(identity.accountId&&writing&&!personalReadReceipt&&(workspaceRequest(c.req.path)||/^\/api\/(team-invitations|organizations|organization-invitations|players|me\/legacy-claims)(\/|$)/.test(c.req.path)))await requireVerifiedEmail(sql,identity.accountId);
   if(identity.accountId&&workspaceRequest(c.req.path)){

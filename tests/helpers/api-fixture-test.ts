@@ -32,7 +32,7 @@ export async function installApiFixtures(page:Page){
     else if(key==='GET /archive')value=await s.archive.seasons();
     else if(key==='GET /search')value=await s.search.public(q.get('q')??'');
     else if(key==='GET /matches')value=q.get('status')==='completed'?await s.publicMatches.history():await s.publicMatches.schedule();
-    else if(key==='GET /me/notifications')value=await s.notifications.inbox();
+    else if(key==='GET /me/notifications')value=q.has('page')?await s.notifications.page():await s.notifications.inbox();
     else if(key==='GET /me/messages')value=(await s.snapshots.team()).adminMessages;
     else if(key==='GET /me/notification-preferences')value=await s.notifications.preferences();
     else if(key==='PUT /me/notification-preferences')value=await s.notifications.updatePreferences(body);
